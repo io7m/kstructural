@@ -17,6 +17,7 @@
 package com.io7m.kstructural.parser
 
 import java.util.ArrayDeque
+import java.util.ArrayList
 import java.util.Deque
 import java.util.Optional
 
@@ -106,17 +107,33 @@ sealed class KSParseResult<A : Any> {
 
     fun <A : Any, B : Any> map(
       f : (A) -> KSParseResult<B>, xs : List<A>) : KSParseResult<List<B>> {
-      val rs = xs.map(f)
-      var current = KSParseResult.succeed(listOf<B>())
-      val max = rs.size - 1
+
+      var fail = false
+      val out = ArrayList<B>(xs.size)
+      val err = ArrayDeque<KSParseError>(xs.size)
+      val max = xs.size - 1
       for (i in 0 .. max) {
-        current = current flatMap { bs ->
-          rs[i] flatMap { b ->
-            KSParseResult.succeed(bs.plus(b))
+        val r = f(xs[i])
+        when (r) {
+          is KSParseSuccess -> {
+            out.add(r.result)
+          }
+          is KSParseFailure -> {
+            fail = true
+            if (r.partial.isPresent) {
+              out.add(r.partial.get())
+            }
+            err.addAll(r.errors)
           }
         }
       }
-      return current
+
+      return if (fail) {
+        KSParseFailure(Optional.of(out as List<B>), err)
+      } else {
+        KSParseSuccess(out)
+      }
     }
+
   }
 }

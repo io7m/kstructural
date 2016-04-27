@@ -137,7 +137,7 @@ abstract class KSBlockParserContract {
     val e = pp.p.parse(pp.s.invoke())
     e as KSParseFailure<KSBlock.KSBlockSubsection<*>>
 
-    Assert.assertFalse(e.partial.isPresent)
+    Assert.assertTrue(e.partial.isPresent)
     Assert.assertEquals(1, e.errors.size)
   }
 
