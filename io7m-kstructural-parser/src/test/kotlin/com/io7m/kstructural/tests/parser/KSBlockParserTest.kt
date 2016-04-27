@@ -21,12 +21,21 @@ import com.io7m.jsx.lexer.JSXLexer
 import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
 import com.io7m.jsx.parser.JSXParserConfiguration
+import com.io7m.kstructural.core.KSBlock
+import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.parser.KSBlockParser
+import com.io7m.kstructural.parser.KSBlockParserType
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSInlineParser
+import com.io7m.kstructural.parser.KSParseError
+import org.slf4j.LoggerFactory
 import java.io.StringReader
 
 class KSBlockParserTest : KSBlockParserContract() {
+
+  companion object {
+    private val LOG = LoggerFactory.getLogger(KSBlockParserTest::class.java)
+  }
 
   override fun newParserForString(text : String) : Parser {
     val lcb = JSXLexerConfiguration.newBuilder();
@@ -40,7 +49,25 @@ class KSBlockParserTest : KSBlockParserContract() {
     pcb.preserveLexicalInformation(true);
     val pc = pcb.build();
     val p = JSXParser.newParser(pc, lex);
-    return Parser(KSBlockParser.get(KSInlineParser), { KSExpression.of(p.parseExpression()) })
+    val bp = KSBlockParser.get(KSInlineParser)
+    val bpp = object: KSBlockParserType {
+      override fun parse(e : KSExpression) : KSResult<out KSBlock<Unit>, KSParseError> {
+        val r = bp.parse(e)
+        return when (r) {
+          is KSResult.KSSuccess -> {
+            LOG.debug("successfully parsed: {}", r.result)
+            r
+          }
+          is KSResult.KSFailure -> {
+            LOG.debug("failed to parse: {}", r.partial)
+            r.errors.map { k -> LOG.debug("error: {}", k.message) }
+            r
+          }
+        }
+      }
+    }
+
+    return Parser(bpp, { KSExpression.of(p.parseExpression()) })
   }
 
 }
