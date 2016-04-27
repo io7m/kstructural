@@ -17,6 +17,7 @@
 package com.io7m.kstructural.tests.parser
 
 import com.io7m.kstructural.core.KSBlock.KSBlockParagraph
+import com.io7m.kstructural.core.KSBlock.KSBlockPart
 import com.io7m.kstructural.core.KSBlock.KSBlockSection.KSBlockSectionWithContent
 import com.io7m.kstructural.core.KSBlock.KSBlockSection.KSBlockSectionWithSubsections
 import com.io7m.kstructural.core.KSBlock.KSBlockSubsection
@@ -425,5 +426,131 @@ abstract class KSBlockParserContract {
 
     e as KSFailure
     Assert.assertEquals(1, e.errors.size)
+  }
+
+  @Test fun testPartErrorEmpty()
+  {
+    val pp = newParserForString("[part]")
+
+    val e = pp.p.parse(pp.s.invoke())
+    e as KSFailure<KSBlockPart<*>, KSParseError>
+
+    Assert.assertFalse(e.partial.isPresent)
+    Assert.assertEquals(1, e.errors.size)
+  }
+
+  @Test fun testPartErrorWrongContent()
+  {
+    val pp = newParserForString("[part [title t] [part [title w]]]")
+
+    val e = pp.p.parse(pp.s.invoke())
+    e as KSFailure<KSBlockPart<*>, KSParseError>
+
+    Assert.assertTrue(e.partial.isPresent)
+    Assert.assertEquals(1, e.errors.size)
+  }
+
+  @Test fun testPartErrorWrongTitle()
+  {
+    val pp = newParserForString("[part [title x [term q]]]")
+
+    val e = pp.p.parse(pp.s.invoke())
+    e as KSFailure<KSBlockPart<*>, KSParseError>
+
+    Assert.assertTrue(e.partial.isPresent)
+    Assert.assertEquals(1, e.errors.size)
+  }
+
+  @Test fun testPart()
+  {
+    val pp = newParserForString("[part [title t] (section [title k] [paragraph p])]")
+    val e = pp.p.parse(pp.s.invoke())
+
+    e as KSSuccess<KSBlockPart<Unit>, KSParseError>
+    Assert.assertEquals("t", e.result.title[0].text)
+    Assert.assertEquals(Optional.empty<KSID<Unit>>(), e.result.id)
+    Assert.assertEquals(1, e.result.content.size)
+
+    val s = e.result.content[0] as KSBlockSectionWithContent
+    val t = s.title[0]
+    Assert.assertEquals("k", t.text)
+  }
+
+  @Test fun testPartID()
+  {
+    val pp = newParserForString("[part [title t] [id x] (section [title k] [paragraph p])]")
+    val e = pp.p.parse(pp.s.invoke())
+
+    e as KSSuccess<KSBlockPart<Unit>, KSParseError>
+    Assert.assertEquals("t", e.result.title[0].text)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals(1, e.result.content.size)
+
+    val s = e.result.content[0] as KSBlockSectionWithContent
+    val t = s.title[0]
+    Assert.assertEquals("k", t.text)
+  }
+
+  @Test fun testPartIDType()
+  {
+    val pp = newParserForString("[part [title t] [id x] [type k] (section [title k] [paragraph p])]")
+    val e = pp.p.parse(pp.s.invoke())
+
+    e as KSSuccess<KSBlockPart<Unit>, KSParseError>
+    Assert.assertEquals("t", e.result.title[0].text)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals(1, e.result.content.size)
+
+    val s = e.result.content[0] as KSBlockSectionWithContent
+    val t = s.title[0]
+    Assert.assertEquals("k", t.text)
+  }
+
+  @Test fun testPartTypeID()
+  {
+    val pp = newParserForString("[part [title t] [type k] [id x] (section [title k] [paragraph p])]")
+    val e = pp.p.parse(pp.s.invoke())
+
+    e as KSSuccess<KSBlockPart<Unit>, KSParseError>
+    Assert.assertEquals("t", e.result.title[0].text)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals(1, e.result.content.size)
+
+    val s = e.result.content[0] as KSBlockSectionWithContent
+    val t = s.title[0]
+    Assert.assertEquals("k", t.text)
+  }
+
+  @Test fun testPartType()
+  {
+    val pp = newParserForString("[part [title t] [type k] (section [title k] [paragraph p])]")
+    val e = pp.p.parse(pp.s.invoke())
+
+    e as KSSuccess<KSBlockPart<Unit>, KSParseError>
+    Assert.assertEquals("t", e.result.title[0].text)
+    Assert.assertEquals(Optional.empty<KSID<Unit>>(), e.result.id)
+    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals(1, e.result.content.size)
+
+    val s = e.result.content[0] as KSBlockSectionWithContent
+    val t = s.title[0]
+    Assert.assertEquals("k", t.text)
+  }
+
+  @Test fun testPartContent()
+  {
+    val pp = newParserForString(
+      "[part (title t) (section [title k] [paragraph p])]")
+    val e = pp.p.parse(pp.s.invoke())
+
+    e as KSSuccess<KSBlockPart<Unit>, KSParseError>
+    Assert.assertEquals("t", e.result.title[0].text)
+    Assert.assertEquals(Optional.empty<KSID<Unit>>(), e.result.id)
+    Assert.assertEquals(1, e.result.content.size)
+    val s = e.result.content[0] as KSBlockSectionWithContent
+    val t = s.title[0]
+    Assert.assertEquals("k", t.text)
   }
 }
