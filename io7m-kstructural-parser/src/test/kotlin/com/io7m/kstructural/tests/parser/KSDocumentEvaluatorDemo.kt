@@ -16,13 +16,16 @@
 
 package com.io7m.kstructural.tests.parser
 
-import com.io7m.kstructural.core.KSResult.KSFailure
-import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.jeucreader.UnicodeCharacterReader
 import com.io7m.jsx.lexer.JSXLexer
 import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
 import com.io7m.jsx.parser.JSXParserConfiguration
+import com.io7m.kstructural.core.KSBlock
+import com.io7m.kstructural.core.KSDocument
+import com.io7m.kstructural.core.KSResult.KSFailure
+import com.io7m.kstructural.core.KSResult.KSSuccess
+import com.io7m.kstructural.core.evaluator.KSEvaluator
 import com.io7m.kstructural.parser.KSBlockParser
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSInlineParser
@@ -30,7 +33,7 @@ import java.io.FileInputStream
 import java.io.InputStreamReader
 import java.io.Reader
 
-object KSBlockParserDemo {
+object KSDocumentEvaluatorDemo {
 
   fun main(args : Array<String>) : Unit {
     val lcb = JSXLexerConfiguration.newBuilder()
@@ -46,32 +49,52 @@ object KSBlockParserDemo {
     val p = JSXParser.newParser(pc, lex)
     val bp = KSBlockParser.get(KSInlineParser)
 
-    var eof = false
-    while (!eof) {
-      val e_opt = p.parseExpressionOrEOF()
-      if (e_opt.isPresent) {
-        val r = bp.parse(KSExpression.of(e_opt.get()))
+    val e_opt = p.parseExpressionOrEOF()
+    if (e_opt.isPresent) {
+      val r = bp.parse(KSExpression.of(e_opt.get()))
+      when (r) {
+        is KSSuccess ->
+          evaluate(r.result)
+        is KSFailure -> {
+          for (a in r.errors) {
+            System.out.print("parse error: ")
+            a.position.ifPresent {
+              p -> System.out.print(p.toString() + ": ")
+            }
+            System.out.println(a.message)
+          }
+          r.partial.ifPresent { e -> System.out.println(e) }
+        }
+      }
+    }
+  }
 
-        when (r) {
+  private fun evaluate(result : KSBlock<Unit>) =
+    when (result) {
+      is KSBlock.KSBlockSection    -> TODO()
+      is KSBlock.KSBlockSubsection -> TODO()
+      is KSBlock.KSBlockParagraph  -> TODO()
+      is KSBlock.KSBlockPart       -> TODO()
+      is KSBlock.KSDocument        -> {
+
+        val rr = KSEvaluator.evaluate(result as KSDocument<Unit>)
+        when (rr) {
           is KSSuccess -> {
-            System.out.println(r.result)
+
           }
           is KSFailure -> {
-            for (a in r.errors) {
-              System.out.print("parse error: ")
+            for (a in rr.errors) {
+              System.out.print("evaluation error: ")
               a.position.ifPresent {
                 p -> System.out.print(p.toString() + ": ")
               }
               System.out.println(a.message)
             }
-            r.partial.ifPresent { e -> System.out.println(e) }
+            rr.partial.ifPresent { e -> System.out.println(e) }
           }
         }
-      } else {
-        eof = true
       }
     }
-  }
 
   private fun getReader(args : Array<String>) : Reader {
     if (args.size > 0) {
@@ -83,5 +106,5 @@ object KSBlockParserDemo {
 }
 
 fun main (args : Array<String>) : Unit {
-  KSBlockParserDemo.main(args)
+  KSDocumentEvaluatorDemo.main(args)
 }

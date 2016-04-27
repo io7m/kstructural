@@ -14,22 +14,22 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.parser
+package com.io7m.kstructural.core
 
 import java.util.ArrayDeque
 import java.util.ArrayList
 import java.util.Deque
 import java.util.Optional
 
-sealed class KSParseResult<A : Any> {
+sealed class KSResult<A : Any, E : Any> {
 
-  class KSParseSuccess<A : Any>(
-    val result : A) : KSParseResult<A>() {
+  class KSSuccess<A : Any, E : Any>(
+    val result : A) : KSResult<A, E>() {
 
     override fun equals(other : Any?) : Boolean {
       if (this === other) return true
       if (other?.javaClass != javaClass) return false
-      other as KSParseSuccess<*>
+      other as KSSuccess<*, *>
       return result == other.result
     }
 
@@ -37,18 +37,18 @@ sealed class KSParseResult<A : Any> {
       result.hashCode()
 
     override fun toString() : String {
-      return "[KSParseSuccess $result]"
+      return "[KSSuccess $result]"
     }
   }
 
-  class KSParseFailure<A : Any>(
+  class KSFailure<A : Any, E : Any>(
     val partial : Optional<A>,
-    val errors : Deque<KSParseError>) : KSParseResult<A>() {
+    val errors : Deque<E>) : KSResult<A, E>() {
 
     override fun equals(other : Any?) : Boolean {
       if (this === other) return true
       if (other?.javaClass != javaClass) return false
-      other as KSParseFailure<*>
+      other as KSFailure<*, *>
       return partial == other.partial
     }
 
@@ -56,69 +56,69 @@ sealed class KSParseResult<A : Any> {
       partial.hashCode()
 
     override fun toString() : String {
-      return "[KSParseFailure [$errors] [$partial]]"
+      return "[KSFailure [$errors] [$partial]]"
     }
   }
 
-  infix fun <B : Any> flatMap(f : (A) -> KSParseResult<B>) : KSParseResult<B> =
+  infix fun <B : Any> flatMap(f : (A) -> KSResult<B, E>) : KSResult<B, E> =
     flatMap (this, f)
 
   companion object {
 
-    fun <A : Any> succeed(x : A) : KSParseResult<A> =
-      KSParseSuccess(x)
+    fun <A : Any, E : Any> succeed(x : A) : KSResult<A, E> =
+      KSSuccess(x)
 
-    fun <A : Any> fail(e : KSParseError) : KSParseResult<A> {
-      val es = ArrayDeque<KSParseError>()
+    fun <A : Any, E : Any> fail(e : E) : KSResult<A, E> {
+      val es = ArrayDeque<E>()
       es.add(e)
-      return KSParseFailure(Optional.empty(), es)
+      return KSFailure(Optional.empty(), es)
     }
 
-    fun <A : Any> failPartial(x : A, e : KSParseError) : KSParseResult<A> {
-      val es = ArrayDeque<KSParseError>()
+    fun <A : Any, E : Any> failPartial(x : A, e : E) : KSResult<A, E> {
+      val es = ArrayDeque<E>()
       es.add(e)
-      return KSParseFailure(Optional.of(x), es)
+      return KSFailure(Optional.of(x), es)
     }
 
-    fun <A : Any, B : Any> flatMap(
-      x : KSParseResult<A>, f : (A) -> KSParseResult<B>) : KSParseResult<B> {
+    fun <A : Any, B : Any, E : Any> flatMap(
+      x : KSResult<A, E>, f : (A) -> KSResult<B, E>) : KSResult<B, E> {
       return when (x) {
-        is KSParseResult.KSParseSuccess -> {
+        is KSSuccess -> {
           return f(x.result)
         }
-        is KSParseResult.KSParseFailure ->
+        is KSFailure ->
           if (x.partial.isPresent) {
             val rr = f(x.partial.get())
             return when (rr) {
-              is KSParseResult.KSParseSuccess ->
-                KSParseFailure(Optional.of(rr.result), x.errors)
-              is KSParseResult.KSParseFailure -> {
-                val ed = ArrayDeque<KSParseError>()
+              is KSSuccess ->
+                KSFailure(Optional.of(rr.result), x.errors)
+              is KSFailure -> {
+                val ed = ArrayDeque<E>()
                 ed.addAll(x.errors)
                 ed.addAll(rr.errors)
-                KSParseFailure(rr.partial, ed)
+                KSFailure(rr.partial, ed)
               }
             }
           } else {
-            KSParseFailure(Optional.empty<B>(), x.errors)
+            KSFailure(Optional.empty<B>(), x.errors)
           }
       }
     }
 
-    fun <A : Any, B : Any> map(
-      f : (A) -> KSParseResult<B>, xs : List<A>) : KSParseResult<List<B>> {
+    fun <A : Any, B : Any, E : Any> map(
+      f : (A) -> KSResult<B, E>, xs : List<A>) : KSResult<List<B>, E> {
 
       var fail = false
       val out = ArrayList<B>(xs.size)
-      val err = ArrayDeque<KSParseError>(xs.size)
+      val err = ArrayDeque<E>(xs.size)
       val max = xs.size - 1
       for (i in 0 .. max) {
         val r = f(xs[i])
         when (r) {
-          is KSParseSuccess -> {
+          is KSSuccess -> {
             out.add(r.result)
           }
-          is KSParseFailure -> {
+          is KSFailure -> {
             fail = true
             if (r.partial.isPresent) {
               out.add(r.partial.get())
@@ -129,11 +129,40 @@ sealed class KSParseResult<A : Any> {
       }
 
       return if (fail) {
-        KSParseFailure(Optional.of(out as List<B>), err)
+        KSFailure(Optional.of(out as List<B>), err)
       } else {
-        KSParseSuccess(out)
+        KSSuccess(out)
       }
     }
 
+    fun <A : Any, B : Any, E : Any> mapIndexed(
+      f : (A, Int) -> KSResult<B, E>, xs : List<A>) : KSResult<List<B>, E> {
+
+      var fail = false
+      val out = ArrayList<B>(xs.size)
+      val err = ArrayDeque<E>(xs.size)
+      val max = xs.size - 1
+      for (i in 0 .. max) {
+        val r = f(xs[i], i)
+        when (r) {
+          is KSSuccess -> {
+            out.add(r.result)
+          }
+          is KSFailure -> {
+            fail = true
+            if (r.partial.isPresent) {
+              out.add(r.partial.get())
+            }
+            err.addAll(r.errors)
+          }
+        }
+      }
+
+      return if (fail) {
+        KSFailure(Optional.of(out as List<B>), err)
+      } else {
+        KSSuccess(out)
+      }
+    }
   }
 }

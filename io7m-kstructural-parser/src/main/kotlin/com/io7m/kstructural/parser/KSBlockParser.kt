@@ -18,9 +18,19 @@ package com.io7m.kstructural.parser
 
 import com.io7m.junreachable.UnreachableCodeException
 import com.io7m.kstructural.core.KSBlock
+import com.io7m.kstructural.core.KSBlock.KSBlockParagraph
+import com.io7m.kstructural.core.KSBlock.KSBlockPart
+import com.io7m.kstructural.core.KSBlock.KSBlockSection
+import com.io7m.kstructural.core.KSBlock.KSBlockSubsection
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSInline
+import com.io7m.kstructural.core.KSInline.KSInlineImage
+import com.io7m.kstructural.core.KSInline.KSInlineLink
+import com.io7m.kstructural.core.KSInline.KSInlineTerm
+import com.io7m.kstructural.core.KSInline.KSInlineText
+import com.io7m.kstructural.core.KSInline.KSInlineVerbatim
 import com.io7m.kstructural.core.KSLexicalType
+import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSSubsectionContent
 import org.valid4j.Assertive
 import java.net.URI
@@ -62,11 +72,11 @@ class KSBlockParser private constructor(
 
     private fun <A : Any> failedToMatchResult(
       e : KSExpression.KSExpressionList,
-      m : List<KSExpressionMatch>) : KSParseResult<A> =
-      KSParseResult.fail(failedToMatch(e, m))
+      m : List<KSExpressionMatch>) : KSResult<A, KSParseError> =
+      KSResult.fail(failedToMatch(e, m))
 
-    private fun <A : Any> parseError(e : KSLexicalType, m : String) : KSParseResult<A> =
-      KSParseResult.fail<A>(KSParseError(e.position, m))
+    private fun <A : Any> parseError(e : KSLexicalType, m : String) : KSResult<A, KSParseError> =
+      KSResult.fail<A, KSParseError>(KSParseError(e.position, m))
 
     private fun parseAttributeType(e : KSExpression.KSExpressionList) : String {
       Assertive.require(e.elements.size == 2)
@@ -148,7 +158,7 @@ class KSBlockParser private constructor(
   }
 
   private fun parseAttributeTitle(
-    e : KSExpression.KSExpressionList) : KSParseResult<List<KSInline.KSInlineText<Unit>>> {
+    e : KSExpression.KSExpressionList) : KSResult<List<KSInlineText<Unit>>, KSParseError> {
     Assertive.require(e.elements.size >= 2)
     Assertive.require(e.elements[0] is KSExpression.KSExpressionSymbol)
     val texts = e.elements.subList(1, e.elements.size)
@@ -156,17 +166,18 @@ class KSBlockParser private constructor(
   }
 
   private fun parseAttributeTargetAsURI(
-    e : KSExpression.KSExpressionList) : KSParseResult<URI> {
+    e : KSExpression.KSExpressionList) : KSResult<URI, KSParseError> {
     val text = parseAttributeTarget(e)
     return try {
-      KSParseResult.succeed(URI(text))
+      KSResult.succeed(URI(text))
     } catch (x : URISyntaxException) {
       parseError(e, "Invalid URI: " + x.message)
     }
   }
 
   private fun parseBlockPara(
-    e : KSExpression.KSExpressionList) : KSParseResult<KSBlock.KSBlockParagraph<Unit>> {
+    e : KSExpression.KSExpressionList)
+    : KSResult<KSBlockParagraph<Unit>, KSParseError> {
     Assertive.require(e.elements.size > 0)
     Assertive.require(e.elements[0] is KSExpression.KSExpressionSymbol)
 
@@ -183,8 +194,8 @@ class KSBlockParser private constructor(
           parseInlines(rest)
 
         return act_content flatMap { content ->
-          KSParseResult.succeed(newBlockParagraph(
-            content, e, Optional.of(id), Optional.of(type)))
+          KSResult.succeed<KSBlockParagraph<Unit>, KSParseError>(
+            newBlockParagraph(content, e, Optional.of(id), Optional.of(type)))
         }
       }
 
@@ -200,8 +211,8 @@ class KSBlockParser private constructor(
           parseInlines(rest)
 
         return act_content flatMap { content ->
-          KSParseResult.succeed(newBlockParagraph(
-            content, e, Optional.of(id), Optional.of(type)))
+          KSResult.succeed<KSBlockParagraph<Unit>, KSParseError>(
+            newBlockParagraph(content, e, Optional.of(id), Optional.of(type)))
         }
       }
 
@@ -215,8 +226,8 @@ class KSBlockParser private constructor(
           parseInlines(rest)
 
         return act_content flatMap { content ->
-          KSParseResult.succeed(newBlockParagraph(
-            content, e, Optional.of(id), Optional.empty()))
+          KSResult.succeed<KSBlockParagraph<Unit>, KSParseError>(
+            newBlockParagraph(content, e, Optional.of(id), Optional.empty()))
         }
       }
 
@@ -230,8 +241,8 @@ class KSBlockParser private constructor(
           parseInlines(rest)
 
         return act_content flatMap { content ->
-          KSParseResult.succeed(newBlockParagraph(
-            content, e, Optional.empty(), Optional.of(type)))
+          KSResult.succeed<KSBlockParagraph<Unit>, KSParseError>(
+            newBlockParagraph(content, e, Optional.empty(), Optional.of(type)))
         }
       }
 
@@ -243,8 +254,8 @@ class KSBlockParser private constructor(
           parseInlines(rest)
 
         return act_content flatMap { content ->
-          KSParseResult.succeed(newBlockParagraph(
-            content, e, Optional.empty(), Optional.empty()))
+          KSResult.succeed<KSBlockParagraph<Unit>, KSParseError>(
+            newBlockParagraph(content, e, Optional.empty(), Optional.empty()))
         }
       }
     }
@@ -261,12 +272,13 @@ class KSBlockParser private constructor(
     content : List<KSInline<Unit>>,
     e : KSExpression.KSExpressionList,
     id : Optional<KSID<Unit>>,
-    type : Optional<String>) : KSBlock.KSBlockParagraph<Unit> {
-    return KSBlock.KSBlockParagraph(e.position, Unit, type, id, content)
+    type : Optional<String>) : KSBlockParagraph<Unit> {
+    return KSBlockParagraph(e.position, Unit, type, id, content)
   }
 
   private fun parseBlockSubsection(
-    e : KSExpression.KSExpressionList) : KSParseResult<KSBlock.KSBlockSubsection<Unit>> {
+    e : KSExpression.KSExpressionList)
+    : KSResult<KSBlockSubsection<Unit>, KSParseError> {
     Assertive.require(e.elements.size > 0)
     Assertive.require(e.elements[0] is KSExpression.KSExpressionSymbol)
 
@@ -286,7 +298,8 @@ class KSBlockParser private constructor(
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
-            KSParseResult.succeed(KSBlock.KSBlockSubsection(
+            KSResult.succeed<KSBlockSubsection<Unit>, KSParseError>(
+              KSBlockSubsection(
               e.position,
               Unit,
               title = title,
@@ -312,7 +325,8 @@ class KSBlockParser private constructor(
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
-            KSParseResult.succeed(KSBlock.KSBlockSubsection(
+            KSResult.succeed<KSBlockSubsection<Unit>, KSParseError>(
+              KSBlockSubsection(
               e.position,
               Unit,
               title = title,
@@ -336,7 +350,8 @@ class KSBlockParser private constructor(
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
-            KSParseResult.succeed(KSBlock.KSBlockSubsection(
+            KSResult.succeed<KSBlockSubsection<Unit>, KSParseError>(
+              KSBlockSubsection(
               e.position,
               Unit,
               title = title,
@@ -360,7 +375,8 @@ class KSBlockParser private constructor(
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
-            KSParseResult.succeed(KSBlock.KSBlockSubsection(
+            KSResult.succeed<KSBlockSubsection<Unit>, KSParseError>(
+              KSBlockSubsection(
               e.position,
               Unit,
               title = title,
@@ -382,7 +398,8 @@ class KSBlockParser private constructor(
 
         return act_title flatMap { title ->
           act_content flatMap { content ->
-            KSParseResult.succeed(KSBlock.KSBlockSubsection(
+            KSResult.succeed<KSBlockSubsection<Unit>, KSParseError>(
+              KSBlockSubsection(
               e.position,
               Unit,
               title = title,
@@ -403,11 +420,12 @@ class KSBlockParser private constructor(
   }
 
   private fun anyToSubsectionContent(
-    e : KSBlock<Unit>) : KSParseResult<KSSubsectionContent<Unit>> {
+    e : KSBlock<Unit>) : KSResult<KSSubsectionContent<Unit>, KSParseError> {
     return when (e) {
-      is KSBlock.KSBlockSection,
-      is KSBlock.KSBlockSubsection,
-      is KSBlock.KSBlockPart       -> {
+      is KSBlock.KSDocument,
+      is KSBlockSection,
+      is KSBlockSubsection,
+      is KSBlockPart       -> {
         val sb = StringBuilder()
         sb.append("Expected subsection content.")
         sb.append(System.lineSeparator())
@@ -418,27 +436,27 @@ class KSBlockParser private constructor(
         sb.append(System.lineSeparator())
         parseError(e, sb.toString())
       }
-      is KSBlock.KSBlockParagraph  ->
-        KSParseResult.succeed(KSSubsectionContent.KSSubsectionParagraph(e))
+      is KSBlockParagraph  ->
+        KSResult.succeed(KSSubsectionContent.KSSubsectionParagraph(e))
     }
   }
 
   private fun parseSubsectionContent(
-    e : KSExpression) : KSParseResult<KSSubsectionContent<Unit>> {
+    e : KSExpression) : KSResult<KSSubsectionContent<Unit>, KSParseError> {
     return parseBlockAny(e) flatMap { k -> anyToSubsectionContent(k) }
   }
 
   private fun parseInlineTexts(
-    e : List<KSExpression>) : KSParseResult<List<KSInline.KSInlineText<Unit>>> {
-    return KSParseResult.map({ k ->
+    e : List<KSExpression>) : KSResult<List<KSInlineText<Unit>>, KSParseError> {
+    return KSResult.map({ k ->
       inlines.parse(k) flatMap { r ->
         when (r) {
-          is KSInline.KSInlineText ->
-            KSParseResult.succeed(r)
-          is KSInline.KSInlineLink,
-          is KSInline.KSInlineVerbatim,
-          is KSInline.KSInlineTerm,
-          is KSInline.KSInlineImage -> {
+          is KSInlineText ->
+            KSResult.succeed<KSInlineText<Unit>, KSParseError>(r)
+          is KSInlineLink,
+          is KSInlineVerbatim,
+          is KSInlineTerm,
+          is KSInlineImage -> {
             val sb = StringBuilder()
             sb.append("Expected text.")
             sb.append(System.lineSeparator())
@@ -455,16 +473,17 @@ class KSBlockParser private constructor(
   }
 
   private fun parseInlines(
-    e : List<KSExpression>) : KSParseResult<List<KSInline<Unit>>> {
-    return KSParseResult.map({ k ->
+    e : List<KSExpression>) : KSResult<List<KSInline<Unit>>, KSParseError> {
+    return KSResult.map({ k ->
       val r = this.inlines.parse(k)
-      r flatMap { z -> KSParseResult.succeed(z) }
+      r flatMap { z -> KSResult.succeed<KSInline<Unit>, KSParseError>(z) }
     }, e)
   }
 
   private fun parseSubsectionContents(
-    e : List<KSExpression>) : KSParseResult<List<KSSubsectionContent<Unit>>> {
-    return KSParseResult.map({ k -> parseSubsectionContent(k) }, e)
+    e : List<KSExpression>)
+    : KSResult<List<KSSubsectionContent<Unit>>, KSParseError> {
+    return KSResult.map({ k -> parseSubsectionContent(k) }, e)
   }
 
   private val parsers : Map<String, ElementParser> =
@@ -481,7 +500,7 @@ class KSBlockParser private constructor(
 
   private data class ElementParser(
     val name : String,
-    val parser : (KSExpression.KSExpressionList) -> KSParseResult<out KSBlock<Unit>>)
+    val parser : (KSExpression.KSExpressionList) -> KSResult<out KSBlock<Unit>, KSParseError>)
 
   private fun makeMapDescription(m : Map<String, Any>) : String {
     val sb = StringBuilder()
@@ -509,7 +528,8 @@ class KSBlockParser private constructor(
         { s -> parsers.containsKey(s) },
         parserDescriptions)))
 
-  private fun parseBlockAny(e : KSExpression) : KSParseResult<out KSBlock<Unit>> {
+  private fun parseBlockAny(
+    e : KSExpression) : KSResult<out KSBlock<Unit>, KSParseError> {
     if (!KSExpressionMatch.matches(e, isElement)) {
       val sb = StringBuilder()
       sb.append("Expected a block command.")
@@ -531,7 +551,8 @@ class KSBlockParser private constructor(
     return ic.parser.invoke(el)
   }
 
-  override fun parse(e : KSExpression) : KSParseResult<out KSBlock<Unit>> {
+  override fun parse(
+    e : KSExpression) : KSResult<out KSBlock<Unit>, KSParseError> {
     return parseBlockAny(e)
   }
 }

@@ -19,11 +19,12 @@ package com.io7m.kstructural.tests.parser
 import com.io7m.kstructural.core.KSBlock
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSInline
+import com.io7m.kstructural.core.KSResult.KSFailure
+import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.KSSubsectionContent
 import com.io7m.kstructural.parser.KSBlockParserType
 import com.io7m.kstructural.parser.KSExpression
-import com.io7m.kstructural.parser.KSParseResult.KSParseFailure
-import com.io7m.kstructural.parser.KSParseResult.KSParseSuccess
+import com.io7m.kstructural.parser.KSParseError
 import org.junit.Assert
 import org.junit.Test
 import java.util.Optional
@@ -42,7 +43,7 @@ abstract class KSBlockParserContract {
     val pp = newParserForString("[paragraph [link]]")
     val e = pp.p.parse(pp.s.invoke())
 
-    e as KSParseFailure<KSBlock.KSBlockParagraph<*>>
+    e as KSFailure<KSBlock.KSBlockParagraph<*>, KSParseError>
     Assert.assertTrue(e.partial.isPresent)
     Assert.assertEquals(1, e.errors.size)
   }
@@ -52,7 +53,7 @@ abstract class KSBlockParserContract {
     val pp = newParserForString("[paragraph Hello.]")
     val e = pp.p.parse(pp.s.invoke())
 
-    e as KSParseSuccess<KSBlock.KSBlockParagraph<Unit>>
+    e as KSSuccess<KSBlock.KSBlockParagraph<Unit>, KSParseError>
     Assert.assertEquals(1, e.result.content.size)
     val t0 = e.result.content[0] as KSInline.KSInlineText<Unit>
     Assert.assertEquals("Hello.", t0.text)
@@ -63,7 +64,7 @@ abstract class KSBlockParserContract {
     val pp = newParserForString("[paragraph [id x] Hello.]")
     val e = pp.p.parse(pp.s.invoke())
 
-    e as KSParseSuccess<KSBlock.KSBlockParagraph<Unit>>
+    e as KSSuccess<KSBlock.KSBlockParagraph<Unit>, KSParseError>
     Assert.assertEquals("x", e.result.id.get().value)
     Assert.assertEquals(1, e.result.content.size)
     val t0 = e.result.content[0] as KSInline.KSInlineText<Unit>
@@ -75,7 +76,7 @@ abstract class KSBlockParserContract {
     val pp = newParserForString("[paragraph [type x] Hello.]")
     val e = pp.p.parse(pp.s.invoke())
 
-    e as KSParseSuccess<KSBlock.KSBlockParagraph<Unit>>
+    e as KSSuccess<KSBlock.KSBlockParagraph<Unit>, KSParseError>
     Assert.assertEquals("x", e.result.type.get())
     Assert.assertEquals(1, e.result.content.size)
     val t0 = e.result.content[0] as KSInline.KSInlineText<Unit>
@@ -87,7 +88,7 @@ abstract class KSBlockParserContract {
     val pp = newParserForString("[paragraph [type x] [id y] Hello.]")
     val e = pp.p.parse(pp.s.invoke())
 
-    e as KSParseSuccess<KSBlock.KSBlockParagraph<Unit>>
+    e as KSSuccess<KSBlock.KSBlockParagraph<Unit>, KSParseError>
     Assert.assertEquals("x", e.result.type.get())
     Assert.assertEquals("y", e.result.id.get().value)
     Assert.assertEquals(1, e.result.content.size)
@@ -100,7 +101,7 @@ abstract class KSBlockParserContract {
     val pp = newParserForString("[paragraph [id y] [type x] Hello.]")
     val e = pp.p.parse(pp.s.invoke())
 
-    e as KSParseSuccess<KSBlock.KSBlockParagraph<Unit>>
+    e as KSSuccess<KSBlock.KSBlockParagraph<Unit>, KSParseError>
     Assert.assertEquals("x", e.result.type.get())
     Assert.assertEquals("y", e.result.id.get().value)
     Assert.assertEquals(1, e.result.content.size)
@@ -113,7 +114,7 @@ abstract class KSBlockParserContract {
     val pp = newParserForString("[subsection]")
 
     val e = pp.p.parse(pp.s.invoke())
-    e as KSParseFailure<KSBlock.KSBlockSubsection<*>>
+    e as KSFailure<KSBlock.KSBlockSubsection<*>, KSParseError>
 
     Assert.assertFalse(e.partial.isPresent)
     Assert.assertEquals(1, e.errors.size)
@@ -124,7 +125,7 @@ abstract class KSBlockParserContract {
     val pp = newParserForString("[subsection [title t] [subsection [title w]]]")
 
     val e = pp.p.parse(pp.s.invoke())
-    e as KSParseFailure<KSBlock.KSBlockSubsection<*>>
+    e as KSFailure<KSBlock.KSBlockSubsection<*>, KSParseError>
 
     Assert.assertTrue(e.partial.isPresent)
     Assert.assertEquals(1, e.errors.size)
@@ -135,7 +136,7 @@ abstract class KSBlockParserContract {
     val pp = newParserForString("[subsection [title x [term q]]]")
 
     val e = pp.p.parse(pp.s.invoke())
-    e as KSParseFailure<KSBlock.KSBlockSubsection<*>>
+    e as KSFailure<KSBlock.KSBlockSubsection<*>, KSParseError>
 
     Assert.assertTrue(e.partial.isPresent)
     Assert.assertEquals(1, e.errors.size)
@@ -146,7 +147,7 @@ abstract class KSBlockParserContract {
     val pp = newParserForString("[subsection [title t]]")
     val e = pp.p.parse(pp.s.invoke())
 
-    e as KSParseSuccess<KSBlock.KSBlockSubsection<Unit>>
+    e as KSSuccess<KSBlock.KSBlockSubsection<Unit>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals(Optional.empty<KSID<Unit>>(), e.result.id)
     Assert.assertEquals(0, e.result.content.size)
@@ -157,7 +158,7 @@ abstract class KSBlockParserContract {
     val pp = newParserForString("[subsection [title t] [id x]]")
     val e = pp.p.parse(pp.s.invoke())
 
-    e as KSParseSuccess<KSBlock.KSBlockSubsection<Unit>>
+    e as KSSuccess<KSBlock.KSBlockSubsection<Unit>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals("x", e.result.id.get().value)
     Assert.assertEquals(0, e.result.content.size)
@@ -168,7 +169,7 @@ abstract class KSBlockParserContract {
     val pp = newParserForString("[subsection [title t] [id x] [type k]]")
     val e = pp.p.parse(pp.s.invoke())
 
-    e as KSParseSuccess<KSBlock.KSBlockSubsection<Unit>>
+    e as KSSuccess<KSBlock.KSBlockSubsection<Unit>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals("x", e.result.id.get().value)
     Assert.assertEquals("k", e.result.type.get())
@@ -180,7 +181,7 @@ abstract class KSBlockParserContract {
     val pp = newParserForString("[subsection [title t] [type k] [id x]]")
     val e = pp.p.parse(pp.s.invoke())
 
-    e as KSParseSuccess<KSBlock.KSBlockSubsection<Unit>>
+    e as KSSuccess<KSBlock.KSBlockSubsection<Unit>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals("x", e.result.id.get().value)
     Assert.assertEquals("k", e.result.type.get())
@@ -192,7 +193,7 @@ abstract class KSBlockParserContract {
     val pp = newParserForString("[subsection [title t] [type k]]")
     val e = pp.p.parse(pp.s.invoke())
 
-    e as KSParseSuccess<KSBlock.KSBlockSubsection<Unit>>
+    e as KSSuccess<KSBlock.KSBlockSubsection<Unit>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals(Optional.empty<KSID<Unit>>(), e.result.id)
     Assert.assertEquals("k", e.result.type.get())
@@ -204,7 +205,7 @@ abstract class KSBlockParserContract {
     val pp = newParserForString("[subsection [title t] [paragraph Hello.]]")
     val e = pp.p.parse(pp.s.invoke())
 
-    e as KSParseSuccess<KSBlock.KSBlockSubsection<Unit>>
+    e as KSSuccess<KSBlock.KSBlockSubsection<Unit>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals(Optional.empty<KSID<Unit>>(), e.result.id)
     Assert.assertEquals(1, e.result.content.size)

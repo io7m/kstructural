@@ -17,9 +17,10 @@
 package com.io7m.kstructural.parser
 
 import com.io7m.kstructural.core.KSInline
+import com.io7m.kstructural.core.KSResult
 
 interface KSInlineParserType {
 
-  fun parse(e : KSExpression) : KSParseResult<out KSInline<Unit>>
+  fun parse(e : KSExpression) : KSResult<out KSInline<Unit>, KSParseError>
 
 }

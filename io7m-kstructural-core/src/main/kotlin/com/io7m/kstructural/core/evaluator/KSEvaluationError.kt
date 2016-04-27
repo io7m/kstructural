@@ -14,13 +14,17 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.parser
+package com.io7m.kstructural.core.evaluator
 
-import com.io7m.kstructural.core.KSBlock
-import com.io7m.kstructural.core.KSResult
+import com.io7m.jlexing.core.LexicalPositionType
+import com.io7m.kstructural.core.KSLexicalType
+import java.nio.file.Path
+import java.util.Optional
 
-interface KSBlockParserType {
+data class KSEvaluationError(
+  override val position : Optional<LexicalPositionType<Path>>,
+  val message : String) : KSLexicalType {
 
-  fun parse(e : KSExpression) : KSResult<out KSBlock<Unit>, KSParseError>
-
+  override fun toString() : String =
+    "[KSEvaluationError $position \"$message\"]"
 }

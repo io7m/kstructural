@@ -14,13 +14,14 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.parser
+package com.io7m.kstructural.core.evaluator
 
-import com.io7m.kstructural.core.KSBlock
+import com.io7m.kstructural.core.KSDocument
 import com.io7m.kstructural.core.KSResult
 
-interface KSBlockParserType {
+interface KSEvaluatorType {
 
-  fun parse(e : KSExpression) : KSResult<out KSBlock<Unit>, KSParseError>
+  fun evaluate(d : KSDocument<Unit>)
+    : KSResult<KSDocument<KSEvaluation>, KSEvaluationError>
 
 }

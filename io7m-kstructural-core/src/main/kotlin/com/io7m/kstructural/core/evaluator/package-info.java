@@ -14,13 +14,9 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.parser
+/**
+ * Evaluator/annotator
+ */
 
-import com.io7m.kstructural.core.KSBlock
-import com.io7m.kstructural.core.KSResult
-
-interface KSBlockParserType {
-
-  fun parse(e : KSExpression) : KSResult<out KSBlock<Unit>, KSParseError>
-
-}
+@com.io7m.jnull.NonNullByDefault
+package com.io7m.kstructural.core.evaluator;

@@ -14,13 +14,14 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.parser
+package com.io7m.kstructural.core.evaluator
 
-import com.io7m.kstructural.core.KSBlock
-import com.io7m.kstructural.core.KSResult
+import java.math.BigInteger
+import java.util.Optional
 
-interface KSBlockParserType {
-
-  fun parse(e : KSExpression) : KSResult<out KSBlock<Unit>, KSParseError>
+data class KSEvaluation(
+  val context : KSEvaluationContextType,
+  val id : BigInteger,
+  val number : Optional<List<BigInteger>>) {
 
 }

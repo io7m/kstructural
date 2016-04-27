@@ -14,52 +14,35 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.tests.parser
+package com.io7m.kstructural.tests.core
 
-import com.io7m.jlexing.core.ImmutableLexicalPosition
-import com.io7m.jlexing.core.LexicalPositionType
-import com.io7m.kstructural.parser.KSParseError
-import com.io7m.kstructural.parser.KSParseResult
-import com.io7m.kstructural.parser.KSParseResult.KSParseFailure
-import com.io7m.kstructural.parser.KSParseResult.KSParseSuccess
+import com.io7m.kstructural.core.KSResult
 import net.java.quickcheck.Generator
 import net.java.quickcheck.QuickCheck
 import net.java.quickcheck.characteristic.AbstractCharacteristic
 import net.java.quickcheck.generator.support.IntegerGenerator
-import net.java.quickcheck.generator.support.StringGenerator
 import org.junit.Assert
 import org.junit.Test
-import java.nio.file.Path
 import java.util.ArrayDeque
 import java.util.ArrayList
 import java.util.Optional
 
-class KSParseResultTest {
+class KSResultTest {
 
   class BooleanGenerator(val trues : Double) : Generator<Boolean> {
     override fun next() : Boolean = Math.random() <= trues
   }
 
-  class KSParseErrorGenerator(
-    val bools : Generator<Boolean> = BooleanGenerator(0.5),
-    val ints : Generator<Int> = IntegerGenerator(),
-    val msgs : Generator<String> = StringGenerator()) : Generator<KSParseError> {
-    override fun next() : KSParseError {
-      val pos : Optional<LexicalPositionType<Path>> = if (bools.next()) {
-        Optional.of(ImmutableLexicalPosition.newPosition<Path>(ints.next(), ints.next()))
-      } else {
-        Optional.empty()
-      }
-      return KSParseError(pos, msgs.next())
-    }
+  class AnyGenerator : Generator<Any> {
+    override fun next() : Any = Object()
   }
 
-  class KSParseResultGenerator(
+  class KSResultGenerator<E : Any>(
     val bools : Generator<Boolean> = BooleanGenerator(0.5),
     val ints : Generator<Int> = IntegerGenerator(0, 8),
-    val error_gen : Generator<KSParseError> = KSParseErrorGenerator())
-  : Generator<KSParseResult<Int>> {
-    override fun next() : KSParseResult<Int> {
+    val error_gen : Generator<E>)
+  : Generator<KSResult<Int, E>> {
+    override fun next() : KSResult<Int, E> {
       val partial =
         if (bools.next()) {
           Optional.of(ints.next())
@@ -67,44 +50,44 @@ class KSParseResultTest {
           Optional.empty()
         }
 
-      val errors = ArrayDeque<KSParseError>()
+      val errors = ArrayDeque<E>()
       val error_count = ints.next()
       for (i in 0 .. error_count - 1) {
         errors.add(error_gen.next())
       }
 
       return if (bools.next()) {
-        KSParseFailure(partial, errors)
+        KSResult.KSFailure(partial, errors)
       } else {
-        KSParseResult.succeed(ints.next())
+        KSResult.succeed(ints.next())
       }
     }
   }
 
-  private val hash0 = { x : Int ->
+  private val hash0 : (Int) -> KSResult<Int, Any> = { x : Int ->
     val h = x.hashCode()
     if (h and 0b1 == 0b1) {
-      KSParseResult.succeed(h)
+      KSResult.succeed(h)
     } else {
-      KSParseResult.fail(KSParseError(Optional.empty(), "Arbitrarily failed " + x))
+      KSResult.fail("Arbitrarily failed " + x)
     }
   }
 
-  private val hash1 = { x : Int ->
+  private val hash1 : (Int) -> KSResult<Int, Any> = { x : Int ->
     val h = x.hashCode()
     if (h and 0b1 != 0b1) {
-      KSParseResult.succeed(h)
+      KSResult.succeed(h)
     } else {
-      KSParseResult.fail(KSParseError(Optional.empty(), "Arbitrarily failed " + x))
+      KSResult.fail("Arbitrarily failed " + x)
     }
   }
 
   @Test fun testMap() {
     val failOdd = { x : Int ->
       if (isEven(x)) {
-        KSParseResult.succeed(x)
+        KSResult.succeed(x)
       } else {
-        KSParseResult.failPartial(x, KSParseError(Optional.empty(), "Number is odd"))
+        KSResult.failPartial(x, "Number is odd")
       }
     }
 
@@ -118,15 +101,54 @@ class KSParseResultTest {
       xs.add(x)
     }
 
-    val r = KSParseResult.map(failOdd, xs)
+    val r = KSResult.map(failOdd, xs)
     System.out.println(r)
 
     if (odds) {
-      r as KSParseResult.KSParseFailure
+      r as KSResult.KSFailure
       val ys = r.partial.get()
       Assert.assertEquals(xs, ys)
     } else {
-      r as KSParseSuccess
+      r as KSResult.KSSuccess
+      val ys = r.result
+      Assert.assertEquals(xs, ys)
+    }
+  }
+
+  @Test fun testMapIndexed() {
+    val indices = mutableSetOf<Int>()
+    val failOddIndexed = { x : Int, i : Int ->
+      indices.add(i)
+      if (isEven(x)) {
+        KSResult.succeed(x)
+      } else {
+        KSResult.failPartial(x, "Number is odd")
+      }
+    }
+
+    val gen = IntegerGenerator(1, 100)
+    val max = gen.nextInt()
+    val xs = ArrayList<Int>(max)
+    var odds = false
+    for (i in 0 .. max) {
+      val x = gen.nextInt()
+      odds = odds || (!isEven(x))
+      xs.add(x)
+    }
+
+    val r = KSResult.mapIndexed(failOddIndexed, xs)
+    System.out.println(r)
+
+    for (i in 0 .. max) {
+      Assert.assertTrue(indices.contains(i))
+    }
+
+    if (odds) {
+      r as KSResult.KSFailure
+      val ys = r.partial.get()
+      Assert.assertEquals(xs, ys)
+    } else {
+      r as KSResult.KSSuccess
       val ys = r.result
       Assert.assertEquals(xs, ys)
     }
@@ -143,7 +165,7 @@ class KSParseResultTest {
       object : AbstractCharacteristic<Int>() {
         override fun doSpecify(a : Int) {
           val f = hash0
-          val r0 = KSParseResult.flatMap(KSParseResult.succeed(a), f)
+          val r0 = KSResult.flatMap(KSResult.succeed(a), f)
           val r1 = f(a)
           Assert.assertEquals(r0, r1)
         }
@@ -155,10 +177,10 @@ class KSParseResultTest {
    */
 
   @Test fun testRightIdentity() {
-    QuickCheck.forAllVerbose(KSParseResultGenerator(),
-      object : AbstractCharacteristic<KSParseResult<Int>>() {
-        override fun doSpecify(m : KSParseResult<Int>) {
-          val r0 = KSParseResult.flatMap(m, { KSParseResult.succeed(it) })
+    QuickCheck.forAllVerbose(KSResultGenerator(error_gen = AnyGenerator()),
+      object : AbstractCharacteristic<KSResult<Int, Any>>() {
+        override fun doSpecify(m : KSResult<Int, Any>) {
+          val r0 = KSResult.flatMap(m, { KSResult.succeed<Int, Any>(it) })
           Assert.assertEquals(r0, m)
         }
       })
@@ -169,16 +191,17 @@ class KSParseResultTest {
    */
 
   @Test fun testAssociativity() {
-    QuickCheck.forAllVerbose(KSParseResultGenerator(),
-      object : AbstractCharacteristic<KSParseResult<Int>>() {
-        override fun doSpecify(m : KSParseResult<Int>) {
+    QuickCheck.forAllVerbose(KSResultGenerator(error_gen = AnyGenerator()),
+      object : AbstractCharacteristic<KSResult<Int, Any>>() {
+        override fun doSpecify(m : KSResult<Int, Any>) {
           val f = hash0
           val g = hash1
-          val r0 = KSParseResult.flatMap(KSParseResult.flatMap(m, f), g)
-          val r1 = KSParseResult.flatMap(m, { x -> KSParseResult.flatMap(f(x), g) })
+          val r0 = KSResult.flatMap(KSResult.flatMap(m, f), g)
+          val r1 = KSResult.flatMap(m, { x -> KSResult.flatMap(f(x), g) })
           Assert.assertEquals(r0, r1)
         }
       })
   }
 
 }
+
