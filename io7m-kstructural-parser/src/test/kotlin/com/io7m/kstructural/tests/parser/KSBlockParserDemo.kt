@@ -63,6 +63,7 @@ object KSBlockParserDemo {
               }
               System.out.println(a.message)
             }
+            r.partial.ifPresent { e -> System.out.println(e) }
           }
         }
       } else {
