@@ -16,7 +16,6 @@
 
 package com.io7m.kstructural.parser
 
-import com.io7m.jstructural.compact.KSExpressionMatch
 import com.io7m.junreachable.UnreachableCodeException
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSInline

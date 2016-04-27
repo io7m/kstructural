@@ -1,18 +1,3 @@
-package com.io7m.kstructural.parser
-
-import com.io7m.jstructural.compact.KSExpressionMatch
-import com.io7m.junreachable.UnreachableCodeException
-import com.io7m.kstructural.core.KSBlock
-import com.io7m.kstructural.core.KSID
-import com.io7m.kstructural.core.KSInline
-import com.io7m.kstructural.core.KSLexicalType
-import com.io7m.kstructural.core.KSSubsectionContent
-import org.valid4j.Assertive
-import java.net.URI
-import java.net.URISyntaxException
-import java.util.HashMap
-import java.util.Optional
-
 /*
  * Copyright © 2016 <code@io7m.com> http://io7m.com
  *
@@ -28,6 +13,20 @@ import java.util.Optional
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+
+package com.io7m.kstructural.parser
+
+import com.io7m.junreachable.UnreachableCodeException
+import com.io7m.kstructural.core.KSBlock
+import com.io7m.kstructural.core.KSID
+import com.io7m.kstructural.core.KSInline
+import com.io7m.kstructural.core.KSLexicalType
+import com.io7m.kstructural.core.KSSubsectionContent
+import org.valid4j.Assertive
+import java.net.URI
+import java.net.URISyntaxException
+import java.util.HashMap
+import java.util.Optional
 
 class KSBlockParser private constructor(
   private val inlines : KSInlineParserType) : KSBlockParserType {
@@ -324,7 +323,7 @@ class KSBlockParser private constructor(
         }
       }
 
-      KSExpressionMatch.matches(e, CommandMatchers.subsection_with_type) -> {
+      KSExpressionMatch.matches(e, CommandMatchers.subsection_with_type)    -> {
         Assertive.require(e.elements.size >= 3)
         val act_title =
           parseAttributeTitle(e.elements[1] as KSExpression.KSExpressionList)
@@ -348,7 +347,7 @@ class KSBlockParser private constructor(
         }
       }
 
-      KSExpressionMatch.matches(e, CommandMatchers.subsection_with_id) -> {
+      KSExpressionMatch.matches(e, CommandMatchers.subsection_with_id)      -> {
         Assertive.require(e.elements.size >= 3)
         val act_title =
           parseAttributeTitle(e.elements[1] as KSExpression.KSExpressionList)
@@ -372,7 +371,7 @@ class KSBlockParser private constructor(
         }
       }
 
-      KSExpressionMatch.matches(e, CommandMatchers.subsection_none) -> {
+      KSExpressionMatch.matches(e, CommandMatchers.subsection_none)         -> {
         Assertive.require(e.elements.size >= 2)
         val act_title =
           parseAttributeTitle(e.elements[1] as KSExpression.KSExpressionList)

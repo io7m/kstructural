@@ -14,9 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.jstructural.compact
-
-import com.io7m.kstructural.parser.KSExpression
+package com.io7m.kstructural.parser
 
 sealed class KSExpressionMatch {
 
@@ -55,6 +53,7 @@ sealed class KSExpressionMatch {
 
   sealed class CheckPrefix {
     object Prefix : CheckPrefix()
+
     object All : CheckPrefix()
   }
 
@@ -88,7 +87,7 @@ sealed class KSExpressionMatch {
       MatchAny()
 
     fun exactSymbol(s : String) =
-      MatchSymbol({ t -> t == s}, s)
+      MatchSymbol({ t -> t == s }, s)
 
     fun anySymbol() =
       MatchSymbol({ s -> true }, "*")
@@ -113,7 +112,7 @@ sealed class KSExpressionMatch {
             is MatchList   -> false
             is MatchAny    -> true
             is MatchString -> false
-            is MatchOneOf -> {
+            is MatchOneOf  -> {
               for (i in 0 .. m.cases.size - 1) {
                 if (matches(e, m.cases[i])) {
                   return true
@@ -152,7 +151,7 @@ sealed class KSExpressionMatch {
             }
             is MatchAny    -> true
             is MatchString -> false
-            is MatchOneOf -> {
+            is MatchOneOf  -> {
               for (i in 0 .. m.cases.size - 1) {
                 if (matches(e, m.cases[i])) {
                   return true
@@ -167,7 +166,7 @@ sealed class KSExpressionMatch {
             is MatchList   -> false
             is MatchAny    -> true
             is MatchString -> m.content.invoke(e.text)
-            is MatchOneOf -> {
+            is MatchOneOf  -> {
               for (i in 0 .. m.cases.size - 1) {
                 if (matches(e, m.cases[i])) {
                   return true
