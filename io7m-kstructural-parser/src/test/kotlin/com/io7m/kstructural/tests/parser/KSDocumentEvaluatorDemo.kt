@@ -22,7 +22,7 @@ import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
 import com.io7m.jsx.parser.JSXParserConfiguration
 import com.io7m.kstructural.core.KSBlock
-import com.io7m.kstructural.core.KSDocument
+import com.io7m.kstructural.core.KSBlock.KSDocument
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.evaluator.KSEvaluator

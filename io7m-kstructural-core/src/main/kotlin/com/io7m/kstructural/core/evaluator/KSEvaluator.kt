@@ -18,7 +18,7 @@ package com.io7m.kstructural.core.evaluator
 
 import com.io7m.junreachable.UnimplementedCodeException
 import com.io7m.kstructural.core.KSBlock
-import com.io7m.kstructural.core.KSDocument
+import com.io7m.kstructural.core.KSBlock.KSDocument
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSInline
 import com.io7m.kstructural.core.KSResult
@@ -83,7 +83,7 @@ object KSEvaluator : KSEvaluatorType {
         val id_eval = KSEvaluation(c, c.freshID(), Optional.empty())
         val ksid = d.id.map { v -> KSID(v.position, v.value, id_eval) }
         val rd = KSDocument.KSDocumentWithSections(
-          d.position, eval, ksid, title, content)
+          d.position, eval, ksid, d.type, title, content)
         KSResult.succeed<KSDocument<KSEvaluation>, KSEvaluationError>(rd)
       }
     }
