@@ -25,18 +25,22 @@ sealed class KSBlock<T>(
   val data : T)
 : KSLexicalType, KSTypeableType, KSIDableType<T> {
 
-  sealed class KSDocument<T>(
+  sealed class KSBlockDocument<T>(
     override val position : Optional<LexicalPositionType<Path>>,
-    data : T) : KSBlock<T>(position, data), KSLexicalType, KSIDableType<T> {
+    data : T,
+    override val id : Optional<KSID<T>>,
+    override val type : Optional<String>,
+    val title : List<KSInline.KSInlineText<T>>)
+  : KSBlock<T>(position, data), KSLexicalType, KSIDableType<T> {
 
-    class KSDocumentWithParts<T>(
+    class KSBlockDocumentWithParts<T>(
       position : Optional<LexicalPositionType<Path>>,
       data : T,
-      override val id : Optional<KSID<T>>,
-      override val type : Optional<String>,
-      val title : List<KSInline.KSInlineText<T>>,
+      id : Optional<KSID<T>>,
+      type : Optional<String>,
+      title : List<KSInline.KSInlineText<T>>,
       val content : List<KSBlock.KSBlockPart<T>>)
-    : KSDocument<T>(position, data) {
+    : KSBlockDocument<T>(position, data, id, type, title) {
 
       override fun toString() : String {
         val sb = StringBuilder()
@@ -59,14 +63,14 @@ sealed class KSBlock<T>(
       }
     }
 
-    class KSDocumentWithSections<T>(
+    class KSBlockDocumentWithSections<T>(
       position : Optional<LexicalPositionType<Path>>,
       data : T,
-      override val id : Optional<KSID<T>>,
-      override val type : Optional<String>,
-      val title : List<KSInline.KSInlineText<T>>,
+      id : Optional<KSID<T>>,
+      type : Optional<String>,
+      title : List<KSInline.KSInlineText<T>>,
       val content : List<KSBlock.KSBlockSection<T>>)
-    : KSDocument<T>(position, data) {
+    : KSBlockDocument<T>(position, data, id, type, title) {
 
       override fun toString() : String {
         val sb = StringBuilder()
@@ -92,15 +96,19 @@ sealed class KSBlock<T>(
 
   sealed class KSBlockSection<T>(
     position : Optional<LexicalPositionType<Path>>,
-    data : T) : KSBlock<T>(position, data) {
+    data : T,
+    override val type : Optional<String>,
+    override val id : Optional<KSID<T>>,
+    val title : List<KSInline.KSInlineText<T>>) : KSBlock<T>(position, data) {
 
     class KSBlockSectionWithSubsections<T>(
       position : Optional<LexicalPositionType<Path>>,
       data : T,
-      override val type : Optional<String>,
-      override val id : Optional<KSID<T>>,
-      val title : List<KSInline.KSInlineText<T>>,
-      val content : List<KSBlockSubsection<T>>) : KSBlockSection<T>(position, data) {
+      type : Optional<String>,
+      id : Optional<KSID<T>>,
+      title : List<KSInline.KSInlineText<T>>,
+      val content : List<KSBlockSubsection<T>>)
+    : KSBlockSection<T>(position, data, type, id, title) {
 
       override fun toString() : String {
         val sb = StringBuilder()
@@ -131,10 +139,11 @@ sealed class KSBlock<T>(
     class KSBlockSectionWithContent<T>(
       position : Optional<LexicalPositionType<Path>>,
       data : T,
-      override val type : Optional<String>,
-      override val id : Optional<KSID<T>>,
-      val title : List<KSInline.KSInlineText<T>>,
-      val content : List<KSSubsectionContent<T>>) : KSBlockSection<T>(position, data) {
+      type : Optional<String>,
+      id : Optional<KSID<T>>,
+      title : List<KSInline.KSInlineText<T>>,
+      val content : List<KSSubsectionContent<T>>)
+    : KSBlockSection<T>(position, data, type, id, title) {
 
       override fun toString() : String {
         val sb = StringBuilder()

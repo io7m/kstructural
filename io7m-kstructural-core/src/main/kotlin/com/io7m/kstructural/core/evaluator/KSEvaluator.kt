@@ -18,7 +18,7 @@ package com.io7m.kstructural.core.evaluator
 
 import com.io7m.junreachable.UnimplementedCodeException
 import com.io7m.kstructural.core.KSBlock
-import com.io7m.kstructural.core.KSBlock.KSDocument
+import com.io7m.kstructural.core.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSInline
 import com.io7m.kstructural.core.KSResult
@@ -38,32 +38,32 @@ object KSEvaluator : KSEvaluatorType {
   }
 
   override fun evaluate(
-    d : KSDocument<Unit>)
-    : KSResult<KSDocument<KSEvaluation>, KSEvaluationError> {
+    d : KSBlockDocument<Unit>)
+    : KSResult<KSBlockDocument<KSEvaluation>, KSEvaluationError> {
     val c = Context()
     return evaluateDocument(c, d) flatMap { d -> checkIDs(c, d) }
   }
 
   private fun checkIDs(
     c : KSEvaluator.Context,
-    d : KSDocument<KSEvaluation>)
-    : KSResult<KSDocument<KSEvaluation>, KSEvaluationError> {
+    d : KSBlockDocument<KSEvaluation>)
+    : KSResult<KSBlockDocument<KSEvaluation>, KSEvaluationError> {
     return KSResult.succeed(d)
   }
 
   private fun evaluateDocument(
     c : Context,
-    d : KSDocument<Unit>)
-    : KSResult<KSDocument<KSEvaluation>, KSEvaluationError> =
+    d : KSBlockDocument<Unit>)
+    : KSResult<KSBlockDocument<KSEvaluation>, KSEvaluationError> =
     when (d) {
-      is KSDocument.KSDocumentWithParts    -> evaluateDocumentWithParts(c, d)
-      is KSDocument.KSDocumentWithSections -> evaluateDocumentWithSections(c, d)
+      is KSBlockDocument.KSBlockDocumentWithParts    -> evaluateDocumentWithParts(c, d)
+      is KSBlockDocument.KSBlockDocumentWithSections -> evaluateDocumentWithSections(c, d)
     }
 
   private fun evaluateDocumentWithSections(
     c : Context,
-    d : KSDocument.KSDocumentWithSections<Unit>)
-    : KSResult<KSDocument<KSEvaluation>, KSEvaluationError> {
+    d : KSBlockDocument.KSBlockDocumentWithSections<Unit>)
+    : KSResult<KSBlockDocument<KSEvaluation>, KSEvaluationError> {
 
     if (d.content.isEmpty()) {
       return KSResult.fail(KSEvaluationError(
@@ -82,9 +82,9 @@ object KSEvaluator : KSEvaluatorType {
         val eval = KSEvaluation(c, id, Optional.empty())
         val id_eval = KSEvaluation(c, c.freshID(), Optional.empty())
         val ksid = d.id.map { v -> KSID(v.position, v.value, id_eval) }
-        val rd = KSDocument.KSDocumentWithSections(
+        val rd = KSBlockDocument.KSBlockDocumentWithSections(
           d.position, eval, ksid, d.type, title, content)
-        KSResult.succeed<KSDocument<KSEvaluation>, KSEvaluationError>(rd)
+        KSResult.succeed<KSBlockDocument<KSEvaluation>, KSEvaluationError>(rd)
       }
     }
   }
@@ -119,8 +119,8 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateDocumentWithParts(
     c : Context,
-    d : KSDocument.KSDocumentWithParts<Unit>)
-    : KSResult<KSDocument<KSEvaluation>, KSEvaluationError> {
+    d : KSBlockDocument.KSBlockDocumentWithParts<Unit>)
+    : KSResult<KSBlockDocument<KSEvaluation>, KSEvaluationError> {
     // TODO: Generated method stub!
     throw UnimplementedCodeException()
   }

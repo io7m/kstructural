@@ -22,7 +22,7 @@ import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
 import com.io7m.jsx.parser.JSXParserConfiguration
 import com.io7m.kstructural.core.KSBlock
-import com.io7m.kstructural.core.KSBlock.KSDocument
+import com.io7m.kstructural.core.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.evaluator.KSEvaluator
@@ -75,9 +75,9 @@ object KSDocumentEvaluatorDemo {
       is KSBlock.KSBlockSubsection -> TODO()
       is KSBlock.KSBlockParagraph  -> TODO()
       is KSBlock.KSBlockPart       -> TODO()
-      is KSBlock.KSDocument        -> {
+      is KSBlock.KSBlockDocument   -> {
 
-        val rr = KSEvaluator.evaluate(result as KSDocument<Unit>)
+        val rr = KSEvaluator.evaluate(result as KSBlockDocument<Unit>)
         when (rr) {
           is KSSuccess -> {
 

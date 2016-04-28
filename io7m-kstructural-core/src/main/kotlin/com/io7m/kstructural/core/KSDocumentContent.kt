@@ -14,14 +14,22 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.core.evaluator
+package com.io7m.kstructural.core
 
-import com.io7m.kstructural.core.KSBlock.KSBlockDocument
-import com.io7m.kstructural.core.KSResult
+import com.io7m.jlexing.core.LexicalPositionType
+import java.nio.file.Path
+import java.util.Optional
 
-interface KSEvaluatorType {
+sealed class KSDocumentContent<T>(
+  override val position : Optional<LexicalPositionType<Path>>) : KSLexicalType {
 
-  fun evaluate(d : KSBlockDocument<Unit>)
-    : KSResult<KSBlockDocument<KSEvaluation>, KSEvaluationError>
+  class KSDocumentSection<T>(val section : KSBlock.KSBlockSection<T>)
+  : KSDocumentContent<T>(section.position) {
+    override fun toString() : String = section.toString()
+  }
 
+  class KSDocumentPart<T>(val part : KSBlock.KSBlockPart<T>)
+  : KSDocumentContent<T>(part.position) {
+    override fun toString() : String = part.toString()
+  }
 }
