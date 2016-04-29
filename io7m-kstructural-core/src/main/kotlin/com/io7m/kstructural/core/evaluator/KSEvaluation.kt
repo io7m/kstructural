@@ -21,6 +21,6 @@ import java.util.Optional
 data class KSEvaluation(
   val context : KSEvaluationContextType,
   val serial : Long,
-  val number : Optional<List<Long>>) {
+  val number : Optional<KSNumber>) {
 
 }

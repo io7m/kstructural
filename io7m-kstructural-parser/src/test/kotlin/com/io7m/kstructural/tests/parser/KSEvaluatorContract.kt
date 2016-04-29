@@ -26,6 +26,14 @@ import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
 import com.io7m.kstructural.core.evaluator.KSEvaluation
 import com.io7m.kstructural.core.evaluator.KSEvaluatorType
+import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberPart
+import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberPartSection
+import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberPartSectionContent
+import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberPartSectionSubsectionContent
+import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSection
+import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSectionContent
+import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSectionSubsection
+import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSectionSubsectionContent
 import org.junit.Assert
 import org.junit.Test
 
@@ -104,40 +112,40 @@ abstract class KSEvaluatorContract {
     run {
       val s = r.result.content[0] as KSBlockSectionWithContent
       Assert.assertEquals("s1", s.title[0].text)
-      Assert.assertEquals(listOf(1L), s.data.number.get())
+      Assert.assertEquals(KSNumberSection(1L), s.data.number.get())
       Assert.assertEquals(3, s.content.size)
       val p1 = s.content[0] as KSSubsectionParagraph<KSEvaluation>
-      Assert.assertEquals(listOf(1L, 1L), p1.paragraph.data.number.get())
+      Assert.assertEquals(KSNumberSectionContent(1L, 1L), p1.paragraph.data.number.get())
       val p2 = s.content[1] as KSSubsectionParagraph<KSEvaluation>
-      Assert.assertEquals(listOf(1L, 2L), p2.paragraph.data.number.get())
+      Assert.assertEquals(KSNumberSectionContent(1L, 2L), p2.paragraph.data.number.get())
       val p3 = s.content[2] as KSSubsectionParagraph<KSEvaluation>
-      Assert.assertEquals(listOf(1L, 3L), p3.paragraph.data.number.get())
+      Assert.assertEquals(KSNumberSectionContent(1L, 3L), p3.paragraph.data.number.get())
     }
 
     run {
       val s = r.result.content[1] as KSBlockSectionWithContent
       Assert.assertEquals("s2", s.title[0].text)
-      Assert.assertEquals(listOf(2L), s.data.number.get())
+      Assert.assertEquals(KSNumberSection(2L), s.data.number.get())
       Assert.assertEquals(3, s.content.size)
       val p1 = s.content[0] as KSSubsectionParagraph<KSEvaluation>
-      Assert.assertEquals(listOf(2L, 1L), p1.paragraph.data.number.get())
+      Assert.assertEquals(KSNumberSectionContent(2L, 1L), p1.paragraph.data.number.get())
       val p2 = s.content[1] as KSSubsectionParagraph<KSEvaluation>
-      Assert.assertEquals(listOf(2L, 2L), p2.paragraph.data.number.get())
+      Assert.assertEquals(KSNumberSectionContent(2L, 2L), p2.paragraph.data.number.get())
       val p3 = s.content[2] as KSSubsectionParagraph<KSEvaluation>
-      Assert.assertEquals(listOf(2L, 3L), p3.paragraph.data.number.get())
+      Assert.assertEquals(KSNumberSectionContent(2L, 3L), p3.paragraph.data.number.get())
     }
 
     run {
       val s = r.result.content[2] as KSBlockSectionWithContent
       Assert.assertEquals("s3", s.title[0].text)
-      Assert.assertEquals(listOf(3L), s.data.number.get())
+      Assert.assertEquals(KSNumberSection(3L), s.data.number.get())
       Assert.assertEquals(3, s.content.size)
       val p1 = s.content[0] as KSSubsectionParagraph<KSEvaluation>
-      Assert.assertEquals(listOf(3L, 1L), p1.paragraph.data.number.get())
+      Assert.assertEquals(KSNumberSectionContent(3L, 1L), p1.paragraph.data.number.get())
       val p2 = s.content[1] as KSSubsectionParagraph<KSEvaluation>
-      Assert.assertEquals(listOf(3L, 2L), p2.paragraph.data.number.get())
+      Assert.assertEquals(KSNumberSectionContent(3L, 2L), p2.paragraph.data.number.get())
       val p3 = s.content[2] as KSSubsectionParagraph<KSEvaluation>
-      Assert.assertEquals(listOf(3L, 3L), p3.paragraph.data.number.get())
+      Assert.assertEquals(KSNumberSectionContent(3L, 3L), p3.paragraph.data.number.get())
     }
   }
 
@@ -170,54 +178,54 @@ abstract class KSEvaluatorContract {
     run {
       val s = r.result.content[0] as KSBlockSectionWithSubsections
       Assert.assertEquals("s1", s.title[0].text)
-      Assert.assertEquals(listOf(1L), s.data.number.get())
+      Assert.assertEquals(KSNumberSection(1L), s.data.number.get())
       Assert.assertEquals(2, s.content.size)
 
       run {
         val ss = s.content[0]
         Assert.assertEquals("ss1", ss.title[0].text)
-        Assert.assertEquals(listOf(1L, 1L), ss.data.number.get())
+        Assert.assertEquals(KSNumberSectionSubsection(1L, 1L), ss.data.number.get())
         val p1 = ss.content[0] as KSSubsectionParagraph<KSEvaluation>
-        Assert.assertEquals(listOf(1L, 1L, 1L), p1.paragraph.data.number.get())
+        Assert.assertEquals(KSNumberSectionSubsectionContent(1L, 1L, 1L), p1.paragraph.data.number.get())
         val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
-        Assert.assertEquals(listOf(1L, 1L, 2L), p2.paragraph.data.number.get())
+        Assert.assertEquals(KSNumberSectionSubsectionContent(1L, 1L, 2L), p2.paragraph.data.number.get())
       }
 
       run {
         val ss = s.content[1]
         Assert.assertEquals("ss2", ss.title[0].text)
-        Assert.assertEquals(listOf(1L, 2L), ss.data.number.get())
+        Assert.assertEquals(KSNumberSectionSubsection(1L, 2L), ss.data.number.get())
         val p1 = ss.content[0] as KSSubsectionParagraph<KSEvaluation>
-        Assert.assertEquals(listOf(1L, 2L, 1L), p1.paragraph.data.number.get())
+        Assert.assertEquals(KSNumberSectionSubsectionContent(1L, 2L, 1L), p1.paragraph.data.number.get())
         val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
-        Assert.assertEquals(listOf(1L, 2L, 2L), p2.paragraph.data.number.get())
+        Assert.assertEquals(KSNumberSectionSubsectionContent(1L, 2L, 2L), p2.paragraph.data.number.get())
       }
     }
 
     run {
       val s = r.result.content[1] as KSBlockSectionWithSubsections
       Assert.assertEquals("s2", s.title[0].text)
-      Assert.assertEquals(listOf(2L), s.data.number.get())
+      Assert.assertEquals(KSNumberSection(2L), s.data.number.get())
       Assert.assertEquals(2, s.content.size)
 
       run {
         val ss = s.content[0]
         Assert.assertEquals("ss1", ss.title[0].text)
-        Assert.assertEquals(listOf(2L, 1L), ss.data.number.get())
+        Assert.assertEquals(KSNumberSectionSubsection(2L, 1L), ss.data.number.get())
         val p1 = ss.content[0] as KSSubsectionParagraph<KSEvaluation>
-        Assert.assertEquals(listOf(2L, 1L, 1L), p1.paragraph.data.number.get())
+        Assert.assertEquals(KSNumberSectionSubsectionContent(2L, 1L, 1L), p1.paragraph.data.number.get())
         val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
-        Assert.assertEquals(listOf(2L, 1L, 2L), p2.paragraph.data.number.get())
+        Assert.assertEquals(KSNumberSectionSubsectionContent(2L, 1L, 2L), p2.paragraph.data.number.get())
       }
 
       run {
         val ss = s.content[1]
         Assert.assertEquals("ss2", ss.title[0].text)
-        Assert.assertEquals(listOf(2L, 2L), ss.data.number.get())
+        Assert.assertEquals(KSNumberSectionSubsection(2L, 2L), ss.data.number.get())
         val p1 = ss.content[0] as KSSubsectionParagraph<KSEvaluation>
-        Assert.assertEquals(listOf(2L, 2L, 1L), p1.paragraph.data.number.get())
+        Assert.assertEquals(KSNumberSectionSubsectionContent(2L, 2L, 1L), p1.paragraph.data.number.get())
         val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
-        Assert.assertEquals(listOf(2L, 2L, 2L), p2.paragraph.data.number.get())
+        Assert.assertEquals(KSNumberSectionSubsectionContent(2L, 2L, 2L), p2.paragraph.data.number.get())
       }
     }
   }
@@ -251,62 +259,62 @@ abstract class KSEvaluatorContract {
     run {
       val p = r.result.content[0]
       Assert.assertEquals("p1", p.title[0].text)
-      Assert.assertEquals(listOf(1L), p.data.number.get())
+      Assert.assertEquals(KSNumberPart(1L), p.data.number.get())
       Assert.assertEquals(2, p.content.size)
 
       run {
         val s = p.content[0] as KSBlockSectionWithContent<KSEvaluation>
         Assert.assertEquals("s1", s.title[0].text)
-        Assert.assertEquals(listOf(1L, 1L), s.data.number.get())
+        Assert.assertEquals(KSNumberPartSection(1L, 1L), s.data.number.get())
         Assert.assertEquals(2, s.content.size)
 
         val p1 = s.content[0] as KSSubsectionParagraph<KSEvaluation>
-        Assert.assertEquals(listOf(1L, 1L, 1L), p1.paragraph.data.number.get())
+        Assert.assertEquals(KSNumberPartSectionContent(1L, 1L, 1L), p1.paragraph.data.number.get())
         val p2 = s.content[1] as KSSubsectionParagraph<KSEvaluation>
-        Assert.assertEquals(listOf(1L, 1L, 2L), p2.paragraph.data.number.get())
+        Assert.assertEquals(KSNumberPartSectionContent(1L, 1L, 2L), p2.paragraph.data.number.get())
       }
 
       run {
         val s = p.content[1] as KSBlockSectionWithContent<KSEvaluation>
         Assert.assertEquals("s2", s.title[0].text)
-        Assert.assertEquals(listOf(1L, 2L), s.data.number.get())
+        Assert.assertEquals(KSNumberPartSection(1L, 2L), s.data.number.get())
         Assert.assertEquals(2, s.content.size)
 
         val p1 = s.content[0] as KSSubsectionParagraph<KSEvaluation>
-        Assert.assertEquals(listOf(1L, 2L, 1L), p1.paragraph.data.number.get())
+        Assert.assertEquals(KSNumberPartSectionContent(1L, 2L, 1L), p1.paragraph.data.number.get())
         val p2 = s.content[1] as KSSubsectionParagraph<KSEvaluation>
-        Assert.assertEquals(listOf(1L, 2L, 2L), p2.paragraph.data.number.get())
+        Assert.assertEquals(KSNumberPartSectionContent(1L, 2L, 2L), p2.paragraph.data.number.get())
       }
     }
 
     run {
       val p = r.result.content[1]
       Assert.assertEquals("p2", p.title[0].text)
-      Assert.assertEquals(listOf(2L), p.data.number.get())
+      Assert.assertEquals(KSNumberPart(2L), p.data.number.get())
       Assert.assertEquals(2, p.content.size)
 
       run {
         val s = p.content[0] as KSBlockSectionWithContent<KSEvaluation>
         Assert.assertEquals("s1", s.title[0].text)
-        Assert.assertEquals(listOf(2L, 1L), s.data.number.get())
+        Assert.assertEquals(KSNumberPartSection(2L, 1L), s.data.number.get())
         Assert.assertEquals(2, s.content.size)
 
         val p1 = s.content[0] as KSSubsectionParagraph<KSEvaluation>
-        Assert.assertEquals(listOf(2L, 1L, 1L), p1.paragraph.data.number.get())
+        Assert.assertEquals(KSNumberPartSectionContent(2L, 1L, 1L), p1.paragraph.data.number.get())
         val p2 = s.content[1] as KSSubsectionParagraph<KSEvaluation>
-        Assert.assertEquals(listOf(2L, 1L, 2L), p2.paragraph.data.number.get())
+        Assert.assertEquals(KSNumberPartSectionContent(2L, 1L, 2L), p2.paragraph.data.number.get())
       }
 
       run {
         val s = p.content[1] as KSBlockSectionWithContent<KSEvaluation>
         Assert.assertEquals("s2", s.title[0].text)
-        Assert.assertEquals(listOf(2L, 2L), s.data.number.get())
+        Assert.assertEquals(KSNumberPartSection(2L, 2L), s.data.number.get())
         Assert.assertEquals(2, s.content.size)
 
         val p1 = s.content[0] as KSSubsectionParagraph<KSEvaluation>
-        Assert.assertEquals(listOf(2L, 2L, 1L), p1.paragraph.data.number.get())
+        Assert.assertEquals(KSNumberPartSectionContent(2L, 2L, 1L), p1.paragraph.data.number.get())
         val p2 = s.content[1] as KSSubsectionParagraph<KSEvaluation>
-        Assert.assertEquals(listOf(2L, 2L, 2L), p2.paragraph.data.number.get())
+        Assert.assertEquals(KSNumberPartSectionContent(2L, 2L, 2L), p2.paragraph.data.number.get())
       }
     }
   }
@@ -356,56 +364,56 @@ abstract class KSEvaluatorContract {
     run {
       val p = r.result.content[0]
       Assert.assertEquals("p1", p.title[0].text)
-      Assert.assertEquals(listOf(1L), p.data.number.get())
+      Assert.assertEquals(KSNumberPart(1L), p.data.number.get())
       Assert.assertEquals(2, p.content.size)
 
       run {
         val s = p.content[0] as KSBlockSectionWithSubsections<KSEvaluation>
         Assert.assertEquals("s1", s.title[0].text)
-        Assert.assertEquals(listOf(1L, 1L), s.data.number.get())
+        Assert.assertEquals(KSNumberPartSection(1L, 1L), s.data.number.get())
         Assert.assertEquals(2, s.content.size)
 
         run {
           val ss = s.content[0]
           Assert.assertEquals("ss1", ss.title[0].text)
           val p1 = ss.content[0] as KSSubsectionParagraph<KSEvaluation>
-          Assert.assertEquals(listOf(1L, 1L, 1L, 1L), p1.paragraph.data.number.get())
+          Assert.assertEquals(KSNumberPartSectionSubsectionContent(1L, 1L, 1L, 1L), p1.paragraph.data.number.get())
           val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
-          Assert.assertEquals(listOf(1L, 1L, 1L, 2L), p2.paragraph.data.number.get())
+          Assert.assertEquals(KSNumberPartSectionSubsectionContent(1L, 1L, 1L, 2L), p2.paragraph.data.number.get())
         }
 
         run {
           val ss = s.content[1]
           Assert.assertEquals("ss2", ss.title[0].text)
           val p1 = ss.content[0] as KSSubsectionParagraph<KSEvaluation>
-          Assert.assertEquals(listOf(1L, 1L, 2L, 1L), p1.paragraph.data.number.get())
+          Assert.assertEquals(KSNumberPartSectionSubsectionContent(1L, 1L, 2L, 1L), p1.paragraph.data.number.get())
           val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
-          Assert.assertEquals(listOf(1L, 1L, 2L, 2L), p2.paragraph.data.number.get())
+          Assert.assertEquals(KSNumberPartSectionSubsectionContent(1L, 1L, 2L, 2L), p2.paragraph.data.number.get())
         }
       }
 
       run {
         val s = p.content[1] as KSBlockSectionWithSubsections<KSEvaluation>
         Assert.assertEquals("s2", s.title[0].text)
-        Assert.assertEquals(listOf(1L, 2L), s.data.number.get())
+        Assert.assertEquals(KSNumberPartSection(1L, 2L), s.data.number.get())
         Assert.assertEquals(2, s.content.size)
 
         run {
           val ss = s.content[0]
           Assert.assertEquals("ss1", ss.title[0].text)
           val p1 = ss.content[0] as KSSubsectionParagraph<KSEvaluation>
-          Assert.assertEquals(listOf(1L, 2L, 1L, 1L), p1.paragraph.data.number.get())
+          Assert.assertEquals(KSNumberPartSectionSubsectionContent(1L, 2L, 1L, 1L), p1.paragraph.data.number.get())
           val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
-          Assert.assertEquals(listOf(1L, 2L, 1L, 2L), p2.paragraph.data.number.get())
+          Assert.assertEquals(KSNumberPartSectionSubsectionContent(1L, 2L, 1L, 2L), p2.paragraph.data.number.get())
         }
 
         run {
           val ss = s.content[1]
           Assert.assertEquals("ss2", ss.title[0].text)
           val p1 = ss.content[0] as KSSubsectionParagraph<KSEvaluation>
-          Assert.assertEquals(listOf(1L, 2L, 2L, 1L), p1.paragraph.data.number.get())
+          Assert.assertEquals(KSNumberPartSectionSubsectionContent(1L, 2L, 2L, 1L), p1.paragraph.data.number.get())
           val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
-          Assert.assertEquals(listOf(1L, 2L, 2L, 2L), p2.paragraph.data.number.get())
+          Assert.assertEquals(KSNumberPartSectionSubsectionContent(1L, 2L, 2L, 2L), p2.paragraph.data.number.get())
         }
       }
     }
@@ -413,56 +421,56 @@ abstract class KSEvaluatorContract {
     run {
       val p = r.result.content[1]
       Assert.assertEquals("p2", p.title[0].text)
-      Assert.assertEquals(listOf(2L), p.data.number.get())
+      Assert.assertEquals(KSNumberPart(2L), p.data.number.get())
       Assert.assertEquals(2, p.content.size)
 
       run {
         val s = p.content[0] as KSBlockSectionWithSubsections<KSEvaluation>
         Assert.assertEquals("s1", s.title[0].text)
-        Assert.assertEquals(listOf(2L, 1L), s.data.number.get())
+        Assert.assertEquals(KSNumberPartSection(2L, 1L), s.data.number.get())
         Assert.assertEquals(2, s.content.size)
 
         run {
           val ss = s.content[0]
           Assert.assertEquals("ss1", ss.title[0].text)
           val p1 = ss.content[0] as KSSubsectionParagraph<KSEvaluation>
-          Assert.assertEquals(listOf(2L, 1L, 1L, 1L), p1.paragraph.data.number.get())
+          Assert.assertEquals(KSNumberPartSectionSubsectionContent(2L, 1L, 1L, 1L), p1.paragraph.data.number.get())
           val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
-          Assert.assertEquals(listOf(2L, 1L, 1L, 2L), p2.paragraph.data.number.get())
+          Assert.assertEquals(KSNumberPartSectionSubsectionContent(2L, 1L, 1L, 2L), p2.paragraph.data.number.get())
         }
 
         run {
           val ss = s.content[1]
           Assert.assertEquals("ss2", ss.title[0].text)
           val p1 = ss.content[0] as KSSubsectionParagraph<KSEvaluation>
-          Assert.assertEquals(listOf(2L, 1L, 2L, 1L), p1.paragraph.data.number.get())
+          Assert.assertEquals(KSNumberPartSectionSubsectionContent(2L, 1L, 2L, 1L), p1.paragraph.data.number.get())
           val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
-          Assert.assertEquals(listOf(2L, 1L, 2L, 2L), p2.paragraph.data.number.get())
+          Assert.assertEquals(KSNumberPartSectionSubsectionContent(2L, 1L, 2L, 2L), p2.paragraph.data.number.get())
         }
       }
 
       run {
         val s = p.content[1] as KSBlockSectionWithSubsections<KSEvaluation>
         Assert.assertEquals("s2", s.title[0].text)
-        Assert.assertEquals(listOf(2L, 2L), s.data.number.get())
+        Assert.assertEquals(KSNumberPartSection(2L, 2L), s.data.number.get())
         Assert.assertEquals(2, s.content.size)
 
         run {
           val ss = s.content[0]
           Assert.assertEquals("ss1", ss.title[0].text)
           val p1 = ss.content[0] as KSSubsectionParagraph<KSEvaluation>
-          Assert.assertEquals(listOf(2L, 2L, 1L, 1L), p1.paragraph.data.number.get())
+          Assert.assertEquals(KSNumberPartSectionSubsectionContent(2L, 2L, 1L, 1L), p1.paragraph.data.number.get())
           val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
-          Assert.assertEquals(listOf(2L, 2L, 1L, 2L), p2.paragraph.data.number.get())
+          Assert.assertEquals(KSNumberPartSectionSubsectionContent(2L, 2L, 1L, 2L), p2.paragraph.data.number.get())
         }
 
         run {
           val ss = s.content[1]
           Assert.assertEquals("ss2", ss.title[0].text)
           val p1 = ss.content[0] as KSSubsectionParagraph<KSEvaluation>
-          Assert.assertEquals(listOf(2L, 2L, 2L, 1L), p1.paragraph.data.number.get())
+          Assert.assertEquals(KSNumberPartSectionSubsectionContent(2L, 2L, 2L, 1L), p1.paragraph.data.number.get())
           val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
-          Assert.assertEquals(listOf(2L, 2L, 2L, 2L), p2.paragraph.data.number.get())
+          Assert.assertEquals(KSNumberPartSectionSubsectionContent(2L, 2L, 2L, 2L), p2.paragraph.data.number.get())
         }
       }
     }

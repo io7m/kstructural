@@ -41,10 +41,20 @@ import com.io7m.kstructural.core.KSLinkContent.KSLinkText
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSSubsectionContent
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
+import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberPart
+import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberPartSection
+import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberPartSectionContent
+import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberPartSectionSubsection
+import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberPartSectionSubsectionContent
+import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSection
+import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSectionContent
+import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSectionSubsection
+import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSectionSubsectionContent
 import org.slf4j.LoggerFactory
 import org.valid4j.Assertive
 import java.util.HashMap
 import java.util.Optional
+import java.util.OptionalLong
 
 object KSEvaluator : KSEvaluatorType {
 
@@ -179,7 +189,7 @@ object KSEvaluator : KSEvaluatorType {
 
     val serial = c.freshSerial()
     val act_content = KSResult.listMapIndexed(
-      { e, i -> evaluateSection(c, e, listOf((i + 1).toLong())) }, d.content)
+      { e, i -> evaluateSection(c, e, OptionalLong.empty(), i + 1L) }, d.content)
     val act_title = KSResult.listMap(
       { e -> evaluateInlineText (c, e) }, d.title)
 
@@ -313,28 +323,39 @@ object KSEvaluator : KSEvaluatorType {
   private fun evaluateSection(
     c : Context,
     e : KSBlockSection<Unit>,
-    n : List<Long>)
+    pn : OptionalLong,
+    sn : Long)
     : KSResult<KSBlockSection<KSEvaluation>, KSEvaluationError> =
     when (e) {
-      is KSBlockSectionWithSubsections -> evaluateSectionWithSubsections(c, e, n)
-      is KSBlockSectionWithContent     -> evaluateSectionWithContent(c, e, n)
+      is KSBlockSectionWithSubsections ->
+        evaluateSectionWithSubsections(c, e, pn, sn)
+      is KSBlockSectionWithContent     ->
+        evaluateSectionWithContent(c, e, pn, sn)
     }
 
   private fun evaluateSectionWithContent(
     c : Context,
     e : KSBlockSectionWithContent<Unit>,
-    n : List<Long>)
+    pn : OptionalLong,
+    sn : Long)
     : KSResult<KSBlockSectionWithContent<KSEvaluation>, KSEvaluationError> {
 
     val act_content = KSResult.listMapIndexed({ cc, i ->
-      evaluateSubsectionContent(c, cc, n.plus((i + 1).toLong()))
+      evaluateSubsectionContent(c, cc, pn, sn, OptionalLong.empty(), i + 1L)
     }, e.content)
-    val act_title = KSResult.listMap(
-      { e -> evaluateInlineText (c, e) }, e.title)
+    val act_title = KSResult.listMap({ e ->
+      evaluateInlineText (c, e) }, e.title)
 
     return act_content flatMap { content ->
       act_title flatMap { title ->
-        val ev = KSEvaluation(c, c.freshSerial(), Optional.of(n))
+
+        val num = if (pn.isPresent) {
+          KSNumberPartSection(pn.asLong, sn)
+        } else {
+          KSNumberSection(sn)
+        }
+
+        val ev = KSEvaluation(c, c.freshSerial(), Optional.of(num))
         c.recordID(c, e, { e, id ->
           KSBlockSectionWithContent(e.position, ev, e.type, id, title, content)
         })
@@ -345,25 +366,46 @@ object KSEvaluator : KSEvaluatorType {
   private fun evaluateSubsectionContent(
     c : Context,
     cc : KSSubsectionContent<Unit>,
-    n : List<Long>)
+    pn : OptionalLong,
+    sn : Long,
+    ssn : OptionalLong,
+    cn : Long)
     : KSResult<KSSubsectionContent<KSEvaluation>, KSEvaluationError> =
     when (cc) {
       is KSSubsectionContent.KSSubsectionParagraph ->
-        evaluateParagraph(c, cc.paragraph, n) map {
-          x -> KSSubsectionParagraph(x) }
+        evaluateParagraph(c, cc.paragraph, pn, sn, ssn, cn) map { x ->
+          KSSubsectionParagraph(x) }
     }
 
   private fun evaluateParagraph(
     c : Context,
     p : KSBlockParagraph<Unit>,
-    n : List<Long>)
+    pn : OptionalLong,
+    sn : Long,
+    ssn : OptionalLong,
+    cn : Long)
     : KSResult<KSBlockParagraph<KSEvaluation>, KSEvaluationError> {
 
     val act_content =
       KSResult.listMap({ i -> evaluateInline(c, i) }, p.content)
 
     return act_content flatMap { content ->
-      val ev = KSEvaluation(c, c.freshSerial(), Optional.of(n))
+
+      val num = if (pn.isPresent) {
+        if (ssn.isPresent) {
+          KSNumberPartSectionSubsectionContent(pn.asLong, sn, ssn.asLong, cn)
+        } else {
+          KSNumberPartSectionContent(pn.asLong, sn, cn)
+        }
+      } else {
+        if (ssn.isPresent) {
+          KSNumberSectionSubsectionContent(sn, ssn.asLong, cn)
+        } else {
+          KSNumberSectionContent(sn, cn)
+        }
+      }
+
+      val ev = KSEvaluation(c, c.freshSerial(), Optional.of(num))
       c.recordID(c, p, { p, id ->
         KSBlockParagraph(p.position, ev, p.type, id, content)
       })
@@ -373,18 +415,26 @@ object KSEvaluator : KSEvaluatorType {
   private fun evaluateSectionWithSubsections(
     c : Context,
     e : KSBlockSectionWithSubsections<Unit>,
-    n : List<Long>)
+    pn : OptionalLong,
+    sn : Long)
     : KSResult<KSBlockSectionWithSubsections<KSEvaluation>, KSEvaluationError> {
 
     val act_content = KSResult.listMapIndexed({ cc, i ->
-      evaluateSubsection(c, cc, n.plus((i + 1).toLong()))
+      evaluateSubsection(c, cc, pn, sn, i + 1L)
     }, e.content)
     val act_title = KSResult.listMap(
       { e -> evaluateInlineText (c, e) }, e.title)
 
     return act_content flatMap { content ->
       act_title flatMap { title ->
-        val ev = KSEvaluation(c, c.freshSerial(), Optional.of(n))
+
+        val num = if (pn.isPresent) {
+          KSNumberPartSection(pn.asLong, sn)
+        } else {
+          KSNumberSection(sn)
+        }
+
+        val ev = KSEvaluation(c, c.freshSerial(), Optional.of(num))
         c.recordID(c, e, { e, id ->
           KSBlockSectionWithSubsections(e.position, ev, e.type, id, title, content)
         })
@@ -395,20 +445,29 @@ object KSEvaluator : KSEvaluatorType {
   private fun evaluateSubsection(
     c : Context,
     ss : KSBlockSubsection<Unit>,
-    n : List<Long>)
+    pn : OptionalLong,
+    sn : Long,
+    ssn : Long)
     : KSResult<KSBlockSubsection<KSEvaluation>, KSEvaluationError> {
 
     val serial = c.freshSerial()
     val act_content =
       KSResult.listMapIndexed({ e, i ->
-        evaluateSubsectionContent(c, e, n.plus((i + 1).toLong()))
+        evaluateSubsectionContent(c, e, pn, sn, OptionalLong.of(ssn), i + 1L)
       }, ss.content)
     val act_title = KSResult.listMap(
       { e -> evaluateInlineText (c, e) }, ss.title)
 
     return act_content flatMap { content ->
       act_title flatMap { title ->
-        val ev = KSEvaluation(c, serial, Optional.of(n))
+
+        val num = if (pn.isPresent) {
+          KSNumberPartSectionSubsection(pn.asLong, sn, ssn)
+        } else {
+          KSNumberSectionSubsection(sn, ssn)
+        }
+
+        val ev = KSEvaluation(c, serial, Optional.of(num))
         c.recordID(c, ss, { ss, id ->
           KSBlockSubsection(ss.position, ev, ss.type, id, title, content)
         })
@@ -423,7 +482,7 @@ object KSEvaluator : KSEvaluatorType {
 
     val serial = c.freshSerial()
     val act_content = KSResult.listMapIndexed(
-      { e, i -> evaluatePart(c, e, listOf((i + 1).toLong())) }, d.content)
+      { e, i -> evaluatePart(c, e, i + 1L) }, d.content)
     val act_title = KSResult.listMap(
       { e -> evaluateInlineText (c, e) }, d.title)
 
@@ -440,18 +499,18 @@ object KSEvaluator : KSEvaluatorType {
   private fun evaluatePart(
     c : Context,
     e : KSBlockPart<Unit>,
-    n : List<Long>) : KSResult<KSBlockPart<KSEvaluation>, KSEvaluationError> {
+    pn : Long) : KSResult<KSBlockPart<KSEvaluation>, KSEvaluationError> {
 
     val serial = c.freshSerial()
     val act_content = KSResult.listMapIndexed({ cc, i ->
-      evaluateSection(c, cc, n.plus((i + 1).toLong()))
+      evaluateSection(c, cc, OptionalLong.of(pn), i + 1L)
     }, e.content)
     val act_title = KSResult.listMap(
       { e -> evaluateInlineText (c, e) }, e.title)
 
     return act_content flatMap { content ->
       act_title flatMap { title ->
-        val ev = KSEvaluation(c, serial, Optional.of(n))
+        val ev = KSEvaluation(c, serial, Optional.of(KSNumberPart(pn)))
         c.recordID(c, e, { e, id ->
           KSBlockPart(e.position, ev, e.type, id, title, content)
         })
