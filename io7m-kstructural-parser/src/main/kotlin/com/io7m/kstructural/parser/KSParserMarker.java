@@ -14,11 +14,18 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.core
+package com.io7m.kstructural.parser;
 
-abstract class KSException private constructor(
-  message : String?,
-  cause : Throwable?) : Exception(message, cause) {
-  constructor(message : String) : this(message, null)
-  constructor(cause : Throwable) : this(null, cause)
+import com.io7m.junreachable.UnreachableCodeException;
+
+/**
+ * Marker class for locating resources by class lookup.
+ */
+
+public final class KSParserMarker
+{
+  private KSParserMarker()
+  {
+    throw new UnreachableCodeException();
+  }
 }

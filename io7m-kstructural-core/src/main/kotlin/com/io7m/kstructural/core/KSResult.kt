@@ -21,7 +21,7 @@ import java.util.ArrayList
 import java.util.Deque
 import java.util.Optional
 
-sealed class KSResult<A : Any, E : Any> {
+sealed class KSResult<out A : Any, E : Any> {
 
   class KSSuccess<A : Any, E : Any>(
     val result : A) : KSResult<A, E>() {
@@ -63,6 +63,9 @@ sealed class KSResult<A : Any, E : Any> {
   infix fun <B : Any> flatMap(f : (A) -> KSResult<B, E>) : KSResult<B, E> =
     flatMap (this, f)
 
+  infix fun <B : Any> map(f : (A) -> B) : KSResult<B, E> =
+    map (this, f)
+
   companion object {
 
     fun <A : Any, E : Any> succeed(x : A) : KSResult<A, E> =
@@ -78,6 +81,21 @@ sealed class KSResult<A : Any, E : Any> {
       val es = ArrayDeque<E>()
       es.add(e)
       return KSFailure(Optional.of(x), es)
+    }
+
+    fun <A : Any, B : Any, E : Any> map(
+      x : KSResult<A, E>, f : (A) -> B) : KSResult<B, E> {
+      return when (x) {
+        is KSSuccess -> {
+          KSSuccess(f.invoke(x.result))
+        }
+        is KSFailure ->
+          if (x.partial.isPresent) {
+            KSFailure(Optional.of(f.invoke(x.partial.get())), x.errors)
+          } else {
+            KSFailure(Optional.empty<B>(), x.errors)
+          }
+      }
     }
 
     fun <A : Any, B : Any, E : Any> flatMap(
@@ -105,7 +123,7 @@ sealed class KSResult<A : Any, E : Any> {
       }
     }
 
-    fun <A : Any, B : Any, E : Any> map(
+    fun <A : Any, B : Any, E : Any> listMap(
       f : (A) -> KSResult<B, E>, xs : List<A>) : KSResult<List<B>, E> {
 
       var fail = false
@@ -135,7 +153,7 @@ sealed class KSResult<A : Any, E : Any> {
       }
     }
 
-    fun <A : Any, B : Any, E : Any> mapIndexed(
+    fun <A : Any, B : Any, E : Any> listMapIndexed(
       f : (A, Int) -> KSResult<B, E>, xs : List<A>) : KSResult<List<B>, E> {
 
       var fail = false

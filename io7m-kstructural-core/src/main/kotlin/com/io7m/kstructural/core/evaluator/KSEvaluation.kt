@@ -16,12 +16,11 @@
 
 package com.io7m.kstructural.core.evaluator
 
-import java.math.BigInteger
 import java.util.Optional
 
 data class KSEvaluation(
   val context : KSEvaluationContextType,
-  val id : BigInteger,
-  val number : Optional<List<BigInteger>>) {
+  val serial : Long,
+  val number : Optional<List<Long>>) {
 
 }

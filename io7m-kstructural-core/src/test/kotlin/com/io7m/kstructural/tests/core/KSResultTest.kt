@@ -101,7 +101,7 @@ class KSResultTest {
       xs.add(x)
     }
 
-    val r = KSResult.map(failOdd, xs)
+    val r = KSResult.listMap(failOdd, xs)
     System.out.println(r)
 
     if (odds) {
@@ -136,7 +136,7 @@ class KSResultTest {
       xs.add(x)
     }
 
-    val r = KSResult.mapIndexed(failOddIndexed, xs)
+    val r = KSResult.listMapIndexed(failOddIndexed, xs)
     System.out.println(r)
 
     for (i in 0 .. max) {

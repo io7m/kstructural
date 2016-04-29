@@ -1,5 +1,3 @@
-package com.io7m.kstructural.core
-
 /*
  * Copyright © 2016 <code@io7m.com> http://io7m.com
  *
@@ -15,6 +13,8 @@ package com.io7m.kstructural.core
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+
+package com.io7m.kstructural.core
 
 object KSTextUtilities {
 

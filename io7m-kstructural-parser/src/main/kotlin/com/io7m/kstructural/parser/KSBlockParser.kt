@@ -43,8 +43,6 @@ import com.io7m.kstructural.core.KSSectionContent.KSSectionSubsectionContent
 import com.io7m.kstructural.core.KSSubsectionContent
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
 import org.valid4j.Assertive
-import java.net.URI
-import java.net.URISyntaxException
 import java.util.HashMap
 import java.util.Optional
 
@@ -213,16 +211,6 @@ class KSBlockParser private constructor(
     Assertive.require(e.elements[0] is KSExpression.KSExpressionSymbol)
     val texts = e.elements.subList(1, e.elements.size)
     return parseInlineTexts(texts)
-  }
-
-  private fun parseAttributeTargetAsURI(
-    e : KSExpression.KSExpressionList) : KSResult<URI, KSParseError> {
-    val text = parseAttributeTarget(e)
-    return try {
-      KSResult.succeed(URI(text))
-    } catch (x : URISyntaxException) {
-      parseError(e, "Invalid URI: " + x.message)
-    }
   }
 
   private fun parseBlockPara(
@@ -603,7 +591,7 @@ class KSBlockParser private constructor(
       when (content[0]) {
         is KSSectionSubsectionContent -> {
           val act_contents =
-            KSResult.map({ c -> sectionContentToSubsectionContent(c) }, content)
+            KSResult.listMap({ c -> sectionContentToSubsectionContent(c) }, content)
           act_contents flatMap { contents ->
             KSResult.succeed<KSBlockSection<Unit>, KSParseError>(
               KSBlockSection.KSBlockSectionWithContent(
@@ -612,7 +600,7 @@ class KSBlockParser private constructor(
         }
         is KSSectionSubsection        -> {
           val act_contents =
-            KSResult.map({ c -> sectionContentToSubsection(c) }, content)
+            KSResult.listMap({ c -> sectionContentToSubsection(c) }, content)
           act_contents flatMap { contents ->
             KSResult.succeed<KSBlockSection<Unit>, KSParseError>(
               KSBlockSection.KSBlockSectionWithSubsections(
@@ -695,7 +683,7 @@ class KSBlockParser private constructor(
           e.elements[3] as KSExpression.KSExpressionList)
         val rest = e.elements.subList(4, e.elements.size)
         val act_content =
-          KSResult.map({ s -> parseSectionAny(s) }, rest)
+          KSResult.listMap({ s -> parseSectionAny(s) }, rest)
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
@@ -715,7 +703,7 @@ class KSBlockParser private constructor(
           e.elements[3] as KSExpression.KSExpressionList)
         val rest = e.elements.subList(4, e.elements.size)
         val act_content =
-          KSResult.map({ s -> parseSectionAny(s) }, rest)
+          KSResult.listMap({ s -> parseSectionAny(s) }, rest)
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
@@ -733,7 +721,7 @@ class KSBlockParser private constructor(
           e.elements[2] as KSExpression.KSExpressionList)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content =
-          KSResult.map({ s -> parseSectionAny(s) }, rest)
+          KSResult.listMap({ s -> parseSectionAny(s) }, rest)
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
@@ -751,7 +739,7 @@ class KSBlockParser private constructor(
           e.elements[2] as KSExpression.KSExpressionList)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content =
-          KSResult.map({ s -> parseSectionAny(s) }, rest)
+          KSResult.listMap({ s -> parseSectionAny(s) }, rest)
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
@@ -767,7 +755,7 @@ class KSBlockParser private constructor(
           e.elements[1] as KSExpression.KSExpressionList)
         val rest = e.elements.subList(2, e.elements.size)
         val act_content =
-          KSResult.map({ s -> parseSectionAny(s) }, rest)
+          KSResult.listMap({ s -> parseSectionAny(s) }, rest)
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
@@ -812,7 +800,7 @@ class KSBlockParser private constructor(
 
   private fun parseInlineTexts(
     e : List<KSExpression>) : KSResult<List<KSInlineText<Unit>>, KSParseError> {
-    return KSResult.map({ k ->
+    return KSResult.listMap({ k ->
       inlines.parse(k) flatMap { r ->
         when (r) {
           is KSInlineText  ->
@@ -838,7 +826,7 @@ class KSBlockParser private constructor(
 
   private fun parseInlines(
     e : List<KSExpression>) : KSResult<List<KSInline<Unit>>, KSParseError> {
-    return KSResult.map({ k ->
+    return KSResult.listMap({ k ->
       val r = this.inlines.parse(k)
       r flatMap { z -> KSResult.succeed<KSInline<Unit>, KSParseError>(z) }
     }, e)
@@ -847,13 +835,13 @@ class KSBlockParser private constructor(
   private fun parseSubsectionContents(
     e : List<KSExpression>)
     : KSResult<List<KSSubsectionContent<Unit>>, KSParseError> {
-    return KSResult.map({ k -> parseSubsectionContent(k) }, e)
+    return KSResult.listMap({ k -> parseSubsectionContent(k) }, e)
   }
 
   private fun parseSectionContents(
     e : List<KSExpression>)
     : KSResult<List<KSSectionContent<Unit>>, KSParseError> {
-    return KSResult.map({ k -> parseSectionContent(k) }, e)
+    return KSResult.listMap({ k -> parseSectionContent(k) }, e)
   }
 
   private fun anyToDocumentContent(
@@ -888,7 +876,7 @@ class KSBlockParser private constructor(
   private fun parseDocumentContents(
     e : List<KSExpression>)
     : KSResult<List<KSDocumentContent<Unit>>, KSParseError> {
-    return KSResult.map({ k -> parseDocumentContent(k) }, e)
+    return KSResult.listMap({ k -> parseDocumentContent(k) }, e)
   }
 
   private fun parseBlockDocument(
@@ -1007,7 +995,7 @@ class KSBlockParser private constructor(
       when (content[0]) {
         is KSDocumentPart    -> {
           val act_contents =
-            KSResult.map({ c -> documentContentToPart(c) }, content)
+            KSResult.listMap({ c -> documentContentToPart(c) }, content)
           act_contents flatMap { contents ->
             KSResult.succeed<KSBlockDocument<Unit>, KSParseError>(
               KSBlockDocumentWithParts(
@@ -1016,7 +1004,7 @@ class KSBlockParser private constructor(
         }
         is KSDocumentSection -> {
           val act_contents =
-            KSResult.map({ c -> documentContentToSection(c) }, content)
+            KSResult.listMap({ c -> documentContentToSection(c) }, content)
           act_contents flatMap { contents ->
             KSResult.succeed<KSBlockDocument<Unit>, KSParseError>(
               KSBlockDocumentWithSections(
@@ -1109,7 +1097,7 @@ class KSBlockParser private constructor(
         parserDescriptions)))
 
   private fun parseBlockAny(
-    e : KSExpression) : KSResult<out KSBlock<Unit>, KSParseError> {
+    e : KSExpression) : KSResult<KSBlock<Unit>, KSParseError> {
     if (!KSExpressionMatch.matches(e, isElement)) {
       val sb = StringBuilder()
       sb.append("Expected a block command.")
@@ -1132,7 +1120,7 @@ class KSBlockParser private constructor(
   }
 
   override fun parse(
-    e : KSExpression) : KSResult<out KSBlock<Unit>, KSParseError> {
+    e : KSExpression) : KSResult<KSBlock<Unit>, KSParseError> {
     return parseBlockAny(e)
   }
 }

@@ -104,7 +104,7 @@ object KSInlineParser : KSInlineParserType {
   }
 
   override fun parse(
-    e : KSExpression) : KSResult<out KSInline<Unit>, KSParseError> {
+    e : KSExpression) : KSResult<KSInline<Unit>, KSParseError> {
     return parseInlineAny(e)
   }
 
@@ -210,7 +210,7 @@ object KSInlineParser : KSInlineParserType {
         val texts =
           e.elements.subList(4, e.elements.size)
         val act_content =
-          KSResult.map({ t -> parseInlineText(t) }, texts)
+          KSResult.listMap({ t -> parseInlineText(t) }, texts)
 
         return act_size flatMap { size ->
           act_content flatMap { content ->
@@ -235,7 +235,7 @@ object KSInlineParser : KSInlineParserType {
         val texts =
           e.elements.subList(3, e.elements.size)
         val act_content =
-          KSResult.map({ t -> parseInlineText(t) }, texts)
+          KSResult.listMap({ t -> parseInlineText(t) }, texts)
 
         return act_content flatMap { content ->
           act_target flatMap { target ->
@@ -257,7 +257,7 @@ object KSInlineParser : KSInlineParserType {
         val texts =
           e.elements.subList(3, e.elements.size)
         val act_content =
-          KSResult.map({ t -> parseInlineText(t) }, texts)
+          KSResult.listMap({ t -> parseInlineText(t) }, texts)
 
         return act_size flatMap { size ->
           act_content flatMap { content ->
@@ -281,7 +281,7 @@ object KSInlineParser : KSInlineParserType {
         val texts =
           e.elements.subList(2, e.elements.size)
         val act_content =
-          KSResult.map({ t -> parseInlineText(t) }, texts)
+          KSResult.listMap({ t -> parseInlineText(t) }, texts)
 
         return act_content flatMap { content ->
           act_target flatMap { target ->
@@ -360,7 +360,7 @@ object KSInlineParser : KSInlineParserType {
       val kid =
         KSID(e.elements[1].position, target, Unit)
       val content =
-        KSResult.map({ t -> parseLinkContent(t) }, texts)
+        KSResult.listMap({ t -> parseLinkContent(t) }, texts)
       return content flatMap { cs ->
         KSResult.succeed<KSLink.KSLinkInternal<Unit>, KSParseError>(
           KSLink.KSLinkInternal(e.position, kid, cs))
@@ -382,7 +382,7 @@ object KSInlineParser : KSInlineParserType {
       val target = parseAttributeTarget(e.elements[1] as KSExpression.KSExpressionList)
       try {
         val uri = URI(target)
-        val content = KSResult.map({ t -> parseLinkContent(t) }, texts)
+        val content = KSResult.listMap({ t -> parseLinkContent(t) }, texts)
         return content flatMap { cs ->
           KSResult.succeed<KSLink.KSLinkExternal<Unit>, KSParseError>(
             KSLink.KSLinkExternal(e.position, uri, cs))
@@ -460,7 +460,7 @@ object KSInlineParser : KSInlineParserType {
         val type =
           parseAttributeType(e.elements[1] as KSExpression.KSExpressionList)
         val content =
-          KSResult.map({ t -> parseInlineText(t) }, texts)
+          KSResult.listMap({ t -> parseInlineText(t) }, texts)
         return content flatMap { cs ->
           KSResult.succeed<KSInlineTerm<Unit>, KSParseError>(
             KSInlineTerm(e.position, Unit, Optional.of(type), cs))
@@ -473,7 +473,7 @@ object KSInlineParser : KSInlineParserType {
           e.elements.subList(1, e.elements.size)
         Assertive.require(texts.size >= 1)
         val content =
-          KSResult.map({ t -> parseInlineText(t) }, texts)
+          KSResult.listMap({ t -> parseInlineText(t) }, texts)
         return content flatMap { cs ->
           KSResult.succeed<KSInlineTerm<Unit>, KSParseError>(
             KSInlineTerm(e.position, Unit, Optional.empty(), cs))

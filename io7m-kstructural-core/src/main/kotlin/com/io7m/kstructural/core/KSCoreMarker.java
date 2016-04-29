@@ -14,13 +14,18 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.parser
+package com.io7m.kstructural.core;
 
-import com.io7m.kstructural.core.KSBlock
-import com.io7m.kstructural.core.KSResult
+import com.io7m.junreachable.UnreachableCodeException;
 
-interface KSBlockParserType {
+/**
+ * Marker class for locating resources by class lookup.
+ */
 
-  fun parse(e : KSExpression) : KSResult<KSBlock<Unit>, KSParseError>
-
+public final class KSCoreMarker
+{
+  private KSCoreMarker()
+  {
+    throw new UnreachableCodeException();
+  }
 }
