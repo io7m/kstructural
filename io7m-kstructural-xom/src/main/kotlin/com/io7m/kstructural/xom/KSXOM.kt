@@ -16,7 +16,6 @@
 
 package com.io7m.kstructural.xom
 
-import com.io7m.junreachable.UnimplementedCodeException
 import com.io7m.junreachable.UnreachableCodeException
 import com.io7m.kstructural.core.KSBlock
 import com.io7m.kstructural.core.KSBlock.KSBlockDocument
@@ -268,7 +267,15 @@ internal object KSXOM {
   }
 
   private fun inlineVerbatim(c : KSInlineVerbatim<KSEvaluation>) : Node {
-    throw UnimplementedCodeException()
+    val classes = mutableListOf<String>()
+    classes.add(prefixedName("verbatim"))
+    c.type.ifPresent { type -> classes.add(type) }
+    val classes_text = KSTextUtilities.concatenate(classes)
+
+    val sc = Element("pre", XHTML_URI_TEXT)
+    sc.addAttribute(Attribute("class", null, classes_text))
+    sc.appendChild(c.text)
+    return sc
   }
 
   private fun inlineLink(
