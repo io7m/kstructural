@@ -66,7 +66,7 @@ object KSXOMXHTMLSingleWriter : KSXOMXHTMLWriterType {
     prov : KSXOMLinkProviderType,
     d : KSBlockDocumentWithParts<KSEvaluation>) : Document {
 
-    val (document, body) = KSXOM.newPage(d)
+    val (document, body) = KSXOM.newPage(settings, d)
     body.appendChild(KSXOM.documentIndexTitle(d))
     body.appendChild(KSXOM.documentContents(prov, d))
 
@@ -79,7 +79,7 @@ object KSXOMXHTMLSingleWriter : KSXOMXHTMLWriterType {
     prov : KSXOMLinkProviderType,
     d : KSBlockDocumentWithSections<KSEvaluation>) : Document {
 
-    val (document, body) = KSXOM.newPage(d)
+    val (document, body) = KSXOM.newPage(settings, d)
     body.appendChild(KSXOM.documentIndexTitle(d))
     body.appendChild(KSXOM.documentContents(prov, d))
 

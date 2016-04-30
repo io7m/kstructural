@@ -36,6 +36,7 @@ import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.io.OutputStream
 import java.io.Reader
+import java.net.URI
 import java.nio.file.Paths
 import java.util.Optional
 
@@ -95,7 +96,10 @@ object KSXOMXHTMLSingleWriterDemo {
         val rr = KSEvaluator.evaluate(result)
         when (rr) {
           is KSSuccess -> {
-            val settings = KSXOMSettings()
+            val settings = KSXOMSettings(
+              styles = mutableListOf(
+              URI.create("kstructural-layout.css"),
+              URI.create("kstructural-colour.css")))
             val doc = KSXOMXHTMLSingleWriter.write(settings, rr.result)
             val s = Serializer(out)
             s.write(doc.get("index.xhtml"))

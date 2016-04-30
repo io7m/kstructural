@@ -174,7 +174,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     s : KSBlockSection<KSEvaluation>,
     m : MutableMap<String, Document>) : Unit {
 
-    val (document, body) = KSXOM.newPage(d)
+    val (document, body) = KSXOM.newPage(settings, d)
     body.appendChild(KSXOM.navigationBar(prov, s, KSXOM.NavigationBarPosition.Top))
     body.appendChild(writeSection(settings, prov, d, s))
     body.appendChild(KSXOM.navigationBar(prov, s, KSXOM.NavigationBarPosition.Bottom))
@@ -191,7 +191,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     p : KSBlockPart<KSEvaluation>,
     m : MutableMap<String, Document>) : Unit {
 
-    val (document, body) = KSXOM.newPage(d)
+    val (document, body) = KSXOM.newPage(settings, d)
     body.appendChild(KSXOM.navigationBar(prov, p, KSXOM.NavigationBarPosition.Top))
 
     val part_container = KSXOM.partContainer(p)
@@ -212,7 +212,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     settings : KSXOMSettings,
     prov : KSXOMLinkProviderType,
     d : KSBlockDocument<KSEvaluation>) : Document {
-    val (document, body) = KSXOM.newPage(d)
+    val (document, body) = KSXOM.newPage(settings, d)
     body.appendChild(KSXOM.navigationBar(prov, d, KSXOM.NavigationBarPosition.Top))
     body.appendChild(KSXOM.documentIndexTitle(d))
     if (settings.render_toc_document) {

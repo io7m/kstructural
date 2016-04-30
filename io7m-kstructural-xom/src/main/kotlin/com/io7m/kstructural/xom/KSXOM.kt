@@ -67,10 +67,12 @@ internal object KSXOM {
     return doc
   }
 
-  fun newPage(d : KSBlockDocument<out Any>) : Pair<Document, Element> {
-    val title = KSTextUtilities.concatenate(d.title)
+  fun newPage(
+    settings : KSXOMSettings,
+    document : KSBlockDocument<out Any>) : Pair<Document, Element> {
+    val title = KSTextUtilities.concatenate(document.title)
     val rd = KSXOM.document()
-    rd.rootElement.appendChild(KSXOM.head(title))
+    rd.rootElement.appendChild(KSXOM.head(settings, title))
     val body = KSXOM.body()
     val body_container = KSXOM.bodyContainer()
     body.appendChild(body_container)
@@ -81,11 +83,12 @@ internal object KSXOM {
   fun body() : Element =
     Element("body", XHTML_URI_TEXT)
 
-  fun head(title : String) : Element {
+  fun head(
+    settings : KSXOMSettings,
+    title : String) : Element {
     val e = Element("head", XHTML_URI_TEXT)
     e.appendChild(title(title))
-    e.appendChild(css(URI.create("kstructural-layout.css")))
-    e.appendChild(css(URI.create("kstructural-colour.css")))
+    settings.styles.forEach { s -> e.appendChild(css(s)) }
     return e
   }
 

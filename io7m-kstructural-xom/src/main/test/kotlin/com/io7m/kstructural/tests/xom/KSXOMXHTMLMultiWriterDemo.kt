@@ -34,6 +34,7 @@ import nu.xom.Serializer
 import java.io.FileInputStream
 import java.io.InputStreamReader
 import java.io.Reader
+import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -91,7 +92,11 @@ object KSXOMXHTMLMultiWriterDemo {
         val rr = KSEvaluator.evaluate(result)
         when (rr) {
           is KSSuccess -> {
-            val settings = KSXOMSettings()
+            val settings = KSXOMSettings(
+              styles = mutableListOf(
+                URI.create("kstructural-layout.css"),
+                URI.create("kstructural-colour.css"),
+                URI.create("custom.css")))
             val docs = KSXOMXHTMLMultiWriter.write(settings, rr.result)
             val ksdir = out.resolve("kstructural")
             Files.createDirectories(ksdir)

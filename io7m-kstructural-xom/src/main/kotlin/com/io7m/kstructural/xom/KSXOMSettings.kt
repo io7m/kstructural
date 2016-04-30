@@ -16,9 +16,14 @@
 
 package com.io7m.kstructural.xom
 
+import java.net.URI
+
 class KSXOMSettings(
   val render_toc_document : Boolean = true,
   val render_toc_parts : Boolean = true,
-  val render_toc_sections : Boolean = true) {
+  val render_toc_sections : Boolean = true,
+  val styles : MutableList<URI> = mutableListOf(
+    URI.create("kstructural-layout.css"),
+    URI.create("kstructural-colour.css"))) {
 
 }
