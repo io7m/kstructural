@@ -14,30 +14,18 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.core
+package com.io7m.kstructural.xom
 
-object KSTextUtilities {
+import com.io7m.kstructural.core.KSID
+import com.io7m.kstructural.core.evaluator.KSEvaluation
+import com.io7m.kstructural.core.evaluator.KSNumber
 
-  fun <T> concatenateInto(sb : StringBuilder, xs : List<T>) : Unit {
-    val max = xs.size - 1
-    for (i in 0 .. max) {
-      sb.append(xs[i])
-      if (i < max) {
-        sb.append(" ")
-      }
-    }
-  }
+interface KSXOMLinkProviderType {
 
-  fun <T> concatenate(xs : List<T>) : String {
-    val sb = StringBuilder()
-    val max = xs.size - 1
-    for (i in 0 .. max) {
-      sb.append(xs[i])
-      if (i < max) {
-        sb.append(" ")
-      }
-    }
-    return sb.toString()
-  }
+  fun anchorForID(id : KSID<KSEvaluation>) : String
+
+  fun anchorForNumber(number : KSNumber) : String
+
+  fun anchorForDocument() : String
 
 }

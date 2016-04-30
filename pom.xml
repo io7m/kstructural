@@ -19,6 +19,7 @@
     <module>io7m-kstructural-core</module>
     <module>io7m-kstructural-documentation</module>
     <module>io7m-kstructural-parser</module>
+    <module>io7m-kstructural-xom</module>
   </modules>
 
   <properties>

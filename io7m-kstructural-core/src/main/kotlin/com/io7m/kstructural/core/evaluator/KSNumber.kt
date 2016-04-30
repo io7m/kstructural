@@ -18,28 +18,63 @@ package com.io7m.kstructural.core.evaluator
 
 sealed class KSNumber {
 
-  class KSNumberPart(val value : Long) : KSNumber() {
+  interface HasSectionType {
+    val section : Long
+  }
+
+  interface HasSubsectionType {
+    val subsection : Long
+  }
+
+  interface HasPartType {
+    val part : Long
+  }
+
+  interface HasContentType {
+    val content : Long
+  }
+
+  abstract fun toAnchor() : String
+
+  abstract val least : Long
+
+  class KSNumberPart(
+    override val part : Long) : KSNumber(), HasPartType {
+
+    override val least : Long
+      get() = part
+
+    override fun toAnchor() : String {
+      return "p${part}"
+    }
 
     override fun toString() : String {
-      return value.toString()
+      return part.toString()
     }
 
     override fun equals(other : Any?) : Boolean{
       if (this === other) return true
       if (other?.javaClass != javaClass) return false
       other as KSNumberPart
-      if (value != other.value) return false
+      if (part != other.part) return false
       return true
     }
 
     override fun hashCode() : Int{
-      return value.hashCode()
+      return part.hashCode()
     }
   }
 
   class KSNumberPartSection(
-    val part : Long,
-    val section : Long) : KSNumber() {
+    override val part : Long,
+    override val section : Long) : KSNumber(), HasPartType, HasSectionType {
+
+    override val least : Long
+      get() = section
+
+    override fun toAnchor() : String {
+      return "p${part}s${section}"
+    }
 
     override fun toString() : String {
       val sb = StringBuilder()
@@ -66,9 +101,17 @@ sealed class KSNumber {
   }
 
   class KSNumberPartSectionContent(
-    val part : Long,
-    val section : Long,
-    val content : Long) : KSNumber() {
+    override val part : Long,
+    override val section : Long,
+    override val content : Long)
+  : KSNumber(), HasPartType, HasSectionType, HasContentType {
+
+    override val least : Long
+      get() = content
+
+    override fun toAnchor() : String {
+      return "p${part}s${section}c${content}"
+    }
 
     override fun toString() : String {
       val sb = StringBuilder()
@@ -99,9 +142,17 @@ sealed class KSNumber {
   }
 
   class KSNumberPartSectionSubsection(
-    val part : Long,
-    val section : Long,
-    val subsection : Long) : KSNumber() {
+    override val part : Long,
+    override val section : Long,
+    override val subsection : Long)
+  : KSNumber(), HasPartType, HasSectionType, HasSubsectionType {
+
+    override val least : Long
+      get() = subsection
+
+    override fun toAnchor() : String {
+      return "p${part}s${section}ss${subsection}"
+    }
 
     override fun toString() : String {
       val sb = StringBuilder()
@@ -132,10 +183,18 @@ sealed class KSNumber {
   }
 
   class KSNumberPartSectionSubsectionContent(
-    val part : Long,
-    val section : Long,
-    val subsection : Long,
-    val content : Long) : KSNumber() {
+    override val part : Long,
+    override val section : Long,
+    override val subsection : Long,
+    override val content : Long)
+  : KSNumber(), HasPartType, HasSectionType, HasSubsectionType, HasContentType {
+
+    override val least : Long
+      get() = content
+
+    override fun toAnchor() : String {
+      return "p${part}s${section}ss${subsection}c${content}"
+    }
 
     override fun toString() : String {
       val sb = StringBuilder()
@@ -169,7 +228,16 @@ sealed class KSNumber {
     }
   }
 
-  class KSNumberSection(val section : Long) : KSNumber() {
+  class KSNumberSection(
+    override val section : Long) : KSNumber(), HasSectionType {
+
+    override val least : Long
+      get() = section
+
+    override fun toAnchor() : String {
+      return "s${section}"
+    }
+
     override fun toString() : String {
       return section.toString()
     }
@@ -188,8 +256,16 @@ sealed class KSNumber {
   }
 
   class KSNumberSectionContent(
-    val section : Long,
-    val content : Long) : KSNumber() {
+    override val section : Long,
+    override val content : Long)
+  : KSNumber(), HasSectionType, HasContentType {
+
+    override val least : Long
+      get() = content
+
+    override fun toAnchor() : String {
+      return "s${section}c${content}"
+    }
 
     override fun toString() : String {
       val sb = StringBuilder()
@@ -216,8 +292,16 @@ sealed class KSNumber {
   }
 
   class KSNumberSectionSubsection(
-    val section : Long,
-    val subsection : Long) : KSNumber() {
+    override val section : Long,
+    override val subsection : Long)
+  : KSNumber(), HasSectionType, HasSubsectionType {
+
+    override val least : Long
+      get() = subsection
+
+    override fun toAnchor() : String {
+      return "s${section}ss${subsection}"
+    }
 
     override fun toString() : String {
       val sb = StringBuilder()
@@ -244,9 +328,17 @@ sealed class KSNumber {
   }
 
   class KSNumberSectionSubsectionContent(
-    val section : Long,
-    val subsection : Long,
-    val content : Long) : KSNumber() {
+    override val section : Long,
+    override val subsection : Long,
+    override val content : Long)
+  : KSNumber(), HasSectionType, HasSubsectionType, HasContentType {
+
+    override val least : Long
+      get() = content
+
+    override fun toAnchor() : String {
+      return "s${section}ss${subsection}c${content}"
+    }
 
     override fun toString() : String {
       val sb = StringBuilder()

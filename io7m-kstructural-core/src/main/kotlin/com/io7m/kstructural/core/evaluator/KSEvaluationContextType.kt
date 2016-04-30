@@ -16,6 +16,27 @@
 
 package com.io7m.kstructural.core.evaluator
 
+import com.io7m.kstructural.core.KSBlock
+import com.io7m.kstructural.core.KSBlock.KSBlockDocument
+import com.io7m.kstructural.core.KSID
+import java.util.Optional
+
 interface KSEvaluationContextType {
 
+  val document : KSBlockDocument<KSEvaluation>
+
+  fun elementForID(
+    id : KSID<KSEvaluation>) : KSBlock<KSEvaluation>
+
+  fun elementForNumber(
+    n : KSNumber) : KSBlock<KSEvaluation>
+
+  fun elementSegmentPrevious(
+    b : KSBlock<KSEvaluation>) : Optional<KSBlock<KSEvaluation>>
+
+  fun elementSegmentNext(
+    b : KSBlock<KSEvaluation>) : Optional<KSBlock<KSEvaluation>>
+
+  fun elementSegmentUp(
+    b : KSBlock<KSEvaluation>) : Optional<KSBlock<KSEvaluation>>
 }

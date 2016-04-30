@@ -63,8 +63,229 @@ object KSEvaluator : KSEvaluatorType {
   private data class Context(
     private var serial_pool : Long = 0L,
     private val blocks_by_id : MutableMap<String, KSBlock<KSEvaluation>> = HashMap(),
+    private val blocks_by_number : MutableMap<KSNumber, KSBlock<KSEvaluation>> = HashMap(),
     private val id_references : MutableList<KSID<KSEvaluation>> = mutableListOf())
   : KSEvaluationContextType {
+
+    private lateinit var document_actual : KSBlockDocument<KSEvaluation>
+
+    override val document : KSBlockDocument<KSEvaluation>
+      get() = document_actual
+
+    override fun elementSegmentPrevious(
+      b : KSBlock<KSEvaluation>) : Optional<KSBlock<KSEvaluation>> =
+      when (b) {
+        is KSBlock.KSBlockDocument -> Optional.empty()
+        is KSBlock.KSBlockSection,
+        is KSBlock.KSBlockSubsection,
+        is KSBlock.KSBlockParagraph,
+        is KSBlock.KSBlockPart     -> {
+          Assertive.require(b.data.number.isPresent)
+          val n = b.data.number.get()
+          when (n) {
+            is KSNumber.KSNumberPart                         ->
+              elementSegmentPreviousPart(n)
+
+            is KSNumber.KSNumberPartSection                  ->
+              elementSegmentPreviousPartSection(n)
+            is KSNumber.KSNumberPartSectionContent           ->
+              elementSegmentPreviousPartSection(n)
+            is KSNumber.KSNumberPartSectionSubsection        ->
+              elementSegmentPreviousPartSection(n)
+            is KSNumber.KSNumberPartSectionSubsectionContent ->
+              elementSegmentPreviousPartSection(n)
+
+            is KSNumber.KSNumberSection                      ->
+              elementSegmentPreviousSection(n)
+            is KSNumber.KSNumberSectionContent               ->
+              elementSegmentPreviousSection(n)
+            is KSNumber.KSNumberSectionSubsection            ->
+              elementSegmentPreviousSection(n)
+            is KSNumber.KSNumberSectionSubsectionContent     ->
+              elementSegmentPreviousSection(n)
+          }
+        }
+      }
+
+    private fun elementSegmentPreviousPart(n : KSNumberPart)
+      : Optional<KSBlock<KSEvaluation>> {
+      Assertive.require(document is KSBlockDocumentWithParts)
+      return if (n.part == 1L) {
+        Optional.of(document)
+      } else {
+        val dp = document as KSBlockDocumentWithParts<KSEvaluation>
+        val pi = (n.part - 1) - 1
+        Optional.of(dp.content[pi.toInt()] as KSBlock<KSEvaluation>)
+      }
+    }
+
+    private fun <N> elementSegmentPreviousSection(n : N)
+      : Optional<KSBlock<KSEvaluation>>
+      where N : KSNumber.HasSectionType {
+      Assertive.require(document is KSBlockDocumentWithSections)
+      return if (n.section == 1L) {
+        Optional.of(document)
+      } else {
+        val dp = document as KSBlockDocumentWithSections<KSEvaluation>
+        val si = (n.section - 1) - 1
+        val sb = dp.content[si.toInt()]
+        Optional.of(sb as KSBlock<KSEvaluation>)
+      }
+    }
+
+    private fun <N> elementSegmentPreviousPartSection(n : N)
+      : Optional<KSBlock<KSEvaluation>>
+      where N : KSNumber.HasPartType, N : KSNumber.HasSectionType {
+      Assertive.require(document is KSBlockDocumentWithParts)
+      return if (n.section == 1L) {
+        val dp = document as KSBlockDocumentWithParts<KSEvaluation>
+        val pi = (n.part - 1)
+        val pp = dp.content[pi.toInt()]
+        Optional.of(pp as KSBlock<KSEvaluation>)
+      } else {
+        val dp = document as KSBlockDocumentWithParts<KSEvaluation>
+        val pi = (n.part - 1)
+        val pp = dp.content[pi.toInt()]
+        val si = (n.section - 1) - 1
+        val sb = pp.content[si.toInt()]
+        Optional.of(sb as KSBlock<KSEvaluation>)
+      }
+    }
+
+    override fun elementSegmentUp(
+      b : KSBlock<KSEvaluation>) : Optional<KSBlock<KSEvaluation>> =
+      when (b) {
+        is KSBlock.KSBlockDocument ->
+          Optional.empty()
+        is KSBlock.KSBlockSubsection,
+        is KSBlock.KSBlockParagraph,
+        is KSBlock.KSBlockPart,
+        is KSBlock.KSBlockSection  -> {
+          Assertive.require(b.data.number.isPresent)
+          val n = b.data.number.get()
+          when (n) {
+            is KSNumber.KSNumberPart,
+            is KSNumber.KSNumberSection,
+            is KSNumber.KSNumberSectionContent,
+            is KSNumber.KSNumberSectionSubsection,
+            is KSNumber.KSNumberSectionSubsectionContent     -> {
+              Optional.of(document as KSBlock<KSEvaluation>)
+            }
+            is KSNumber.KSNumberPartSectionContent           ->
+              elementSegmentUpPartSection(n)
+            is KSNumber.KSNumberPartSectionSubsection        ->
+              elementSegmentUpPartSection(n)
+            is KSNumber.KSNumberPartSectionSubsectionContent ->
+              elementSegmentUpPartSection(n)
+            is KSNumber.KSNumberPartSection                  ->
+              elementSegmentUpPartSection(n)
+          }
+        }
+      }
+
+    private fun <N> elementSegmentUpPartSection(n : N)
+      : Optional<KSBlock<KSEvaluation>>
+      where N : KSNumber.HasPartType {
+      Assertive.require(document is KSBlockDocumentWithParts)
+      val dp = document as KSBlockDocumentWithParts<KSEvaluation>
+      val p = dp.content[(n.part - 1).toInt()]
+      return Optional.of(p as KSBlock<KSEvaluation>)
+    }
+
+    override fun elementSegmentNext(
+      b : KSBlock<KSEvaluation>) : Optional<KSBlock<KSEvaluation>> =
+      when (b) {
+        is KSBlock.KSBlockDocument -> {
+          val bb : KSBlockDocument<KSEvaluation> = b
+          when (bb) {
+            is KSBlock.KSBlockDocument.KSBlockDocumentWithParts    ->
+              Optional.of(bb.content[0] as KSBlock<KSEvaluation>)
+            is KSBlock.KSBlockDocument.KSBlockDocumentWithSections ->
+              Optional.of(bb.content[0] as KSBlock<KSEvaluation>)
+          }
+        }
+        is KSBlock.KSBlockSection,
+        is KSBlock.KSBlockSubsection,
+        is KSBlock.KSBlockParagraph,
+        is KSBlock.KSBlockPart     -> {
+          Assertive.require(b.data.number.isPresent)
+          val n = b.data.number.get()
+          when (n) {
+            is KSNumber.KSNumberPart                         ->
+              elementSegmentNextPart(n)
+
+            is KSNumber.KSNumberPartSection                  ->
+              elementSegmentNextPartSection(n)
+            is KSNumber.KSNumberPartSectionContent           ->
+              elementSegmentNextPartSection(n)
+            is KSNumber.KSNumberPartSectionSubsection        ->
+              elementSegmentNextPartSection(n)
+            is KSNumber.KSNumberPartSectionSubsectionContent ->
+              elementSegmentNextPartSection(n)
+
+            is KSNumber.KSNumberSection                      ->
+              elementSegmentNextSection(n)
+            is KSNumber.KSNumberSectionContent               ->
+              elementSegmentNextSection(n)
+            is KSNumber.KSNumberSectionSubsection            ->
+              elementSegmentNextSection(n)
+            is KSNumber.KSNumberSectionSubsectionContent     ->
+              elementSegmentNextSection(n)
+          }
+        }
+      }
+
+    private fun elementSegmentNextPart(
+      n : KSNumberPart) : Optional<KSBlock<KSEvaluation>> {
+      Assertive.require(document is KSBlockDocumentWithParts)
+      val dp = document as KSBlockDocumentWithParts<KSEvaluation>
+      val pi = n.part - 1
+      val pp = dp.content[pi.toInt()]
+      return Optional.of(pp.content[0] as KSBlock<KSEvaluation>)
+    }
+
+    private fun <N> elementSegmentNextSection(n : N)
+      : Optional<KSBlock<KSEvaluation>>
+      where N : KSNumber.HasSectionType {
+      Assertive.require(document is KSBlockDocumentWithSections)
+      val dp = document as KSBlockDocumentWithSections<KSEvaluation>
+      val sn_next = n.section.toInt()
+      return if (sn_next == dp.content.size) {
+        Optional.empty<KSBlock<KSEvaluation>>()
+      } else {
+        Optional.of(dp.content[sn_next] as KSBlock<KSEvaluation>)
+      }
+    }
+
+    private fun <N> elementSegmentNextPartSection(n : N)
+      : Optional<KSBlock<KSEvaluation>>
+      where N : KSNumber.HasPartType, N : KSNumber.HasSectionType {
+      Assertive.require(document is KSBlockDocumentWithParts)
+      val dp = document as KSBlockDocumentWithParts<KSEvaluation>
+      val pn_current = (n.part - 1).toInt()
+      val pn_next = n.part.toInt()
+      val sn_next = n.section.toInt()
+      val pp = dp.content[pn_current.toInt()]
+      return if (sn_next == pp.content.size) {
+        if (pn_next == dp.content.size) {
+          Optional.empty<KSBlock<KSEvaluation>>()
+        } else {
+          Optional.of(dp.content[pn_next] as KSBlock<KSEvaluation>)
+        }
+      } else {
+        Optional.of(pp.content[sn_next] as KSBlock<KSEvaluation>)
+      }
+    }
+
+    override fun elementForNumber(n : KSNumber) : KSBlock<KSEvaluation> {
+      Assertive.require(blocks_by_number.containsKey(n))
+      return blocks_by_number[n]!!
+    }
+
+    override fun elementForID(id : KSID<KSEvaluation>) : KSBlock<KSEvaluation> {
+      Assertive.require(blocks_by_id.containsKey(id.value))
+      return blocks_by_id[id.value]!!
+    }
 
     fun freshSerial() : Long {
       val serial = this.serial_pool
@@ -84,7 +305,7 @@ object KSEvaluator : KSEvaluatorType {
         if (c.blocks_by_id.containsKey(id.value)) {
           LOG.debug("duplicate id {}", id)
 
-          val ob = c.blocks_by_id.get(id.value)!!
+          val ob = c.blocks_by_id[id.value]!!
           Assertive.require(ob.id.isPresent)
 
           val sb = StringBuilder()
@@ -128,7 +349,7 @@ object KSEvaluator : KSEvaluatorType {
     fun checkIDs() : KSResult<Unit, KSEvaluationError> {
       return KSResult.listMap({ id ->
         if (this.blocks_by_id.containsKey(id.value)) {
-          val b = this.blocks_by_id.get(id.value)
+          val b = this.blocks_by_id[id.value]
           LOG.debug("resolved {} -> {}", id, b)
           KSResult.succeed(Unit)
         } else {
@@ -152,6 +373,19 @@ object KSEvaluator : KSEvaluatorType {
         KSResult.succeed<Unit, KSEvaluationError>(Unit)
       }
     }
+
+    fun <T : KSBlock<KSEvaluation>> recordBlock(b : T) : T {
+      val number_opt = b.data.number
+      number_opt.ifPresent { number ->
+        Assertive.require(!this.blocks_by_number.containsKey(number))
+        this.blocks_by_number.put(number, b)
+      }
+      return b
+    }
+
+    fun setDocumentResult(d : KSBlockDocument<KSEvaluation>) {
+      this.document_actual = d
+    }
   }
 
   override fun evaluate(
@@ -167,6 +401,7 @@ object KSEvaluator : KSEvaluatorType {
     : KSResult<KSBlockDocument<KSEvaluation>, KSEvaluationError> {
 
     return c.checkIDs() flatMap { ignored ->
+      c.setDocumentResult(d)
       KSResult.succeed<KSBlockDocument<KSEvaluation>, KSEvaluationError>(d)
     }
   }
@@ -344,12 +579,13 @@ object KSEvaluator : KSEvaluatorType {
       evaluateSubsectionContent(c, cc, pn, sn, OptionalLong.empty(), i + 1L)
     }, e.content)
     val act_title = KSResult.listMap({ e ->
-      evaluateInlineText (c, e) }, e.title)
+      evaluateInlineText (c, e)
+    }, e.title)
 
     return act_content flatMap { content ->
       act_title flatMap { title ->
 
-        val num = if (pn.isPresent) {
+        val num : KSNumber = if (pn.isPresent) {
           KSNumberPartSection(pn.asLong, sn)
         } else {
           KSNumberSection(sn)
@@ -357,7 +593,8 @@ object KSEvaluator : KSEvaluatorType {
 
         val ev = KSEvaluation(c, c.freshSerial(), Optional.of(num))
         c.recordID(c, e, { e, id ->
-          KSBlockSectionWithContent(e.position, ev, e.type, id, title, content)
+          c.recordBlock(KSBlockSectionWithContent(
+            e.position, ev, e.type, id, title, content))
         })
       }
     }
@@ -374,7 +611,8 @@ object KSEvaluator : KSEvaluatorType {
     when (cc) {
       is KSSubsectionContent.KSSubsectionParagraph ->
         evaluateParagraph(c, cc.paragraph, pn, sn, ssn, cn) map { x ->
-          KSSubsectionParagraph(x) }
+          KSSubsectionParagraph(x)
+        }
     }
 
   private fun evaluateParagraph(
@@ -391,7 +629,7 @@ object KSEvaluator : KSEvaluatorType {
 
     return act_content flatMap { content ->
 
-      val num = if (pn.isPresent) {
+      val num : KSNumber = if (pn.isPresent) {
         if (ssn.isPresent) {
           KSNumberPartSectionSubsectionContent(pn.asLong, sn, ssn.asLong, cn)
         } else {
@@ -407,7 +645,7 @@ object KSEvaluator : KSEvaluatorType {
 
       val ev = KSEvaluation(c, c.freshSerial(), Optional.of(num))
       c.recordID(c, p, { p, id ->
-        KSBlockParagraph(p.position, ev, p.type, id, content)
+        c.recordBlock(KSBlockParagraph(p.position, ev, p.type, id, content))
       })
     }
   }
@@ -428,7 +666,7 @@ object KSEvaluator : KSEvaluatorType {
     return act_content flatMap { content ->
       act_title flatMap { title ->
 
-        val num = if (pn.isPresent) {
+        val num : KSNumber = if (pn.isPresent) {
           KSNumberPartSection(pn.asLong, sn)
         } else {
           KSNumberSection(sn)
@@ -436,7 +674,8 @@ object KSEvaluator : KSEvaluatorType {
 
         val ev = KSEvaluation(c, c.freshSerial(), Optional.of(num))
         c.recordID(c, e, { e, id ->
-          KSBlockSectionWithSubsections(e.position, ev, e.type, id, title, content)
+          c.recordBlock(KSBlockSectionWithSubsections(
+            e.position, ev, e.type, id, title, content))
         })
       }
     }
@@ -461,7 +700,7 @@ object KSEvaluator : KSEvaluatorType {
     return act_content flatMap { content ->
       act_title flatMap { title ->
 
-        val num = if (pn.isPresent) {
+        val num : KSNumber = if (pn.isPresent) {
           KSNumberPartSectionSubsection(pn.asLong, sn, ssn)
         } else {
           KSNumberSectionSubsection(sn, ssn)
@@ -469,7 +708,8 @@ object KSEvaluator : KSEvaluatorType {
 
         val ev = KSEvaluation(c, serial, Optional.of(num))
         c.recordID(c, ss, { ss, id ->
-          KSBlockSubsection(ss.position, ev, ss.type, id, title, content)
+          c.recordBlock(KSBlockSubsection(
+            ss.position, ev, ss.type, id, title, content))
         })
       }
     }
@@ -490,7 +730,8 @@ object KSEvaluator : KSEvaluatorType {
       act_title flatMap { title ->
         val ev = KSEvaluation(c, serial, Optional.empty())
         c.recordID(c, d, { ss, id ->
-          KSBlockDocumentWithParts(d.position, ev, id, d.type, title, content)
+          c.recordBlock(KSBlockDocumentWithParts(
+            d.position, ev, id, d.type, title, content))
         })
       }
     }
@@ -512,7 +753,8 @@ object KSEvaluator : KSEvaluatorType {
       act_title flatMap { title ->
         val ev = KSEvaluation(c, serial, Optional.of(KSNumberPart(pn)))
         c.recordID(c, e, { e, id ->
-          KSBlockPart(e.position, ev, e.type, id, title, content)
+          c.recordBlock(
+            KSBlockPart(e.position, ev, e.type, id, title, content))
         })
       }
     }

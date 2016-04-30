@@ -85,7 +85,7 @@ abstract class KSEvaluatorContract {
     r as KSSuccess<KSBlockDocumentWithSections<KSEvaluation>, *>
   }
 
-  @Test fun testSectionNumber()
+  @Test fun testSections()
   {
     val ee = newEvaluatorForString("""
 [document (title dt)
@@ -107,7 +107,10 @@ abstract class KSEvaluatorContract {
     val r = ee.e.evaluate(i)
     r as KSSuccess<KSBlockDocumentWithSections<KSEvaluation>, *>
 
+    val ctx = r.result.data.context
     Assert.assertEquals("dt", r.result.title[0].text)
+    Assert.assertFalse(ctx.elementSegmentUp(r.result).isPresent)
+    Assert.assertFalse(ctx.elementSegmentPrevious(r.result).isPresent)
 
     run {
       val s = r.result.content[0] as KSBlockSectionWithContent
@@ -120,6 +123,22 @@ abstract class KSEvaluatorContract {
       Assert.assertEquals(KSNumberSectionContent(1L, 2L), p2.paragraph.data.number.get())
       val p3 = s.content[2] as KSSubsectionParagraph<KSEvaluation>
       Assert.assertEquals(KSNumberSectionContent(1L, 3L), p3.paragraph.data.number.get())
+
+      Assert.assertSame(r.result, ctx.elementSegmentUp(s).get())
+      Assert.assertSame(r.result, ctx.elementSegmentUp(p1.paragraph).get())
+      Assert.assertSame(r.result, ctx.elementSegmentUp(p2.paragraph).get())
+      Assert.assertSame(r.result, ctx.elementSegmentUp(p3.paragraph).get())
+
+      Assert.assertSame(r.result, ctx.elementSegmentPrevious(s).get())
+      Assert.assertSame(r.result, ctx.elementSegmentPrevious(p1.paragraph).get())
+      Assert.assertSame(r.result, ctx.elementSegmentPrevious(p2.paragraph).get())
+      Assert.assertSame(r.result, ctx.elementSegmentPrevious(p3.paragraph).get())
+
+      Assert.assertSame(s, ctx.elementSegmentNext(r.result).get())
+      Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(s).get())
+      Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(p1.paragraph).get())
+      Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(p2.paragraph).get())
+      Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(p3.paragraph).get())
     }
 
     run {
@@ -133,6 +152,22 @@ abstract class KSEvaluatorContract {
       Assert.assertEquals(KSNumberSectionContent(2L, 2L), p2.paragraph.data.number.get())
       val p3 = s.content[2] as KSSubsectionParagraph<KSEvaluation>
       Assert.assertEquals(KSNumberSectionContent(2L, 3L), p3.paragraph.data.number.get())
+
+      Assert.assertSame(r.result, ctx.elementSegmentUp(s).get())
+      Assert.assertSame(r.result, ctx.elementSegmentUp(p1.paragraph).get())
+      Assert.assertSame(r.result, ctx.elementSegmentUp(p2.paragraph).get())
+      Assert.assertSame(r.result, ctx.elementSegmentUp(p3.paragraph).get())
+
+      val s_prev = r.result.content[0] as KSBlockSectionWithContent
+      Assert.assertSame(s_prev, ctx.elementSegmentPrevious(s).get())
+      Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p1.paragraph).get())
+      Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p2.paragraph).get())
+      Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p3.paragraph).get())
+
+      Assert.assertSame(r.result.content[2], ctx.elementSegmentNext(s).get())
+      Assert.assertSame(r.result.content[2], ctx.elementSegmentNext(p1.paragraph).get())
+      Assert.assertSame(r.result.content[2], ctx.elementSegmentNext(p2.paragraph).get())
+      Assert.assertSame(r.result.content[2], ctx.elementSegmentNext(p3.paragraph).get())
     }
 
     run {
@@ -146,10 +181,26 @@ abstract class KSEvaluatorContract {
       Assert.assertEquals(KSNumberSectionContent(3L, 2L), p2.paragraph.data.number.get())
       val p3 = s.content[2] as KSSubsectionParagraph<KSEvaluation>
       Assert.assertEquals(KSNumberSectionContent(3L, 3L), p3.paragraph.data.number.get())
+
+      Assert.assertSame(r.result, ctx.elementSegmentUp(s).get())
+      Assert.assertSame(r.result, ctx.elementSegmentUp(p1.paragraph).get())
+      Assert.assertSame(r.result, ctx.elementSegmentUp(p2.paragraph).get())
+      Assert.assertSame(r.result, ctx.elementSegmentUp(p3.paragraph).get())
+
+      val s_prev = r.result.content[1] as KSBlockSectionWithContent
+      Assert.assertSame(s_prev, ctx.elementSegmentPrevious(s).get())
+      Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p1.paragraph).get())
+      Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p2.paragraph).get())
+      Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p3.paragraph).get())
+
+      Assert.assertFalse(ctx.elementSegmentNext(s).isPresent)
+      Assert.assertFalse(ctx.elementSegmentNext(p1.paragraph).isPresent)
+      Assert.assertFalse(ctx.elementSegmentNext(p2.paragraph).isPresent)
+      Assert.assertFalse(ctx.elementSegmentNext(p3.paragraph).isPresent)
     }
   }
 
-  @Test fun testSectionSubsectionNumber()
+  @Test fun testSectionSubsections()
   {
     val ee = newEvaluatorForString("""
 [document (title dt)
@@ -173,13 +224,20 @@ abstract class KSEvaluatorContract {
     val r = ee.e.evaluate(i)
     r as KSSuccess<KSBlockDocumentWithSections<KSEvaluation>, *>
 
+    val ctx = r.result.data.context
     Assert.assertEquals("dt", r.result.title[0].text)
+    Assert.assertFalse(ctx.elementSegmentUp(r.result).isPresent)
+    Assert.assertFalse(ctx.elementSegmentPrevious(r.result).isPresent)
+    Assert.assertEquals(r.result.content[0], ctx.elementSegmentNext(r.result).get())
 
     run {
       val s = r.result.content[0] as KSBlockSectionWithSubsections
       Assert.assertEquals("s1", s.title[0].text)
       Assert.assertEquals(KSNumberSection(1L), s.data.number.get())
       Assert.assertEquals(2, s.content.size)
+      Assert.assertSame(r.result, ctx.elementSegmentUp(s).get())
+      Assert.assertSame(r.result, ctx.elementSegmentPrevious(s).get())
+      Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(s).get())
 
       run {
         val ss = s.content[0]
@@ -189,6 +247,19 @@ abstract class KSEvaluatorContract {
         Assert.assertEquals(KSNumberSectionSubsectionContent(1L, 1L, 1L), p1.paragraph.data.number.get())
         val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
         Assert.assertEquals(KSNumberSectionSubsectionContent(1L, 1L, 2L), p2.paragraph.data.number.get())
+
+        Assert.assertSame(r.result, ctx.elementSegmentUp(ss).get())
+        Assert.assertSame(r.result, ctx.elementSegmentUp(p1.paragraph).get())
+        Assert.assertSame(r.result, ctx.elementSegmentUp(p2.paragraph).get())
+
+        Assert.assertSame(r.result, ctx.elementSegmentPrevious(ss).get())
+        Assert.assertSame(r.result, ctx.elementSegmentPrevious(p1.paragraph).get())
+        Assert.assertSame(r.result, ctx.elementSegmentPrevious(p2.paragraph).get())
+
+        Assert.assertSame(s, ctx.elementSegmentNext(r.result).get())
+        Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(ss).get())
+        Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(p1.paragraph).get())
+        Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(p2.paragraph).get())
       }
 
       run {
@@ -199,6 +270,18 @@ abstract class KSEvaluatorContract {
         Assert.assertEquals(KSNumberSectionSubsectionContent(1L, 2L, 1L), p1.paragraph.data.number.get())
         val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
         Assert.assertEquals(KSNumberSectionSubsectionContent(1L, 2L, 2L), p2.paragraph.data.number.get())
+
+        Assert.assertSame(r.result, ctx.elementSegmentUp(ss).get())
+        Assert.assertSame(r.result, ctx.elementSegmentUp(p1.paragraph).get())
+        Assert.assertSame(r.result, ctx.elementSegmentUp(p2.paragraph).get())
+
+        Assert.assertSame(r.result, ctx.elementSegmentPrevious(ss).get())
+        Assert.assertSame(r.result, ctx.elementSegmentPrevious(p1.paragraph).get())
+        Assert.assertSame(r.result, ctx.elementSegmentPrevious(p2.paragraph).get())
+
+        Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(ss).get())
+        Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(p1.paragraph).get())
+        Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(p2.paragraph).get())
       }
     }
 
@@ -207,6 +290,8 @@ abstract class KSEvaluatorContract {
       Assert.assertEquals("s2", s.title[0].text)
       Assert.assertEquals(KSNumberSection(2L), s.data.number.get())
       Assert.assertEquals(2, s.content.size)
+      Assert.assertSame(r.result, ctx.elementSegmentUp(s).get())
+      Assert.assertFalse(ctx.elementSegmentNext(s).isPresent)
 
       run {
         val ss = s.content[0]
@@ -216,6 +301,19 @@ abstract class KSEvaluatorContract {
         Assert.assertEquals(KSNumberSectionSubsectionContent(2L, 1L, 1L), p1.paragraph.data.number.get())
         val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
         Assert.assertEquals(KSNumberSectionSubsectionContent(2L, 1L, 2L), p2.paragraph.data.number.get())
+
+        Assert.assertSame(r.result, ctx.elementSegmentUp(ss).get())
+        Assert.assertSame(r.result, ctx.elementSegmentUp(p1.paragraph).get())
+        Assert.assertSame(r.result, ctx.elementSegmentUp(p2.paragraph).get())
+
+        val s_prev = r.result.content[0]
+        Assert.assertSame(s_prev, ctx.elementSegmentPrevious(ss).get())
+        Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p1.paragraph).get())
+        Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p2.paragraph).get())
+
+        Assert.assertFalse(ctx.elementSegmentNext(ss).isPresent)
+        Assert.assertFalse(ctx.elementSegmentNext(p1.paragraph).isPresent)
+        Assert.assertFalse(ctx.elementSegmentNext(p2.paragraph).isPresent)
       }
 
       run {
@@ -226,11 +324,24 @@ abstract class KSEvaluatorContract {
         Assert.assertEquals(KSNumberSectionSubsectionContent(2L, 2L, 1L), p1.paragraph.data.number.get())
         val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
         Assert.assertEquals(KSNumberSectionSubsectionContent(2L, 2L, 2L), p2.paragraph.data.number.get())
+
+        Assert.assertSame(r.result, ctx.elementSegmentUp(ss).get())
+        Assert.assertSame(r.result, ctx.elementSegmentUp(p1.paragraph).get())
+        Assert.assertSame(r.result, ctx.elementSegmentUp(p2.paragraph).get())
+
+        val s_prev = r.result.content[0]
+        Assert.assertSame(s_prev, ctx.elementSegmentPrevious(ss).get())
+        Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p1.paragraph).get())
+        Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p2.paragraph).get())
+
+        Assert.assertFalse(ctx.elementSegmentNext(ss).isPresent)
+        Assert.assertFalse(ctx.elementSegmentNext(p1.paragraph).isPresent)
+        Assert.assertFalse(ctx.elementSegmentNext(p2.paragraph).isPresent)
       }
     }
   }
 
-  @Test fun testPartSectionNumber()
+  @Test fun testPartSections()
   {
     val ee = newEvaluatorForString("""
 [document (title dt)
@@ -254,13 +365,20 @@ abstract class KSEvaluatorContract {
     val r = ee.e.evaluate(i)
     r as KSSuccess<KSBlockDocumentWithParts<KSEvaluation>, *>
 
+    val ctx = r.result.data.context
     Assert.assertEquals("dt", r.result.title[0].text)
+    Assert.assertFalse(ctx.elementSegmentUp(r.result).isPresent)
+    Assert.assertFalse(ctx.elementSegmentPrevious(r.result).isPresent)
+    Assert.assertEquals(r.result.content[0], ctx.elementSegmentNext(r.result).get())
 
     run {
       val p = r.result.content[0]
       Assert.assertEquals("p1", p.title[0].text)
       Assert.assertEquals(KSNumberPart(1L), p.data.number.get())
       Assert.assertEquals(2, p.content.size)
+      Assert.assertSame(r.result, ctx.elementSegmentUp(p).get())
+      Assert.assertSame(r.result, ctx.elementSegmentPrevious(p).get())
+      Assert.assertSame(p, ctx.elementSegmentNext(r.result).get())
 
       run {
         val s = p.content[0] as KSBlockSectionWithContent<KSEvaluation>
@@ -272,6 +390,18 @@ abstract class KSEvaluatorContract {
         Assert.assertEquals(KSNumberPartSectionContent(1L, 1L, 1L), p1.paragraph.data.number.get())
         val p2 = s.content[1] as KSSubsectionParagraph<KSEvaluation>
         Assert.assertEquals(KSNumberPartSectionContent(1L, 1L, 2L), p2.paragraph.data.number.get())
+
+        Assert.assertSame(p, ctx.elementSegmentUp(s).get())
+        Assert.assertSame(p, ctx.elementSegmentUp(p1.paragraph).get())
+        Assert.assertSame(p, ctx.elementSegmentUp(p2.paragraph).get())
+
+        Assert.assertSame(p, ctx.elementSegmentPrevious(s).get())
+        Assert.assertSame(p, ctx.elementSegmentPrevious(p1.paragraph).get())
+        Assert.assertSame(p, ctx.elementSegmentPrevious(p2.paragraph).get())
+
+        Assert.assertEquals(p.content[1], ctx.elementSegmentNext(s).get())
+        Assert.assertEquals(p.content[1], ctx.elementSegmentNext(p1.paragraph).get())
+        Assert.assertEquals(p.content[1], ctx.elementSegmentNext(p2.paragraph).get())
       }
 
       run {
@@ -284,6 +414,19 @@ abstract class KSEvaluatorContract {
         Assert.assertEquals(KSNumberPartSectionContent(1L, 2L, 1L), p1.paragraph.data.number.get())
         val p2 = s.content[1] as KSSubsectionParagraph<KSEvaluation>
         Assert.assertEquals(KSNumberPartSectionContent(1L, 2L, 2L), p2.paragraph.data.number.get())
+
+        Assert.assertSame(p, ctx.elementSegmentUp(s).get())
+        Assert.assertSame(p, ctx.elementSegmentUp(p1.paragraph).get())
+        Assert.assertSame(p, ctx.elementSegmentUp(p2.paragraph).get())
+
+        val s_prev = p.content[0]
+        Assert.assertSame(s_prev, ctx.elementSegmentPrevious(s).get())
+        Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p1.paragraph).get())
+        Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p2.paragraph).get())
+
+        Assert.assertEquals(r.result.content[1], ctx.elementSegmentNext(s).get())
+        Assert.assertEquals(r.result.content[1], ctx.elementSegmentNext(p1.paragraph).get())
+        Assert.assertEquals(r.result.content[1], ctx.elementSegmentNext(p2.paragraph).get())
       }
     }
 
@@ -292,6 +435,8 @@ abstract class KSEvaluatorContract {
       Assert.assertEquals("p2", p.title[0].text)
       Assert.assertEquals(KSNumberPart(2L), p.data.number.get())
       Assert.assertEquals(2, p.content.size)
+      Assert.assertSame(r.result, ctx.elementSegmentUp(p).get())
+      Assert.assertSame(p.content[0], ctx.elementSegmentNext(p).get())
 
       run {
         val s = p.content[0] as KSBlockSectionWithContent<KSEvaluation>
@@ -303,6 +448,18 @@ abstract class KSEvaluatorContract {
         Assert.assertEquals(KSNumberPartSectionContent(2L, 1L, 1L), p1.paragraph.data.number.get())
         val p2 = s.content[1] as KSSubsectionParagraph<KSEvaluation>
         Assert.assertEquals(KSNumberPartSectionContent(2L, 1L, 2L), p2.paragraph.data.number.get())
+
+        Assert.assertSame(p, ctx.elementSegmentUp(s).get())
+        Assert.assertSame(p, ctx.elementSegmentUp(p1.paragraph).get())
+        Assert.assertSame(p, ctx.elementSegmentUp(p2.paragraph).get())
+
+        Assert.assertSame(p, ctx.elementSegmentPrevious(s).get())
+        Assert.assertSame(p, ctx.elementSegmentPrevious(p1.paragraph).get())
+        Assert.assertSame(p, ctx.elementSegmentPrevious(p2.paragraph).get())
+
+        Assert.assertEquals(p.content[1], ctx.elementSegmentNext(s).get())
+        Assert.assertEquals(p.content[1], ctx.elementSegmentNext(p1.paragraph).get())
+        Assert.assertEquals(p.content[1], ctx.elementSegmentNext(p2.paragraph).get())
       }
 
       run {
@@ -315,11 +472,24 @@ abstract class KSEvaluatorContract {
         Assert.assertEquals(KSNumberPartSectionContent(2L, 2L, 1L), p1.paragraph.data.number.get())
         val p2 = s.content[1] as KSSubsectionParagraph<KSEvaluation>
         Assert.assertEquals(KSNumberPartSectionContent(2L, 2L, 2L), p2.paragraph.data.number.get())
+
+        Assert.assertSame(p, ctx.elementSegmentUp(s).get())
+        Assert.assertSame(p, ctx.elementSegmentUp(p1.paragraph).get())
+        Assert.assertSame(p, ctx.elementSegmentUp(p2.paragraph).get())
+
+        val s_prev = p.content[0]
+        Assert.assertSame(s_prev, ctx.elementSegmentPrevious(s).get())
+        Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p1.paragraph).get())
+        Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p2.paragraph).get())
+
+        Assert.assertFalse(ctx.elementSegmentNext(s).isPresent)
+        Assert.assertFalse(ctx.elementSegmentNext(p1.paragraph).isPresent)
+        Assert.assertFalse(ctx.elementSegmentNext(p2.paragraph).isPresent)
       }
     }
   }
 
-  @Test fun testPartSectionSubsectionNumber()
+  @Test fun testPartSectionSubsections()
   {
     val ee = newEvaluatorForString("""
 [document (title dt)
@@ -359,19 +529,29 @@ abstract class KSEvaluatorContract {
     val r = ee.e.evaluate(i)
     r as KSSuccess<KSBlockDocumentWithParts<KSEvaluation>, *>
 
+    val ctx = r.result.data.context
     Assert.assertEquals("dt", r.result.title[0].text)
+    Assert.assertFalse(ctx.elementSegmentUp(r.result).isPresent)
+    Assert.assertFalse(ctx.elementSegmentPrevious(r.result).isPresent)
+    Assert.assertEquals(r.result.content[0], ctx.elementSegmentNext(r.result).get())
 
     run {
       val p = r.result.content[0]
       Assert.assertEquals("p1", p.title[0].text)
       Assert.assertEquals(KSNumberPart(1L), p.data.number.get())
       Assert.assertEquals(2, p.content.size)
+      Assert.assertSame(r.result, ctx.elementSegmentUp(p).get())
+      Assert.assertSame(r.result, ctx.elementSegmentPrevious(p).get())
+      Assert.assertSame(p, ctx.elementSegmentNext(r.result).get())
 
       run {
         val s = p.content[0] as KSBlockSectionWithSubsections<KSEvaluation>
         Assert.assertEquals("s1", s.title[0].text)
         Assert.assertEquals(KSNumberPartSection(1L, 1L), s.data.number.get())
         Assert.assertEquals(2, s.content.size)
+        Assert.assertSame(p, ctx.elementSegmentUp(s).get())
+        Assert.assertSame(p, ctx.elementSegmentPrevious(s).get())
+        Assert.assertSame(p.content[1], ctx.elementSegmentNext(s).get())
 
         run {
           val ss = s.content[0]
@@ -380,6 +560,18 @@ abstract class KSEvaluatorContract {
           Assert.assertEquals(KSNumberPartSectionSubsectionContent(1L, 1L, 1L, 1L), p1.paragraph.data.number.get())
           val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
           Assert.assertEquals(KSNumberPartSectionSubsectionContent(1L, 1L, 1L, 2L), p2.paragraph.data.number.get())
+
+          Assert.assertSame(p, ctx.elementSegmentUp(ss).get())
+          Assert.assertSame(p, ctx.elementSegmentUp(p1.paragraph).get())
+          Assert.assertSame(p, ctx.elementSegmentUp(p2.paragraph).get())
+
+          Assert.assertSame(p, ctx.elementSegmentPrevious(ss).get())
+          Assert.assertSame(p, ctx.elementSegmentPrevious(p1.paragraph).get())
+          Assert.assertSame(p, ctx.elementSegmentPrevious(p2.paragraph).get())
+
+          Assert.assertSame(p.content[1], ctx.elementSegmentNext(ss).get())
+          Assert.assertSame(p.content[1], ctx.elementSegmentNext(p1.paragraph).get())
+          Assert.assertSame(p.content[1], ctx.elementSegmentNext(p2.paragraph).get())
         }
 
         run {
@@ -389,6 +581,18 @@ abstract class KSEvaluatorContract {
           Assert.assertEquals(KSNumberPartSectionSubsectionContent(1L, 1L, 2L, 1L), p1.paragraph.data.number.get())
           val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
           Assert.assertEquals(KSNumberPartSectionSubsectionContent(1L, 1L, 2L, 2L), p2.paragraph.data.number.get())
+
+          Assert.assertSame(p, ctx.elementSegmentUp(ss).get())
+          Assert.assertSame(p, ctx.elementSegmentUp(p1.paragraph).get())
+          Assert.assertSame(p, ctx.elementSegmentUp(p2.paragraph).get())
+
+          Assert.assertSame(p, ctx.elementSegmentPrevious(ss).get())
+          Assert.assertSame(p, ctx.elementSegmentPrevious(p1.paragraph).get())
+          Assert.assertSame(p, ctx.elementSegmentPrevious(p2.paragraph).get())
+
+          Assert.assertSame(p.content[1], ctx.elementSegmentNext(ss).get())
+          Assert.assertSame(p.content[1], ctx.elementSegmentNext(p1.paragraph).get())
+          Assert.assertSame(p.content[1], ctx.elementSegmentNext(p2.paragraph).get())
         }
       }
 
@@ -397,6 +601,11 @@ abstract class KSEvaluatorContract {
         Assert.assertEquals("s2", s.title[0].text)
         Assert.assertEquals(KSNumberPartSection(1L, 2L), s.data.number.get())
         Assert.assertEquals(2, s.content.size)
+        Assert.assertSame(p, ctx.elementSegmentUp(s).get())
+        Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(s).get())
+
+        val s_prev = p.content[0]
+        Assert.assertSame(s_prev, ctx.elementSegmentPrevious(s).get())
 
         run {
           val ss = s.content[0]
@@ -405,6 +614,18 @@ abstract class KSEvaluatorContract {
           Assert.assertEquals(KSNumberPartSectionSubsectionContent(1L, 2L, 1L, 1L), p1.paragraph.data.number.get())
           val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
           Assert.assertEquals(KSNumberPartSectionSubsectionContent(1L, 2L, 1L, 2L), p2.paragraph.data.number.get())
+
+          Assert.assertSame(p, ctx.elementSegmentUp(ss).get())
+          Assert.assertSame(p, ctx.elementSegmentUp(p1.paragraph).get())
+          Assert.assertSame(p, ctx.elementSegmentUp(p2.paragraph).get())
+
+          Assert.assertSame(s_prev, ctx.elementSegmentPrevious(ss).get())
+          Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p1.paragraph).get())
+          Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p2.paragraph).get())
+
+          Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(ss).get())
+          Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(p1.paragraph).get())
+          Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(p2.paragraph).get())
         }
 
         run {
@@ -414,6 +635,18 @@ abstract class KSEvaluatorContract {
           Assert.assertEquals(KSNumberPartSectionSubsectionContent(1L, 2L, 2L, 1L), p1.paragraph.data.number.get())
           val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
           Assert.assertEquals(KSNumberPartSectionSubsectionContent(1L, 2L, 2L, 2L), p2.paragraph.data.number.get())
+
+          Assert.assertSame(p, ctx.elementSegmentUp(ss).get())
+          Assert.assertSame(p, ctx.elementSegmentUp(p1.paragraph).get())
+          Assert.assertSame(p, ctx.elementSegmentUp(p2.paragraph).get())
+
+          Assert.assertSame(s_prev, ctx.elementSegmentPrevious(ss).get())
+          Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p1.paragraph).get())
+          Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p2.paragraph).get())
+
+          Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(ss).get())
+          Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(p1.paragraph).get())
+          Assert.assertSame(r.result.content[1], ctx.elementSegmentNext(p2.paragraph).get())
         }
       }
     }
@@ -423,12 +656,19 @@ abstract class KSEvaluatorContract {
       Assert.assertEquals("p2", p.title[0].text)
       Assert.assertEquals(KSNumberPart(2L), p.data.number.get())
       Assert.assertEquals(2, p.content.size)
+      Assert.assertSame(p.content[0], ctx.elementSegmentNext(p).get())
+
+      val p_prev = r.result.content[0]
+      Assert.assertSame(p_prev, ctx.elementSegmentPrevious(p).get())
 
       run {
         val s = p.content[0] as KSBlockSectionWithSubsections<KSEvaluation>
         Assert.assertEquals("s1", s.title[0].text)
         Assert.assertEquals(KSNumberPartSection(2L, 1L), s.data.number.get())
         Assert.assertEquals(2, s.content.size)
+        Assert.assertSame(p, ctx.elementSegmentUp(s).get())
+        Assert.assertSame(p, ctx.elementSegmentPrevious(s).get())
+        Assert.assertSame(p.content[1], ctx.elementSegmentNext(s).get())
 
         run {
           val ss = s.content[0]
@@ -437,6 +677,18 @@ abstract class KSEvaluatorContract {
           Assert.assertEquals(KSNumberPartSectionSubsectionContent(2L, 1L, 1L, 1L), p1.paragraph.data.number.get())
           val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
           Assert.assertEquals(KSNumberPartSectionSubsectionContent(2L, 1L, 1L, 2L), p2.paragraph.data.number.get())
+
+          Assert.assertSame(p, ctx.elementSegmentUp(ss).get())
+          Assert.assertSame(p, ctx.elementSegmentUp(p1.paragraph).get())
+          Assert.assertSame(p, ctx.elementSegmentUp(p2.paragraph).get())
+
+          Assert.assertSame(p, ctx.elementSegmentPrevious(ss).get())
+          Assert.assertSame(p, ctx.elementSegmentPrevious(p1.paragraph).get())
+          Assert.assertSame(p, ctx.elementSegmentPrevious(p2.paragraph).get())
+
+          Assert.assertSame(p.content[1], ctx.elementSegmentNext(ss).get())
+          Assert.assertSame(p.content[1], ctx.elementSegmentNext(p1.paragraph).get())
+          Assert.assertSame(p.content[1], ctx.elementSegmentNext(p2.paragraph).get())
         }
 
         run {
@@ -446,6 +698,18 @@ abstract class KSEvaluatorContract {
           Assert.assertEquals(KSNumberPartSectionSubsectionContent(2L, 1L, 2L, 1L), p1.paragraph.data.number.get())
           val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
           Assert.assertEquals(KSNumberPartSectionSubsectionContent(2L, 1L, 2L, 2L), p2.paragraph.data.number.get())
+
+          Assert.assertSame(p, ctx.elementSegmentUp(ss).get())
+          Assert.assertSame(p, ctx.elementSegmentUp(p1.paragraph).get())
+          Assert.assertSame(p, ctx.elementSegmentUp(p2.paragraph).get())
+
+          Assert.assertSame(p, ctx.elementSegmentPrevious(ss).get())
+          Assert.assertSame(p, ctx.elementSegmentPrevious(p1.paragraph).get())
+          Assert.assertSame(p, ctx.elementSegmentPrevious(p2.paragraph).get())
+
+          Assert.assertSame(p.content[1], ctx.elementSegmentNext(ss).get())
+          Assert.assertSame(p.content[1], ctx.elementSegmentNext(p1.paragraph).get())
+          Assert.assertSame(p.content[1], ctx.elementSegmentNext(p2.paragraph).get())
         }
       }
 
@@ -454,6 +718,11 @@ abstract class KSEvaluatorContract {
         Assert.assertEquals("s2", s.title[0].text)
         Assert.assertEquals(KSNumberPartSection(2L, 2L), s.data.number.get())
         Assert.assertEquals(2, s.content.size)
+        Assert.assertSame(p, ctx.elementSegmentUp(s).get())
+        Assert.assertFalse(ctx.elementSegmentNext(s).isPresent)
+
+        val s_prev = p.content[0]
+        Assert.assertSame(s_prev, ctx.elementSegmentPrevious(s).get())
 
         run {
           val ss = s.content[0]
@@ -462,6 +731,18 @@ abstract class KSEvaluatorContract {
           Assert.assertEquals(KSNumberPartSectionSubsectionContent(2L, 2L, 1L, 1L), p1.paragraph.data.number.get())
           val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
           Assert.assertEquals(KSNumberPartSectionSubsectionContent(2L, 2L, 1L, 2L), p2.paragraph.data.number.get())
+
+          Assert.assertSame(p, ctx.elementSegmentUp(ss).get())
+          Assert.assertSame(p, ctx.elementSegmentUp(p1.paragraph).get())
+          Assert.assertSame(p, ctx.elementSegmentUp(p2.paragraph).get())
+
+          Assert.assertSame(s_prev, ctx.elementSegmentPrevious(ss).get())
+          Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p1.paragraph).get())
+          Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p2.paragraph).get())
+
+          Assert.assertFalse(ctx.elementSegmentNext(ss).isPresent)
+          Assert.assertFalse(ctx.elementSegmentNext(p1.paragraph).isPresent)
+          Assert.assertFalse(ctx.elementSegmentNext(p2.paragraph).isPresent)
         }
 
         run {
@@ -471,6 +752,18 @@ abstract class KSEvaluatorContract {
           Assert.assertEquals(KSNumberPartSectionSubsectionContent(2L, 2L, 2L, 1L), p1.paragraph.data.number.get())
           val p2 = ss.content[1] as KSSubsectionParagraph<KSEvaluation>
           Assert.assertEquals(KSNumberPartSectionSubsectionContent(2L, 2L, 2L, 2L), p2.paragraph.data.number.get())
+
+          Assert.assertSame(p, ctx.elementSegmentUp(ss).get())
+          Assert.assertSame(p, ctx.elementSegmentUp(p1.paragraph).get())
+          Assert.assertSame(p, ctx.elementSegmentUp(p2.paragraph).get())
+
+          Assert.assertSame(s_prev, ctx.elementSegmentPrevious(ss).get())
+          Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p1.paragraph).get())
+          Assert.assertSame(s_prev, ctx.elementSegmentPrevious(p2.paragraph).get())
+
+          Assert.assertFalse(ctx.elementSegmentNext(ss).isPresent)
+          Assert.assertFalse(ctx.elementSegmentNext(p1.paragraph).isPresent)
+          Assert.assertFalse(ctx.elementSegmentNext(p2.paragraph).isPresent)
         }
       }
     }

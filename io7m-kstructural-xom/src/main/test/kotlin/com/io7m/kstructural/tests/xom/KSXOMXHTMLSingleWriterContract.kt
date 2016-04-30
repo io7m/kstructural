@@ -1,4 +1,4 @@
-/*
+package com.io7m.kstructural.tests.xom/*
  * Copyright © 2016 <code@io7m.com> http://io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -14,30 +14,6 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.core
-
-object KSTextUtilities {
-
-  fun <T> concatenateInto(sb : StringBuilder, xs : List<T>) : Unit {
-    val max = xs.size - 1
-    for (i in 0 .. max) {
-      sb.append(xs[i])
-      if (i < max) {
-        sb.append(" ")
-      }
-    }
-  }
-
-  fun <T> concatenate(xs : List<T>) : String {
-    val sb = StringBuilder()
-    val max = xs.size - 1
-    for (i in 0 .. max) {
-      sb.append(xs[i])
-      if (i < max) {
-        sb.append(" ")
-      }
-    }
-    return sb.toString()
-  }
+abstract class KSXOMXHTMLSingleWriterContract {
 
 }

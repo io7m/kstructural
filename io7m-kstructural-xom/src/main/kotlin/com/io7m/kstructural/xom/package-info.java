@@ -14,30 +14,9 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.core
+/**
+ * XOM backend.
+ */
 
-object KSTextUtilities {
+@com.io7m.jnull.NonNullByDefault package com.io7m.kstructural.xom;
 
-  fun <T> concatenateInto(sb : StringBuilder, xs : List<T>) : Unit {
-    val max = xs.size - 1
-    for (i in 0 .. max) {
-      sb.append(xs[i])
-      if (i < max) {
-        sb.append(" ")
-      }
-    }
-  }
-
-  fun <T> concatenate(xs : List<T>) : String {
-    val sb = StringBuilder()
-    val max = xs.size - 1
-    for (i in 0 .. max) {
-      sb.append(xs[i])
-      if (i < max) {
-        sb.append(" ")
-      }
-    }
-    return sb.toString()
-  }
-
-}
