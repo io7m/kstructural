@@ -521,4 +521,214 @@ internal object KSXOM {
     e.appendChild(KSTextUtilities.concatenate(d.title))
     return e
   }
+
+  fun sectionContents(
+    prov : KSXOMLinkProviderType,
+    s : KSBlockSection<KSEvaluation>) : Element {
+
+    val classes = listOf(
+      prefixedName("contents"),
+      prefixedName("section_contents_outer"),
+      prefixedName("section_contents"))
+
+    val e = Element("ul", XHTML_URI_TEXT)
+    e.addAttribute(
+      Attribute("class", null, KSTextUtilities.concatenate(classes)))
+
+    when (s) {
+      is KSBlockSection.KSBlockSectionWithContent -> {
+
+      }
+      is KSBlockSection.KSBlockSectionWithSubsections -> {
+        s.content.forEach { ss ->
+          val ss_li = Element("li", XHTML_URI_TEXT)
+          val ss_li_classes = listOf(
+            prefixedName("contents_item"),
+            prefixedName("contents_item1"),
+            prefixedName("contents_item_subsection"))
+          ss_li.addAttribute(
+            Attribute("class", null, KSTextUtilities.concatenate(ss_li_classes)))
+          val ss_a = Element("a", XHTML_URI_TEXT)
+          val ss_number = ss.data.number.get()
+          ss_a.addAttribute(
+            Attribute("href", null, prov.anchorForNumber(ss_number)))
+
+          val ss_a_text = StringBuilder()
+          ss_a_text.append(ss_number.toString())
+          ss_a_text.append(". ")
+          KSTextUtilities.concatenateInto(ss_a_text, ss.title)
+          ss_a.appendChild(ss_a_text.toString())
+          ss_li.appendChild(ss_a)
+          e.appendChild(ss_li)
+        }
+      }
+    }
+
+    return e
+  }
+
+  fun partContents(
+    prov : KSXOMLinkProviderType,
+    p : KSBlockPart<KSEvaluation>) : Element {
+
+    val classes = listOf(
+      prefixedName("contents"),
+      prefixedName("part_contents_outer"),
+      prefixedName("part_contents"))
+
+    val e = Element("ul", XHTML_URI_TEXT)
+    e.addAttribute(
+      Attribute("class", null, KSTextUtilities.concatenate(classes)))
+
+    p.content.forEach { s ->
+      val part_li = Element("li", XHTML_URI_TEXT)
+      val part_li_classes = listOf(
+        prefixedName("contents_item"),
+        prefixedName("contents_item1"),
+        prefixedName("contents_item_section"))
+      part_li.addAttribute(
+        Attribute("class", null, KSTextUtilities.concatenate(part_li_classes)))
+      val part_a = Element("a", XHTML_URI_TEXT)
+      val part_number = s.data.number.get()
+      part_a.addAttribute(
+        Attribute("href", null, prov.anchorForNumber(part_number)))
+
+      val part_a_text = StringBuilder()
+      part_a_text.append(part_number.toString())
+      part_a_text.append(". ")
+      KSTextUtilities.concatenateInto(part_a_text, s.title)
+      part_a.appendChild(part_a_text.toString())
+      part_li.appendChild(part_a)
+      e.appendChild(part_li)
+
+      when (s) {
+        is KSBlockSection.KSBlockSectionWithContent -> {
+
+        }
+        is KSBlockSection.KSBlockSectionWithSubsections -> {
+          s.content.forEach { ss ->
+            val ss_li = Element("li", XHTML_URI_TEXT)
+            val ss_li_classes = listOf(
+              prefixedName("contents_item"),
+              prefixedName("contents_item2"),
+              prefixedName("contents_item_subsection"))
+            ss_li.addAttribute(
+              Attribute("class", null, KSTextUtilities.concatenate(ss_li_classes)))
+            val ss_a = Element("a", XHTML_URI_TEXT)
+            val ss_number = ss.data.number.get()
+            ss_a.addAttribute(
+              Attribute("href", null, prov.anchorForNumber(ss_number)))
+
+            val ss_a_text = StringBuilder()
+            ss_a_text.append(ss_number.toString())
+            ss_a_text.append(". ")
+            KSTextUtilities.concatenateInto(ss_a_text, ss.title)
+            ss_a.appendChild(ss_a_text.toString())
+            ss_li.appendChild(ss_a)
+            part_li.appendChild(ss_li)
+          }
+        }
+      }
+    }
+
+    return e
+  }
+
+  fun documentContents(
+    prov : KSXOMLinkProviderType,
+    d : KSBlockDocument<KSEvaluation>) : Element {
+
+    val classes = listOf(
+      prefixedName("contents"),
+      prefixedName("document_contents"))
+
+    val e = Element("ul", XHTML_URI_TEXT)
+    e.addAttribute(
+      Attribute("class", null, KSTextUtilities.concatenate(classes)))
+
+    return when (d) {
+      is KSBlock.KSBlockDocument.KSBlockDocumentWithParts    -> {
+        d.content.forEach { p ->
+          val part_li = Element("li", XHTML_URI_TEXT)
+          val part_li_classes = listOf(
+            prefixedName("contents_item"),
+            prefixedName("contents_item1"),
+            prefixedName("contents_item_part"))
+          part_li.addAttribute(
+            Attribute("class", null, KSTextUtilities.concatenate(part_li_classes)))
+          val part_a = Element("a", XHTML_URI_TEXT)
+          val part_number = p.data.number.get()
+          part_a.addAttribute(
+            Attribute("href", null, prov.anchorForNumber(part_number)))
+
+          val part_a_text = StringBuilder()
+          part_a_text.append(part_number.toString())
+          part_a_text.append(". ")
+          KSTextUtilities.concatenateInto(part_a_text, p.title)
+          part_a.appendChild(part_a_text.toString())
+          part_li.appendChild(part_a)
+          e.appendChild(part_li)
+
+          val part_ul_classes = listOf(
+            prefixedName("contents"),
+            prefixedName("part_contents"))
+
+          val part_ul = Element("ul", XHTML_URI_TEXT)
+          part_ul.addAttribute(
+            Attribute("class", null, KSTextUtilities.concatenate(part_ul_classes)))
+
+          p.content.forEach { s ->
+            val s_li = Element("li", XHTML_URI_TEXT)
+            val s_li_clases = listOf(
+              prefixedName("contents_item"),
+              prefixedName("contents_item2"),
+              prefixedName("contents_item_section"))
+            s_li.addAttribute(
+              Attribute("class", null, KSTextUtilities.concatenate(s_li_clases)))
+            val s_a = Element("a", XHTML_URI_TEXT)
+            val s_number = s.data.number.get()
+            s_a.addAttribute(
+              Attribute("href", null, prov.anchorForNumber(s_number)))
+
+            val s_a_text = StringBuilder()
+            s_a_text.append(s_number.toString())
+            s_a_text.append(". ")
+            KSTextUtilities.concatenateInto(s_a_text, s.title)
+            s_a.appendChild(s_a_text.toString())
+            s_li.appendChild(s_a)
+            part_ul.appendChild(s_li)
+          }
+
+          part_li.appendChild(part_ul)
+        }
+
+        e
+      }
+      is KSBlock.KSBlockDocument.KSBlockDocumentWithSections -> {
+        d.content.forEach { s ->
+          val s_li = Element("li", XHTML_URI_TEXT)
+          val s_li_classes = listOf(
+            prefixedName("contents_item"),
+            prefixedName("contents_item1"),
+            prefixedName("contents_item_section"))
+          s_li.addAttribute(
+            Attribute("class", null, KSTextUtilities.concatenate(s_li_classes)))
+          val s_a = Element("a", XHTML_URI_TEXT)
+          val s_number = s.data.number.get()
+          s_a.addAttribute(
+            Attribute("href", null, prov.anchorForNumber(s_number)))
+
+          val s_a_text = StringBuilder()
+          s_a_text.append(s_number.toString())
+          s_a_text.append(". ")
+          KSTextUtilities.concatenateInto(s_a_text, s.title)
+          s_a.appendChild(s_a_text.toString())
+          s_li.appendChild(s_a)
+          e.appendChild(s_li)
+        }
+
+        e
+      }
+    }
+  }
 }

@@ -36,7 +36,8 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
   private val LOG = LoggerFactory.getLogger(KSXOMXHTMLMultiWriter::class.java)
 
   override fun write(
-    d : KSBlockDocument<KSEvaluation>) : Map<String, Document> {
+    settings : KSXOMSettings,
+    document : KSBlockDocument<KSEvaluation>) : Map<String, Document> {
 
     val prov = object: KSXOMLinkProviderType {
 
@@ -123,7 +124,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
       }
 
       override fun anchorForID(id : KSID<KSEvaluation>) : String {
-        val e = d.data.context.elementForID(id)
+        val e = document.data.context.elementForID(id)
         val a = "#" + e.id.get().value
         return when (e) {
           is KSBlockDocument   -> "index-m.xhtml" + a
@@ -136,33 +137,38 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     }
 
     val m : MutableMap<String, Document> = mutableMapOf()
-    m.put("index-m.xhtml", writeDocumentIndexPage(prov, d))
+    m.put("index-m.xhtml", writeDocumentIndexPage(settings, prov, document))
 
     LOG.debug("create {}", "index-m.xhtml")
 
-    return when (d) {
-      is KSBlockDocumentWithParts    -> writeDocumentsWithParts(prov, d, m)
-      is KSBlockDocumentWithSections -> writeDocumentsWithSections(prov, d, m)
+    return when (document) {
+      is KSBlockDocumentWithParts    ->
+        writeDocumentsWithParts(settings, prov, document, m)
+      is KSBlockDocumentWithSections ->
+        writeDocumentsWithSections(settings, prov, document, m)
     }
   }
 
   private fun writeDocumentsWithSections(
+    settings : KSXOMSettings,
     prov : KSXOMLinkProviderType,
     d : KSBlockDocumentWithSections<KSEvaluation>,
     m : MutableMap<String, Document>) : Map<String, Document> {
-    d.content.forEach { s -> writeDocumentSection(prov, d, s, m) }
+    d.content.forEach { s -> writeDocumentSection(settings, prov, d, s, m) }
     return m
   }
 
   private fun writeDocumentsWithParts(
+    settings : KSXOMSettings,
     prov : KSXOMLinkProviderType,
     d : KSBlockDocumentWithParts<KSEvaluation>,
     m : MutableMap<String, Document>) : Map<String, Document> {
-    d.content.forEach { p -> writeDocumentPart(prov, d, p, m) }
+    d.content.forEach { p -> writeDocumentPart(settings, prov, d, p, m) }
     return m
   }
 
   private fun writeDocumentSection(
+    settings : KSXOMSettings,
     prov : KSXOMLinkProviderType,
     d : KSBlockDocument<KSEvaluation>,
     s : KSBlockSection<KSEvaluation>,
@@ -170,7 +176,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
 
     val (document, body) = KSXOM.newPage(d)
     body.appendChild(KSXOM.navigationBar(prov, s, KSXOM.NavigationBarPosition.Top))
-    body.appendChild(writeSection(prov, d, s))
+    body.appendChild(writeSection(settings, prov, d, s))
     body.appendChild(KSXOM.navigationBar(prov, s, KSXOM.NavigationBarPosition.Bottom))
 
     val file = s.data.number.get().toAnchor() + ".xhtml"
@@ -179,6 +185,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
   }
 
   private fun writeDocumentPart(
+    settings : KSXOMSettings,
     prov : KSXOMLinkProviderType,
     d : KSBlockDocumentWithParts<KSEvaluation>,
     p : KSBlockPart<KSEvaluation>,
@@ -186,31 +193,46 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
 
     val (document, body) = KSXOM.newPage(d)
     body.appendChild(KSXOM.navigationBar(prov, p, KSXOM.NavigationBarPosition.Top))
-    body.appendChild(KSXOM.partContainer(p))
+
+    val part_container = KSXOM.partContainer(p)
+    if (settings.render_toc_parts) {
+      part_container.appendChild(KSXOM.partContents(prov, p))
+    }
+    body.appendChild(part_container)
+
     body.appendChild(KSXOM.navigationBar(prov, p, KSXOM.NavigationBarPosition.Bottom))
 
     val file = p.data.number.get().toAnchor() + ".xhtml"
     LOG.debug("create {}", file)
     m.put(file, document)
-    p.content.forEach { s -> writeDocumentSection(prov, d, s, m) }
+    p.content.forEach { s -> writeDocumentSection(settings, prov, d, s, m) }
   }
 
   private fun writeDocumentIndexPage(
+    settings : KSXOMSettings,
     prov : KSXOMLinkProviderType,
     d : KSBlockDocument<KSEvaluation>) : Document {
     val (document, body) = KSXOM.newPage(d)
     body.appendChild(KSXOM.navigationBar(prov, d, KSXOM.NavigationBarPosition.Top))
     body.appendChild(KSXOM.documentIndexTitle(d))
+    if (settings.render_toc_document) {
+      body.appendChild(KSXOM.documentContents(prov, d))
+    }
     body.appendChild(KSXOM.navigationBar(prov, d, KSXOM.NavigationBarPosition.Bottom))
     return document
   }
 
   private fun writeSection(
+    settings : KSXOMSettings,
     prov : KSXOMLinkProviderType,
     d : KSBlockDocument<KSEvaluation>,
     s : KSBlockSection<KSEvaluation>) : Element {
 
     val e = KSXOM.sectionContainer(s)
+    if (settings.render_toc_sections) {
+      e.appendChild(KSXOM.sectionContents(prov, s))
+    }
+
     when (s) {
       is KSBlockSection.KSBlockSectionWithContent -> {
         s.content.forEach { sc ->

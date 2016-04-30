@@ -28,6 +28,7 @@ import com.io7m.kstructural.core.evaluator.KSEvaluator
 import com.io7m.kstructural.parser.KSBlockParser
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSInlineParser
+import com.io7m.kstructural.xom.KSXOMSettings
 import com.io7m.kstructural.xom.KSXOMXHTMLMultiWriter
 import nu.xom.Serializer
 import java.io.FileInputStream
@@ -90,7 +91,8 @@ object KSXOMXHTMLMultiWriterDemo {
         val rr = KSEvaluator.evaluate(result)
         when (rr) {
           is KSSuccess -> {
-            val docs = KSXOMXHTMLMultiWriter.write(rr.result)
+            val settings = KSXOMSettings()
+            val docs = KSXOMXHTMLMultiWriter.write(settings, rr.result)
             val ksdir = out.resolve("kstructural")
             Files.createDirectories(ksdir)
 

@@ -16,14 +16,9 @@
 
 package com.io7m.kstructural.xom
 
-import com.io7m.kstructural.core.KSBlock
-import com.io7m.kstructural.core.evaluator.KSEvaluation
-import nu.xom.Document
-
-interface KSXOMXHTMLWriterType {
-
-  fun write(
-    settings : KSXOMSettings,
-    document : KSBlock.KSBlockDocument<KSEvaluation>) : Map<String, Document>
+class KSXOMSettings(
+  val render_toc_document : Boolean = true,
+  val render_toc_parts : Boolean = true,
+  val render_toc_sections : Boolean = true) {
 
 }

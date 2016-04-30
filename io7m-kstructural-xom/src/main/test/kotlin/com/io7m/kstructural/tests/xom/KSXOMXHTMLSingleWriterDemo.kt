@@ -28,6 +28,7 @@ import com.io7m.kstructural.core.evaluator.KSEvaluator
 import com.io7m.kstructural.parser.KSBlockParser
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSInlineParser
+import com.io7m.kstructural.xom.KSXOMSettings
 import com.io7m.kstructural.xom.KSXOMXHTMLSingleWriter
 import nu.xom.Serializer
 import java.io.FileInputStream
@@ -94,7 +95,8 @@ object KSXOMXHTMLSingleWriterDemo {
         val rr = KSEvaluator.evaluate(result)
         when (rr) {
           is KSSuccess -> {
-            val doc = KSXOMXHTMLSingleWriter.write(rr.result)
+            val settings = KSXOMSettings()
+            val doc = KSXOMXHTMLSingleWriter.write(settings, rr.result)
             val s = Serializer(out)
             s.write(doc.get("index.xhtml"))
             s.flush()

@@ -33,7 +33,8 @@ import nu.xom.Element
 object KSXOMXHTMLSingleWriter : KSXOMXHTMLWriterType {
 
   override fun write(
-    d : KSBlockDocument<KSEvaluation>) : Map<String, Document> {
+    settings : KSXOMSettings,
+    document : KSBlockDocument<KSEvaluation>) : Map<String, Document> {
 
     val prov = object: KSXOMLinkProviderType {
       override fun anchorForDocument() : String {
@@ -45,35 +46,52 @@ object KSXOMXHTMLSingleWriter : KSXOMXHTMLWriterType {
       }
 
       override fun anchorForID(id : KSID<KSEvaluation>) : String {
-        val e = d.data.context.elementForID(id)
+        val e = document.data.context.elementForID(id)
         return "#" + e.id.get().value
       }
     }
 
-    return when (d) {
+    return when (document) {
       is KSBlockDocumentWithParts ->
-        mapOf(Pair("index.xhtml", writeDocumentWithParts(prov, d)))
+        mapOf(Pair("index.xhtml",
+          writeDocumentWithParts(settings, prov, document)))
       is KSBlockDocumentWithSections ->
-        mapOf(Pair("index.xhtml", writeDocumentWithSections(prov, d)))
+        mapOf(Pair("index.xhtml",
+          writeDocumentWithSections(settings, prov, document)))
     }
   }
 
+  private fun writeDocumentWithParts(
+    settings : KSXOMSettings,
+    prov : KSXOMLinkProviderType,
+    d : KSBlockDocumentWithParts<KSEvaluation>) : Document {
+
+    val (document, body) = KSXOM.newPage(d)
+    d.content.forEach { p -> body.appendChild(writePart(settings, prov, d, p)) }
+    return document
+  }
 
   private fun writeDocumentWithSections(
+    settings : KSXOMSettings,
     prov : KSXOMLinkProviderType,
     d : KSBlockDocumentWithSections<KSEvaluation>) : Document {
 
     val (document, body) = KSXOM.newPage(d)
-    d.content.forEach { s -> body.appendChild(writeSection(prov, d, s)) }
+    d.content.forEach { sc -> body.appendChild(writeSection(settings, prov, d, sc)) }
     return document
   }
 
   private fun writeSection(
+    settings : KSXOMSettings,
     prov : KSXOMLinkProviderType,
     d : KSBlockDocument<KSEvaluation>,
     s : KSBlockSection<KSEvaluation>) : Element {
 
     val e = KSXOM.sectionContainer(s)
+    if (settings.render_toc_sections) {
+      e.appendChild(KSXOM.sectionContents(prov, s))
+    }
+
     when (s) {
       is KSBlockSection.KSBlockSectionWithContent -> {
         s.content.forEach { sc ->
@@ -122,22 +140,18 @@ object KSXOMXHTMLSingleWriter : KSXOMXHTMLWriterType {
     return container
   }
 
-  private fun writeDocumentWithParts(
-    prov : KSXOMLinkProviderType,
-    d : KSBlockDocumentWithParts<KSEvaluation>) : Document {
-
-    val (document, body) = KSXOM.newPage(d)
-    d.content.forEach { p -> body.appendChild(writePart(prov, d, p)) }
-    return document
-  }
-
   private fun writePart(
+    settings : KSXOMSettings,
     prov : KSXOMLinkProviderType,
     d : KSBlockDocumentWithParts<KSEvaluation>,
     p : KSBlockPart<KSEvaluation>) : Element {
 
     val e = KSXOM.partContainer(p)
-    p.content.forEach { s -> e.appendChild(writeSection(prov, d, s)) }
+    if (settings.render_toc_parts) {
+      e.appendChild(KSXOM.partContents(prov, p))
+    }
+
+    p.content.forEach { s -> e.appendChild(writeSection(settings, prov, d, s)) }
     return e
   }
 }
