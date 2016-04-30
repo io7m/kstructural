@@ -51,7 +51,8 @@ class KSBlockParserTest : KSBlockParserContract() {
     val p = JSXParser.newParser(pc, lex);
     val bp = KSBlockParser.get(KSInlineParser)
     val bpp = object: KSBlockParserType {
-      override fun parse(e : KSExpression) : KSResult<out KSBlock<Unit>, KSParseError> {
+      override fun parse(
+        e : KSExpression) : KSResult<KSBlock<Unit>, KSParseError> {
         val r = bp.parse(e)
         return when (r) {
           is KSResult.KSSuccess -> {

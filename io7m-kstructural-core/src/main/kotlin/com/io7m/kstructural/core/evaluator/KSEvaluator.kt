@@ -16,6 +16,7 @@
 
 package com.io7m.kstructural.core.evaluator
 
+import com.io7m.junreachable.UnimplementedCodeException
 import com.io7m.kstructural.core.KSBlock
 import com.io7m.kstructural.core.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
@@ -492,11 +493,13 @@ object KSEvaluator : KSEvaluatorType {
     e : KSInline<Unit>)
     : KSResult<KSInline<KSEvaluation>, KSEvaluationError> =
     when (e) {
-      is KSInlineLink     -> evaluateInlineLink(c, e)
-      is KSInlineText     -> evaluateInlineText(c, e)
-      is KSInlineVerbatim -> evaluateInlineVerbatim(c, e)
-      is KSInlineTerm     -> evaluateInlineTerm(c, e)
-      is KSInlineImage    -> evaluateInlineImage(c, e)
+      is KSInlineLink                   -> evaluateInlineLink(c, e)
+      is KSInlineText                   -> evaluateInlineText(c, e)
+      is KSInlineVerbatim               -> evaluateInlineVerbatim(c, e)
+      is KSInlineTerm                   -> evaluateInlineTerm(c, e)
+      is KSInlineImage                  -> evaluateInlineImage(c, e)
+      is KSInline.KSInlineListOrdered   -> throw UnimplementedCodeException()
+      is KSInline.KSInlineListUnordered -> throw UnimplementedCodeException()
     }
 
   private fun evaluateInlineLink(

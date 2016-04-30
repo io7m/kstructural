@@ -21,9 +21,12 @@ import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSInline
 import com.io7m.kstructural.core.KSInline.KSInlineImage
 import com.io7m.kstructural.core.KSInline.KSInlineLink
+import com.io7m.kstructural.core.KSInline.KSInlineListOrdered
+import com.io7m.kstructural.core.KSInline.KSInlineListUnordered
 import com.io7m.kstructural.core.KSInline.KSInlineTerm
 import com.io7m.kstructural.core.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSInline.KSInlineVerbatim
+import com.io7m.kstructural.core.KSInline.KSListItem
 import com.io7m.kstructural.core.KSInline.KSSize
 import com.io7m.kstructural.core.KSLexicalType
 import com.io7m.kstructural.core.KSLink
@@ -101,6 +104,21 @@ object KSInlineParser : KSInlineParserType {
       KSExpressionMatch.exactSymbol("link-ext")
     val link_ext =
       KSExpressionMatch.prefixOfList(listOf(link_ext_name, target))
+
+    val list_item_name =
+      KSExpressionMatch.exactSymbol("item")
+    val list_item =
+      KSExpressionMatch.prefixOfList(listOf(list_item_name))
+
+    val list_ordered_name =
+      KSExpressionMatch.exactSymbol("list-ordered")
+    val list_ordered =
+      KSExpressionMatch.prefixOfList(listOf(list_ordered_name))
+
+    val list_unordered_name =
+      KSExpressionMatch.exactSymbol("list-unordered")
+    val list_unordered =
+      KSExpressionMatch.prefixOfList(listOf(list_unordered_name))
   }
 
   override fun parse(
@@ -113,12 +131,12 @@ object KSInlineParser : KSInlineParserType {
     KSResult.fail<A, KSParseError>(KSParseError(e.position, m))
 
   private fun <A : Any> failedToMatchResult(
-    e : KSExpression.KSExpressionList,
+    e : KSExpression,
     m : List<KSExpressionMatch>) : KSResult<A, KSParseError> =
     KSResult.fail(failedToMatch(e, m))
 
   private fun failedToMatch(
-    e : KSExpression.KSExpressionList,
+    e : KSExpression,
     m : List<KSExpressionMatch>) : KSParseError {
 
     val sb = StringBuilder()
@@ -413,6 +431,12 @@ object KSInlineParser : KSInlineParserType {
 
       is KSInlineTerm     ->
         parseError(e, "Term elements cannot appear inside link elements")
+
+      is KSInline.KSInlineListOrdered ->
+        parseError(e, "List elements cannot appear inside link elements")
+
+      is KSInline.KSInlineListUnordered ->
+        parseError(e, "List elements cannot appear inside link elements")
     }
   }
 
@@ -485,6 +509,64 @@ object KSInlineParser : KSInlineParserType {
       e, listOf(CommandMatchers.term_type, CommandMatchers.term))
   }
 
+  private fun parseInlineListOrdered(
+    e : KSExpression.KSExpressionList)
+    : KSResult<KSInlineListOrdered<Unit>, KSParseError> {
+
+    when {
+      KSExpressionMatch.matches(e, CommandMatchers.list_ordered) -> {
+        Assertive.require(e.elements.size >= 1)
+        val texts = e.elements.subList(1, e.elements.size)
+        val content = KSResult.listMap({ t -> parseListItem(t) }, texts)
+        return content flatMap { cs ->
+          KSResult.succeed<KSInlineListOrdered<Unit>, KSParseError>(
+            KSInlineListOrdered(e.position, Unit, cs))
+        }
+      }
+    }
+
+    return failedToMatchResult(e, listOf(CommandMatchers.list_ordered))
+  }
+
+  private fun parseInlineListUnordered(
+    e : KSExpression.KSExpressionList)
+    : KSResult<KSInlineListUnordered<Unit>, KSParseError> {
+
+    when {
+      KSExpressionMatch.matches(e, CommandMatchers.list_unordered) -> {
+        Assertive.require(e.elements.size >= 1)
+        val texts = e.elements.subList(1, e.elements.size)
+        val content = KSResult.listMap({ t -> parseListItem(t) }, texts)
+        return content flatMap { cs ->
+          KSResult.succeed<KSInlineListUnordered<Unit>, KSParseError>(
+            KSInlineListUnordered(e.position, Unit, cs))
+        }
+      }
+    }
+
+    return failedToMatchResult(e, listOf(CommandMatchers.list_unordered))
+  }
+
+  private fun parseListItem(
+    e : KSExpression) : KSResult<KSListItem<Unit>, KSParseError> {
+    when {
+      KSExpressionMatch.matches(e, CommandMatchers.list_item) -> {
+        e as KSExpression.KSExpressionList
+        Assertive.require(e.elements.size >= 1)
+        val contents = e.elements.subList(1, e.elements.size)
+        Assertive.require(contents.size >= 1)
+        val act_content =
+          KSResult.listMap({ ce -> parseInlineAny(ce) }, contents)
+        return act_content flatMap { cs ->
+          KSResult.succeed<KSListItem<Unit>, KSParseError>(
+            KSListItem(e.position, Unit, cs))
+        }
+      }
+    }
+
+    return failedToMatchResult(e, listOf(CommandMatchers.list_item))
+  }
+
   private val parsers : Map<String, ElementParser> =
     makeParsers()
   private val parserDescriptions : String =
@@ -497,12 +579,14 @@ object KSInlineParser : KSInlineParserType {
     m.put("link-ext", ElementParser("link-ext", { parseInlineLinkExternal(it) }))
     m.put("link", ElementParser("link", { parseInlineLinkInternal(it) }))
     m.put("image", ElementParser("image", { parseInlineImage(it) }))
+    m.put("list-ordered", ElementParser("list-ordered", { parseInlineListOrdered(it) }))
+    m.put("list-unordered", ElementParser("list-unordered", { parseInlineListUnordered(it) }))
     return m
   }
 
   private data class ElementParser(
     val name : String,
-    val parser : (KSExpression.KSExpressionList) -> KSResult<out KSInline<Unit>, KSParseError>)
+    val parser : (KSExpression.KSExpressionList) -> KSResult<KSInline<Unit>, KSParseError>)
 
   private fun makeMapDescription(m : Map<String, Any>) : String {
     val sb = StringBuilder()

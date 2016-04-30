@@ -123,4 +123,45 @@ sealed class KSInline<T>(
     }
   }
 
+  class KSListItem<T>(
+    override val position : Optional<LexicalPositionType<Path>>,
+    val data : T,
+    val content : List<KSInline<T>>) : KSLexicalType {
+
+    override fun toString() : String {
+      val sb = StringBuilder()
+      sb.append("[item ")
+      KSTextUtilities.concatenateInto(sb, this.content)
+      sb.append("]")
+      return sb.toString()
+    }
+  }
+
+  class KSInlineListOrdered<T>(
+    position : Optional<LexicalPositionType<Path>>,
+    data : T,
+    val content : List<KSListItem<T>>) : KSInline<T>(position, data) {
+
+    override fun toString() : String {
+      val sb = StringBuilder()
+      sb.append("[list-ordered ")
+      KSTextUtilities.concatenateInto(sb, this.content)
+      sb.append("]")
+      return sb.toString()
+    }
+  }
+
+  class KSInlineListUnordered<T>(
+    position : Optional<LexicalPositionType<Path>>,
+    data : T,
+    val content : List<KSListItem<T>>) : KSInline<T>(position, data) {
+
+    override fun toString() : String {
+      val sb = StringBuilder()
+      sb.append("[list-unordered ")
+      KSTextUtilities.concatenateInto(sb, this.content)
+      sb.append("]")
+      return sb.toString()
+    }
+  }
 }

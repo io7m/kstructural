@@ -808,6 +808,8 @@ class KSBlockParser private constructor(
           is KSInlineLink,
           is KSInlineVerbatim,
           is KSInlineTerm,
+          is KSInline.KSInlineListOrdered,
+          is KSInline.KSInlineListUnordered,
           is KSInlineImage -> {
             val sb = StringBuilder()
             sb.append("Expected text.")

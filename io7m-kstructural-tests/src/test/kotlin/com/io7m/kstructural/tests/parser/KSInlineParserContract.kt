@@ -18,6 +18,7 @@ package com.io7m.kstructural.tests.parser
 
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSInline
+import com.io7m.kstructural.core.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSLink
 import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSResult.KSFailure
@@ -359,6 +360,58 @@ abstract class KSInlineParserContract {
   @Test fun testInlineIncludeError1() {
     val pp = newParserForString("[include]")
     val i = pp.p.parse(pp.s())
+    i as KSFailure
+  }
+
+  @Test fun testInlineListOrdered() {
+    val pp = newParserForString("[list-ordered [item x]]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSSuccess<KSInline.KSInlineListOrdered<*>, KSParseError>
+    Assert.assertEquals(1, i.result.content.size)
+
+    val ii = i.result.content[0]
+    Assert.assertEquals("x", (ii.content[0] as KSInlineText).text)
+  }
+
+  @Test fun testInlineListOrderedEmpty() {
+    val pp = newParserForString("[list-ordered]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSSuccess<KSInline.KSInlineListOrdered<*>, KSParseError>
+    Assert.assertEquals(0, i.result.content.size)
+  }
+
+  @Test fun testInlineListOrderedError() {
+    val pp = newParserForString("[list-ordered z]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSFailure
+  }
+
+  @Test fun testInlineListUnordered() {
+    val pp = newParserForString("[list-unordered [item x]]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSSuccess<KSInline.KSInlineListUnordered<*>, KSParseError>
+    Assert.assertEquals(1, i.result.content.size)
+
+    val ii = i.result.content[0]
+    Assert.assertEquals("x", (ii.content[0] as KSInlineText).text)
+  }
+
+  @Test fun testInlineListUnorderedEmpty() {
+    val pp = newParserForString("[list-unordered]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSSuccess<KSInline.KSInlineListUnordered<*>, KSParseError>
+    Assert.assertEquals(0, i.result.content.size)
+  }
+
+  @Test fun testInlineListUnorderedError() {
+    val pp = newParserForString("[list-unordered z]")
+    val i = pp.p.parse(pp.s())
+
     i as KSFailure
   }
 }
