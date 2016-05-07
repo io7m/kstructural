@@ -21,6 +21,6 @@ import com.io7m.kstructural.core.KSResult
 
 interface KSInlineParserType {
 
-  fun parse(e : KSExpression) : KSResult<out KSInline<Unit>, KSParseError>
+  fun parse(e : KSExpression) : KSResult<KSInline<Unit>, KSParseError>
 
 }

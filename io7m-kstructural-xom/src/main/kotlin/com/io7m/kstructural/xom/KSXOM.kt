@@ -235,6 +235,7 @@ internal object KSXOM {
       is KSInline.KSInlineImage         -> inlineImage(c)
       is KSInline.KSInlineListOrdered   -> inlineListOrdered(prov, c)
       is KSInline.KSInlineListUnordered -> inlineListUnordered(prov, c)
+      is KSInline.KSInlineTable         -> TODO()
     }
 
   private fun inlineListUnordered(

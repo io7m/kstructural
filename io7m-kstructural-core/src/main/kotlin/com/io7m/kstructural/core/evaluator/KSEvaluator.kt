@@ -502,6 +502,7 @@ object KSEvaluator : KSEvaluatorType {
       is KSInlineImage                  -> evaluateInlineImage(c, e)
       is KSInline.KSInlineListOrdered   -> evaluateInlineListOrdered(c, e)
       is KSInline.KSInlineListUnordered -> evaluateInlineListUnordered(c, e)
+      is KSInline.KSInlineTable         -> TODO()
     }
 
   private fun evaluateInlineListUnordered(
