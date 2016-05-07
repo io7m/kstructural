@@ -24,7 +24,10 @@ import com.io7m.jsx.parser.JSXParserConfiguration
 import com.io7m.junreachable.UnreachableCodeException
 import com.io7m.kstructural.core.KSBlock
 import com.io7m.kstructural.core.KSResult
+import com.io7m.kstructural.core.evaluator.KSEvaluation
+import com.io7m.kstructural.core.evaluator.KSEvaluationError
 import com.io7m.kstructural.core.evaluator.KSEvaluator
+import com.io7m.kstructural.core.evaluator.KSEvaluatorType
 import com.io7m.kstructural.parser.KSBlockParser
 import com.io7m.kstructural.parser.KSBlockParserType
 import com.io7m.kstructural.parser.KSExpression
@@ -69,7 +72,26 @@ class KSEvaluatorTest : KSEvaluatorContract() {
       }
     }
 
-    return Evaluator(KSEvaluator, {
+    val eval = object: KSEvaluatorType {
+      override fun evaluate(
+        d : KSBlock.KSBlockDocument<Unit>)
+        : KSResult<KSBlock.KSBlockDocument<KSEvaluation>, KSEvaluationError> {
+
+        val r = KSEvaluator.evaluate(d)
+        return when (r) {
+          is KSResult.KSSuccess -> {
+            r
+          }
+          is KSResult.KSFailure -> {
+            LOG.debug("failed to evaluate: {}", r.partial)
+            r.errors.map { k -> LOG.debug("error: {}", k.message) }
+            r
+          }
+        }
+      }
+    }
+
+    return Evaluator(eval, {
       val se = KSExpression.of(p.parseExpression())
       val d = bpp.parse(se)
       when (d) {

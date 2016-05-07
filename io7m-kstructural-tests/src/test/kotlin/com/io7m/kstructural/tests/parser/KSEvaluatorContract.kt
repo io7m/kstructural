@@ -768,4 +768,47 @@ abstract class KSEvaluatorContract {
       }
     }
   }
+
+  @Test fun testTableColumnMismatchRow0()
+  {
+    val ee = newEvaluatorForString("""
+[document (title dt) (id d0)
+  (section [title st]
+    [paragraph
+      (table [summary s] [head (name a) (name b)] [body (row [cell x])])
+    ]
+  )
+]
+""")
+
+    val i = ee.s()
+    val r = ee.e.evaluate(i)
+    r as KSFailure
+    Assert.assertEquals(1, r.errors.size)
+  }
+
+  @Test fun testTableColumnMismatchRow1()
+  {
+    val ee = newEvaluatorForString("""
+[document (title dt) (id d0)
+  (section [title st]
+    [paragraph
+      (table
+        [summary s]
+        [head (name a) (name b)]
+        [body
+          (row [cell x] [cell y])
+          (row [cell x])
+          (row [cell x] [cell y])
+        ])
+    ]
+  )
+]
+""")
+
+    val i = ee.s()
+    val r = ee.e.evaluate(i)
+    r as KSFailure
+    Assert.assertEquals(1, r.errors.size)
+  }
 }
