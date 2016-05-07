@@ -20,6 +20,7 @@ import com.io7m.junreachable.UnreachableCodeException
 import com.io7m.kstructural.core.KSBlock
 import com.io7m.kstructural.core.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSBlock.KSBlockParagraph
+import com.io7m.kstructural.core.KSBlock.KSBlockFormalItem
 import com.io7m.kstructural.core.KSBlock.KSBlockPart
 import com.io7m.kstructural.core.KSBlock.KSBlockSection
 import com.io7m.kstructural.core.KSBlock.KSBlockSubsection
@@ -840,5 +841,40 @@ internal object KSXOM {
         e
       }
     }
+  }
+
+  fun formalItemContainer(f : KSBlockFormalItem<KSEvaluation>) : Pair<Element, Element> {
+    val number_opt = f.data.number
+    Assertive.require(number_opt.isPresent)
+    val number = number_opt.get()
+    val number_text = number.toAnchor()
+
+    val sc = Element("div", XHTML_URI_TEXT)
+    sc.addAttribute(Attribute("class", null, prefixedName("formal_item")))
+
+    f.id.ifPresent { id ->
+      val stid_a = Element("a", XHTML_URI_TEXT)
+      stid_a.addAttribute(Attribute("id", null, id.value))
+      sc.appendChild(stid_a)
+    }
+
+    val st = Element("div", XHTML_URI_TEXT)
+    st.addAttribute(Attribute("class", null, prefixedName("formal_item_title")))
+
+    val stn_a = Element("a", XHTML_URI_TEXT)
+    stn_a.addAttribute(Attribute("id", null, prefixedName(number_text)))
+    stn_a.addAttribute(Attribute("href", null, "#" + prefixedName(number_text)))
+    stn_a.appendChild(number.toString())
+    stn_a.appendChild(" ")
+    stn_a.appendChild(KSTextUtilities.concatenate(f.title))
+    st.appendChild(stn_a)
+
+    sc.appendChild(st)
+
+    val scc = Element("div", XHTML_URI_TEXT)
+    scc.addAttribute(Attribute("class", null, prefixedName("formal_item_content")))
+
+    sc.appendChild(scc)
+    return Pair(sc, scc)
   }
 }

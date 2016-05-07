@@ -92,6 +92,7 @@ object KSXOMXHTMLSingleWriterDemo {
       is KSBlock.KSBlockSubsection -> TODO()
       is KSBlock.KSBlockParagraph  -> TODO()
       is KSBlock.KSBlockPart       -> TODO()
+      is KSBlock.KSBlockFormalItem -> TODO()
       is KSBlock.KSBlockDocument   -> {
         val rr = KSEvaluator.evaluate(result)
         when (rr) {

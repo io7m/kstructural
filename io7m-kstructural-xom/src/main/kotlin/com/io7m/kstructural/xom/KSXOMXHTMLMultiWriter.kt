@@ -16,10 +16,12 @@
 
 package com.io7m.kstructural.xom
 
+import com.io7m.kstructural.core.KSBlock
 import com.io7m.kstructural.core.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
 import com.io7m.kstructural.core.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
 import com.io7m.kstructural.core.KSBlock.KSBlockParagraph
+import com.io7m.kstructural.core.KSBlock.KSBlockFormalItem
 import com.io7m.kstructural.core.KSBlock.KSBlockPart
 import com.io7m.kstructural.core.KSBlock.KSBlockSection
 import com.io7m.kstructural.core.KSBlock.KSBlockSubsection
@@ -132,6 +134,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
           is KSBlockSubsection -> fileForNumber(e.data.number.get()) + a
           is KSBlockParagraph  -> fileForNumber(e.data.number.get()) + a
           is KSBlockPart       -> fileForNumber(e.data.number.get()) + a
+          is KSBlockFormalItem -> fileForNumber(e.data.number.get()) + a
         }
       }
     }
@@ -268,7 +271,19 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     return when (sc) {
       is KSSubsectionContent.KSSubsectionParagraph ->
         writeParagraph(prov, d, sc.paragraph)
+      is KSSubsectionContent.KSSubsectionFormalItem ->
+        writeFormalItem(prov, d, sc.formal)
     }
+  }
+
+  private fun writeFormalItem(
+    prov : KSXOMLinkProviderType,
+    d : KSBlockDocument<KSEvaluation>,
+    f : KSBlockFormalItem<KSEvaluation>) : Element {
+
+    val (container, content) = KSXOM.formalItemContainer(f)
+    KSXOM.inlinesAppend(content, f.content, { i -> KSXOM.inline(prov, i) })
+    return container
   }
 
   private fun writeParagraph(

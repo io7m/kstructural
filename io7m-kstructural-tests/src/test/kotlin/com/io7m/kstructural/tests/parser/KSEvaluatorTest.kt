@@ -102,7 +102,8 @@ class KSEvaluatorTest : KSEvaluatorContract() {
             }
             is KSBlock.KSBlockSection,
             is KSBlock.KSBlockSubsection,
-            is KSBlock.KSBlockParagraph ,
+            is KSBlock.KSBlockParagraph,
+            is KSBlock.KSBlockFormalItem,
             is KSBlock.KSBlockPart       -> {
               LOG.error("Parser unexpectedly returned: {}", d.result)
               throw UnreachableCodeException()

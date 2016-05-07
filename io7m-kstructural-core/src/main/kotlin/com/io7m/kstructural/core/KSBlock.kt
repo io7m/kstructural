@@ -236,6 +236,41 @@ sealed class KSBlock<T>(
     }
   }
 
+  class KSBlockFormalItem<T>(
+    position : Optional<LexicalPositionType<Path>>,
+    data : T,
+    override val type : Optional<String>,
+    override val id : Optional<KSID<T>>,
+    val title : List<KSInline.KSInlineText<T>>,
+    val content : List<KSInline<T>>)
+  : KSBlock<T>(position, data) {
+
+    override fun toString() : String {
+      val sb = StringBuilder()
+      sb.append("[formal-item ")
+
+      sb.append("[title ")
+      KSTextUtilities.concatenateInto(sb, this.title)
+      sb.append("]")
+
+      if (type.isPresent) {
+        sb.append(" [type ")
+        sb.append(type.get())
+        sb.append("]")
+      }
+      if (id.isPresent) {
+        sb.append(" [id ")
+        sb.append(id.get())
+        sb.append("]")
+      }
+
+      sb.append(" ")
+      sb.append(this.content)
+      sb.append("]")
+      return sb.toString()
+    }
+  }
+
   class KSBlockPart<T>(
     position : Optional<LexicalPositionType<Path>>,
     data : T,

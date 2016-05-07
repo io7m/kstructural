@@ -21,6 +21,7 @@ import com.io7m.kstructural.core.KSBlock
 import com.io7m.kstructural.core.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
 import com.io7m.kstructural.core.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
+import com.io7m.kstructural.core.KSBlock.KSBlockFormalItem
 import com.io7m.kstructural.core.KSBlock.KSBlockParagraph
 import com.io7m.kstructural.core.KSBlock.KSBlockPart
 import com.io7m.kstructural.core.KSBlock.KSBlockSection
@@ -44,7 +45,11 @@ import com.io7m.kstructural.core.KSSectionContent
 import com.io7m.kstructural.core.KSSectionContent.KSSectionSubsection
 import com.io7m.kstructural.core.KSSectionContent.KSSectionSubsectionContent
 import com.io7m.kstructural.core.KSSubsectionContent
+import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFormalItem
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
+import com.io7m.kstructural.parser.KSExpression.KSExpressionList
+import com.io7m.kstructural.parser.KSExpression.KSExpressionQuoted
+import com.io7m.kstructural.parser.KSExpression.KSExpressionSymbol
 import org.valid4j.Assertive
 import java.util.HashMap
 import java.util.Optional
@@ -58,7 +63,7 @@ class KSBlockParser private constructor(
       KSBlockParser(p)
 
     private fun failedToMatch(
-      e : KSExpression.KSExpressionList,
+      e : KSExpressionList,
       m : List<KSExpressionMatch>) : KSParseError {
 
       val sb = StringBuilder()
@@ -82,7 +87,7 @@ class KSBlockParser private constructor(
     }
 
     private fun <A : Any> failedToMatchResult(
-      e : KSExpression.KSExpressionList,
+      e : KSExpressionList,
       m : List<KSExpressionMatch>) : KSResult<A, KSParseError> =
       KSResult.fail(failedToMatch(e, m))
 
@@ -90,28 +95,28 @@ class KSBlockParser private constructor(
       e : KSLexicalType, m : String) : KSResult<A, KSParseError> =
       KSResult.fail<A, KSParseError>(KSParseError(e.position, m))
 
-    private fun parseAttributeType(e : KSExpression.KSExpressionList) : String {
+    private fun parseAttributeType(e : KSExpressionList) : String {
       Assertive.require(e.elements.size == 2)
-      Assertive.require(e.elements[0] is KSExpression.KSExpressionSymbol)
-      Assertive.require(e.elements[1] is KSExpression.KSExpressionSymbol)
-      return (e.elements[1] as KSExpression.KSExpressionSymbol).text
+      Assertive.require(e.elements[0] is KSExpressionSymbol)
+      Assertive.require(e.elements[1] is KSExpressionSymbol)
+      return (e.elements[1] as KSExpressionSymbol).text
     }
 
-    private fun parseAttributeID(e : KSExpression.KSExpressionList) : KSID<Unit> {
+    private fun parseAttributeID(e : KSExpressionList) : KSID<Unit> {
       Assertive.require(e.elements.size == 2)
-      Assertive.require(e.elements[0] is KSExpression.KSExpressionSymbol)
-      Assertive.require(e.elements[1] is KSExpression.KSExpressionSymbol)
-      return KSID(e.position, (e.elements[1] as KSExpression.KSExpressionSymbol).text, Unit)
+      Assertive.require(e.elements[0] is KSExpressionSymbol)
+      Assertive.require(e.elements[1] is KSExpressionSymbol)
+      return KSID(e.position, (e.elements[1] as KSExpressionSymbol).text, Unit)
     }
 
-    private fun parseAttributeTarget(e : KSExpression.KSExpressionList) : String {
+    private fun parseAttributeTarget(e : KSExpressionList) : String {
       Assertive.require(e.elements.size == 2)
-      Assertive.require(e.elements[0] is KSExpression.KSExpressionSymbol)
+      Assertive.require(e.elements[0] is KSExpressionSymbol)
       val target = e.elements[1]
       return when (target) {
-        is KSExpression.KSExpressionList   -> throw UnreachableCodeException()
-        is KSExpression.KSExpressionSymbol -> target.text
-        is KSExpression.KSExpressionQuoted -> target.text
+        is KSExpressionList   -> throw UnreachableCodeException()
+        is KSExpressionSymbol -> target.text
+        is KSExpressionQuoted -> target.text
       }
     }
   }
@@ -154,6 +159,19 @@ class KSBlockParser private constructor(
       KSExpressionMatch.exactSymbol("title")
     val title =
       KSExpressionMatch.prefixOfList(listOf(title_name, symbol_or_string))
+
+    val formal_item_name =
+      KSExpressionMatch.exactSymbol("formal-item")
+    val formal_item_none =
+      KSExpressionMatch.prefixOfList(listOf(formal_item_name, title))
+    val formal_item_with_id =
+      KSExpressionMatch.prefixOfList(listOf(formal_item_name, title, id))
+    val formal_item_with_id_type =
+      KSExpressionMatch.prefixOfList(listOf(formal_item_name, title, id, type))
+    val formal_item_with_type_id =
+      KSExpressionMatch.prefixOfList(listOf(formal_item_name, title, type, id))
+    val formal_item_with_type =
+      KSExpressionMatch.prefixOfList(listOf(formal_item_name, title, type))
 
     val subsection_name =
       KSExpressionMatch.exactSymbol("subsection")
@@ -209,26 +227,148 @@ class KSBlockParser private constructor(
   }
 
   private fun parseAttributeTitle(
-    e : KSExpression.KSExpressionList) : KSResult<List<KSInlineText<Unit>>, KSParseError> {
+    e : KSExpressionList) : KSResult<List<KSInlineText<Unit>>, KSParseError> {
     Assertive.require(e.elements.size >= 2)
-    Assertive.require(e.elements[0] is KSExpression.KSExpressionSymbol)
+    Assertive.require(e.elements[0] is KSExpressionSymbol)
     val texts = e.elements.subList(1, e.elements.size)
     return parseInlineTexts(texts)
   }
 
+  private fun parseBlockFormalItem(
+    e : KSExpressionList) : KSResult<KSBlockFormalItem<Unit>, KSParseError> {
+
+    Assertive.require(e.elements.size > 0)
+    Assertive.require(e.elements[0] is KSExpressionSymbol)
+
+    when {
+      KSExpressionMatch.matches(e, CommandMatchers.formal_item_with_type_id) -> {
+        Assertive.require(e.elements.size >= 4)
+        val act_title = parseAttributeTitle(e.elements[1] as KSExpressionList)
+        val type = parseAttributeType(e.elements[2] as KSExpressionList)
+        val id = parseAttributeID(e.elements[3] as KSExpressionList)
+        val rest = e.elements.subList(4, e.elements.size)
+        val act_content = parseInlines(rest)
+
+        return act_content flatMap { content ->
+          act_title flatMap { title ->
+            KSResult.succeed<KSBlockFormalItem<Unit>, KSParseError>(
+              KSBlockFormalItem(
+                e.position,
+                Unit,
+                title = title,
+                id = Optional.of(id),
+                type = Optional.of(type),
+                content = content))
+          }
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.formal_item_with_id_type) -> {
+        Assertive.require(e.elements.size >= 4)
+        val act_title = parseAttributeTitle(e.elements[1] as KSExpressionList)
+        val id = parseAttributeID(e.elements[2] as KSExpressionList)
+        val type = parseAttributeType(e.elements[3] as KSExpressionList)
+        val rest = e.elements.subList(4, e.elements.size)
+        val act_content = parseInlines(rest)
+
+        return act_content flatMap { content ->
+          act_title flatMap { title ->
+            KSResult.succeed<KSBlockFormalItem<Unit>, KSParseError>(
+              KSBlockFormalItem(
+                e.position,
+                Unit,
+                title = title,
+                id = Optional.of(id),
+                type = Optional.of(type),
+                content = content))
+          }
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.formal_item_with_type)    -> {
+        Assertive.require(e.elements.size >= 3)
+        val act_title = parseAttributeTitle(e.elements[1] as KSExpressionList)
+        val type = parseAttributeType(e.elements[2] as KSExpressionList)
+        val rest = e.elements.subList(3, e.elements.size)
+        val act_content = parseInlines(rest)
+
+        return act_content flatMap { content ->
+          act_title flatMap { title ->
+            KSResult.succeed<KSBlockFormalItem<Unit>, KSParseError>(
+              KSBlockFormalItem(
+                e.position,
+                Unit,
+                title = title,
+                id = Optional.empty(),
+                type = Optional.of(type),
+                content = content))
+          }
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.formal_item_with_id)      -> {
+        Assertive.require(e.elements.size >= 3)
+        val act_title = parseAttributeTitle(e.elements[1] as KSExpressionList)
+        val id = parseAttributeID(e.elements[2] as KSExpressionList)
+        val rest = e.elements.subList(3, e.elements.size)
+        val act_content = parseInlines(rest)
+
+        return act_content flatMap { content ->
+          act_title flatMap { title ->
+            KSResult.succeed<KSBlockFormalItem<Unit>, KSParseError>(
+              KSBlockFormalItem(
+                e.position,
+                Unit,
+                title = title,
+                id = Optional.of(id),
+                type = Optional.empty(),
+                content = content))
+          }
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.formal_item_none)         -> {
+        Assertive.require(e.elements.size >= 2)
+        val act_title = parseAttributeTitle(e.elements[1] as KSExpressionList)
+        val rest = e.elements.subList(2, e.elements.size)
+        val act_content = parseInlines(rest)
+
+        return act_title flatMap { title ->
+          act_content flatMap { content ->
+            KSResult.succeed<KSBlockFormalItem<Unit>, KSParseError>(
+              KSBlockFormalItem(
+                e.position,
+                Unit,
+                title = title,
+                id = Optional.empty(),
+                type = Optional.empty(),
+                content = content))
+          }
+        }
+      }
+    }
+
+    return failedToMatchResult(e, listOf(
+      CommandMatchers.formal_item_none,
+      CommandMatchers.formal_item_with_id,
+      CommandMatchers.formal_item_with_id_type,
+      CommandMatchers.formal_item_with_type,
+      CommandMatchers.formal_item_with_type_id))
+  }
+
   private fun parseBlockPara(
-    e : KSExpression.KSExpressionList)
+    e : KSExpressionList)
     : KSResult<KSBlockParagraph<Unit>, KSParseError> {
     Assertive.require(e.elements.size > 0)
-    Assertive.require(e.elements[0] is KSExpression.KSExpressionSymbol)
+    Assertive.require(e.elements[0] is KSExpressionSymbol)
 
     when {
       KSExpressionMatch.matches(e, CommandMatchers.para_with_id_type) -> {
         Assertive.require(e.elements.size >= 3)
         val id = parseAttributeID(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val type = parseAttributeType(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseInlines(rest)
 
@@ -241,9 +381,9 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.para_with_type_id) -> {
         Assertive.require(e.elements.size >= 3)
         val type = parseAttributeType(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val id = parseAttributeID(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseInlines(rest)
 
@@ -255,7 +395,7 @@ class KSBlockParser private constructor(
 
       KSExpressionMatch.matches(e, CommandMatchers.para_with_id)      -> {
         Assertive.require(e.elements.size >= 2)
-        val id = parseAttributeID(e.elements[1] as KSExpression.KSExpressionList)
+        val id = parseAttributeID(e.elements[1] as KSExpressionList)
         val rest = e.elements.subList(2, e.elements.size)
         val act_content = parseInlines(rest)
 
@@ -268,7 +408,7 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.para_with_type)    -> {
         Assertive.require(e.elements.size >= 2)
         val type = parseAttributeType(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val rest = e.elements.subList(2, e.elements.size)
         val act_content = parseInlines(rest)
 
@@ -300,27 +440,27 @@ class KSBlockParser private constructor(
 
   private fun newBlockParagraph(
     content : List<KSInline<Unit>>,
-    e : KSExpression.KSExpressionList,
+    e : KSExpressionList,
     id : Optional<KSID<Unit>>,
     type : Optional<String>) : KSBlockParagraph<Unit> {
     return KSBlockParagraph(e.position, Unit, type, id, content)
   }
 
   private fun parseBlockSubsection(
-    e : KSExpression.KSExpressionList)
+    e : KSExpressionList)
     : KSResult<KSBlockSubsection<Unit>, KSParseError> {
     Assertive.require(e.elements.size > 0)
-    Assertive.require(e.elements[0] is KSExpression.KSExpressionSymbol)
+    Assertive.require(e.elements[0] is KSExpressionSymbol)
 
     when {
       KSExpressionMatch.matches(e, CommandMatchers.subsection_with_type_id) -> {
         Assertive.require(e.elements.size >= 4)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val type = parseAttributeType(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val id = parseAttributeID(
-          e.elements[3] as KSExpression.KSExpressionList)
+          e.elements[3] as KSExpressionList)
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseSubsectionContents(rest)
 
@@ -341,11 +481,11 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.subsection_with_id_type) -> {
         Assertive.require(e.elements.size >= 4)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val id = parseAttributeID(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val type = parseAttributeType(
-          e.elements[3] as KSExpression.KSExpressionList)
+          e.elements[3] as KSExpressionList)
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseSubsectionContents(rest)
 
@@ -366,9 +506,9 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.subsection_with_type)    -> {
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val type = parseAttributeType(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseSubsectionContents(rest)
 
@@ -389,9 +529,9 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.subsection_with_id)      -> {
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val id = parseAttributeID(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseSubsectionContents(rest)
 
@@ -412,7 +552,7 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.subsection_none)         -> {
         Assertive.require(e.elements.size >= 2)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val rest = e.elements.subList(2, e.elements.size)
         val act_content = parseSubsectionContents(rest)
 
@@ -479,20 +619,20 @@ class KSBlockParser private constructor(
     }
 
   private fun parseBlockSection(
-    e : KSExpression.KSExpressionList)
+    e : KSExpressionList)
     : KSResult<KSBlockSection<Unit>, KSParseError> {
     Assertive.require(e.elements.size > 0)
-    Assertive.require(e.elements[0] is KSExpression.KSExpressionSymbol)
+    Assertive.require(e.elements[0] is KSExpressionSymbol)
 
     when {
       KSExpressionMatch.matches(e, CommandMatchers.section_with_type_id) -> {
         Assertive.require(e.elements.size >= 4)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val type = parseAttributeType(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val id = parseAttributeID(
-          e.elements[3] as KSExpression.KSExpressionList)
+          e.elements[3] as KSExpressionList)
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseSectionContents(rest)
 
@@ -507,11 +647,11 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.section_with_id_type) -> {
         Assertive.require(e.elements.size >= 4)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val id = parseAttributeID(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val type = parseAttributeType(
-          e.elements[3] as KSExpression.KSExpressionList)
+          e.elements[3] as KSExpressionList)
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseSectionContents(rest)
 
@@ -526,9 +666,9 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.section_with_type)    -> {
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val type = parseAttributeType(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseSectionContents(rest)
 
@@ -543,9 +683,9 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.section_with_id)      -> {
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val id = parseAttributeID(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseSectionContents(rest)
 
@@ -560,7 +700,7 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.section_none)         -> {
         Assertive.require(e.elements.size >= 2)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val rest = e.elements.subList(2, e.elements.size)
         val act_content = parseSectionContents(rest)
 
@@ -583,7 +723,7 @@ class KSBlockParser private constructor(
 
   private fun parseBlockSectionActual(
     content : List<KSSectionContent<Unit>>,
-    e : KSExpression.KSExpressionList,
+    e : KSExpressionList,
     id : Optional<KSID<Unit>>,
     type : Optional<String>,
     title : List<KSInlineText<Unit>>)
@@ -620,7 +760,7 @@ class KSBlockParser private constructor(
       is KSBlock.KSBlockDocument,
       is KSBlockSection,
       is KSBlockSubsection,
-      is KSBlockPart      -> {
+      is KSBlockPart               -> {
         val sb = StringBuilder()
         sb.append("Expected subsection content.")
         sb.append(System.lineSeparator())
@@ -631,8 +771,10 @@ class KSBlockParser private constructor(
         sb.append(System.lineSeparator())
         parseError(e, sb.toString())
       }
-      is KSBlockParagraph ->
+      is KSBlockParagraph          ->
         KSResult.succeed(KSSubsectionParagraph(e))
+      is KSBlock.KSBlockFormalItem ->
+        KSResult.succeed(KSSubsectionFormalItem(e))
     }
   }
 
@@ -641,7 +783,7 @@ class KSBlockParser private constructor(
     return when (e) {
       is KSBlock.KSBlockDocument,
       is KSBlockSection,
-      is KSBlockPart       -> {
+      is KSBlockPart               -> {
         val sb = StringBuilder()
         sb.append("Expected section content.")
         sb.append(System.lineSeparator())
@@ -652,10 +794,12 @@ class KSBlockParser private constructor(
         sb.append(System.lineSeparator())
         parseError(e, sb.toString())
       }
-      is KSBlockSubsection ->
+      is KSBlockSubsection         ->
         KSResult.succeed(KSSectionSubsection(e))
-      is KSBlockParagraph  ->
+      is KSBlockParagraph          ->
         KSResult.succeed(KSSectionSubsectionContent(KSSubsectionParagraph(e)))
+      is KSBlock.KSBlockFormalItem ->
+        KSResult.succeed(KSSectionSubsectionContent(KSSubsectionFormalItem(e)))
     }
   }
 
@@ -670,20 +814,20 @@ class KSBlockParser private constructor(
   }
 
   private fun parseBlockPart(
-    e : KSExpression.KSExpressionList)
+    e : KSExpressionList)
     : KSResult<KSBlockPart<Unit>, KSParseError> {
     Assertive.require(e.elements.size > 0)
-    Assertive.require(e.elements[0] is KSExpression.KSExpressionSymbol)
+    Assertive.require(e.elements[0] is KSExpressionSymbol)
 
     when {
       KSExpressionMatch.matches(e, CommandMatchers.part_with_type_id) -> {
         Assertive.require(e.elements.size >= 4)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val type = parseAttributeType(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val id = parseAttributeID(
-          e.elements[3] as KSExpression.KSExpressionList)
+          e.elements[3] as KSExpressionList)
         val rest = e.elements.subList(4, e.elements.size)
         val act_content =
           KSResult.listMap({ s -> parseSectionAny(s) }, rest)
@@ -699,11 +843,11 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.part_with_id_type) -> {
         Assertive.require(e.elements.size >= 4)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val id = parseAttributeID(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val type = parseAttributeType(
-          e.elements[3] as KSExpression.KSExpressionList)
+          e.elements[3] as KSExpressionList)
         val rest = e.elements.subList(4, e.elements.size)
         val act_content =
           KSResult.listMap({ s -> parseSectionAny(s) }, rest)
@@ -719,9 +863,9 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.part_with_type)    -> {
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val type = parseAttributeType(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content =
           KSResult.listMap({ s -> parseSectionAny(s) }, rest)
@@ -737,9 +881,9 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.part_with_id)      -> {
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val id = parseAttributeID(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content =
           KSResult.listMap({ s -> parseSectionAny(s) }, rest)
@@ -755,7 +899,7 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.part_none)         -> {
         Assertive.require(e.elements.size >= 2)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val rest = e.elements.subList(2, e.elements.size)
         val act_content =
           KSResult.listMap({ s -> parseSectionAny(s) }, rest)
@@ -784,6 +928,7 @@ class KSBlockParser private constructor(
         is KSBlock.KSBlockSection   ->
           KSResult.succeed<KSBlockSection<Unit>, KSParseError>(ee)
         is KSBlock.KSBlockDocument,
+        is KSBlock.KSBlockFormalItem,
         is KSBlock.KSBlockPart,
         is KSBlock.KSBlockSubsection,
         is KSBlock.KSBlockParagraph -> {
@@ -855,6 +1000,7 @@ class KSBlockParser private constructor(
     return when (e) {
       is KSBlock.KSBlockDocument,
       is KSBlockSubsection,
+      is KSBlock.KSBlockFormalItem,
       is KSBlockParagraph -> {
         val sb = StringBuilder()
         sb.append("Expected document content.")
@@ -886,20 +1032,20 @@ class KSBlockParser private constructor(
   }
 
   private fun parseBlockDocument(
-    e : KSExpression.KSExpressionList)
+    e : KSExpressionList)
     : KSResult<KSBlockDocument<Unit>, KSParseError> {
     Assertive.require(e.elements.size > 0)
-    Assertive.require(e.elements[0] is KSExpression.KSExpressionSymbol)
+    Assertive.require(e.elements[0] is KSExpressionSymbol)
 
     when {
       KSExpressionMatch.matches(e, CommandMatchers.document_with_type_id) -> {
         Assertive.require(e.elements.size >= 4)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val type = parseAttributeType(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val id = parseAttributeID(
-          e.elements[3] as KSExpression.KSExpressionList)
+          e.elements[3] as KSExpressionList)
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseDocumentContents(rest)
 
@@ -914,11 +1060,11 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.document_with_id_type) -> {
         Assertive.require(e.elements.size >= 4)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val id = parseAttributeID(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val type = parseAttributeType(
-          e.elements[3] as KSExpression.KSExpressionList)
+          e.elements[3] as KSExpressionList)
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseDocumentContents(rest)
 
@@ -933,9 +1079,9 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.document_with_type)    -> {
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val type = parseAttributeType(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseDocumentContents(rest)
 
@@ -950,9 +1096,9 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.document_with_id)      -> {
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val id = parseAttributeID(
-          e.elements[2] as KSExpression.KSExpressionList)
+          e.elements[2] as KSExpressionList)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseDocumentContents(rest)
 
@@ -967,7 +1113,7 @@ class KSBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.document_none)         -> {
         Assertive.require(e.elements.size >= 2)
         val act_title = parseAttributeTitle(
-          e.elements[1] as KSExpression.KSExpressionList)
+          e.elements[1] as KSExpressionList)
         val rest = e.elements.subList(2, e.elements.size)
         val act_content = parseDocumentContents(rest)
 
@@ -990,7 +1136,7 @@ class KSBlockParser private constructor(
 
   private fun parseBlockDocumentActual(
     content : List<KSDocumentContent<Unit>>,
-    e : KSExpression.KSExpressionList,
+    e : KSExpressionList,
     id : Optional<KSID<Unit>>,
     type : Optional<String>,
     title : List<KSInlineText<Unit>>)
@@ -1065,6 +1211,7 @@ class KSBlockParser private constructor(
   private fun makeParsers() : Map<String, ElementParser> {
     val m = HashMap<String, ElementParser>()
     m.put("paragraph", ElementParser("paragraph", { e -> parseBlockPara(e) }))
+    m.put("formal-item", ElementParser("formal-item", { e -> parseBlockFormalItem(e) }))
     m.put("subsection", ElementParser("subsection", { e -> parseBlockSubsection(e) }))
     m.put("section", ElementParser("section", { e -> parseBlockSection(e) }))
     m.put("part", ElementParser("part", { e -> parseBlockPart(e) }))
@@ -1074,7 +1221,7 @@ class KSBlockParser private constructor(
 
   private data class ElementParser(
     val name : String,
-    val parser : (KSExpression.KSExpressionList) -> KSResult<out KSBlock<Unit>, KSParseError>)
+    val parser : (KSExpressionList) -> KSResult<KSBlock<Unit>, KSParseError>)
 
   private fun makeMapDescription(m : Map<String, Any>) : String {
     val sb = StringBuilder()
@@ -1090,10 +1237,10 @@ class KSBlockParser private constructor(
     return sb.toString()
   }
 
-  private fun elementName(e : KSExpression.KSExpressionList) : String {
+  private fun elementName(e : KSExpressionList) : String {
     Assertive.require(e.elements.size > 0)
-    Assertive.require(e.elements[0] is KSExpression.KSExpressionSymbol)
-    return (e.elements[0] as KSExpression.KSExpressionSymbol).text
+    Assertive.require(e.elements[0] is KSExpressionSymbol)
+    return (e.elements[0] as KSExpressionSymbol).text
   }
 
   private val isElement =
@@ -1117,7 +1264,7 @@ class KSBlockParser private constructor(
       return parseError(e, sb.toString())
     }
 
-    val el = e as KSExpression.KSExpressionList
+    val el = e as KSExpressionList
     val name = elementName(el)
     Assertive.require(parsers.containsKey(name))
     val ic = parsers.get(name)!!

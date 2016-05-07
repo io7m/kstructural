@@ -22,6 +22,7 @@ import com.io7m.kstructural.core.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
 import com.io7m.kstructural.core.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
 import com.io7m.kstructural.core.KSBlock.KSBlockParagraph
+import com.io7m.kstructural.core.KSBlock.KSBlockFormalItem
 import com.io7m.kstructural.core.KSBlock.KSBlockPart
 import com.io7m.kstructural.core.KSBlock.KSBlockSection
 import com.io7m.kstructural.core.KSBlock.KSBlockSection.KSBlockSectionWithContent
@@ -51,6 +52,7 @@ import com.io7m.kstructural.core.KSLinkContent.KSLinkImage
 import com.io7m.kstructural.core.KSLinkContent.KSLinkText
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSSubsectionContent
+import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFormalItem
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
 import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberPart
 import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberPartSection
@@ -93,6 +95,7 @@ object KSEvaluator : KSEvaluatorType {
         is KSBlock.KSBlockSection,
         is KSBlock.KSBlockSubsection,
         is KSBlock.KSBlockParagraph,
+        is KSBlock.KSBlockFormalItem,
         is KSBlock.KSBlockPart     -> {
           Assertive.require(b.data.number.isPresent)
           val n = b.data.number.get()
@@ -173,6 +176,7 @@ object KSEvaluator : KSEvaluatorType {
           Optional.empty()
         is KSBlock.KSBlockSubsection,
         is KSBlock.KSBlockParagraph,
+        is KSBlock.KSBlockFormalItem,
         is KSBlock.KSBlockPart,
         is KSBlock.KSBlockSection  -> {
           Assertive.require(b.data.number.isPresent)
@@ -221,6 +225,7 @@ object KSEvaluator : KSEvaluatorType {
         is KSBlock.KSBlockSection,
         is KSBlock.KSBlockSubsection,
         is KSBlock.KSBlockParagraph,
+        is KSBlock.KSBlockFormalItem,
         is KSBlock.KSBlockPart     -> {
           Assertive.require(b.data.number.isPresent)
           val n = b.data.number.get()
@@ -844,7 +849,50 @@ object KSEvaluator : KSEvaluatorType {
         evaluateParagraph(c, cc.paragraph, pn, sn, ssn, cn) map { x ->
           KSSubsectionParagraph(x)
         }
+      is KSSubsectionContent.KSSubsectionFormalItem ->
+        evaluateFormalItem(c, cc.formal, pn, sn, ssn, cn) map { x ->
+        KSSubsectionFormalItem(x)
+      }
     }
+
+  private fun evaluateFormalItem(
+    c : Context,
+    f : KSBlockFormalItem<Unit>,
+    pn : OptionalLong,
+    sn : Long,
+    ssn : OptionalLong,
+    cn : Long)
+    : KSResult<KSBlockFormalItem<KSEvaluation>, KSEvaluationError> {
+
+    val act_content =
+      KSResult.listMap({ i -> evaluateInline(c, i) }, f.content)
+    val act_title =
+      KSResult.listMap({ i -> evaluateInlineText(c, i) }, f.title)
+
+    return act_content flatMap { content ->
+      act_title flatMap { title ->
+        val num : KSNumber = if (pn.isPresent) {
+          if (ssn.isPresent) {
+            KSNumberPartSectionSubsectionContent(pn.asLong, sn, ssn.asLong, cn)
+          } else {
+            KSNumberPartSectionContent(pn.asLong, sn, cn)
+          }
+        } else {
+          if (ssn.isPresent) {
+            KSNumberSectionSubsectionContent(sn, ssn.asLong, cn)
+          } else {
+            KSNumberSectionContent(sn, cn)
+          }
+        }
+
+        val ev = KSEvaluation(c, c.freshSerial(), Optional.of(num))
+        c.recordID(c, f, { f, id ->
+          c.recordBlock(KSBlockFormalItem(
+            f.position, ev, f.type, id, title, content))
+        })
+      }
+    }
+  }
 
   private fun evaluateParagraph(
     c : Context,

@@ -27,4 +27,9 @@ sealed class KSSubsectionContent<T>(
   : KSSubsectionContent<T>(paragraph.position) {
     override fun toString() : String = paragraph.toString()
   }
+
+  class KSSubsectionFormalItem<T>(val formal : KSBlock.KSBlockFormalItem<T>)
+  : KSSubsectionContent<T>(formal.position) {
+    override fun toString() : String = formal.toString()
+  }
 }

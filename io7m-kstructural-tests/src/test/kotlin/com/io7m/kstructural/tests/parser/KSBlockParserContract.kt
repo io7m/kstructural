@@ -24,6 +24,7 @@ import com.io7m.kstructural.core.KSBlock.KSBlockPart
 import com.io7m.kstructural.core.KSBlock.KSBlockSection.KSBlockSectionWithContent
 import com.io7m.kstructural.core.KSBlock.KSBlockSection.KSBlockSectionWithSubsections
 import com.io7m.kstructural.core.KSBlock.KSBlockSubsection
+import com.io7m.kstructural.core.KSBlock.*
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSInline
 import com.io7m.kstructural.core.KSInline.KSInlineText
@@ -824,5 +825,109 @@ abstract class KSBlockParserContract {
 
     Assert.assertTrue(e.partial.isPresent)
     Assert.assertEquals(1, e.errors.size)
+  }
+
+  @Test fun testFormalItemErrorEmpty()
+  {
+    val pp = newParserForString("[formal-item]")
+
+    val e = pp.p.parse(pp.s.invoke())
+    e as KSFailure<KSBlockFormalItem<*>, KSParseError>
+
+    Assert.assertFalse(e.partial.isPresent)
+    Assert.assertEquals(1, e.errors.size)
+  }
+
+  @Test fun testFormalItemErrorWrongContent()
+  {
+    val pp = newParserForString("[formal-item [title t] [subsection [title w]]]")
+
+    val e = pp.p.parse(pp.s.invoke())
+    e as KSFailure<KSBlockFormalItem<*>, KSParseError>
+
+    Assert.assertTrue(e.partial.isPresent)
+    Assert.assertEquals(1, e.errors.size)
+  }
+
+  @Test fun testFormalItemErrorWrongTitle()
+  {
+    val pp = newParserForString("[formal-item [title x [term q]]]")
+
+    val e = pp.p.parse(pp.s.invoke())
+    e as KSFailure<KSBlockFormalItem<*>, KSParseError>
+
+    Assert.assertTrue(e.partial.isPresent)
+    Assert.assertEquals(1, e.errors.size)
+  }
+
+  @Test fun testFormalItem()
+  {
+    val pp = newParserForString("[formal-item [title t]]")
+    val e = pp.p.parse(pp.s.invoke())
+
+    e as KSSuccess<KSBlockFormalItem<Unit>, KSParseError>
+    Assert.assertEquals("t", e.result.title[0].text)
+    Assert.assertEquals(Optional.empty<KSID<Unit>>(), e.result.id)
+    Assert.assertEquals(0, e.result.content.size)
+  }
+
+  @Test fun testFormalItemID()
+  {
+    val pp = newParserForString("[formal-item [title t] [id x]]")
+    val e = pp.p.parse(pp.s.invoke())
+
+    e as KSSuccess<KSBlockFormalItem<Unit>, KSParseError>
+    Assert.assertEquals("t", e.result.title[0].text)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals(0, e.result.content.size)
+  }
+
+  @Test fun testFormalItemIDType()
+  {
+    val pp = newParserForString("[formal-item [title t] [id x] [type k]]")
+    val e = pp.p.parse(pp.s.invoke())
+
+    e as KSSuccess<KSBlockFormalItem<Unit>, KSParseError>
+    Assert.assertEquals("t", e.result.title[0].text)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals(0, e.result.content.size)
+  }
+
+  @Test fun testFormalItemTypeID()
+  {
+    val pp = newParserForString("[formal-item [title t] [type k] [id x]]")
+    val e = pp.p.parse(pp.s.invoke())
+
+    e as KSSuccess<KSBlockFormalItem<Unit>, KSParseError>
+    Assert.assertEquals("t", e.result.title[0].text)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals(0, e.result.content.size)
+  }
+
+  @Test fun testFormalItemType()
+  {
+    val pp = newParserForString("[formal-item [title t] [type k]]")
+    val e = pp.p.parse(pp.s.invoke())
+
+    e as KSSuccess<KSBlockFormalItem<Unit>, KSParseError>
+    Assert.assertEquals("t", e.result.title[0].text)
+    Assert.assertEquals(Optional.empty<KSID<Unit>>(), e.result.id)
+    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals(0, e.result.content.size)
+  }
+
+  @Test fun testFormalItemContent()
+  {
+    val pp = newParserForString("[formal-item [title t] Hello.]")
+    val e = pp.p.parse(pp.s.invoke())
+
+    e as KSSuccess<KSBlockFormalItem<Unit>, KSParseError>
+    Assert.assertEquals("t", e.result.title[0].text)
+    Assert.assertEquals(Optional.empty<KSID<Unit>>(), e.result.id)
+    Assert.assertEquals(1, e.result.content.size)
+    val t = e.result.content[0] as KSInline.KSInlineText<Unit>
+    Assert.assertEquals("Hello.", t.text)
   }
 }
