@@ -16,7 +16,6 @@
 
 package com.io7m.kstructural.core.evaluator
 
-import com.io7m.junreachable.UnimplementedCodeException
 import com.io7m.kstructural.core.KSBlock
 import com.io7m.kstructural.core.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
@@ -31,9 +30,12 @@ import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSInline
 import com.io7m.kstructural.core.KSInline.KSInlineImage
 import com.io7m.kstructural.core.KSInline.KSInlineLink
+import com.io7m.kstructural.core.KSInline.KSInlineListOrdered
+import com.io7m.kstructural.core.KSInline.KSInlineListUnordered
 import com.io7m.kstructural.core.KSInline.KSInlineTerm
 import com.io7m.kstructural.core.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSInline.KSInlineVerbatim
+import com.io7m.kstructural.core.KSInline.KSListItem
 import com.io7m.kstructural.core.KSLink.KSLinkExternal
 import com.io7m.kstructural.core.KSLink.KSLinkInternal
 import com.io7m.kstructural.core.KSLinkContent
@@ -498,9 +500,54 @@ object KSEvaluator : KSEvaluatorType {
       is KSInlineVerbatim               -> evaluateInlineVerbatim(c, e)
       is KSInlineTerm                   -> evaluateInlineTerm(c, e)
       is KSInlineImage                  -> evaluateInlineImage(c, e)
-      is KSInline.KSInlineListOrdered   -> throw UnimplementedCodeException()
-      is KSInline.KSInlineListUnordered -> throw UnimplementedCodeException()
+      is KSInline.KSInlineListOrdered   -> evaluateInlineListOrdered(c, e)
+      is KSInline.KSInlineListUnordered -> evaluateInlineListUnordered(c, e)
     }
+
+  private fun evaluateInlineListUnordered(
+    c : Context,
+    e : KSInlineListUnordered<Unit>)
+    : KSResult<KSInlineListUnordered<KSEvaluation>, KSEvaluationError> {
+
+    val act_items =
+      KSResult.listMap({ item -> evaluateListItem(c, item) }, e.content)
+
+    return act_items flatMap { items ->
+      val eval = KSEvaluation(c, c.freshSerial(), Optional.empty())
+      KSResult.succeed<KSInlineListUnordered<KSEvaluation>, KSEvaluationError>(
+        KSInlineListUnordered(e.position, eval, items))
+    }
+  }
+
+  private fun evaluateInlineListOrdered(
+    c : Context,
+    e : KSInlineListOrdered<Unit>)
+    : KSResult<KSInlineListOrdered<KSEvaluation>, KSEvaluationError> {
+
+    val act_items = KSResult.listMap(
+      { item -> evaluateListItem(c, item) }, e.content)
+
+    return act_items flatMap { items ->
+      val eval = KSEvaluation(c, c.freshSerial(), Optional.empty())
+      KSResult.succeed<KSInlineListOrdered<KSEvaluation>, KSEvaluationError>(
+        KSInlineListOrdered(e.position, eval, items))
+    }
+  }
+
+  private fun evaluateListItem(
+    c : Context,
+    item : KSListItem<Unit>)
+    : KSResult<KSListItem<KSEvaluation>, KSEvaluationError> {
+
+    val act_item_content = KSResult.listMap(
+      { cc -> evaluateInline(c, cc) }, item.content)
+
+    return act_item_content flatMap { content ->
+      val eval = KSEvaluation(c, c.freshSerial(), Optional.empty())
+      KSResult.succeed<KSListItem<KSEvaluation>, KSEvaluationError>(
+        KSListItem(item.position, eval, content))
+    }
+  }
 
   private fun evaluateInlineLink(
     c : Context,

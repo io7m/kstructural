@@ -26,6 +26,8 @@ import com.io7m.kstructural.core.KSBlock.KSBlockSubsection
 import com.io7m.kstructural.core.KSInline
 import com.io7m.kstructural.core.KSInline.KSInlineImage
 import com.io7m.kstructural.core.KSInline.KSInlineLink
+import com.io7m.kstructural.core.KSInline.KSInlineListOrdered
+import com.io7m.kstructural.core.KSInline.KSInlineListUnordered
 import com.io7m.kstructural.core.KSInline.KSInlineTerm
 import com.io7m.kstructural.core.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSInline.KSInlineVerbatim
@@ -226,12 +228,52 @@ internal object KSXOM {
     prov : KSXOMLinkProviderType,
     c : KSInline<KSEvaluation>) : Node =
     when (c) {
-      is KSInline.KSInlineLink     -> inlineLink(prov, c)
-      is KSInline.KSInlineText     -> inlineText(c)
-      is KSInline.KSInlineVerbatim -> inlineVerbatim(c)
-      is KSInline.KSInlineTerm     -> inlineTerm(c)
-      is KSInline.KSInlineImage    -> inlineImage(c)
+      is KSInline.KSInlineLink          -> inlineLink(prov, c)
+      is KSInline.KSInlineText          -> inlineText(c)
+      is KSInline.KSInlineVerbatim      -> inlineVerbatim(c)
+      is KSInline.KSInlineTerm          -> inlineTerm(c)
+      is KSInline.KSInlineImage         -> inlineImage(c)
+      is KSInline.KSInlineListOrdered   -> inlineListOrdered(prov, c)
+      is KSInline.KSInlineListUnordered -> inlineListUnordered(prov, c)
     }
+
+  private fun inlineListUnordered(
+    prov : KSXOMLinkProviderType,
+    c : KSInlineListUnordered<KSEvaluation>) : Node {
+
+    val classes = mutableListOf<String>()
+    classes.add(prefixedName("list_unordered"))
+    val classes_text = KSTextUtilities.concatenate(classes)
+
+    val sc = Element("ul", XHTML_URI_TEXT)
+    sc.addAttribute(Attribute("class", null, classes_text))
+    c.content.forEach { i ->
+      val ie = Element("li", XHTML_URI_TEXT)
+      ie.addAttribute(Attribute("class", null, prefixedName("list_item")))
+      sc.appendChild(ie)
+      inlinesAppend(ie, i.content, { ic -> inline(prov, ic) })
+    }
+    return sc
+  }
+
+  private fun inlineListOrdered(
+    prov : KSXOMLinkProviderType,
+    c : KSInlineListOrdered<KSEvaluation>) : Node {
+
+    val classes = mutableListOf<String>()
+    classes.add(prefixedName("list_ordered"))
+    val classes_text = KSTextUtilities.concatenate(classes)
+
+    val sc = Element("ul", XHTML_URI_TEXT)
+    sc.addAttribute(Attribute("class", null, classes_text))
+    c.content.forEach { i ->
+      val ie = Element("li", XHTML_URI_TEXT)
+      ie.addAttribute(Attribute("class", null, prefixedName("list_item")))
+      sc.appendChild(ie)
+      inlinesAppend(ie, i.content, { ic -> inline(prov, ic) })
+    }
+    return sc
+  }
 
   fun linkContent(c : KSLinkContent<KSEvaluation>) : Node =
     when (c) {
@@ -400,21 +442,24 @@ internal object KSXOM {
     titles_prev.addAttribute(
       Attribute("class", null, prefixedName("navbar_prev_title_cell")))
     b.data.context.elementSegmentPrevious(b).ifPresent {
-      block -> navigationBarCellTitle(block, titles_prev)
+      block ->
+      navigationBarCellTitle(block, titles_prev)
     }
 
     val titles_up = Element("td", XHTML_URI_TEXT)
     titles_up.addAttribute(
       Attribute("class", null, prefixedName("navbar_up_title_cell")))
     b.data.context.elementSegmentUp(b).ifPresent {
-      block -> navigationBarCellTitle(block, titles_up)
+      block ->
+      navigationBarCellTitle(block, titles_up)
     }
 
     val titles_next = Element("td", XHTML_URI_TEXT)
     titles_next.addAttribute(
       Attribute("class", null, prefixedName("navbar_next_title_cell")))
     b.data.context.elementSegmentNext(b).ifPresent {
-      block -> navigationBarCellTitle(block, titles_next)
+      block ->
+      navigationBarCellTitle(block, titles_next)
     }
 
     val titles = Element("tr", XHTML_URI_TEXT)
@@ -426,21 +471,24 @@ internal object KSXOM {
     files_prev.addAttribute(
       Attribute("class", null, prefixedName("navbar_prev_file_cell")))
     b.data.context.elementSegmentPrevious(b).ifPresent {
-      block -> navigationBarCellFile(block, prov, files_prev, "previous")
+      block ->
+      navigationBarCellFile(block, prov, files_prev, "previous")
     }
 
     val files_up = Element("td", XHTML_URI_TEXT)
     files_up.addAttribute(
       Attribute("class", null, prefixedName("navbar_up_file_cell")))
     b.data.context.elementSegmentUp(b).ifPresent {
-      block -> navigationBarCellFile(block, prov, files_up, "up")
+      block ->
+      navigationBarCellFile(block, prov, files_up, "up")
     }
 
     val files_next = Element("td", XHTML_URI_TEXT)
     files_next.addAttribute(
       Attribute("class", null, prefixedName("navbar_next_file_cell")))
     b.data.context.elementSegmentNext(b).ifPresent {
-      block -> navigationBarCellFile(block, prov, files_next, "next")
+      block ->
+      navigationBarCellFile(block, prov, files_next, "next")
     }
 
     val files = Element("tr", XHTML_URI_TEXT)
@@ -546,7 +594,7 @@ internal object KSXOM {
       Attribute("class", null, KSTextUtilities.concatenate(classes)))
 
     when (s) {
-      is KSBlockSection.KSBlockSectionWithContent -> {
+      is KSBlockSection.KSBlockSectionWithContent     -> {
 
       }
       is KSBlockSection.KSBlockSectionWithSubsections -> {
@@ -612,7 +660,7 @@ internal object KSXOM {
       e.appendChild(part_li)
 
       when (s) {
-        is KSBlockSection.KSBlockSectionWithContent -> {
+        is KSBlockSection.KSBlockSectionWithContent     -> {
 
         }
         is KSBlockSection.KSBlockSectionWithSubsections -> {

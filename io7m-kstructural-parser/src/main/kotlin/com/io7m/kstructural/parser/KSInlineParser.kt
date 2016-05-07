@@ -417,22 +417,22 @@ object KSInlineParser : KSInlineParserType {
   private fun parseInlineToLinkContent(
     e : KSInline<Unit>) : KSResult<KSLinkContent<Unit>, KSParseError> {
     return when (e) {
-      is KSInlineText     ->
+      is KSInlineText                   ->
         KSResult.succeed(KSLinkContent.KSLinkText(e.position, Unit, e))
 
-      is KSInlineImage    ->
+      is KSInlineImage                  ->
         KSResult.succeed(KSLinkContent.KSLinkImage(e.position, Unit, e))
 
-      is KSInlineLink     ->
+      is KSInlineLink                   ->
         parseError(e, "Link elements cannot appear inside link elements")
 
-      is KSInlineVerbatim ->
+      is KSInlineVerbatim               ->
         parseError(e, "Verbatim elements cannot appear inside link elements")
 
-      is KSInlineTerm     ->
+      is KSInlineTerm                   ->
         parseError(e, "Term elements cannot appear inside link elements")
 
-      is KSInline.KSInlineListOrdered ->
+      is KSInline.KSInlineListOrdered   ->
         parseError(e, "List elements cannot appear inside link elements")
 
       is KSInline.KSInlineListUnordered ->
@@ -458,7 +458,8 @@ object KSInlineParser : KSInlineParserType {
     e : KSExpression.KSExpressionList)
     : KSResult<KSInlineLink<Unit>, KSParseError> {
     return parseLinkInternal(e) flatMap {
-      link -> KSResult.succeed<KSInlineLink<Unit>, KSParseError>(
+      link ->
+      KSResult.succeed<KSInlineLink<Unit>, KSParseError>(
         KSInlineLink(e.position, Unit, link))
     }
   }
@@ -467,7 +468,8 @@ object KSInlineParser : KSInlineParserType {
     e : KSExpression.KSExpressionList)
     : KSResult<KSInlineLink<Unit>, KSParseError> {
     return parseLinkExternal(e) flatMap {
-      link -> KSResult.succeed<KSInlineLink<Unit>, KSParseError>(
+      link ->
+      KSResult.succeed<KSInlineLink<Unit>, KSParseError>(
         KSInlineLink(e.position, Unit, link))
     }
   }
