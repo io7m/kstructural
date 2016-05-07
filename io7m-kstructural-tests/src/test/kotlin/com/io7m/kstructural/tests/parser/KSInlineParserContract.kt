@@ -414,4 +414,158 @@ abstract class KSInlineParserContract {
 
     i as KSFailure
   }
+
+  @Test fun testInlineTableError() {
+    val pp = newParserForString("[table]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSFailure
+  }
+
+  @Test fun testInlineTableSummaryError() {
+    val pp = newParserForString("[table [summary [term q]] [body]]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSFailure
+  }
+
+  @Test fun testInlineTableSummaryBodyError() {
+    val pp = newParserForString("[table [summary s] [body q]]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSFailure
+  }
+
+  @Test fun testInlineTableSummaryBodyErrorCell() {
+    val pp = newParserForString("[table [summary s] [body [row x]]]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSFailure
+  }
+
+  @Test fun testInlineTableSummaryHeadBodyError() {
+    val pp = newParserForString("[table [summary s] [head x] [body]]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSFailure
+  }
+
+  @Test fun testInlineTableSummaryHeadBodyNameError() {
+    val pp = newParserForString("[table [summary s] [head [name [term z]]] [body]]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSFailure
+  }
+
+  @Test fun testInlineTableSummaryBody() {
+    val pp = newParserForString("[table [summary s] [body]]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSSuccess<KSInline.KSInlineTable<*>, KSParseError>
+    Assert.assertFalse(i.result.type.isPresent)
+    Assert.assertEquals("s", i.result.summary.content[0].text)
+    Assert.assertEquals(0, i.result.body.rows.size)
+  }
+
+  @Test fun testInlineTableSummaryBodyRow() {
+    val pp = newParserForString("[table [summary s] [body [row]]]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSSuccess<KSInline.KSInlineTable<*>, KSParseError>
+    Assert.assertFalse(i.result.type.isPresent)
+    Assert.assertEquals("s", i.result.summary.content[0].text)
+    Assert.assertEquals(1, i.result.body.rows.size)
+    Assert.assertEquals(0, i.result.body.rows[0].cells.size)
+  }
+
+  @Test fun testInlineTableSummaryBodyRowCell() {
+    val pp = newParserForString("[table [summary s] [body [row [cell]]]]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSSuccess<KSInline.KSInlineTable<*>, KSParseError>
+    Assert.assertFalse(i.result.type.isPresent)
+    Assert.assertEquals("s", i.result.summary.content[0].text)
+    Assert.assertEquals(1, i.result.body.rows.size)
+    Assert.assertEquals(1, i.result.body.rows[0].cells.size)
+    Assert.assertEquals(0, i.result.body.rows[0].cells[0].content.size)
+  }
+
+  @Test fun testInlineTableSummaryHeadBody() {
+    val pp = newParserForString("[table [summary s] [head] [body]]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSSuccess<KSInline.KSInlineTable<*>, KSParseError>
+    Assert.assertFalse(i.result.type.isPresent)
+    Assert.assertEquals("s", i.result.summary.content[0].text)
+    Assert.assertEquals(0, i.result.body.rows.size)
+    Assert.assertEquals(0, i.result.head.get().column_names.size)
+  }
+
+  @Test fun testInlineTableSummaryHeadNamesBody() {
+    val pp = newParserForString("[table [summary s] [head [name x]] [body]]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSSuccess<KSInline.KSInlineTable<*>, KSParseError>
+    Assert.assertFalse(i.result.type.isPresent)
+    Assert.assertEquals("s", i.result.summary.content[0].text)
+    Assert.assertEquals(0, i.result.body.rows.size)
+    Assert.assertEquals(1, i.result.head.get().column_names.size)
+    Assert.assertEquals("x", i.result.head.get().column_names[0].content[0].text)
+  }
+
+  @Test fun testInlineTableSummaryTypeBody() {
+    val pp = newParserForString("[table [summary s] [type t] [body]]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSSuccess<KSInline.KSInlineTable<*>, KSParseError>
+    Assert.assertEquals(Optional.of("t"), i.result.type)
+    Assert.assertEquals("s", i.result.summary.content[0].text)
+    Assert.assertEquals(0, i.result.body.rows.size)
+  }
+
+  @Test fun testInlineTableSummaryTypeBodyRow() {
+    val pp = newParserForString("[table [summary s] [type t] [body [row]]]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSSuccess<KSInline.KSInlineTable<*>, KSParseError>
+    Assert.assertEquals(Optional.of("t"), i.result.type)
+    Assert.assertEquals("s", i.result.summary.content[0].text)
+    Assert.assertEquals(1, i.result.body.rows.size)
+    Assert.assertEquals(0, i.result.body.rows[0].cells.size)
+  }
+
+  @Test fun testInlineTableSummaryTypeBodyRowCell() {
+    val pp = newParserForString("[table [summary s] [type t] [body [row [cell]]]]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSSuccess<KSInline.KSInlineTable<*>, KSParseError>
+    Assert.assertEquals(Optional.of("t"), i.result.type)
+    Assert.assertEquals("s", i.result.summary.content[0].text)
+    Assert.assertEquals(1, i.result.body.rows.size)
+    Assert.assertEquals(1, i.result.body.rows[0].cells.size)
+    Assert.assertEquals(0, i.result.body.rows[0].cells[0].content.size)
+  }
+
+  @Test fun testInlineTableSummaryTypeHeadBody() {
+    val pp = newParserForString("[table [summary s] [type t] [head] [body]]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSSuccess<KSInline.KSInlineTable<*>, KSParseError>
+    Assert.assertEquals(Optional.of("t"), i.result.type)
+    Assert.assertEquals("s", i.result.summary.content[0].text)
+    Assert.assertEquals(0, i.result.body.rows.size)
+    Assert.assertEquals(0, i.result.head.get().column_names.size)
+  }
+
+  @Test fun testInlineTableSummaryTypeHeadNamesBody() {
+    val pp = newParserForString("[table [summary s] [type t] [head [name x]] [body]]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSSuccess<KSInline.KSInlineTable<*>, KSParseError>
+    Assert.assertEquals(Optional.of("t"), i.result.type)
+    Assert.assertEquals("s", i.result.summary.content[0].text)
+    Assert.assertEquals(0, i.result.body.rows.size)
+    Assert.assertEquals(1, i.result.head.get().column_names.size)
+    Assert.assertEquals("x", i.result.head.get().column_names[0].content[0].text)
+  }
 }

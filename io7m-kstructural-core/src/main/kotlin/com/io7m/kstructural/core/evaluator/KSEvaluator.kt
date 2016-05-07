@@ -32,10 +32,17 @@ import com.io7m.kstructural.core.KSInline.KSInlineImage
 import com.io7m.kstructural.core.KSInline.KSInlineLink
 import com.io7m.kstructural.core.KSInline.KSInlineListOrdered
 import com.io7m.kstructural.core.KSInline.KSInlineListUnordered
+import com.io7m.kstructural.core.KSInline.KSInlineTable
 import com.io7m.kstructural.core.KSInline.KSInlineTerm
 import com.io7m.kstructural.core.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSInline.KSInlineVerbatim
 import com.io7m.kstructural.core.KSInline.KSListItem
+import com.io7m.kstructural.core.KSInline.KSTableBody
+import com.io7m.kstructural.core.KSInline.KSTableBodyCell
+import com.io7m.kstructural.core.KSInline.KSTableBodyRow
+import com.io7m.kstructural.core.KSInline.KSTableHead
+import com.io7m.kstructural.core.KSInline.KSTableHeadColumnName
+import com.io7m.kstructural.core.KSInline.KSTableSummary
 import com.io7m.kstructural.core.KSLink.KSLinkExternal
 import com.io7m.kstructural.core.KSLink.KSLinkInternal
 import com.io7m.kstructural.core.KSLinkContent
@@ -502,7 +509,158 @@ object KSEvaluator : KSEvaluatorType {
       is KSInlineImage                  -> evaluateInlineImage(c, e)
       is KSInline.KSInlineListOrdered   -> evaluateInlineListOrdered(c, e)
       is KSInline.KSInlineListUnordered -> evaluateInlineListUnordered(c, e)
+      is KSInline.KSInlineTable         -> evaluateInlineTable(c, e)
     }
+
+  private fun evaluateInlineTable(
+    c : Context,
+    e : KSInlineTable<Unit>)
+    : KSResult<KSInlineTable<KSEvaluation>, KSEvaluationError> {
+
+    val act_head =
+      evaluateInlineTableHeadOptional(c, e)
+    val act_summary =
+      evaluateInlineTableSummary(c, e.summary)
+    val act_body =
+      evaluateInlineTableBody(c, e.body)
+
+    return act_body flatMap { body ->
+      act_summary flatMap { summary ->
+        act_head flatMap { head ->
+          val eval = KSEvaluation(c, c.freshSerial(), Optional.empty())
+          val table = KSInlineTable(e.position, eval, e.type, summary, head, body)
+          KSResult.succeed<KSInlineTable<KSEvaluation>, KSEvaluationError>(table)
+        }
+      }
+    }
+  }
+
+  private fun evaluateInlineTableHeadOptional(
+    c : Context,
+    e : KSInlineTable<Unit>)
+    : KSResult<Optional<KSTableHead<KSEvaluation>>, KSEvaluationError> {
+
+    return if (e.head.isPresent) {
+      val eh = e.head.get()
+
+      evaluateInlineTableCheckColumnCount(e) flatMap { x ->
+        val act_names =
+          KSResult.listMap({
+            name ->
+            evaluateInlineTableHeadColumnName(c, name)
+          }, eh.column_names)
+
+        act_names flatMap { names ->
+          val eval = KSEvaluation(c, c.freshSerial(), Optional.empty())
+          val head = KSTableHead(eh.position, eval, names)
+          KSResult.succeed<Optional<KSTableHead<KSEvaluation>>, KSEvaluationError>(
+            Optional.of(head))
+        }
+      }
+    } else {
+      KSResult.succeed(Optional.empty())
+    }
+  }
+
+  private fun evaluateInlineTableHeadColumnName(
+    c : Context,
+    name : KSTableHeadColumnName<Unit>)
+    : KSResult<KSTableHeadColumnName<KSEvaluation>, KSEvaluationError> {
+
+    return KSResult.listMap({ t -> evaluateInlineText(c, t) }, name.content)
+      .flatMap { content ->
+        val eval = KSEvaluation(c, c.freshSerial(), Optional.empty())
+        KSResult.succeed<KSTableHeadColumnName<KSEvaluation>, KSEvaluationError>(
+          KSTableHeadColumnName(name.position, eval, content))
+      }
+  }
+
+  private fun evaluateInlineTableBody(
+    c : Context,
+    b : KSTableBody<Unit>)
+    : KSResult<KSTableBody<KSEvaluation>, KSEvaluationError> {
+
+    val act_rows = KSResult.listMap(
+      { row -> evaluateInlineTableRow(c, row) }, b.rows)
+
+    return act_rows.flatMap { rows ->
+      val eval = KSEvaluation(c, c.freshSerial(), Optional.empty())
+      KSResult.succeed<KSTableBody<KSEvaluation>, KSEvaluationError>(
+        KSTableBody(b.position, eval, rows))
+    }
+  }
+
+  private fun evaluateInlineTableRow(
+    c : Context,
+    row : KSTableBodyRow<Unit>)
+    : KSResult<KSTableBodyRow<KSEvaluation>, KSEvaluationError> {
+
+    val act_cells =
+      KSResult.listMap({ cell -> evaluateInlineTableCell(c, cell) }, row.cells)
+    return act_cells flatMap { cells ->
+      val eval = KSEvaluation(c, c.freshSerial(), Optional.empty())
+      KSResult.succeed<KSTableBodyRow<KSEvaluation>, KSEvaluationError>(
+        KSTableBodyRow(row.position, eval, cells))
+    }
+  }
+
+  private fun evaluateInlineTableCell(
+    c : Context,
+    cell : KSTableBodyCell<Unit>)
+    : KSResult<KSTableBodyCell<KSEvaluation>, KSEvaluationError> {
+    val act_content =
+      KSResult.listMap({ cc -> evaluateInline(c, cc) }, cell.content)
+    return act_content.flatMap { content ->
+      val eval = KSEvaluation(c, c.freshSerial(), Optional.empty())
+      KSResult.succeed<KSTableBodyCell<KSEvaluation>, KSEvaluationError>(
+        KSTableBodyCell(cell.position, eval, content))
+    }
+  }
+
+  private fun evaluateInlineTableSummary(
+    c : Context,
+    s : KSTableSummary<Unit>)
+    : KSResult<KSTableSummary<KSEvaluation>, KSEvaluationError> {
+    val act_content =
+      KSResult.listMap({ cc -> evaluateInlineText(c, cc) }, s.content)
+    return act_content flatMap { content ->
+      val eval = KSEvaluation(c, c.freshSerial(), Optional.empty())
+      KSResult.succeed<KSTableSummary<KSEvaluation>, KSEvaluationError>(
+        KSTableSummary(s.position, eval, content))
+    }
+  }
+
+  private fun evaluateInlineTableCheckColumnCount(
+    e : KSInlineTable<Unit>) : KSResult<List<Unit>, KSEvaluationError> {
+    return if (e.head.isPresent) {
+      val head = e.head.get()
+      val col_count = head.column_names.size
+      KSResult.listMapIndexed({ row, i ->
+        if (row.cells.size != col_count) {
+          val sb = StringBuilder()
+          sb.append("Row cell count does not match the number of declared columns.")
+          sb.append(System.lineSeparator())
+          sb.append("  Row:      ")
+          sb.append(i)
+          sb.append(System.lineSeparator())
+          sb.append("  Expected: ")
+          sb.append(col_count)
+          sb.append(" columns")
+          sb.append(System.lineSeparator())
+          sb.append("  Received: ")
+          sb.append(row.cells.size)
+          sb.append(System.lineSeparator())
+          val m = sb.toString()
+          KSResult.fail<Unit, KSEvaluationError>(
+            KSEvaluationError(row.position, m))
+        } else {
+          KSResult.succeed(Unit)
+        }
+      }, e.body.rows)
+    } else {
+      KSResult.succeed(listOf())
+    }
+  }
 
   private fun evaluateInlineListUnordered(
     c : Context,

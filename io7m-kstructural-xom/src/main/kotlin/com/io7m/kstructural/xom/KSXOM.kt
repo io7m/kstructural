@@ -235,7 +235,59 @@ internal object KSXOM {
       is KSInline.KSInlineImage         -> inlineImage(c)
       is KSInline.KSInlineListOrdered   -> inlineListOrdered(prov, c)
       is KSInline.KSInlineListUnordered -> inlineListUnordered(prov, c)
+      is KSInline.KSInlineTable         -> inlineTable(prov, c)
     }
+
+  private fun inlineTable(
+    prov : KSXOMLinkProviderType,
+    t : KSInline.KSInlineTable<KSEvaluation>) : Node {
+
+    val classes = mutableListOf<String>()
+    classes.add(prefixedName("table"))
+    t.type.ifPresent { ty -> classes.add(ty) }
+    val classes_text = KSTextUtilities.concatenate(classes)
+
+    val sc = Element("table", XHTML_URI_TEXT)
+    sc.addAttribute(Attribute("class", null, classes_text))
+
+    val summary_text = KSTextUtilities.concatenate(t.summary.content)
+    sc.addAttribute(Attribute("summary", null, summary_text))
+
+    if (t.head.isPresent) {
+      val th = t.head.get()
+      val tsc = Element("thead", XHTML_URI_TEXT)
+      tsc.addAttribute(Attribute("class", null, prefixedName("table_head")))
+      val tsc_row = Element("tr", XHTML_URI_TEXT)
+      tsc.appendChild(tsc_row)
+
+      th.column_names.forEach { n ->
+        val tsc_cell = Element("th", XHTML_URI_TEXT)
+        tsc_cell.addAttribute(Attribute("class", null, prefixedName("table_column_name")))
+        inlinesAppend(tsc_cell, n.content, { ic -> inline(prov, ic) })
+        tsc_row.appendChild(tsc_cell)
+      }
+
+      sc.appendChild(tsc)
+    }
+
+    val tsc = Element("tbody", XHTML_URI_TEXT)
+    tsc.addAttribute(Attribute("class", null, prefixedName("table_body")))
+    sc.appendChild(tsc)
+
+    t.body.rows.forEach { row ->
+      val tsc_row = Element("tr", XHTML_URI_TEXT)
+      tsc.appendChild(tsc_row)
+
+      row.cells.forEach { cell ->
+        val tsc_cell = Element("td", XHTML_URI_TEXT)
+        tsc_cell.addAttribute(Attribute("class", null, prefixedName("table_cell")))
+        tsc_row.appendChild(tsc_cell)
+        inlinesAppend(tsc_cell, cell.content, { ic -> inline(prov, ic) })
+      }
+    }
+
+    return sc
+  }
 
   private fun inlineListUnordered(
     prov : KSXOMLinkProviderType,

@@ -164,4 +164,115 @@ sealed class KSInline<T>(
       return sb.toString()
     }
   }
+
+  class KSTableHeadColumnName<T>(
+    override val position : Optional<LexicalPositionType<Path>>,
+    val data : T,
+    val content : List<KSInlineText<T>>) : KSLexicalType {
+
+    override fun toString() : String {
+      val sb = StringBuilder()
+      sb.append("[name ")
+      KSTextUtilities.concatenateInto(sb, this.content)
+      sb.append("]")
+      return sb.toString()
+    }
+  }
+
+  class KSTableHead<T>(
+    override val position : Optional<LexicalPositionType<Path>>,
+    val data : T,
+    val column_names : List<KSTableHeadColumnName<T>>) : KSLexicalType {
+
+    override fun toString() : String {
+      val sb = StringBuilder()
+      sb.append("[head ")
+      KSTextUtilities.concatenateInto(sb, this.column_names)
+      sb.append("]")
+      return sb.toString()
+    }
+  }
+
+  class KSTableBodyCell<T>(
+    override val position : Optional<LexicalPositionType<Path>>,
+    val data : T,
+    val content : List<KSInline<T>>) : KSLexicalType {
+
+    override fun toString() : String {
+      val sb = StringBuilder()
+      sb.append("[cell ")
+      KSTextUtilities.concatenateInto(sb, this.content)
+      sb.append("]")
+      return sb.toString()
+    }
+  }
+
+  class KSTableBodyRow<T>(
+    override val position : Optional<LexicalPositionType<Path>>,
+    val data : T,
+    val cells : List<KSTableBodyCell<T>>) : KSLexicalType {
+
+    override fun toString() : String {
+      val sb = StringBuilder()
+      sb.append("[row ")
+      KSTextUtilities.concatenateInto(sb, this.cells)
+      sb.append("]")
+      return sb.toString()
+    }
+  }
+
+  class KSTableBody<T>(
+    override val position : Optional<LexicalPositionType<Path>>,
+    val data : T,
+    val rows : List<KSTableBodyRow<T>>) : KSLexicalType {
+
+    override fun toString() : String {
+      val sb = StringBuilder()
+      sb.append("[body ")
+      KSTextUtilities.concatenateInto(sb, this.rows)
+      sb.append("]")
+      return sb.toString()
+    }
+  }
+
+  class KSTableSummary<T>(
+    override val position : Optional<LexicalPositionType<Path>>,
+    val data : T,
+    val content : List<KSInlineText<T>>) : KSLexicalType {
+
+    override fun toString() : String {
+      val sb = StringBuilder()
+      sb.append("[summary ")
+      KSTextUtilities.concatenateInto(sb, this.content)
+      sb.append("]")
+      return sb.toString()
+    }
+  }
+
+  class KSInlineTable<T>(
+    position : Optional<LexicalPositionType<Path>>,
+    data : T,
+    override val type : Optional<String>,
+    val summary : KSTableSummary<T>,
+    val head : Optional<KSTableHead<T>>,
+    val body : KSTableBody<T>) : KSInline<T>(position, data), KSTypeableType {
+
+    override fun toString() : String {
+      val sb = StringBuilder()
+      sb.append("[table ")
+      type.ifPresent { t ->
+        sb.append(t)
+        sb.append(" ")
+      }
+      sb.append(summary)
+      sb.append(" ")
+      head.ifPresent { h ->
+        sb.append(h)
+        sb.append(" ")
+      }
+      sb.append(body)
+      sb.append("]")
+      return sb.toString()
+    }
+  }
 }
