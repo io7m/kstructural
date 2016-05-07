@@ -811,4 +811,28 @@ abstract class KSEvaluatorContract {
     r as KSFailure
     Assert.assertEquals(1, r.errors.size)
   }
+
+  @Test fun testTableNested()
+  {
+    val ee = newEvaluatorForString("""
+[document (title dt) (id d0)
+  (section [title st]
+    [paragraph
+      (table
+        [summary s]
+        [body
+          (row [cell
+            (table [summary s] [body (row [cell x])])
+          ])
+        ])
+    ]
+  )
+]
+""")
+
+    val i = ee.s()
+    val r = ee.e.evaluate(i)
+    r as KSFailure
+    Assert.assertEquals(1, r.errors.size)
+  }
 }

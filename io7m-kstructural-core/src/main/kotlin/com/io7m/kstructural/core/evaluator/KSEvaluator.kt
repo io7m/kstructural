@@ -16,6 +16,7 @@
 
 package com.io7m.kstructural.core.evaluator
 
+import com.io7m.jlexing.core.LexicalPositionType
 import com.io7m.kstructural.core.KSBlock
 import com.io7m.kstructural.core.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
@@ -62,6 +63,7 @@ import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSectionSubsection
 import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSectionSubsectionContent
 import org.slf4j.LoggerFactory
 import org.valid4j.Assertive
+import java.nio.file.Path
 import java.util.HashMap
 import java.util.Optional
 import java.util.OptionalLong
@@ -74,7 +76,9 @@ object KSEvaluator : KSEvaluatorType {
     private var serial_pool : Long = 0L,
     private val blocks_by_id : MutableMap<String, KSBlock<KSEvaluation>> = HashMap(),
     private val blocks_by_number : MutableMap<KSNumber, KSBlock<KSEvaluation>> = HashMap(),
-    private val id_references : MutableList<KSID<KSEvaluation>> = mutableListOf())
+    private val id_references : MutableList<KSID<KSEvaluation>> = mutableListOf(),
+    var enclosing_table : Boolean = false,
+    var enclosing_table_pos : Optional<LexicalPositionType<Path>> = Optional.empty())
   : KSEvaluationContextType {
 
     private lateinit var document_actual : KSBlockDocument<KSEvaluation>
@@ -517,21 +521,40 @@ object KSEvaluator : KSEvaluatorType {
     e : KSInlineTable<Unit>)
     : KSResult<KSInlineTable<KSEvaluation>, KSEvaluationError> {
 
-    val act_head =
-      evaluateInlineTableHeadOptional(c, e)
-    val act_summary =
-      evaluateInlineTableSummary(c, e.summary)
-    val act_body =
-      evaluateInlineTableBody(c, e.body)
+    if (c.enclosing_table) {
+      val sb = StringBuilder()
+      sb.append("Tables cannot be nested.")
+      sb.append(System.lineSeparator())
+      if (c.enclosing_table_pos.isPresent) {
+        sb.append("  Enclosing table at: ")
+        sb.append(c.enclosing_table_pos.get())
+      }
+      sb.append(System.lineSeparator())
+      return KSResult.fail(KSEvaluationError(e.position, sb.toString()))
+    }
 
-    return act_body flatMap { body ->
-      act_summary flatMap { summary ->
-        act_head flatMap { head ->
-          val eval = KSEvaluation(c, c.freshSerial(), Optional.empty())
-          val table = KSInlineTable(e.position, eval, e.type, summary, head, body)
-          KSResult.succeed<KSInlineTable<KSEvaluation>, KSEvaluationError>(table)
+    c.enclosing_table = true
+    c.enclosing_table_pos = e.position
+    try {
+      val act_head =
+        evaluateInlineTableHeadOptional(c, e)
+      val act_summary =
+        evaluateInlineTableSummary(c, e.summary)
+      val act_body =
+        evaluateInlineTableBody(c, e.body)
+
+      return act_body flatMap { body ->
+        act_summary flatMap { summary ->
+          act_head flatMap { head ->
+            val eval = KSEvaluation(c, c.freshSerial(), Optional.empty())
+            val table = KSInlineTable(e.position, eval, e.type, summary, head, body)
+            KSResult.succeed<KSInlineTable<KSEvaluation>, KSEvaluationError>(table)
+          }
         }
       }
+    } finally {
+      c.enclosing_table = false
+      c.enclosing_table_pos = Optional.empty()
     }
   }
 
