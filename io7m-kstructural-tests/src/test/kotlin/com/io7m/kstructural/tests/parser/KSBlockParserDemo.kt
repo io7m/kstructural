@@ -16,13 +16,13 @@
 
 package com.io7m.kstructural.tests.parser
 
-import com.io7m.kstructural.core.KSResult.KSFailure
-import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.jeucreader.UnicodeCharacterReader
 import com.io7m.jsx.lexer.JSXLexer
 import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
 import com.io7m.jsx.parser.JSXParserConfiguration
+import com.io7m.kstructural.core.KSResult.KSFailure
+import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.parser.KSBlockParser
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSInlineParser
@@ -60,7 +60,8 @@ object KSBlockParserDemo {
             for (a in r.errors) {
               System.out.print("parse error: ")
               a.position.ifPresent {
-                p -> System.out.print(p.toString() + ": ")
+                p ->
+                System.out.print(p.toString() + ": ")
               }
               System.out.println(a.message)
             }
@@ -82,6 +83,6 @@ object KSBlockParserDemo {
 
 }
 
-fun main (args : Array<String>) : Unit {
+fun main(args : Array<String>) : Unit {
   KSBlockParserDemo.main(args)
 }

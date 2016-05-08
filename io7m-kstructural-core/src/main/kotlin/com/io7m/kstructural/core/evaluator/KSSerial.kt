@@ -16,12 +16,9 @@
 
 package com.io7m.kstructural.core.evaluator
 
-import java.util.Optional
-
-data class KSEvaluation(
-  val context : KSEvaluationContextType,
-  val serial : KSSerial,
-  val parent : KSSerial,
-  val number : Optional<KSNumber>) {
-
+data class KSSerial(
+  val actual : Long) {
+  override fun toString() : String {
+    return actual.toString()
+  }
 }

@@ -16,22 +16,29 @@
 
 package com.io7m.kstructural.xom
 
-import com.io7m.kstructural.core.KSBlock
-import com.io7m.kstructural.core.KSBlock.KSBlockDocument
-import com.io7m.kstructural.core.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
-import com.io7m.kstructural.core.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
-import com.io7m.kstructural.core.KSBlock.KSBlockParagraph
-import com.io7m.kstructural.core.KSBlock.KSBlockFormalItem
-import com.io7m.kstructural.core.KSBlock.KSBlockPart
-import com.io7m.kstructural.core.KSBlock.KSBlockSection
-import com.io7m.kstructural.core.KSBlock.KSBlockSubsection
+import com.io7m.kstructural.core.KSElement
+import com.io7m.kstructural.core.KSElement.*
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockParagraph
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockPart
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSSubsectionContent
 import com.io7m.kstructural.core.evaluator.KSEvaluation
+import com.io7m.kstructural.core.evaluator.KSFootnoteReference
 import com.io7m.kstructural.core.evaluator.KSNumber
 import nu.xom.Document
 import nu.xom.Element
+import nu.xom.Node
+import nu.xom.Text
 import org.slf4j.LoggerFactory
+import org.valid4j.Assertive
+import java.util.Optional
 
 object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
 
@@ -41,100 +48,166 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     settings : KSXOMSettings,
     document : KSBlockDocument<KSEvaluation>) : Map<String, Document> {
 
-    val prov = object: KSXOMLinkProviderType {
+    val prov = object : KSXOMLinkProviderType {
 
-      private fun fileForNumber(number : KSNumber) : String =
-      when (number) {
-        is KSNumber.KSNumberPart                         -> {
-          val sb = StringBuilder()
-          sb.append("p")
-          sb.append(number.part)
-          sb.append(".xhtml")
-          sb.toString()
-        }
-        is KSNumber.KSNumberPartSection                  -> {
-          val sb = StringBuilder()
-          sb.append("p")
-          sb.append(number.part)
-          sb.append("s")
-          sb.append(number.section)
-          sb.append(".xhtml")
-          sb.toString()
-        }
-        is KSNumber.KSNumberPartSectionContent           -> {
-          val sb = StringBuilder()
-          sb.append("p")
-          sb.append(number.part)
-          sb.append("s")
-          sb.append(number.section)
-          sb.append(".xhtml")
-          sb.toString()
-        }
-        is KSNumber.KSNumberPartSectionSubsection        -> {
-          val sb = StringBuilder()
-          sb.append("p")
-          sb.append(number.part)
-          sb.append("s")
-          sb.append(number.section)
-          sb.append(".xhtml#")
-          sb.toString()
-        }
-        is KSNumber.KSNumberPartSectionSubsectionContent -> {
-          val sb = StringBuilder()
-          sb.append("p")
-          sb.append(number.part)
-          sb.append("s")
-          sb.append(number.section)
-          sb.append(".xhtml")
-          sb.toString()
-        }
-        is KSNumber.KSNumberSection                      -> {
-          val sb = StringBuilder()
-          sb.append("s")
-          sb.append(number.section)
-          sb.append(".xhtml")
-          sb.toString()
-        }
-        is KSNumber.KSNumberSectionContent               -> {
-          val sb = StringBuilder()
-          sb.append("s")
-          sb.append(number.section)
-          sb.append(".xhtml")
-          sb.toString()
-        }
-        is KSNumber.KSNumberSectionSubsection            -> {
-          val sb = StringBuilder()
-          sb.append("s")
-          sb.append(number.section)
-          sb.append(".xhtml")
-          sb.toString()
-        }
-        is KSNumber.KSNumberSectionSubsectionContent     -> {
-          val sb = StringBuilder()
-          sb.append("s")
-          sb.append(number.section)
-          sb.append(".xhtml")
-          sb.toString()
+      override fun footnoteReferenceAnchor(
+        r : KSFootnoteReference<KSEvaluation>) : String {
+        return KSXOM.prefixedName("fr_" + r.data.serial)
+      }
+
+      override fun footnoteReferenceLink(
+        r : KSFootnoteReference<KSEvaluation>) : String {
+
+        val s_opt = containingSegment(r.ref)
+        Assertive.require(s_opt.isPresent)
+        val s = s_opt.get()
+        Assertive.require(s.data.number.isPresent)
+
+        val n = s.data.number.get()
+        return fileForNumber(n) + "#" + footnoteReferenceAnchor(r)
+      }
+
+      override fun footnoteAnchor(
+        f : KSBlockFootnote<KSEvaluation>, r : Long) : String {
+        return KSXOM.prefixedName("f_" + f.data.serial + "_" + r)
+      }
+
+      override fun footnoteLink(
+        f : KSBlockFootnote<KSEvaluation>, r : Long) : String {
+
+        val s_opt = containingSegment(f)
+        Assertive.require(s_opt.isPresent)
+        val s = s_opt.get()
+        Assertive.require(s.data.number.isPresent)
+
+        val n = s.data.number.get()
+        return fileForNumber(n) + "#" + footnoteAnchor(f, r)
+      }
+
+      private fun containingSegment(
+        b : KSElement<KSEvaluation>) : Optional<KSBlock<KSEvaluation>> {
+        val c = b.data.context
+        val e = c.elementForSerial(b.data.parent)
+        return if (e.isPresent) {
+          val r = e.get()
+          when (r) {
+            is KSElement.KSBlock             ->
+              when (r as KSBlock) {
+                is KSBlockDocument,
+                is KSBlockSection,
+                is KSBlockPart -> Optional.of(r)
+                is KSBlockSubsection,
+                is KSBlockParagraph,
+                is KSBlockFormalItem,
+                is KSBlockFootnote -> containingSegment(r)
+              }
+            is KSElement.KSInline            -> containingSegment(r)
+            is KSElement.KSInline.KSListItem -> containingSegment(r)
+          }
+        } else {
+          Optional.empty<KSBlock<KSEvaluation>>()
         }
       }
 
-      override fun anchorForNumber(number : KSNumber) : String =
-        fileForNumber(number) + "#" + number.toAnchor()
+      private fun fileForNumber(number : KSNumber) : String =
+        when (number) {
+          is KSNumber.KSNumberPart                         -> {
+            val sb = StringBuilder()
+            sb.append("p")
+            sb.append(number.part)
+            sb.append(".xhtml")
+            sb.toString()
+          }
+          is KSNumber.KSNumberPartSection                  -> {
+            val sb = StringBuilder()
+            sb.append("p")
+            sb.append(number.part)
+            sb.append("s")
+            sb.append(number.section)
+            sb.append(".xhtml")
+            sb.toString()
+          }
+          is KSNumber.KSNumberPartSectionContent           -> {
+            val sb = StringBuilder()
+            sb.append("p")
+            sb.append(number.part)
+            sb.append("s")
+            sb.append(number.section)
+            sb.append(".xhtml")
+            sb.toString()
+          }
+          is KSNumber.KSNumberPartSectionSubsection        -> {
+            val sb = StringBuilder()
+            sb.append("p")
+            sb.append(number.part)
+            sb.append("s")
+            sb.append(number.section)
+            sb.append(".xhtml")
+            sb.toString()
+          }
+          is KSNumber.KSNumberPartSectionSubsectionContent -> {
+            val sb = StringBuilder()
+            sb.append("p")
+            sb.append(number.part)
+            sb.append("s")
+            sb.append(number.section)
+            sb.append(".xhtml")
+            sb.toString()
+          }
+          is KSNumber.KSNumberSection                      -> {
+            val sb = StringBuilder()
+            sb.append("s")
+            sb.append(number.section)
+            sb.append(".xhtml")
+            sb.toString()
+          }
+          is KSNumber.KSNumberSectionContent               -> {
+            val sb = StringBuilder()
+            sb.append("s")
+            sb.append(number.section)
+            sb.append(".xhtml")
+            sb.toString()
+          }
+          is KSNumber.KSNumberSectionSubsection            -> {
+            val sb = StringBuilder()
+            sb.append("s")
+            sb.append(number.section)
+            sb.append(".xhtml")
+            sb.toString()
+          }
+          is KSNumber.KSNumberSectionSubsectionContent     -> {
+            val sb = StringBuilder()
+            sb.append("s")
+            sb.append(number.section)
+            sb.append(".xhtml")
+            sb.toString()
+          }
+        }
 
-      override fun anchorForDocument() : String {
+      override fun numberAnchorID(number : KSNumber) : String =
+        KSXOM.prefixedName(number.toAnchor())
+
+      override fun numberAnchor(number : KSNumber) : String =
+        "#" + numberAnchorID(number)
+
+      override fun numberLink(number : KSNumber) : String =
+        fileForNumber(number) + numberAnchor(number)
+
+      override fun documentAnchor() : String {
         return "index-m.xhtml"
       }
 
-      override fun anchorForID(id : KSID<KSEvaluation>) : String {
+      override fun idLink(id : KSID<KSEvaluation>) : String {
         val e = document.data.context.elementForID(id)
-        val a = "#" + e.id.get().value
+        val a = e.id.get()
         return when (e) {
-          is KSBlockDocument   -> "index-m.xhtml" + a
-          is KSBlockSection    -> fileForNumber(e.data.number.get()) + a
-          is KSBlockSubsection -> fileForNumber(e.data.number.get()) + a
-          is KSBlockParagraph  -> fileForNumber(e.data.number.get()) + a
-          is KSBlockPart       -> fileForNumber(e.data.number.get()) + a
-          is KSBlockFormalItem -> fileForNumber(e.data.number.get()) + a
+          is KSBlockDocument   -> "index-m.xhtml#" + a
+          is KSBlockSection    -> fileForNumber(e.data.number.get()) + "#" + a
+          is KSBlockSubsection -> fileForNumber(e.data.number.get()) + "#" + a
+          is KSBlockParagraph  -> fileForNumber(e.data.number.get()) + "#" + a
+          is KSBlockPart       -> fileForNumber(e.data.number.get()) + "#" + a
+          is KSBlockFormalItem -> fileForNumber(e.data.number.get()) + "#" + a
+          is KSBlockFootnote   -> throw UnsupportedOperationException("Cannot resolve a footnote directly!")
         }
       }
     }
@@ -177,7 +250,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     s : KSBlockSection<KSEvaluation>,
     m : MutableMap<String, Document>) : Unit {
 
-    val (document, body) = KSXOM.newPage(settings, d)
+    val (document, body) = KSXOM.newPage(settings, d, s.data.number, s.title)
     body.appendChild(KSXOM.navigationBar(prov, s, KSXOM.NavigationBarPosition.Top))
     body.appendChild(writeSection(settings, prov, d, s))
     body.appendChild(KSXOM.navigationBar(prov, s, KSXOM.NavigationBarPosition.Bottom))
@@ -194,12 +267,12 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     p : KSBlockPart<KSEvaluation>,
     m : MutableMap<String, Document>) : Unit {
 
-    val (document, body) = KSXOM.newPage(settings, d)
+    val (document, body) = KSXOM.newPage(settings, d, p.data.number, p.title)
     body.appendChild(KSXOM.navigationBar(prov, p, KSXOM.NavigationBarPosition.Top))
 
-    val part_container = KSXOM.partContainer(p)
+    val part_container = KSXOM.partContainer(prov, p)
     if (settings.render_toc_parts) {
-      part_container.appendChild(KSXOM.partContents(prov, p))
+      part_container.appendChild(KSXOM.contentsForPart(prov, p))
     }
     body.appendChild(part_container)
 
@@ -215,11 +288,11 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     settings : KSXOMSettings,
     prov : KSXOMLinkProviderType,
     d : KSBlockDocument<KSEvaluation>) : Document {
-    val (document, body) = KSXOM.newPage(settings, d)
+    val (document, body) = KSXOM.newPage(settings, d, d.data.number, d.title)
     body.appendChild(KSXOM.navigationBar(prov, d, KSXOM.NavigationBarPosition.Top))
     body.appendChild(KSXOM.documentIndexTitle(d))
     if (settings.render_toc_document) {
-      body.appendChild(KSXOM.documentContents(prov, d))
+      body.appendChild(KSXOM.contentsForDocument(prov, d))
     }
     body.appendChild(KSXOM.navigationBar(prov, d, KSXOM.NavigationBarPosition.Bottom))
     return document
@@ -231,13 +304,13 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     d : KSBlockDocument<KSEvaluation>,
     s : KSBlockSection<KSEvaluation>) : Element {
 
-    val e = KSXOM.sectionContainer(s)
+    val e = KSXOM.sectionContainer(prov, s)
     if (settings.render_toc_sections) {
-      e.appendChild(KSXOM.sectionContents(prov, s))
+      e.appendChild(KSXOM.contentsForSection(prov, s))
     }
 
     when (s) {
-      is KSBlockSection.KSBlockSectionWithContent -> {
+      is KSBlockSection.KSBlockSectionWithContent     -> {
         s.content.forEach { sc ->
           e.appendChild(writeSubsectionContent(prov, d, sc))
         }
@@ -248,6 +321,13 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
         }
       }
     }
+
+    val n = s.data.number.get() as KSNumber.HasSectionType
+    val footnotes = s.data.context.footnotesForSection(n.section)
+    if (footnotes.isNotEmpty()) {
+      e.appendChild(KSXOM.footnotes(prov, footnotes))
+    }
+
     return e
   }
 
@@ -256,7 +336,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     d : KSBlockDocument<KSEvaluation>,
     ss : KSBlockSubsection<KSEvaluation>) : Element {
 
-    val e = KSXOM.subsectionContainer(ss)
+    val e = KSXOM.subsectionContainer(prov, ss)
     ss.content.forEach { sc ->
       e.appendChild(writeSubsectionContent(prov, d, sc))
     }
@@ -266,13 +346,15 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
   private fun writeSubsectionContent(
     prov : KSXOMLinkProviderType,
     d : KSBlockDocument<KSEvaluation>,
-    sc : KSSubsectionContent<KSEvaluation>) : Element {
+    sc : KSSubsectionContent<KSEvaluation>) : Node {
 
     return when (sc) {
-      is KSSubsectionContent.KSSubsectionParagraph ->
+      is KSSubsectionContent.KSSubsectionParagraph  ->
         writeParagraph(prov, d, sc.paragraph)
       is KSSubsectionContent.KSSubsectionFormalItem ->
         writeFormalItem(prov, d, sc.formal)
+      is KSSubsectionContent.KSSubsectionFootnote   ->
+        Text("")
     }
   }
 
@@ -281,7 +363,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     d : KSBlockDocument<KSEvaluation>,
     f : KSBlockFormalItem<KSEvaluation>) : Element {
 
-    val (container, content) = KSXOM.formalItemContainer(f)
+    val (container, content) = KSXOM.formalItemContainer(prov, f)
     KSXOM.inlinesAppend(content, f.content, { i -> KSXOM.inline(prov, i) })
     return container
   }
@@ -291,7 +373,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     d : KSBlockDocument<KSEvaluation>,
     p : KSBlockParagraph<KSEvaluation>) : Element {
 
-    val (container, content) = KSXOM.paragraphContainer(p)
+    val (container, content) = KSXOM.paragraphContainer(prov, p)
     KSXOM.inlinesAppend(content, p.content, { i -> KSXOM.inline(prov, i) })
     return container
   }

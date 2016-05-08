@@ -21,7 +21,7 @@ import com.io7m.jsx.lexer.JSXLexer
 import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
 import com.io7m.jsx.parser.JSXParserConfiguration
-import com.io7m.kstructural.core.KSBlock
+import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.evaluator.KSEvaluator
@@ -72,7 +72,8 @@ object KSXOMXHTMLMultiWriterDemo {
           for (a in r.errors) {
             System.out.print("parse error: ")
             a.position.ifPresent {
-              p -> System.out.print(p.toString() + ": ")
+              p ->
+              System.out.print(p.toString() + ": ")
             }
             System.out.println(a.message)
           }
@@ -89,6 +90,7 @@ object KSXOMXHTMLMultiWriterDemo {
       is KSBlock.KSBlockParagraph  -> TODO()
       is KSBlock.KSBlockPart       -> TODO()
       is KSBlock.KSBlockFormalItem -> TODO()
+      is KSBlock.KSBlockFootnote   -> TODO()
       is KSBlock.KSBlockDocument   -> {
         val rr = KSEvaluator.evaluate(result)
         when (rr) {
@@ -117,7 +119,8 @@ object KSXOMXHTMLMultiWriterDemo {
             for (a in rr.errors) {
               System.out.print("evaluation error: ")
               a.position.ifPresent {
-                p -> System.out.print(p.toString() + ": ")
+                p ->
+                System.out.print(p.toString() + ": ")
               }
               System.out.println(a.message)
             }
@@ -136,6 +139,6 @@ object KSXOMXHTMLMultiWriterDemo {
 
 }
 
-fun main (args : Array<String>) : Unit {
+fun main(args : Array<String>) : Unit {
   KSXOMXHTMLMultiWriterDemo.main(args)
 }

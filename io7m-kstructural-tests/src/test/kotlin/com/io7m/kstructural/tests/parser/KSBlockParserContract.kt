@@ -16,18 +16,19 @@
 
 package com.io7m.kstructural.tests.parser
 
-import com.io7m.kstructural.core.KSBlock.KSBlockDocument
-import com.io7m.kstructural.core.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
-import com.io7m.kstructural.core.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
-import com.io7m.kstructural.core.KSBlock.KSBlockParagraph
-import com.io7m.kstructural.core.KSBlock.KSBlockPart
-import com.io7m.kstructural.core.KSBlock.KSBlockSection.KSBlockSectionWithContent
-import com.io7m.kstructural.core.KSBlock.KSBlockSection.KSBlockSectionWithSubsections
-import com.io7m.kstructural.core.KSBlock.KSBlockSubsection
-import com.io7m.kstructural.core.KSBlock.*
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockParagraph
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockPart
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithContent
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithSubsections
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
+import com.io7m.kstructural.core.KSElement.KSInline
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSID
-import com.io7m.kstructural.core.KSInline
-import com.io7m.kstructural.core.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.KSSubsectionContent
@@ -47,8 +48,7 @@ abstract class KSBlockParserContract {
     val p : KSBlockParserType,
     val s : () -> KSExpression)
 
-  @Test fun testParaError0()
-  {
+  @Test fun testParaError0() {
     val pp = newParserForString("[paragraph [link]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -57,8 +57,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.errors.size)
   }
 
-  @Test fun testParaSimple()
-  {
+  @Test fun testParaSimple() {
     val pp = newParserForString("[paragraph Hello.]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -68,8 +67,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("Hello.", t0.text)
   }
 
-  @Test fun testParaID()
-  {
+  @Test fun testParaID() {
     val pp = newParserForString("[paragraph [id x] Hello.]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -80,8 +78,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("Hello.", t0.text)
   }
 
-  @Test fun testParaType()
-  {
+  @Test fun testParaType() {
     val pp = newParserForString("[paragraph [type x] Hello.]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -92,8 +89,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("Hello.", t0.text)
   }
 
-  @Test fun testParaTypeID()
-  {
+  @Test fun testParaTypeID() {
     val pp = newParserForString("[paragraph [type x] [id y] Hello.]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -105,8 +101,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("Hello.", t0.text)
   }
 
-  @Test fun testParaIDType()
-  {
+  @Test fun testParaIDType() {
     val pp = newParserForString("[paragraph [id y] [type x] Hello.]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -118,8 +113,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("Hello.", t0.text)
   }
 
-  @Test fun testSubsectionErrorEmpty()
-  {
+  @Test fun testSubsectionErrorEmpty() {
     val pp = newParserForString("[subsection]")
 
     val e = pp.p.parse(pp.s.invoke())
@@ -129,8 +123,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.errors.size)
   }
 
-  @Test fun testSubsectionErrorWrongContent()
-  {
+  @Test fun testSubsectionErrorWrongContent() {
     val pp = newParserForString("[subsection [title t] [subsection [title w]]]")
 
     val e = pp.p.parse(pp.s.invoke())
@@ -140,8 +133,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.errors.size)
   }
 
-  @Test fun testSubsectionErrorWrongTitle()
-  {
+  @Test fun testSubsectionErrorWrongTitle() {
     val pp = newParserForString("[subsection [title x [term q]]]")
 
     val e = pp.p.parse(pp.s.invoke())
@@ -151,8 +143,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.errors.size)
   }
 
-  @Test fun testSubsection()
-  {
+  @Test fun testSubsection() {
     val pp = newParserForString("[subsection [title t]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -162,8 +153,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(0, e.result.content.size)
   }
 
-  @Test fun testSubsectionID()
-  {
+  @Test fun testSubsectionID() {
     val pp = newParserForString("[subsection [title t] [id x]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -173,8 +163,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(0, e.result.content.size)
   }
 
-  @Test fun testSubsectionIDType()
-  {
+  @Test fun testSubsectionIDType() {
     val pp = newParserForString("[subsection [title t] [id x] [type k]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -185,8 +174,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(0, e.result.content.size)
   }
 
-  @Test fun testSubsectionTypeID()
-  {
+  @Test fun testSubsectionTypeID() {
     val pp = newParserForString("[subsection [title t] [type k] [id x]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -197,8 +185,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(0, e.result.content.size)
   }
 
-  @Test fun testSubsectionType()
-  {
+  @Test fun testSubsectionType() {
     val pp = newParserForString("[subsection [title t] [type k]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -209,8 +196,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(0, e.result.content.size)
   }
 
-  @Test fun testSubsectionContent()
-  {
+  @Test fun testSubsectionContent() {
     val pp = newParserForString("[subsection [title t] [paragraph Hello.]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -223,8 +209,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("Hello.", t.text)
   }
 
-  @Test fun testSection()
-  {
+  @Test fun testSection() {
     val pp = newParserForString("[section [title t] [paragraph p]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -238,8 +223,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("p", pc.text)
   }
 
-  @Test fun testSectionID()
-  {
+  @Test fun testSectionID() {
     val pp = newParserForString("[section [title t] [id x] [paragraph p]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -253,8 +237,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("p", pc.text)
   }
 
-  @Test fun testSectionIDType()
-  {
+  @Test fun testSectionIDType() {
     val pp = newParserForString("[section [title t] [id x] [type t] [paragraph p]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -268,8 +251,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("p", pc.text)
   }
 
-  @Test fun testSectionTypeID()
-  {
+  @Test fun testSectionTypeID() {
     val pp = newParserForString("[section [title t] [type t] [id x] [paragraph p]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -283,8 +265,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("p", pc.text)
   }
 
-  @Test fun testSectionType()
-  {
+  @Test fun testSectionType() {
     val pp = newParserForString("[section [title t] [type t] [paragraph p]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -298,8 +279,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("p", pc.text)
   }
 
-  @Test fun testSectionSubsectionTypeID()
-  {
+  @Test fun testSectionSubsectionTypeID() {
     val pp = newParserForString("""
 [section [title t] [type t] [id x]
   [subsection [title ss0] [paragraph p]]]""")
@@ -316,8 +296,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("p", pc.text)
   }
 
-  @Test fun testSectionSubsectionIDType()
-  {
+  @Test fun testSectionSubsectionIDType() {
     val pp = newParserForString("""
 [section [title t] [id x] [type t]
   [subsection [title ss0] [paragraph p]]]""")
@@ -334,8 +313,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("p", pc.text)
   }
 
-  @Test fun testSectionSubsectionID()
-  {
+  @Test fun testSectionSubsectionID() {
     val pp = newParserForString("""
 [section [title t] [id x]
   [subsection [title ss0] [paragraph p]]]""")
@@ -352,8 +330,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("p", pc.text)
   }
 
-  @Test fun testSectionSubsectionType()
-  {
+  @Test fun testSectionSubsectionType() {
     val pp = newParserForString("""
 [section [title t] [type t]
   [subsection [title ss0] [paragraph p]]]""")
@@ -370,8 +347,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("p", pc.text)
   }
 
-  @Test fun testSectionSubsection()
-  {
+  @Test fun testSectionSubsection() {
     val pp = newParserForString("""
 [section [title t]
   [subsection [title ss0] [paragraph p]]]""")
@@ -388,8 +364,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("p", pc.text)
   }
 
-  @Test fun testSectionMixedParagraphSubsection()
-  {
+  @Test fun testSectionMixedParagraphSubsection() {
     val pp = newParserForString("""
 [section [title t]
   (subsection [title ss0] [paragraph p])
@@ -400,8 +375,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.errors.size)
   }
 
-  @Test fun testSectionMixedSubsectionParagraph()
-  {
+  @Test fun testSectionMixedSubsectionParagraph() {
     val pp = newParserForString("""
 [section [title t]
   (paragraph q)
@@ -412,8 +386,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.errors.size)
   }
 
-  @Test fun testSectionNonsense()
-  {
+  @Test fun testSectionNonsense() {
     val pp = newParserForString("""
 [section [title t]
   (section [title s] [paragraph p])]""")
@@ -423,8 +396,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(2, e.errors.size)
   }
 
-  @Test fun testSectionEmpty()
-  {
+  @Test fun testSectionEmpty() {
     val pp = newParserForString("[section [title t]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -432,8 +404,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.errors.size)
   }
 
-  @Test fun testPartErrorEmpty()
-  {
+  @Test fun testPartErrorEmpty() {
     val pp = newParserForString("[part]")
 
     val e = pp.p.parse(pp.s.invoke())
@@ -443,8 +414,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.errors.size)
   }
 
-  @Test fun testPartErrorWrongContent()
-  {
+  @Test fun testPartErrorWrongContent() {
     val pp = newParserForString("[part [title t] [part [title w]]]")
 
     val e = pp.p.parse(pp.s.invoke())
@@ -454,8 +424,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.errors.size)
   }
 
-  @Test fun testPartErrorWrongTitle()
-  {
+  @Test fun testPartErrorWrongTitle() {
     val pp = newParserForString("[part [title x [term q]]]")
 
     val e = pp.p.parse(pp.s.invoke())
@@ -465,8 +434,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.errors.size)
   }
 
-  @Test fun testPart()
-  {
+  @Test fun testPart() {
     val pp = newParserForString("[part [title t] (section [title k] [paragraph p])]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -480,8 +448,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("k", t.text)
   }
 
-  @Test fun testPartID()
-  {
+  @Test fun testPartID() {
     val pp = newParserForString("[part [title t] [id x] (section [title k] [paragraph p])]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -495,8 +462,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("k", t.text)
   }
 
-  @Test fun testPartIDType()
-  {
+  @Test fun testPartIDType() {
     val pp = newParserForString("[part [title t] [id x] [type k] (section [title k] [paragraph p])]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -511,8 +477,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("k", t.text)
   }
 
-  @Test fun testPartTypeID()
-  {
+  @Test fun testPartTypeID() {
     val pp = newParserForString("[part [title t] [type k] [id x] (section [title k] [paragraph p])]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -527,8 +492,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("k", t.text)
   }
 
-  @Test fun testPartType()
-  {
+  @Test fun testPartType() {
     val pp = newParserForString("[part [title t] [type k] (section [title k] [paragraph p])]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -543,8 +507,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("k", t.text)
   }
 
-  @Test fun testPartContent()
-  {
+  @Test fun testPartContent() {
     val pp = newParserForString(
       "[part (title t) (section [title k] [paragraph p])]")
     val e = pp.p.parse(pp.s.invoke())
@@ -558,8 +521,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("k", t.text)
   }
 
-  @Test fun testDocumentErrorEmpty()
-  {
+  @Test fun testDocumentErrorEmpty() {
     val pp = newParserForString("[document]")
 
     val e = pp.p.parse(pp.s.invoke())
@@ -569,8 +531,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.errors.size)
   }
 
-  @Test fun testDocumentErrorWrongContent()
-  {
+  @Test fun testDocumentErrorWrongContent() {
     val pp = newParserForString("[document [title t] [paragraph q]]")
 
     val e = pp.p.parse(pp.s.invoke())
@@ -579,8 +540,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(2, e.errors.size)
   }
 
-  @Test fun testDocumentErrorWrongTitle()
-  {
+  @Test fun testDocumentErrorWrongTitle() {
     val pp = newParserForString("[document [title x [term q]]]")
 
     val e = pp.p.parse(pp.s.invoke())
@@ -589,8 +549,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(2, e.errors.size)
   }
 
-  @Test fun testDocumentSection()
-  {
+  @Test fun testDocumentSection() {
     val pp = newParserForString("""
 [document [title t] (section [title k] [paragraph p])]
     """)
@@ -606,8 +565,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("k", t.text)
   }
 
-  @Test fun testDocumentSectionID()
-  {
+  @Test fun testDocumentSectionID() {
     val pp = newParserForString(
       "[document [title t] [id x] (section [title k] [paragraph p])]")
     val e = pp.p.parse(pp.s.invoke())
@@ -622,8 +580,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("k", t.text)
   }
 
-  @Test fun testDocumentSectionIDType()
-  {
+  @Test fun testDocumentSectionIDType() {
     val pp = newParserForString("" +
       "[document [title t] [id x] [type k] (section [title k] [paragraph p])]")
     val e = pp.p.parse(pp.s.invoke())
@@ -639,8 +596,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("k", t.text)
   }
 
-  @Test fun testDocumentSectionTypeID()
-  {
+  @Test fun testDocumentSectionTypeID() {
     val pp = newParserForString(
       "[document [title t] [type k] [id x] (section [title k] [paragraph p])]")
     val e = pp.p.parse(pp.s.invoke())
@@ -656,8 +612,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("k", t.text)
   }
 
-  @Test fun testDocumentSectionType()
-  {
+  @Test fun testDocumentSectionType() {
     val pp = newParserForString(
       "[document [title t] [type k] (section [title k] [paragraph p])]")
     val e = pp.p.parse(pp.s.invoke())
@@ -673,8 +628,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("k", t.text)
   }
 
-  @Test fun testDocumentSectionContent()
-  {
+  @Test fun testDocumentSectionContent() {
     val pp = newParserForString(
       "[document (title t) (section [title k] [paragraph p])]")
     val e = pp.p.parse(pp.s.invoke())
@@ -688,8 +642,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("k", t.text)
   }
 
-  @Test fun testDocumentEmpty()
-  {
+  @Test fun testDocumentEmpty() {
     val pp = newParserForString(
       "[document (title t)]")
     val e = pp.p.parse(pp.s.invoke())
@@ -698,8 +651,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.errors.size)
   }
 
-  @Test fun testDocumentPart()
-  {
+  @Test fun testDocumentPart() {
     val pp = newParserForString("""
 [document [title t] (part [title q] [section (title k) (paragraph p)])]
     """)
@@ -715,8 +667,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("q", t.text)
   }
 
-  @Test fun testDocumentPartID()
-  {
+  @Test fun testDocumentPartID() {
     val pp = newParserForString(
       "[document [title t] [id x] (part [title q] [section (title k) (paragraph p)])]")
     val e = pp.p.parse(pp.s.invoke())
@@ -731,8 +682,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("q", t.text)
   }
 
-  @Test fun testDocumentPartIDType()
-  {
+  @Test fun testDocumentPartIDType() {
     val pp = newParserForString("" +
       "[document [title t] [id x] [type k] (part [title q] [section (title k) (paragraph p)])]")
     val e = pp.p.parse(pp.s.invoke())
@@ -748,8 +698,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("q", t.text)
   }
 
-  @Test fun testDocumentPartTypeID()
-  {
+  @Test fun testDocumentPartTypeID() {
     val pp = newParserForString(
       "[document [title t] [type k] [id x] (part [title q] [section (title k) (paragraph p)])]")
     val e = pp.p.parse(pp.s.invoke())
@@ -765,8 +714,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("q", t.text)
   }
 
-  @Test fun testDocumentPartType()
-  {
+  @Test fun testDocumentPartType() {
     val pp = newParserForString(
       "[document [title t] [type k] (part [title q] [section (title k) (paragraph p)])]")
     val e = pp.p.parse(pp.s.invoke())
@@ -782,8 +730,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("q", t.text)
   }
 
-  @Test fun testDocumentPartContent()
-  {
+  @Test fun testDocumentPartContent() {
     val pp = newParserForString(
       "[document (title t) (part [title q] [section (title k) (paragraph p)])]")
     val e = pp.p.parse(pp.s.invoke())
@@ -797,8 +744,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("q", t.text)
   }
 
-  @Test fun testDocumentPartSection()
-  {
+  @Test fun testDocumentPartSection() {
     val pp = newParserForString("""
 [document
   (title t)
@@ -812,8 +758,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.errors.size)
   }
 
-  @Test fun testDocumentSectionPart()
-  {
+  @Test fun testDocumentSectionPart() {
     val pp = newParserForString("""
 [document
   (title t)
@@ -827,8 +772,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.errors.size)
   }
 
-  @Test fun testFormalItemErrorEmpty()
-  {
+  @Test fun testFormalItemErrorEmpty() {
     val pp = newParserForString("[formal-item]")
 
     val e = pp.p.parse(pp.s.invoke())
@@ -838,8 +782,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.errors.size)
   }
 
-  @Test fun testFormalItemErrorWrongContent()
-  {
+  @Test fun testFormalItemErrorWrongContent() {
     val pp = newParserForString("[formal-item [title t] [subsection [title w]]]")
 
     val e = pp.p.parse(pp.s.invoke())
@@ -849,8 +792,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.errors.size)
   }
 
-  @Test fun testFormalItemErrorWrongTitle()
-  {
+  @Test fun testFormalItemErrorWrongTitle() {
     val pp = newParserForString("[formal-item [title x [term q]]]")
 
     val e = pp.p.parse(pp.s.invoke())
@@ -860,8 +802,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.errors.size)
   }
 
-  @Test fun testFormalItem()
-  {
+  @Test fun testFormalItem() {
     val pp = newParserForString("[formal-item [title t]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -871,8 +812,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(0, e.result.content.size)
   }
 
-  @Test fun testFormalItemID()
-  {
+  @Test fun testFormalItemID() {
     val pp = newParserForString("[formal-item [title t] [id x]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -882,8 +822,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(0, e.result.content.size)
   }
 
-  @Test fun testFormalItemIDType()
-  {
+  @Test fun testFormalItemIDType() {
     val pp = newParserForString("[formal-item [title t] [id x] [type k]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -894,8 +833,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(0, e.result.content.size)
   }
 
-  @Test fun testFormalItemTypeID()
-  {
+  @Test fun testFormalItemTypeID() {
     val pp = newParserForString("[formal-item [title t] [type k] [id x]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -906,8 +844,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(0, e.result.content.size)
   }
 
-  @Test fun testFormalItemType()
-  {
+  @Test fun testFormalItemType() {
     val pp = newParserForString("[formal-item [title t] [type k]]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -918,8 +855,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(0, e.result.content.size)
   }
 
-  @Test fun testFormalItemContent()
-  {
+  @Test fun testFormalItemContent() {
     val pp = newParserForString("[formal-item [title t] Hello.]")
     val e = pp.p.parse(pp.s.invoke())
 
@@ -929,5 +865,46 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(1, e.result.content.size)
     val t = e.result.content[0] as KSInline.KSInlineText<Unit>
     Assert.assertEquals("Hello.", t.text)
+  }
+
+  @Test fun testFootnoteErrorEmpty() {
+    val pp = newParserForString("[footnote]")
+
+    val e = pp.p.parse(pp.s.invoke())
+    e as KSFailure
+
+    Assert.assertFalse(e.partial.isPresent)
+    Assert.assertEquals(1, e.errors.size)
+  }
+
+  @Test fun testFootnoteErrorWrongContent() {
+    val pp = newParserForString("[footnote [id x] [subsection [title w]]]")
+
+    val e = pp.p.parse(pp.s.invoke())
+    e as KSFailure
+
+    Assert.assertTrue(e.partial.isPresent)
+    Assert.assertEquals(1, e.errors.size)
+  }
+
+  @Test fun testFootnote() {
+    val pp = newParserForString("[footnote [id x] z]")
+    val e = pp.p.parse(pp.s.invoke())
+
+    e as KSSuccess<KSBlockFootnote<Unit>, KSParseError>
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals(1, e.result.content.size)
+    Assert.assertEquals("z", (e.result.content[0] as KSInlineText).text)
+  }
+
+  @Test fun testFootnoteIDType() {
+    val pp = newParserForString("[footnote [id x] [type t] z]")
+    val e = pp.p.parse(pp.s.invoke())
+
+    e as KSSuccess<KSBlockFootnote<Unit>, KSParseError>
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals(1, e.result.content.size)
+    Assert.assertEquals("z", (e.result.content[0] as KSInlineText).text)
   }
 }

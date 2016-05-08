@@ -18,5 +18,6 @@
  * XOM backend.
  */
 
-@com.io7m.jnull.NonNullByDefault package com.io7m.kstructural.xom;
+@com.io7m.jnull.NonNullByDefault
+package com.io7m.kstructural.xom;
 

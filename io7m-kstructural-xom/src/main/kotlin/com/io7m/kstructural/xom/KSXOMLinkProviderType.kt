@@ -16,16 +16,33 @@
 
 package com.io7m.kstructural.xom
 
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.evaluator.KSEvaluation
+import com.io7m.kstructural.core.evaluator.KSFootnoteReference
 import com.io7m.kstructural.core.evaluator.KSNumber
 
 interface KSXOMLinkProviderType {
 
-  fun anchorForID(id : KSID<KSEvaluation>) : String
+  fun idLink(id : KSID<KSEvaluation>) : String
 
-  fun anchorForNumber(number : KSNumber) : String
+  fun numberAnchorID(number : KSNumber) : String
 
-  fun anchorForDocument() : String
+  fun numberAnchor(number : KSNumber) : String
 
+  fun numberLink(number : KSNumber) : String
+
+  fun documentAnchor() : String
+
+  fun footnoteReferenceAnchor(
+    r : KSFootnoteReference<KSEvaluation>) : String
+
+  fun footnoteReferenceLink(
+    r : KSFootnoteReference<KSEvaluation>) : String
+
+  fun footnoteAnchor(
+    f : KSBlockFootnote<KSEvaluation>, r : Long) : String
+
+  fun footnoteLink(
+    f : KSBlockFootnote<KSEvaluation>, r : Long) : String
 }

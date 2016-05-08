@@ -17,19 +17,27 @@
 package com.io7m.kstructural.core
 
 import com.io7m.jlexing.core.LexicalPositionType
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockParagraph
 import java.nio.file.Path
 import java.util.Optional
 
 sealed class KSSubsectionContent<T>(
   override val position : Optional<LexicalPositionType<Path>>) : KSLexicalType {
 
-  class KSSubsectionParagraph<T>(val paragraph : KSBlock.KSBlockParagraph<T>)
+  class KSSubsectionParagraph<T>(val paragraph : KSBlockParagraph<T>)
   : KSSubsectionContent<T>(paragraph.position) {
     override fun toString() : String = paragraph.toString()
   }
 
-  class KSSubsectionFormalItem<T>(val formal : KSBlock.KSBlockFormalItem<T>)
+  class KSSubsectionFormalItem<T>(val formal : KSBlockFormalItem<T>)
   : KSSubsectionContent<T>(formal.position) {
     override fun toString() : String = formal.toString()
+  }
+
+  class KSSubsectionFootnote<T>(val footnote : KSBlockFootnote<T>)
+  : KSSubsectionContent<T>(footnote.position) {
+    override fun toString() : String = footnote.toString()
   }
 }

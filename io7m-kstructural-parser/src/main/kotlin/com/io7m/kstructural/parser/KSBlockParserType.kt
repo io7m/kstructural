@@ -16,7 +16,7 @@
 
 package com.io7m.kstructural.parser
 
-import com.io7m.kstructural.core.KSBlock
+import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSResult
 
 interface KSBlockParserType {

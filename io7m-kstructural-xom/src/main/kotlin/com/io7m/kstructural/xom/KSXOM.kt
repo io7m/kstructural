@@ -17,27 +17,32 @@
 package com.io7m.kstructural.xom
 
 import com.io7m.junreachable.UnreachableCodeException
-import com.io7m.kstructural.core.KSBlock
-import com.io7m.kstructural.core.KSBlock.KSBlockDocument
-import com.io7m.kstructural.core.KSBlock.KSBlockParagraph
-import com.io7m.kstructural.core.KSBlock.KSBlockFormalItem
-import com.io7m.kstructural.core.KSBlock.KSBlockPart
-import com.io7m.kstructural.core.KSBlock.KSBlockSection
-import com.io7m.kstructural.core.KSBlock.KSBlockSubsection
-import com.io7m.kstructural.core.KSInline
-import com.io7m.kstructural.core.KSInline.KSInlineImage
-import com.io7m.kstructural.core.KSInline.KSInlineLink
-import com.io7m.kstructural.core.KSInline.KSInlineListOrdered
-import com.io7m.kstructural.core.KSInline.KSInlineListUnordered
-import com.io7m.kstructural.core.KSInline.KSInlineTerm
-import com.io7m.kstructural.core.KSInline.KSInlineText
-import com.io7m.kstructural.core.KSInline.KSInlineVerbatim
+import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockParagraph
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockPart
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
+import com.io7m.kstructural.core.KSElement.KSInline
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineImage
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineLink
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListOrdered
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListUnordered
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTable
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTerm
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineVerbatim
+import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSLink
 import com.io7m.kstructural.core.KSLink.KSLinkExternal
 import com.io7m.kstructural.core.KSLink.KSLinkInternal
 import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSTextUtilities
 import com.io7m.kstructural.core.evaluator.KSEvaluation
+import com.io7m.kstructural.core.evaluator.KSNumber
 import nu.xom.Attribute
 import nu.xom.DocType
 import nu.xom.Document
@@ -46,6 +51,7 @@ import nu.xom.Node
 import nu.xom.Text
 import org.valid4j.Assertive
 import java.net.URI
+import java.util.Optional
 
 internal object KSXOM {
 
@@ -72,10 +78,12 @@ internal object KSXOM {
 
   fun newPage(
     settings : KSXOMSettings,
-    document : KSBlockDocument<out Any>) : Pair<Document, Element> {
-    val title = KSTextUtilities.concatenate(document.title)
+    document : KSBlockDocument<out Any>,
+    number : Optional<KSNumber>,
+    title : List<KSInlineText<KSEvaluation>>) : Pair<Document, Element> {
+
     val rd = KSXOM.document()
-    rd.rootElement.appendChild(KSXOM.head(settings, title))
+    rd.rootElement.appendChild(KSXOM.head(settings, document, number, title))
     val body = KSXOM.body()
     val body_container = KSXOM.bodyContainer()
     body.appendChild(body_container)
@@ -88,9 +96,21 @@ internal object KSXOM {
 
   fun head(
     settings : KSXOMSettings,
-    title : String) : Element {
+    document : KSBlockDocument<out Any>,
+    number : Optional<KSNumber>,
+    title : List<KSInlineText<KSEvaluation>>) : Element {
+
+    val sb = StringBuilder()
+    sb.append(KSTextUtilities.concatenate(document.title))
+    if (number.isPresent) {
+      sb.append(": ")
+      sb.append(number.get())
+      sb.append(". ")
+      sb.append(KSTextUtilities.concatenate(title))
+    }
+
     val e = Element("head", XHTML_URI_TEXT)
-    e.appendChild(title(title))
+    e.appendChild(title(sb.toString()))
     settings.styles.forEach { s -> e.appendChild(css(s)) }
     return e
   }
@@ -115,11 +135,12 @@ internal object KSXOM {
     return e
   }
 
-  fun sectionContainer(s : KSBlockSection<KSEvaluation>) : Element {
+  fun sectionContainer(
+    prov : KSXOMLinkProviderType,
+    s : KSBlockSection<KSEvaluation>) : Element {
     val number_opt = s.data.number
     Assertive.require(number_opt.isPresent)
     val number = number_opt.get()
-    val number_text = number.toAnchor()
 
     val sc = Element("div", XHTML_URI_TEXT)
     sc.addAttribute(Attribute("class", null, prefixedName("section_container")))
@@ -133,22 +154,30 @@ internal object KSXOM {
     val stn = Element("div", XHTML_URI_TEXT)
     stn.addAttribute(Attribute("class", null, prefixedName("section_title_number")))
 
+    val title_text = KSTextUtilities.concatenate(s.title)
+    val title = StringBuilder()
+    title.append("Section ")
+    title.append(number)
+    title.append(": ")
+    title.append(title_text)
+
     val stn_a = Element("a", XHTML_URI_TEXT)
-    stn_a.addAttribute(Attribute("id", null, prefixedName(number_text)))
-    stn_a.addAttribute(Attribute("href", null, "#" + prefixedName(number_text)))
+    stn_a.addAttribute(Attribute("id", null, prov.numberAnchorID(number)))
+    stn_a.addAttribute(Attribute("href", null, prov.numberAnchor(number)))
+    stn_a.addAttribute(Attribute("title", null, title.toString()))
     stn_a.appendChild(number.toString())
     stn.appendChild(stn_a)
 
     val st = Element("div", XHTML_URI_TEXT)
     st.addAttribute(Attribute("class", null, prefixedName("section_title")))
-    st.appendChild(KSTextUtilities.concatenate(s.title))
+    st.appendChild(title_text)
 
     sc.appendChild(stn)
     sc.appendChild(st)
     return sc
   }
 
-  private fun prefixedName(s : String) : String {
+  fun prefixedName(s : String) : String {
     val sb = StringBuilder()
     sb.append(ATTRIBUTE_PREFIX)
     sb.append("_")
@@ -156,11 +185,12 @@ internal object KSXOM {
     return sb.toString()
   }
 
-  fun subsectionContainer(ss : KSBlockSubsection<KSEvaluation>) : Element {
+  fun subsectionContainer(
+    prov : KSXOMLinkProviderType,
+    ss : KSBlockSubsection<KSEvaluation>) : Element {
     val number_opt = ss.data.number
     Assertive.require(number_opt.isPresent)
     val number = number_opt.get()
-    val number_text = number.toAnchor()
 
     val sc = Element("div", XHTML_URI_TEXT)
     sc.addAttribute(Attribute("class", null, prefixedName("subsection_container")))
@@ -174,15 +204,23 @@ internal object KSXOM {
     val stn = Element("div", XHTML_URI_TEXT)
     stn.addAttribute(Attribute("class", null, prefixedName("subsection_title_number")))
 
+    val title_text = KSTextUtilities.concatenate(ss.title)
+    val title = StringBuilder()
+    title.append("Subsection ")
+    title.append(number)
+    title.append(": ")
+    title.append(title_text)
+
     val stn_a = Element("a", XHTML_URI_TEXT)
-    stn_a.addAttribute(Attribute("id", null, prefixedName(number_text)))
-    stn_a.addAttribute(Attribute("href", null, "#" + prefixedName(number_text)))
+    stn_a.addAttribute(Attribute("id", null, prov.numberAnchorID(number)))
+    stn_a.addAttribute(Attribute("href", null, prov.numberAnchor(number)))
+    stn_a.addAttribute(Attribute("title", null, title.toString()))
     stn_a.appendChild(number.toString())
     stn.appendChild(stn_a)
 
     val st = Element("div", XHTML_URI_TEXT)
     st.addAttribute(Attribute("class", null, prefixedName("subsection_title")))
-    st.appendChild(KSTextUtilities.concatenate(ss.title))
+    st.appendChild(title_text)
 
     sc.appendChild(stn)
     sc.appendChild(st)
@@ -193,11 +231,13 @@ internal object KSXOM {
     val container : Element,
     val content : Element)
 
-  fun paragraphContainer(p : KSBlockParagraph<KSEvaluation>) : Paragraph {
+  fun paragraphContainer(
+    prov : KSXOMLinkProviderType,
+    p : KSBlockParagraph<KSEvaluation>) : Paragraph {
+
     val number_opt = p.data.number
     Assertive.require(number_opt.isPresent)
     val number = number_opt.get()
-    val number_text = number.toAnchor()
 
     val sc = Element("div", XHTML_URI_TEXT)
     sc.addAttribute(Attribute("class", null, prefixedName("paragraph_container")))
@@ -211,9 +251,14 @@ internal object KSXOM {
     val stn = Element("div", XHTML_URI_TEXT)
     stn.addAttribute(Attribute("class", null, prefixedName("paragraph_number")))
 
+    val title = StringBuilder()
+    title.append("Paragraph ")
+    title.append(number)
+
     val stn_a = Element("a", XHTML_URI_TEXT)
-    stn_a.addAttribute(Attribute("id", null, prefixedName(number_text)))
-    stn_a.addAttribute(Attribute("href", null, "#" + prefixedName(number_text)))
+    stn_a.addAttribute(Attribute("id", null, prov.numberAnchorID(number)))
+    stn_a.addAttribute(Attribute("href", null, prov.numberAnchor(number)))
+    stn_a.addAttribute(Attribute("title", null, title.toString()))
     stn_a.appendChild(number.least.toString())
     stn.appendChild(stn_a)
 
@@ -229,19 +274,48 @@ internal object KSXOM {
     prov : KSXOMLinkProviderType,
     c : KSInline<KSEvaluation>) : Node =
     when (c) {
-      is KSInline.KSInlineLink          -> inlineLink(prov, c)
-      is KSInline.KSInlineText          -> inlineText(c)
-      is KSInline.KSInlineVerbatim      -> inlineVerbatim(c)
-      is KSInline.KSInlineTerm          -> inlineTerm(c)
-      is KSInline.KSInlineImage         -> inlineImage(c)
-      is KSInline.KSInlineListOrdered   -> inlineListOrdered(prov, c)
-      is KSInline.KSInlineListUnordered -> inlineListUnordered(prov, c)
-      is KSInline.KSInlineTable         -> inlineTable(prov, c)
+      is KSInlineLink              -> inlineLink(prov, c)
+      is KSInlineText              -> inlineText(c)
+      is KSInlineVerbatim          -> inlineVerbatim(c)
+      is KSInlineTerm              -> inlineTerm(c)
+      is KSInlineImage             -> inlineImage(c)
+      is KSInlineListOrdered       -> inlineListOrdered(prov, c)
+      is KSInlineListUnordered     -> inlineListUnordered(prov, c)
+      is KSInlineTable             -> inlineTable(prov, c)
+      is KSInlineFootnoteReference -> inlineFootnoteReference(prov, c)
     }
+
+  private fun inlineFootnoteReference(
+    prov : KSXOMLinkProviderType,
+    c : KSInlineFootnoteReference<KSEvaluation>) : Node {
+
+    val ref = c.data.context.footnoteReferenceForInline(c)
+    val fn = c.data.context.elementForID(ref.id) as KSBlockFootnote<KSEvaluation>
+
+    val title = StringBuilder()
+    title.append("Jump to footnote ")
+    title.append(ref.id.value)
+    title.append(" (reference ")
+    title.append(ref.index)
+    title.append(")")
+
+    val a = Element("a", XHTML_URI_TEXT)
+    a.addAttribute(Attribute("href", null, prov.footnoteLink(fn, ref.index)))
+    a.addAttribute(Attribute("id", null, prov.footnoteReferenceAnchor(ref)))
+    a.addAttribute(Attribute("title", null, title.toString()))
+    a.appendChild(c.target.value)
+
+    val e = Element("span", XHTML_URI_TEXT)
+    e.addAttribute(Attribute("class", null, prefixedName("footnote_reference")))
+    e.appendChild("[")
+    e.appendChild(a)
+    e.appendChild("]")
+    return e
+  }
 
   private fun inlineTable(
     prov : KSXOMLinkProviderType,
-    t : KSInline.KSInlineTable<KSEvaluation>) : Node {
+    t : KSInlineTable<KSEvaluation>) : Node {
 
     val classes = mutableListOf<String>()
     classes.add(prefixedName("table"))
@@ -391,7 +465,7 @@ internal object KSXOM {
     link : KSLinkInternal<KSEvaluation>) : Node {
     val sc = Element("a", XHTML_URI_TEXT)
     sc.addAttribute(Attribute("class", null, prefixedName("link")))
-    sc.addAttribute(Attribute("href", null, prov.anchorForID(link.target)))
+    sc.addAttribute(Attribute("href", null, prov.idLink(link.target)))
     inlinesAppend(sc, link.content, { c -> linkContent(c) })
     return sc
   }
@@ -429,11 +503,13 @@ internal object KSXOM {
     return e
   }
 
-  fun partContainer(p : KSBlockPart<KSEvaluation>) : Element {
+  fun partContainer(
+    prov : KSXOMLinkProviderType,
+    p : KSBlockPart<KSEvaluation>) : Element {
+
     val number_opt = p.data.number
     Assertive.require(number_opt.isPresent)
     val number = number_opt.get()
-    val number_text = number.toAnchor()
 
     val sc = Element("div", XHTML_URI_TEXT)
     sc.addAttribute(Attribute("class", null, prefixedName("part_container")))
@@ -447,15 +523,23 @@ internal object KSXOM {
     val stn = Element("div", XHTML_URI_TEXT)
     stn.addAttribute(Attribute("class", null, prefixedName("part_title_number")))
 
+    val title_text = KSTextUtilities.concatenate(p.title)
+    val title = StringBuilder()
+    title.append("Part ")
+    title.append(number)
+    title.append(": ")
+    title.append(title_text)
+
     val stn_a = Element("a", XHTML_URI_TEXT)
-    stn_a.addAttribute(Attribute("id", null, prefixedName(number_text)))
-    stn_a.addAttribute(Attribute("href", null, "#" + prefixedName(number_text)))
+    stn_a.addAttribute(Attribute("id", null, prov.numberAnchorID(number)))
+    stn_a.addAttribute(Attribute("href", null, prov.numberAnchor(number)))
+    stn_a.addAttribute(Attribute("title", null, title.toString()))
     stn_a.appendChild(number.toString())
     stn.appendChild(stn_a)
 
     val st = Element("div", XHTML_URI_TEXT)
     st.addAttribute(Attribute("class", null, prefixedName("part_title")))
-    st.appendChild(KSTextUtilities.concatenate(p.title))
+    st.appendChild(title_text)
 
     sc.appendChild(stn)
     sc.appendChild(st)
@@ -525,7 +609,8 @@ internal object KSXOM {
       Attribute("class", null, prefixedName("navbar_prev_file_cell")))
     b.data.context.elementSegmentPrevious(b).ifPresent {
       block ->
-      navigationBarCellFile(block, prov, files_prev, "previous")
+      navigationBarCellFile(
+        block, prov, files_prev, "previous", "Go to previous page")
     }
 
     val files_up = Element("td", XHTML_URI_TEXT)
@@ -533,7 +618,8 @@ internal object KSXOM {
       Attribute("class", null, prefixedName("navbar_up_file_cell")))
     b.data.context.elementSegmentUp(b).ifPresent {
       block ->
-      navigationBarCellFile(block, prov, files_up, "up")
+      navigationBarCellFile(
+        block, prov, files_up, "up", "Go to parent page")
     }
 
     val files_next = Element("td", XHTML_URI_TEXT)
@@ -541,7 +627,8 @@ internal object KSXOM {
       Attribute("class", null, prefixedName("navbar_next_file_cell")))
     b.data.context.elementSegmentNext(b).ifPresent {
       block ->
-      navigationBarCellFile(block, prov, files_next, "next")
+      navigationBarCellFile(
+        block, prov, files_next, "next", "Go to next page")
     }
 
     val files = Element("tr", XHTML_URI_TEXT)
@@ -609,16 +696,19 @@ internal object KSXOM {
     block : KSBlock<KSEvaluation>,
     prov : KSXOMLinkProviderType,
     parent : Element,
-    relation : String) {
+    relation : String,
+    title : String) {
+
     val e = Element("a", XHTML_URI_TEXT)
     e.addAttribute(Attribute("rel", null, relation))
 
     if (block.data.number.isPresent) {
       val number = block.data.number.get()
-      e.addAttribute(Attribute("href", null, prov.anchorForNumber(number)))
+      e.addAttribute(Attribute("href", null, prov.numberLink(number)))
     } else {
-      e.addAttribute(Attribute("href", null, prov.anchorForDocument()))
+      e.addAttribute(Attribute("href", null, prov.documentAnchor()))
     }
+    e.addAttribute(Attribute("title", null, title))
 
     val fc = relation.get(0).toTitleCase()
     val rest = relation.slice(1 .. relation.length - 1)
@@ -633,7 +723,40 @@ internal object KSXOM {
     return e
   }
 
-  fun sectionContents(
+  private fun linkToPartTitleText(
+    s : KSBlockPart<KSEvaluation>) : String {
+    val title = KSTextUtilities.concatenate(s.title)
+    val text = StringBuilder()
+    text.append("Link to part ")
+    text.append(s.data.number.get().toString())
+    text.append(": ")
+    text.append(title)
+    return text.toString()
+  }
+
+  private fun linkToSectionTitleText(
+    s : KSBlockSection<KSEvaluation>) : String {
+    val title = KSTextUtilities.concatenate(s.title)
+    val text = StringBuilder()
+    text.append("Link to section ")
+    text.append(s.data.number.get().toString())
+    text.append(": ")
+    text.append(title)
+    return text.toString()
+  }
+
+  private fun linkToSubsectionTitleText(
+    s : KSBlockSubsection<KSEvaluation>) : String {
+    val title = KSTextUtilities.concatenate(s.title)
+    val text = StringBuilder()
+    text.append("Link to subsection ")
+    text.append(s.data.number.get().toString())
+    text.append(": ")
+    text.append(title)
+    return text.toString()
+  }
+
+  fun contentsForSection(
     prov : KSXOMLinkProviderType,
     s : KSBlockSection<KSEvaluation>) : Element {
 
@@ -662,12 +785,15 @@ internal object KSXOM {
           val ss_a = Element("a", XHTML_URI_TEXT)
           val ss_number = ss.data.number.get()
           ss_a.addAttribute(
-            Attribute("href", null, prov.anchorForNumber(ss_number)))
+            Attribute("href", null, prov.numberLink(ss_number)))
+          ss_a.addAttribute(
+            Attribute("title", null, linkToSubsectionTitleText(ss)))
 
+          val ss_title = KSTextUtilities.concatenate(ss.title)
           val ss_a_text = StringBuilder()
           ss_a_text.append(ss_number.toString())
           ss_a_text.append(". ")
-          KSTextUtilities.concatenateInto(ss_a_text, ss.title)
+          ss_a_text.append(ss_title)
           ss_a.appendChild(ss_a_text.toString())
           ss_li.appendChild(ss_a)
           e.appendChild(ss_li)
@@ -678,7 +804,7 @@ internal object KSXOM {
     return e
   }
 
-  fun partContents(
+  fun contentsForPart(
     prov : KSXOMLinkProviderType,
     p : KSBlockPart<KSEvaluation>) : Element {
 
@@ -702,12 +828,15 @@ internal object KSXOM {
       val part_a = Element("a", XHTML_URI_TEXT)
       val part_number = s.data.number.get()
       part_a.addAttribute(
-        Attribute("href", null, prov.anchorForNumber(part_number)))
+        Attribute("href", null, prov.numberLink(part_number)))
+      part_a.addAttribute(
+        Attribute("title", null, linkToSectionTitleText(s)))
 
+      val section_title = KSTextUtilities.concatenate(s.title)
       val part_a_text = StringBuilder()
       part_a_text.append(part_number.toString())
       part_a_text.append(". ")
-      KSTextUtilities.concatenateInto(part_a_text, s.title)
+      part_a_text.append(section_title)
       part_a.appendChild(part_a_text.toString())
       part_li.appendChild(part_a)
       e.appendChild(part_li)
@@ -728,12 +857,15 @@ internal object KSXOM {
             val ss_a = Element("a", XHTML_URI_TEXT)
             val ss_number = ss.data.number.get()
             ss_a.addAttribute(
-              Attribute("href", null, prov.anchorForNumber(ss_number)))
+              Attribute("href", null, prov.numberLink(ss_number)))
+            ss_a.addAttribute(
+              Attribute("title", null, linkToSubsectionTitleText(ss)))
 
+            val ss_title = KSTextUtilities.concatenate(ss.title)
             val ss_a_text = StringBuilder()
             ss_a_text.append(ss_number.toString())
             ss_a_text.append(". ")
-            KSTextUtilities.concatenateInto(ss_a_text, ss.title)
+            ss_a_text.append(ss_title)
             ss_a.appendChild(ss_a_text.toString())
             ss_li.appendChild(ss_a)
             part_li.appendChild(ss_li)
@@ -745,7 +877,7 @@ internal object KSXOM {
     return e
   }
 
-  fun documentContents(
+  fun contentsForDocument(
     prov : KSXOMLinkProviderType,
     d : KSBlockDocument<KSEvaluation>) : Element {
 
@@ -770,7 +902,9 @@ internal object KSXOM {
           val part_a = Element("a", XHTML_URI_TEXT)
           val part_number = p.data.number.get()
           part_a.addAttribute(
-            Attribute("href", null, prov.anchorForNumber(part_number)))
+            Attribute("href", null, prov.numberLink(part_number)))
+          part_a.addAttribute(
+            Attribute("title", null, linkToPartTitleText(p)))
 
           val part_a_text = StringBuilder()
           part_a_text.append(part_number.toString())
@@ -799,7 +933,9 @@ internal object KSXOM {
             val s_a = Element("a", XHTML_URI_TEXT)
             val s_number = s.data.number.get()
             s_a.addAttribute(
-              Attribute("href", null, prov.anchorForNumber(s_number)))
+              Attribute("href", null, prov.numberLink(s_number)))
+            s_a.addAttribute(
+              Attribute("title", null, linkToSectionTitleText(s)))
 
             val s_a_text = StringBuilder()
             s_a_text.append(s_number.toString())
@@ -827,7 +963,7 @@ internal object KSXOM {
           val s_a = Element("a", XHTML_URI_TEXT)
           val s_number = s.data.number.get()
           s_a.addAttribute(
-            Attribute("href", null, prov.anchorForNumber(s_number)))
+            Attribute("href", null, prov.numberLink(s_number)))
 
           val s_a_text = StringBuilder()
           s_a_text.append(s_number.toString())
@@ -843,11 +979,13 @@ internal object KSXOM {
     }
   }
 
-  fun formalItemContainer(f : KSBlockFormalItem<KSEvaluation>) : Pair<Element, Element> {
+  fun formalItemContainer(
+    prov : KSXOMLinkProviderType,
+    f : KSBlockFormalItem<KSEvaluation>) : Pair<Element, Element> {
+
     val number_opt = f.data.number
     Assertive.require(number_opt.isPresent)
     val number = number_opt.get()
-    val number_text = number.toAnchor()
 
     val sc = Element("div", XHTML_URI_TEXT)
     sc.addAttribute(Attribute("class", null, prefixedName("formal_item")))
@@ -861,12 +999,20 @@ internal object KSXOM {
     val st = Element("div", XHTML_URI_TEXT)
     st.addAttribute(Attribute("class", null, prefixedName("formal_item_title")))
 
+    val title_text = KSTextUtilities.concatenate(f.title)
+    val title = StringBuilder()
+    title.append("Formal item ")
+    title.append(number)
+    title.append(": ")
+    title.append(title_text)
+
     val stn_a = Element("a", XHTML_URI_TEXT)
-    stn_a.addAttribute(Attribute("id", null, prefixedName(number_text)))
-    stn_a.addAttribute(Attribute("href", null, "#" + prefixedName(number_text)))
+    stn_a.addAttribute(Attribute("id", null, prov.numberAnchorID(number)))
+    stn_a.addAttribute(Attribute("href", null, prov.numberAnchor(number)))
+    stn_a.addAttribute(Attribute("title", null, title.toString()))
     stn_a.appendChild(number.toString())
     stn_a.appendChild(" ")
-    stn_a.appendChild(KSTextUtilities.concatenate(f.title))
+    stn_a.appendChild(title_text)
     st.appendChild(stn_a)
 
     sc.appendChild(st)
@@ -876,5 +1022,55 @@ internal object KSXOM {
 
     sc.appendChild(scc)
     return Pair(sc, scc)
+  }
+
+  fun footnotes(
+    prov : KSXOMLinkProviderType,
+    footnotes : Map<KSID<KSEvaluation>, KSBlockFootnote<KSEvaluation>>) : Element {
+
+    val e = Element("div", XHTML_URI_TEXT)
+    e.addAttribute(Attribute("class", null, prefixedName("footnotes")))
+    e.appendChild(Element("hr", XHTML_URI_TEXT))
+
+    for (fn in footnotes) {
+      val c = fn.value.data.context
+      val refs = c.footnoteReferencesForFootnote(fn.value)
+
+      refs.forEach { r ->
+        val ee = Element("div", XHTML_URI_TEXT)
+        ee.addAttribute(
+          Attribute("class", null, prefixedName("footnote_container")))
+        val eid = Element("div", XHTML_URI_TEXT)
+        eid.addAttribute(
+          Attribute("class", null, prefixedName("footnote_id")))
+        eid.appendChild("[")
+        val eaa = Element("a", XHTML_URI_TEXT)
+        eaa.addAttribute(
+          Attribute("id", null, prov.footnoteAnchor(fn.value, r.key)))
+        eaa.addAttribute(
+          Attribute("href", null, prov.footnoteReferenceLink(r.value)))
+
+        val title = StringBuilder()
+        title.append("Jump back to reference ")
+        title.append(r.value.index)
+        title.append(" of footnote ")
+        title.append(fn.key.value)
+        eaa.addAttribute(Attribute("title", null, title.toString()))
+
+        eaa.appendChild(fn.key.value)
+        eid.appendChild(eaa)
+        eid.appendChild("]")
+
+        val ec = Element("div", XHTML_URI_TEXT)
+        ec.addAttribute(Attribute("class", null, prefixedName("footnote_body")))
+        inlinesAppend(ec, fn.value.content, { c -> inline(prov, c) })
+
+        ee.appendChild(eid)
+        ee.appendChild(ec)
+        e.appendChild(ee)
+      }
+    }
+
+    return e
   }
 }

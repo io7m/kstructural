@@ -16,8 +16,11 @@
 
 package com.io7m.kstructural.core.evaluator
 
-import com.io7m.kstructural.core.KSBlock
-import com.io7m.kstructural.core.KSBlock.KSBlockDocument
+import com.io7m.kstructural.core.KSElement
+import com.io7m.kstructural.core.KSElement.KSInline.*
+import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
 import com.io7m.kstructural.core.KSID
 import java.util.Optional
 
@@ -31,6 +34,9 @@ interface KSEvaluationContextType {
   fun elementForNumber(
     n : KSNumber) : KSBlock<KSEvaluation>
 
+  fun elementForSerial(
+    s : KSSerial) : Optional<KSElement<KSEvaluation>>
+
   fun elementSegmentPrevious(
     b : KSBlock<KSEvaluation>) : Optional<KSBlock<KSEvaluation>>
 
@@ -39,4 +45,13 @@ interface KSEvaluationContextType {
 
   fun elementSegmentUp(
     b : KSBlock<KSEvaluation>) : Optional<KSBlock<KSEvaluation>>
+
+  fun footnotesForSection(
+    n : Long) : Map<KSID<KSEvaluation>, KSBlockFootnote<KSEvaluation>>
+
+  fun footnoteReferenceForInline(
+    f : KSInlineFootnoteReference<KSEvaluation>) : KSFootnoteReference<KSEvaluation>
+
+  fun footnoteReferencesForFootnote(
+    f : KSBlockFootnote<KSEvaluation>) : Map<Long, KSFootnoteReference<KSEvaluation>>
 }

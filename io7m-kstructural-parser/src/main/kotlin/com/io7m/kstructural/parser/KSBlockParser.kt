@@ -17,34 +17,37 @@
 package com.io7m.kstructural.parser
 
 import com.io7m.junreachable.UnreachableCodeException
-import com.io7m.kstructural.core.KSBlock
-import com.io7m.kstructural.core.KSBlock.KSBlockDocument
-import com.io7m.kstructural.core.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
-import com.io7m.kstructural.core.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
-import com.io7m.kstructural.core.KSBlock.KSBlockFormalItem
-import com.io7m.kstructural.core.KSBlock.KSBlockParagraph
-import com.io7m.kstructural.core.KSBlock.KSBlockPart
-import com.io7m.kstructural.core.KSBlock.KSBlockSection
-import com.io7m.kstructural.core.KSBlock.KSBlockSubsection
 import com.io7m.kstructural.core.KSDocumentContent
 import com.io7m.kstructural.core.KSDocumentContent.KSDocumentPart
 import com.io7m.kstructural.core.KSDocumentContent.KSDocumentSection
+import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockParagraph
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockPart
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
+import com.io7m.kstructural.core.KSElement.KSInline
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineImage
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineLink
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListOrdered
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListUnordered
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTable
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTerm
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineVerbatim
 import com.io7m.kstructural.core.KSID
-import com.io7m.kstructural.core.KSInline
-import com.io7m.kstructural.core.KSInline.KSInlineImage
-import com.io7m.kstructural.core.KSInline.KSInlineLink
-import com.io7m.kstructural.core.KSInline.KSInlineListOrdered
-import com.io7m.kstructural.core.KSInline.KSInlineListUnordered
-import com.io7m.kstructural.core.KSInline.KSInlineTable
-import com.io7m.kstructural.core.KSInline.KSInlineTerm
-import com.io7m.kstructural.core.KSInline.KSInlineText
-import com.io7m.kstructural.core.KSInline.KSInlineVerbatim
 import com.io7m.kstructural.core.KSLexicalType
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSSectionContent
 import com.io7m.kstructural.core.KSSectionContent.KSSectionSubsection
 import com.io7m.kstructural.core.KSSectionContent.KSSectionSubsectionContent
 import com.io7m.kstructural.core.KSSubsectionContent
+import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFootnote
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFormalItem
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
 import com.io7m.kstructural.parser.KSExpression.KSExpressionList
@@ -142,6 +145,13 @@ class KSBlockParser private constructor(
     val type =
       KSExpressionMatch.allOfList(listOf(type_name, symbol))
 
+    val footnote_name =
+      KSExpressionMatch.exactSymbol("footnote")
+    val footnote =
+      KSExpressionMatch.prefixOfList(listOf(footnote_name, id))
+    val footnote_type =
+      KSExpressionMatch.prefixOfList(listOf(footnote_name, id, type))
+
     val para_name =
       KSExpressionMatch.exactSymbol("paragraph")
     val para_any =
@@ -232,6 +242,54 @@ class KSBlockParser private constructor(
     Assertive.require(e.elements[0] is KSExpressionSymbol)
     val texts = e.elements.subList(1, e.elements.size)
     return parseInlineTexts(texts)
+  }
+
+  private fun parseBlockFootnote(
+    e : KSExpressionList) : KSResult<KSBlockFootnote<Unit>, KSParseError> {
+
+    Assertive.require(e.elements.size > 0)
+    Assertive.require(e.elements[0] is KSExpressionSymbol)
+
+    when {
+      KSExpressionMatch.matches(e, CommandMatchers.footnote_type) -> {
+        Assertive.require(e.elements.size >= 3)
+        val id = parseAttributeID(e.elements[1] as KSExpressionList)
+        val type = parseAttributeType(e.elements[2] as KSExpressionList)
+        val rest = e.elements.subList(3, e.elements.size)
+        val act_content = parseInlines(rest)
+
+        return act_content flatMap { content ->
+          KSResult.succeed<KSBlockFootnote<Unit>, KSParseError>(
+            KSBlockFootnote(
+              e.position,
+              Unit,
+              id = Optional.of(id),
+              type = Optional.of(type),
+              content = content))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.footnote)      -> {
+        Assertive.require(e.elements.size >= 2)
+        val id = parseAttributeID(e.elements[1] as KSExpressionList)
+        val rest = e.elements.subList(2, e.elements.size)
+        val act_content = parseInlines(rest)
+
+        return act_content flatMap { content ->
+          KSResult.succeed<KSBlockFootnote<Unit>, KSParseError>(
+            KSBlockFootnote(
+              e.position,
+              Unit,
+              id = Optional.of(id),
+              type = Optional.empty(),
+              content = content))
+        }
+      }
+    }
+
+    return failedToMatchResult(e, listOf(
+      CommandMatchers.footnote,
+      CommandMatchers.footnote_type))
   }
 
   private fun parseBlockFormalItem(
@@ -757,10 +815,10 @@ class KSBlockParser private constructor(
   private fun anyToSubsectionContent(
     e : KSBlock<Unit>) : KSResult<KSSubsectionContent<Unit>, KSParseError> {
     return when (e) {
-      is KSBlock.KSBlockDocument,
+      is KSBlockDocument,
       is KSBlockSection,
       is KSBlockSubsection,
-      is KSBlockPart               -> {
+      is KSBlockPart       -> {
         val sb = StringBuilder()
         sb.append("Expected subsection content.")
         sb.append(System.lineSeparator())
@@ -771,19 +829,21 @@ class KSBlockParser private constructor(
         sb.append(System.lineSeparator())
         parseError(e, sb.toString())
       }
-      is KSBlockParagraph          ->
+      is KSBlockParagraph  ->
         KSResult.succeed(KSSubsectionParagraph(e))
-      is KSBlock.KSBlockFormalItem ->
+      is KSBlockFormalItem ->
         KSResult.succeed(KSSubsectionFormalItem(e))
+      is KSBlockFootnote   ->
+        KSResult.succeed(KSSubsectionFootnote(e))
     }
   }
 
   private fun anyToSectionContent(
     e : KSBlock<Unit>) : KSResult<KSSectionContent<Unit>, KSParseError> {
     return when (e) {
-      is KSBlock.KSBlockDocument,
+      is KSBlockDocument,
       is KSBlockSection,
-      is KSBlockPart               -> {
+      is KSBlockPart       -> {
         val sb = StringBuilder()
         sb.append("Expected section content.")
         sb.append(System.lineSeparator())
@@ -794,12 +854,14 @@ class KSBlockParser private constructor(
         sb.append(System.lineSeparator())
         parseError(e, sb.toString())
       }
-      is KSBlockSubsection         ->
+      is KSBlockSubsection ->
         KSResult.succeed(KSSectionSubsection(e))
-      is KSBlockParagraph          ->
+      is KSBlockParagraph  ->
         KSResult.succeed(KSSectionSubsectionContent(KSSubsectionParagraph(e)))
-      is KSBlock.KSBlockFormalItem ->
+      is KSBlockFormalItem ->
         KSResult.succeed(KSSectionSubsectionContent(KSSubsectionFormalItem(e)))
+      is KSBlockFootnote   ->
+        KSResult.succeed(KSSectionSubsectionContent(KSSubsectionFootnote(e)))
     }
   }
 
@@ -925,13 +987,14 @@ class KSBlockParser private constructor(
     e : KSExpression) : KSResult<KSBlockSection<Unit>, KSParseError> {
     return parseBlockAny(e) flatMap { ee ->
       when (ee) {
-        is KSBlock.KSBlockSection   ->
+        is KSBlockSection   ->
           KSResult.succeed<KSBlockSection<Unit>, KSParseError>(ee)
-        is KSBlock.KSBlockDocument,
-        is KSBlock.KSBlockFormalItem,
-        is KSBlock.KSBlockPart,
-        is KSBlock.KSBlockSubsection,
-        is KSBlock.KSBlockParagraph -> {
+        is KSBlockDocument,
+        is KSBlockFormalItem,
+        is KSBlockFootnote,
+        is KSBlockPart,
+        is KSBlockSubsection,
+        is KSBlockParagraph -> {
           val sb = StringBuilder()
           sb.append("Expected section.")
           sb.append(System.lineSeparator())
@@ -956,6 +1019,7 @@ class KSBlockParser private constructor(
           is KSInlineLink,
           is KSInlineVerbatim,
           is KSInlineTerm,
+          is KSInlineFootnoteReference,
           is KSInlineListOrdered,
           is KSInlineListUnordered,
           is KSInlineTable,
@@ -998,9 +1062,10 @@ class KSBlockParser private constructor(
   private fun anyToDocumentContent(
     e : KSBlock<Unit>) : KSResult<KSDocumentContent<Unit>, KSParseError> {
     return when (e) {
-      is KSBlock.KSBlockDocument,
+      is KSBlockDocument,
       is KSBlockSubsection,
-      is KSBlock.KSBlockFormalItem,
+      is KSBlockFormalItem,
+      is KSBlockFootnote,
       is KSBlockParagraph -> {
         val sb = StringBuilder()
         sb.append("Expected document content.")
@@ -1212,6 +1277,7 @@ class KSBlockParser private constructor(
     val m = HashMap<String, ElementParser>()
     m.put("paragraph", ElementParser("paragraph", { e -> parseBlockPara(e) }))
     m.put("formal-item", ElementParser("formal-item", { e -> parseBlockFormalItem(e) }))
+    m.put("footnote", ElementParser("footnote", { e -> parseBlockFootnote(e) }))
     m.put("subsection", ElementParser("subsection", { e -> parseBlockSubsection(e) }))
     m.put("section", ElementParser("section", { e -> parseBlockSection(e) }))
     m.put("part", ElementParser("part", { e -> parseBlockPart(e) }))

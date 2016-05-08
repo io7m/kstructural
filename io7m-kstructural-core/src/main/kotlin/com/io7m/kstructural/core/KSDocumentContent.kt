@@ -17,18 +17,20 @@
 package com.io7m.kstructural.core
 
 import com.io7m.jlexing.core.LexicalPositionType
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockPart
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection
 import java.nio.file.Path
 import java.util.Optional
 
 sealed class KSDocumentContent<T>(
   override val position : Optional<LexicalPositionType<Path>>) : KSLexicalType {
 
-  class KSDocumentSection<T>(val section : KSBlock.KSBlockSection<T>)
+  class KSDocumentSection<T>(val section : KSBlockSection<T>)
   : KSDocumentContent<T>(section.position) {
     override fun toString() : String = section.toString()
   }
 
-  class KSDocumentPart<T>(val part : KSBlock.KSBlockPart<T>)
+  class KSDocumentPart<T>(val part : KSBlockPart<T>)
   : KSDocumentContent<T>(part.position) {
     override fun toString() : String = part.toString()
   }

@@ -1,0 +1,79 @@
+(document
+  [title A document]
+
+  [part
+    (title The first part)
+    (section
+      [title A section with subsections]
+      [subsection
+        (title The first subsection)
+        (id ss0)
+        (paragraph A paragraph.)
+        (paragraph A [link [target ss0] link].)
+        (paragraph A [link-ext [target http://example.com] link].)
+        (paragraph A [term term].)
+        (paragraph A [verbatim "verbatim"].)
+        (paragraph An [image [target x.png] image].)
+        (paragraph A footnote reference [footnote-ref f0])
+        (paragraph A footnote reference [footnote-ref f1])
+        (paragraph A footnote reference [footnote-ref f2])
+        (footnote [id f0] A footnote.)
+        (paragraph An ordered list:
+          [list-ordered
+            [item An item]
+            [item Another item]
+            [item Yet another item]])
+        (paragraph An unordered list:
+          [list-unordered
+            [item An item]
+            [item Another item]
+            [item Yet another item]])
+        (paragraph A table:
+          [table
+            [summary A table!]
+            [head [name One] [name Two] [name Three]]
+            [body [row [cell x] [cell y] [cell z]]]])
+      ]
+      [subsection
+        (title The second subsection)
+        (paragraph A paragraph.)
+        (formal-item [title A formal] [term T])
+        (footnote [id f2] A footnote.)
+      ]
+    )
+  ]
+
+  [part
+    (title A part with sections)
+    (section
+      [title A section with content]
+      [id s0]
+      [paragraph A paragraph.]
+      [paragraph A [link [target s0] link].]
+      [paragraph A [link-ext [target http://example.com] link].]
+      [paragraph A [term term].]
+      [paragraph A [verbatim "verbatim"].]
+      [paragraph An [image [target x.png] image].]
+      [paragraph A footnote reference [footnote-ref f0]]
+      [paragraph A footnote reference [footnote-ref f1]]
+      [paragraph A footnote reference [footnote-ref f2]]
+      [footnote [id f1] A footnote.]
+      [paragraph An ordered list:
+        [list-ordered
+          [item An item]
+          [item Another item]
+          [item Yet another item]]]
+      [paragraph An unordered list:
+        [list-unordered
+          [item An item]
+          [item Another item]
+          [item Yet another item]]]
+      [paragraph A table:
+        [table
+          [summary A table!]
+          [head [name One] [name Two] [name Three]]
+          [body
+            [row [cell x] [cell y] [cell z]]]]]
+    )
+  ]
+)

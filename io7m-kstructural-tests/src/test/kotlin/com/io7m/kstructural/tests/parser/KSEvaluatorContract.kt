@@ -16,13 +16,17 @@
 
 package com.io7m.kstructural.tests.parser
 
-import com.io7m.kstructural.core.KSBlock.KSBlockDocument
-import com.io7m.kstructural.core.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
-import com.io7m.kstructural.core.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
-import com.io7m.kstructural.core.KSBlock.KSBlockSection.KSBlockSectionWithContent
-import com.io7m.kstructural.core.KSBlock.KSBlockSection.KSBlockSectionWithSubsections
+import com.io7m.kstructural.core.KSElement
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithContent
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithSubsections
+import com.io7m.kstructural.core.KSLink
+import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
+import com.io7m.kstructural.core.KSSubsectionContent
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
 import com.io7m.kstructural.core.evaluator.KSEvaluation
 import com.io7m.kstructural.core.evaluator.KSEvaluatorType
@@ -34,20 +38,24 @@ import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSection
 import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSectionContent
 import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSectionSubsection
 import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSectionSubsectionContent
+import com.io7m.kstructural.core.evaluator.KSSerial
 import org.junit.Assert
 import org.junit.Test
+import org.slf4j.LoggerFactory
 
 abstract class KSEvaluatorContract {
 
   protected abstract fun newEvaluatorForString(
     text : String) : KSEvaluatorContract.Evaluator
 
+  protected abstract fun newEvaluatorForFile(
+    file : String) : KSEvaluatorContract.Evaluator
+
   data class Evaluator(
     val e : KSEvaluatorType,
     val s : () -> KSBlockDocument<Unit>)
 
-  @Test fun testDuplicateID()
-  {
+  @Test fun testDuplicateID() {
     val ee = newEvaluatorForString("""
 [document (title dt) (id d0)
   (section [title st] [id d0]
@@ -59,8 +67,7 @@ abstract class KSEvaluatorContract {
     Assert.assertEquals(1, r.errors.size)
   }
 
-  @Test fun testNonexistentID()
-  {
+  @Test fun testNonexistentID() {
     val ee = newEvaluatorForString("""
 [document (title dt) (id d0)
   (section [title st]
@@ -72,8 +79,7 @@ abstract class KSEvaluatorContract {
     Assert.assertEquals(1, r.errors.size)
   }
 
-  @Test fun testResolvedID()
-  {
+  @Test fun testResolvedID() {
     val ee = newEvaluatorForString("""
 [document (title dt) (id d0)
   (section [title st]
@@ -85,8 +91,232 @@ abstract class KSEvaluatorContract {
     r as KSSuccess<KSBlockDocumentWithSections<KSEvaluation>, *>
   }
 
-  @Test fun testSections()
-  {
+  private val LOG = LoggerFactory.getLogger(KSEvaluatorContract::class.java)
+
+  private fun checkSelf(e : KSElement<KSEvaluation>) : Unit {
+    val c = e.data.context
+    LOG.trace("checking self {} ({})", e.data.serial, e.javaClass.simpleName)
+    Assert.assertSame(e, c.elementForSerial(e.data.serial).get())
+  }
+
+  private fun checkParent(
+    e : KSElement<KSEvaluation>,
+    p : KSElement<KSEvaluation>) : Unit {
+    val c = e.data.context
+    LOG.trace("checking parent {} ({}) -> {} ({})",
+      e.data.serial,
+      e.javaClass.simpleName,
+      e.data.parent,
+      p.javaClass.simpleName)
+    Assert.assertEquals(e.data.parent, p.data.serial)
+    val k = c.elementForSerial(e.data.parent)
+    Assert.assertTrue(k.isPresent)
+    Assert.assertEquals(e.data.parent, k.get().data.serial)
+    Assert.assertSame(p, k.get())
+  }
+
+  private fun checkContentBlock(
+    e : KSElement.KSBlock<KSEvaluation>,
+    p : KSElement.KSBlock<KSEvaluation>
+  ) : Unit {
+
+    checkSelf(e)
+    checkParent(e, p)
+    return when (e) {
+
+      is KSElement.KSBlock.KSBlockDocument   -> {
+        checkSelf(e)
+        when (e as KSBlockDocument) {
+          is KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts    -> {
+            e as KSBlockDocumentWithParts
+            e.title.forEach { i -> checkAll(i, e) }
+            e.content.forEach { c -> checkAll(c, e) }
+          }
+          is KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections -> {
+            e as KSBlockDocumentWithSections
+            e.title.forEach { i -> checkAll(i, e) }
+            e.content.forEach { c -> checkAll(c, e) }
+          }
+        }
+      }
+
+      is KSElement.KSBlock.KSBlockSection    -> {
+        e.title.forEach { i -> checkAll(i, e) }
+        when (e as KSElement.KSBlock.KSBlockSection) {
+          is KSElement.KSBlock.KSBlockSection.KSBlockSectionWithSubsections -> {
+            val eb = e as KSElement.KSBlock.KSBlockSection.KSBlockSectionWithSubsections
+            eb.content.forEach { c -> checkAll(c, e) }
+          }
+          is KSElement.KSBlock.KSBlockSection.KSBlockSectionWithContent     -> {
+            val eb = e as KSElement.KSBlock.KSBlockSection.KSBlockSectionWithContent
+            eb.content.forEach { c ->
+              when (c) {
+                is KSSubsectionContent.KSSubsectionParagraph  ->
+                  checkAll(c.paragraph, e)
+                is KSSubsectionContent.KSSubsectionFormalItem ->
+                  checkAll(c.formal, e)
+                is KSSubsectionContent.KSSubsectionFootnote   ->
+                  checkAll(c.footnote, e)
+              }
+            }
+          }
+        }
+      }
+
+      is KSElement.KSBlock.KSBlockSubsection -> {
+        e.title.forEach { i -> checkAll(i, e) }
+        e.content.forEach { c ->
+          when (c) {
+            is KSSubsectionContent.KSSubsectionParagraph  ->
+              checkAll(c.paragraph, e)
+            is KSSubsectionContent.KSSubsectionFormalItem ->
+              checkAll(c.formal, e)
+            is KSSubsectionContent.KSSubsectionFootnote   ->
+              checkAll(c.footnote, e)
+          }
+        }
+      }
+
+      is KSElement.KSBlock.KSBlockParagraph  -> {
+        e.content.forEach { c -> checkAll(c, e) }
+      }
+      is KSElement.KSBlock.KSBlockFormalItem -> {
+        e.content.forEach { c -> checkAll(c, e) }
+      }
+      is KSElement.KSBlock.KSBlockFootnote   -> {
+        e.content.forEach { c -> checkAll(c, e) }
+      }
+      is KSElement.KSBlock.KSBlockPart       -> {
+        e.content.forEach { c -> checkAll(c, e) }
+      }
+    }
+  }
+
+  private fun checkContentInline(
+    e : KSElement.KSInline<KSEvaluation>,
+    p : KSElement<KSEvaluation>) {
+
+    checkSelf(e)
+    checkParent(e, p)
+
+    return when (e) {
+      is KSElement.KSInline.KSInlineLink              -> {
+        checkContentLink(e, p)
+      }
+      is KSElement.KSInline.KSInlineText              -> {
+
+      }
+      is KSElement.KSInline.KSInlineVerbatim          -> {
+
+      }
+      is KSElement.KSInline.KSInlineTerm              -> {
+        e.content.forEach { c -> checkAll(c, e) }
+      }
+      is KSElement.KSInline.KSInlineFootnoteReference -> {
+      }
+      is KSElement.KSInline.KSInlineImage             -> {
+        e.content.forEach { c -> checkAll(c, e) }
+      }
+      is KSElement.KSInline.KSInlineListOrdered       -> {
+        e.content.forEach { c -> checkAll(c, e) }
+      }
+      is KSElement.KSInline.KSInlineListUnordered     -> {
+        e.content.forEach { c -> checkAll(c, e) }
+      }
+      is KSElement.KSInline.KSInlineTable             -> {
+        checkAll(e.summary, e)
+        if (e.head.isPresent) {
+          checkAll(e.head.get(), e)
+        }
+        checkAll(e.body, e)
+      }
+    }
+  }
+
+  private fun checkContentLink(
+    e : KSElement.KSInline.KSInlineLink<KSEvaluation>,
+    p : KSElement<KSEvaluation>) {
+
+    return when (e.actual) {
+      is KSLink.KSLinkExternal -> {
+        val actual = e.actual as KSLink.KSLinkExternal
+        actual.content.forEach { c ->
+          when (c) {
+            is KSLinkContent.KSLinkText  -> { }
+            is KSLinkContent.KSLinkImage ->
+              checkAll(c.actual, e)
+          }
+        }
+      }
+      is KSLink.KSLinkInternal -> {
+        val actual = e.actual as KSLink.KSLinkInternal
+        actual.content.forEach { c ->
+          when (c) {
+            is KSLinkContent.KSLinkText  -> { }
+            is KSLinkContent.KSLinkImage ->
+              checkAll(c.actual, e)
+          }
+        }
+      }
+    }
+  }
+
+  private fun checkAll(
+    e : KSElement<KSEvaluation>,
+    p : KSElement<KSEvaluation>) : Unit {
+    val c = e.data.context
+    LOG.trace("checking all {} ({}) -> {} ({})",
+      e.data.serial,
+      e.javaClass.simpleName,
+      e.data.parent,
+      p.javaClass.simpleName)
+
+    return when (e) {
+      is KSElement.KSBlock             ->
+        checkContentBlock(e, p as KSElement.KSBlock<KSEvaluation>)
+      is KSElement.KSInline            ->
+        checkContentInline(e, p)
+      is KSElement.KSInline.KSListItem -> {
+        e.content.forEach { c -> checkAll(c, e) }
+      }
+      is KSElement.KSInline.KSTableHead -> {
+        e.column_names.forEach { cn -> checkAll(cn, e) }
+      }
+      is KSElement.KSInline.KSTableBodyCell -> {
+        e.content.forEach { c -> checkAll(c, e) }
+      }
+      is KSElement.KSInline.KSTableBodyRow -> {
+        e.cells.forEach { c -> checkAll(c, e) }
+      }
+      is KSElement.KSInline.KSTableBody -> {
+        e.rows.forEach { row -> checkAll(row, e) }
+      }
+      is KSElement.KSInline.KSTableSummary -> {
+        e.content.forEach { c -> checkAll(c, e) }
+      }
+      is KSElement.KSInline.KSTableHeadColumnName -> {
+        e.content.forEach { c -> checkAll(c, e) }
+      }
+    }
+  }
+
+  private fun checkDocument(e : KSBlockDocument<KSEvaluation>) : Unit {
+    checkSelf(e)
+    when (e as KSBlockDocument) {
+      is KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts    -> {
+        e as KSBlockDocumentWithParts
+        e.title.forEach { i -> checkAll(i, e) }
+        e.content.forEach { c -> checkAll(c, e) }
+      }
+      is KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections -> {
+        e as KSBlockDocumentWithSections
+        e.title.forEach { i -> checkAll(i, e) }
+        e.content.forEach { c -> checkAll(c, e) }
+      }
+    }
+  }
+
+  @Test fun testSections() {
     val ee = newEvaluatorForString("""
 [document (title dt)
   (section [title s1]
@@ -108,9 +338,11 @@ abstract class KSEvaluatorContract {
     r as KSSuccess<KSBlockDocumentWithSections<KSEvaluation>, *>
 
     val ctx = r.result.data.context
+    Assert.assertEquals(KSSerial(0L), r.result.data.parent)
     Assert.assertEquals("dt", r.result.title[0].text)
     Assert.assertFalse(ctx.elementSegmentUp(r.result).isPresent)
     Assert.assertFalse(ctx.elementSegmentPrevious(r.result).isPresent)
+    checkDocument(r.result)
 
     run {
       val s = r.result.content[0] as KSBlockSectionWithContent
@@ -200,8 +432,7 @@ abstract class KSEvaluatorContract {
     }
   }
 
-  @Test fun testSectionSubsections()
-  {
+  @Test fun testSectionSubsections() {
     val ee = newEvaluatorForString("""
 [document (title dt)
   (section [title s1]
@@ -229,6 +460,7 @@ abstract class KSEvaluatorContract {
     Assert.assertFalse(ctx.elementSegmentUp(r.result).isPresent)
     Assert.assertFalse(ctx.elementSegmentPrevious(r.result).isPresent)
     Assert.assertEquals(r.result.content[0], ctx.elementSegmentNext(r.result).get())
+    checkDocument(r.result)
 
     run {
       val s = r.result.content[0] as KSBlockSectionWithSubsections
@@ -341,8 +573,7 @@ abstract class KSEvaluatorContract {
     }
   }
 
-  @Test fun testPartSections()
-  {
+  @Test fun testPartSections() {
     val ee = newEvaluatorForString("""
 [document (title dt)
   (part [title p1]
@@ -370,6 +601,7 @@ abstract class KSEvaluatorContract {
     Assert.assertFalse(ctx.elementSegmentUp(r.result).isPresent)
     Assert.assertFalse(ctx.elementSegmentPrevious(r.result).isPresent)
     Assert.assertEquals(r.result.content[0], ctx.elementSegmentNext(r.result).get())
+    checkDocument(r.result)
 
     run {
       val p = r.result.content[0]
@@ -489,8 +721,7 @@ abstract class KSEvaluatorContract {
     }
   }
 
-  @Test fun testPartSectionSubsections()
-  {
+  @Test fun testPartSectionSubsections() {
     val ee = newEvaluatorForString("""
 [document (title dt)
   (part [title p1]
@@ -534,6 +765,7 @@ abstract class KSEvaluatorContract {
     Assert.assertFalse(ctx.elementSegmentUp(r.result).isPresent)
     Assert.assertFalse(ctx.elementSegmentPrevious(r.result).isPresent)
     Assert.assertEquals(r.result.content[0], ctx.elementSegmentNext(r.result).get())
+    checkDocument(r.result)
 
     run {
       val p = r.result.content[0]
@@ -769,8 +1001,7 @@ abstract class KSEvaluatorContract {
     }
   }
 
-  @Test fun testTableColumnMismatchRow0()
-  {
+  @Test fun testTableColumnMismatchRow0() {
     val ee = newEvaluatorForString("""
 [document (title dt) (id d0)
   (section [title st]
@@ -787,8 +1018,7 @@ abstract class KSEvaluatorContract {
     Assert.assertEquals(1, r.errors.size)
   }
 
-  @Test fun testTableColumnMismatchRow1()
-  {
+  @Test fun testTableColumnMismatchRow1() {
     val ee = newEvaluatorForString("""
 [document (title dt) (id d0)
   (section [title st]
@@ -812,8 +1042,7 @@ abstract class KSEvaluatorContract {
     Assert.assertEquals(1, r.errors.size)
   }
 
-  @Test fun testTableNested()
-  {
+  @Test fun testTableNested() {
     val ee = newEvaluatorForString("""
 [document (title dt) (id d0)
   (section [title st]
@@ -834,5 +1063,94 @@ abstract class KSEvaluatorContract {
     val r = ee.e.evaluate(i)
     r as KSFailure
     Assert.assertEquals(1, r.errors.size)
+  }
+
+  @Test fun testFootnoteReferenceDocument() {
+    val ee = newEvaluatorForString("""
+[document (title dt) (id d0)
+  (section [title st]
+    [paragraph (footnote-ref d0).])]
+""")
+
+    val i = ee.s()
+    val r = ee.e.evaluate(i)
+    r as KSFailure
+    Assert.assertEquals(1, r.errors.size)
+  }
+
+  @Test fun testFootnoteReferenceSection() {
+    val ee = newEvaluatorForString("""
+[document (title dt)
+  (section [title st] [id s0]
+    [paragraph (footnote-ref s0).])]
+""")
+
+    val i = ee.s()
+    val r = ee.e.evaluate(i)
+    r as KSFailure
+    Assert.assertEquals(1, r.errors.size)
+  }
+
+  @Test fun testFootnoteReferenceSubsection() {
+    val ee = newEvaluatorForString("""
+[document (title dt)
+  (section [title st]
+    (subsection [title ss] [id s0]
+      [paragraph (footnote-ref s0).]))]
+""")
+
+    val i = ee.s()
+    val r = ee.e.evaluate(i)
+    r as KSFailure
+    Assert.assertEquals(1, r.errors.size)
+  }
+
+  @Test fun testFootnoteReferenceParagraph() {
+    val ee = newEvaluatorForString("""
+[document (title dt)
+  (section [title st]
+    (subsection [title ss]
+      [paragraph [id s0] (footnote-ref s0).]))]
+""")
+
+    val i = ee.s()
+    val r = ee.e.evaluate(i)
+    r as KSFailure
+    Assert.assertEquals(1, r.errors.size)
+  }
+
+  @Test fun testFootnoteReferencePart() {
+    val ee = newEvaluatorForString("""
+[document (title dt)
+  (part [title p] [id x]
+    (section [title s]
+      (paragraph [footnote-ref x])))]
+""")
+
+    val i = ee.s()
+    val r = ee.e.evaluate(i)
+    r as KSFailure
+    Assert.assertEquals(1, r.errors.size)
+  }
+
+  @Test fun testFootnoteReferenceFormal() {
+    val ee = newEvaluatorForString("""
+[document (title dt)
+  (section [title st]
+    (formal-item [title z] [id x] [footnote-ref x]))]
+""")
+
+    val i = ee.s()
+    val r = ee.e.evaluate(i)
+    r as KSFailure
+    Assert.assertEquals(1, r.errors.size)
+  }
+
+  @Test fun testSimpleDocument() {
+    val ee = newEvaluatorForFile("/com/io7m/kstructural/tests/simple.sd")
+    val i = ee.s()
+    val r = ee.e.evaluate(i)
+    r as KSSuccess
+    checkDocument(r.result)
   }
 }

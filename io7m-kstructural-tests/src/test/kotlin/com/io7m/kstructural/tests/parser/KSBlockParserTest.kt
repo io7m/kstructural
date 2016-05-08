@@ -21,7 +21,7 @@ import com.io7m.jsx.lexer.JSXLexer
 import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
 import com.io7m.jsx.parser.JSXParserConfiguration
-import com.io7m.kstructural.core.KSBlock
+import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.parser.KSBlockParser
 import com.io7m.kstructural.parser.KSBlockParserType
@@ -50,7 +50,7 @@ class KSBlockParserTest : KSBlockParserContract() {
     val pc = pcb.build();
     val p = JSXParser.newParser(pc, lex);
     val bp = KSBlockParser.get(KSInlineParser)
-    val bpp = object: KSBlockParserType {
+    val bpp = object : KSBlockParserType {
       override fun parse(
         e : KSExpression) : KSResult<KSBlock<Unit>, KSParseError> {
         val r = bp.parse(e)
