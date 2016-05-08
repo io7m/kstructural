@@ -18,5 +18,6 @@
  * Core parser.
  */
 
-@com.io7m.jnull.NonNullByDefault package com.io7m.kstructural.parser;
+@com.io7m.jnull.NonNullByDefault
+package com.io7m.kstructural.parser;
 

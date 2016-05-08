@@ -21,7 +21,7 @@ import com.io7m.jsx.lexer.JSXLexer
 import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
 import com.io7m.jsx.parser.JSXParserConfiguration
-import com.io7m.kstructural.core.KSInline
+import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSInlineParser
@@ -50,7 +50,7 @@ class KSInlineParserTest : KSInlineParserContract() {
     val p = JSXParser.newParser(pc, lex);
 
     val ip = KSInlineParser
-    val ipp = object: KSInlineParserType {
+    val ipp = object : KSInlineParserType {
       override fun parse(
         e : KSExpression) : KSResult<KSInline<Unit>, KSParseError> {
         val r = ip.parse(e)

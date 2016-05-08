@@ -16,15 +16,11 @@
 
 package com.io7m.kstructural.core.evaluator
 
-sealed class KSSegmentNumber {
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
+import com.io7m.kstructural.core.KSID
 
-  class KSSegmentPartNumber(
-    val actual : KSNumber.KSNumberPart) : KSSegmentNumber()
-
-  class KSSegmentPartSectionNumber(
-    val actual : KSNumber.KSNumberPartSection) : KSSegmentNumber()
-
-  class KSSegmentSectionNumber(
-    val actual : KSNumber.KSNumberSection) : KSSegmentNumber()
-
-}
+data class KSFootnoteReference<T>(
+  val ref : KSInlineFootnoteReference<T>,
+  val id : KSID<T>,
+  val data : T,
+  val index : Long)

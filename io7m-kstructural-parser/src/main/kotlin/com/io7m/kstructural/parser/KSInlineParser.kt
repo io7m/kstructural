@@ -17,24 +17,25 @@
 package com.io7m.kstructural.parser
 
 import com.io7m.junreachable.UnreachableCodeException
+import com.io7m.kstructural.core.KSElement.KSInline
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineImage
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineLink
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListOrdered
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListUnordered
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTable
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTerm
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineVerbatim
+import com.io7m.kstructural.core.KSElement.KSInline.KSListItem
+import com.io7m.kstructural.core.KSElement.KSInline.KSSize
+import com.io7m.kstructural.core.KSElement.KSInline.KSTableBody
+import com.io7m.kstructural.core.KSElement.KSInline.KSTableBodyCell
+import com.io7m.kstructural.core.KSElement.KSInline.KSTableBodyRow
+import com.io7m.kstructural.core.KSElement.KSInline.KSTableHead
+import com.io7m.kstructural.core.KSElement.KSInline.KSTableHeadColumnName
+import com.io7m.kstructural.core.KSElement.KSInline.KSTableSummary
 import com.io7m.kstructural.core.KSID
-import com.io7m.kstructural.core.KSInline
-import com.io7m.kstructural.core.KSInline.KSInlineImage
-import com.io7m.kstructural.core.KSInline.KSInlineLink
-import com.io7m.kstructural.core.KSInline.KSInlineListOrdered
-import com.io7m.kstructural.core.KSInline.KSInlineListUnordered
-import com.io7m.kstructural.core.KSInline.KSInlineTable
-import com.io7m.kstructural.core.KSInline.KSInlineTerm
-import com.io7m.kstructural.core.KSInline.KSInlineText
-import com.io7m.kstructural.core.KSInline.KSInlineVerbatim
-import com.io7m.kstructural.core.KSInline.KSListItem
-import com.io7m.kstructural.core.KSInline.KSSize
-import com.io7m.kstructural.core.KSInline.KSTableBody
-import com.io7m.kstructural.core.KSInline.KSTableBodyCell
-import com.io7m.kstructural.core.KSInline.KSTableBodyRow
-import com.io7m.kstructural.core.KSInline.KSTableHead
-import com.io7m.kstructural.core.KSInline.KSTableHeadColumnName
-import com.io7m.kstructural.core.KSInline.KSTableSummary
 import com.io7m.kstructural.core.KSLexicalType
 import com.io7m.kstructural.core.KSLink
 import com.io7m.kstructural.core.KSLinkContent
@@ -90,6 +91,11 @@ object KSInlineParser : KSInlineParserType {
       KSExpressionMatch.prefixOfList(listOf(image_name, target, size, symbol_or_string))
     val image_with_type_size =
       KSExpressionMatch.prefixOfList(listOf(image_name, target, type, size, symbol_or_string))
+
+    val footnote_ref_name =
+      KSExpressionMatch.exactSymbol("footnote-ref")
+    val footnote_ref =
+      KSExpressionMatch.allOfList(listOf(footnote_ref_name, symbol_or_string))
 
     val term_name =
       KSExpressionMatch.exactSymbol("term")
@@ -468,29 +474,32 @@ object KSInlineParser : KSInlineParserType {
   private fun parseInlineToLinkContent(
     e : KSInline<Unit>) : KSResult<KSLinkContent<Unit>, KSParseError> {
     return when (e) {
-      is KSInlineText                   ->
+      is KSInlineText                       ->
         KSResult.succeed(KSLinkContent.KSLinkText(e.position, Unit, e))
 
-      is KSInlineImage                  ->
+      is KSInlineImage                      ->
         KSResult.succeed(KSLinkContent.KSLinkImage(e.position, Unit, e))
 
-      is KSInlineLink                   ->
+      is KSInlineLink                       ->
         parseError(e, "Link elements cannot appear inside link elements")
 
-      is KSInlineVerbatim               ->
+      is KSInlineVerbatim                   ->
         parseError(e, "Verbatim elements cannot appear inside link elements")
 
-      is KSInlineTerm                   ->
+      is KSInlineTerm                       ->
         parseError(e, "Term elements cannot appear inside link elements")
 
-      is KSInline.KSInlineListOrdered   ->
+      is KSInline.KSInlineListOrdered       ->
         parseError(e, "List elements cannot appear inside link elements")
 
-      is KSInline.KSInlineListUnordered ->
+      is KSInline.KSInlineListUnordered     ->
         parseError(e, "List elements cannot appear inside link elements")
 
-      is KSInline.KSInlineTable         ->
+      is KSInline.KSInlineTable             ->
         parseError(e, "Table elements cannot appear inside link elements")
+
+      is KSInline.KSInlineFootnoteReference ->
+        parseError(e, "Footnote references cannot appear inside link elements")
     }
   }
 
@@ -822,6 +831,22 @@ object KSInlineParser : KSInlineParserType {
     return failedToMatchResult(e, listOf(CommandMatchers.summary))
   }
 
+  private fun parseInlineFootnoteReference(
+    e : KSExpressionList)
+    : KSResult<KSInlineFootnoteReference<Unit>, KSParseError> {
+
+    when {
+      KSExpressionMatch.matches(e, CommandMatchers.footnote_ref) -> {
+        Assertive.require(e.elements.size == 2)
+        val target = parseAttributeTarget(e)
+        val kid = KSID(e.elements[1].position, target, Unit)
+        return KSResult.succeed(KSInlineFootnoteReference(e.position, Unit, kid))
+      }
+    }
+
+    return failedToMatchResult(e, listOf(CommandMatchers.footnote_ref))
+  }
+
   private val parsers : Map<String, ElementParser> =
     makeParsers()
   private val parserDescriptions : String =
@@ -833,6 +858,7 @@ object KSInlineParser : KSInlineParserType {
     m.put("verbatim", ElementParser("verbatim", { parseInlineVerbatim(it) }))
     m.put("link-ext", ElementParser("link-ext", { parseInlineLinkExternal(it) }))
     m.put("link", ElementParser("link", { parseInlineLinkInternal(it) }))
+    m.put("footnote-ref", ElementParser("footnote-ref", { parseInlineFootnoteReference(it) }))
     m.put("image", ElementParser("image", { parseInlineImage(it) }))
     m.put("list-ordered", ElementParser("list-ordered", { parseInlineListOrdered(it) }))
     m.put("list-unordered", ElementParser("list-unordered", { parseInlineListUnordered(it) }))

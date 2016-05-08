@@ -155,7 +155,7 @@
 {
   margin-bottom: 1.4em;
 }
-.st300_footnote_number
+.st300_footnote_id
 {
   float:       left;
   font-size:   80%;
@@ -167,6 +167,10 @@
   margin-left:    6.2em;
   margin-bottom:  1.4em;
   line-height:    1.4em;
+}
+.st300_footnote_reference
+{
+
 }
 
 /*

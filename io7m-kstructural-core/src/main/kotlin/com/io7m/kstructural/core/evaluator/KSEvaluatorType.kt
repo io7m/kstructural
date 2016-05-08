@@ -16,7 +16,7 @@
 
 package com.io7m.kstructural.core.evaluator
 
-import com.io7m.kstructural.core.KSBlock.KSBlockDocument
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSResult
 
 interface KSEvaluatorType {

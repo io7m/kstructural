@@ -17,6 +17,8 @@
 package com.io7m.kstructural.core
 
 import com.io7m.jlexing.core.LexicalPositionType
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineImage
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import java.nio.file.Path
 import java.util.Optional
 
@@ -27,7 +29,7 @@ sealed class KSLinkContent<T>(
   class KSLinkText<T>(
     position : Optional<LexicalPositionType<Path>>,
     data : T,
-    val actual : KSInline.KSInlineText<T>)
+    val actual : KSInlineText<T>)
   : KSLinkContent<T>(position, data) {
     override fun toString() = actual.toString()
   }
@@ -35,7 +37,7 @@ sealed class KSLinkContent<T>(
   class KSLinkImage<T>(
     position : Optional<LexicalPositionType<Path>>,
     data : T,
-    val actual : KSInline.KSInlineImage<T>)
+    val actual : KSInlineImage<T>)
   : KSLinkContent<T>(position, data) {
     override fun toString() = actual.toString()
   }

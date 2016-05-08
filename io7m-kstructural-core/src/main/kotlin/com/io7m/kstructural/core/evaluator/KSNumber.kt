@@ -52,7 +52,7 @@ sealed class KSNumber {
       return part.toString()
     }
 
-    override fun equals(other : Any?) : Boolean{
+    override fun equals(other : Any?) : Boolean {
       if (this === other) return true
       if (other?.javaClass != javaClass) return false
       other as KSNumberPart
@@ -60,7 +60,7 @@ sealed class KSNumber {
       return true
     }
 
-    override fun hashCode() : Int{
+    override fun hashCode() : Int {
       return part.hashCode()
     }
   }
@@ -84,7 +84,7 @@ sealed class KSNumber {
       return sb.toString()
     }
 
-    override fun equals(other : Any?) : Boolean{
+    override fun equals(other : Any?) : Boolean {
       if (this === other) return true
       if (other?.javaClass != javaClass) return false
       other as KSNumberPartSection
@@ -93,7 +93,7 @@ sealed class KSNumber {
       return true
     }
 
-    override fun hashCode() : Int{
+    override fun hashCode() : Int {
       var result = part.hashCode()
       result += 31 * result + section.hashCode()
       return result
@@ -123,7 +123,7 @@ sealed class KSNumber {
       return sb.toString()
     }
 
-    override fun equals(other : Any?) : Boolean{
+    override fun equals(other : Any?) : Boolean {
       if (this === other) return true
       if (other?.javaClass != javaClass) return false
       other as KSNumberPartSectionContent
@@ -133,7 +133,7 @@ sealed class KSNumber {
       return true
     }
 
-    override fun hashCode() : Int{
+    override fun hashCode() : Int {
       var result = part.hashCode()
       result += 31 * result + section.hashCode()
       result += 31 * result + content.hashCode()
@@ -164,7 +164,7 @@ sealed class KSNumber {
       return sb.toString()
     }
 
-    override fun equals(other : Any?) : Boolean{
+    override fun equals(other : Any?) : Boolean {
       if (this === other) return true
       if (other?.javaClass != javaClass) return false
       other as KSNumberPartSectionSubsection
@@ -174,7 +174,7 @@ sealed class KSNumber {
       return true
     }
 
-    override fun hashCode() : Int{
+    override fun hashCode() : Int {
       var result = part.hashCode()
       result += 31 * result + section.hashCode()
       result += 31 * result + subsection.hashCode()
@@ -208,7 +208,7 @@ sealed class KSNumber {
       return sb.toString()
     }
 
-    override fun equals(other : Any?) : Boolean{
+    override fun equals(other : Any?) : Boolean {
       if (this === other) return true
       if (other?.javaClass != javaClass) return false
       other as KSNumberPartSectionSubsectionContent
@@ -219,7 +219,7 @@ sealed class KSNumber {
       return true
     }
 
-    override fun hashCode() : Int{
+    override fun hashCode() : Int {
       var result = part.hashCode()
       result += 31 * result + section.hashCode()
       result += 31 * result + subsection.hashCode()
@@ -242,7 +242,7 @@ sealed class KSNumber {
       return section.toString()
     }
 
-    override fun equals(other : Any?) : Boolean{
+    override fun equals(other : Any?) : Boolean {
       if (this === other) return true
       if (other?.javaClass != javaClass) return false
       other as KSNumberSection
@@ -250,7 +250,7 @@ sealed class KSNumber {
       return true
     }
 
-    override fun hashCode() : Int{
+    override fun hashCode() : Int {
       return section.hashCode()
     }
   }
@@ -275,7 +275,7 @@ sealed class KSNumber {
       return sb.toString()
     }
 
-    override fun equals(other : Any?) : Boolean{
+    override fun equals(other : Any?) : Boolean {
       if (this === other) return true
       if (other?.javaClass != javaClass) return false
       other as KSNumberSectionContent
@@ -284,7 +284,7 @@ sealed class KSNumber {
       return true
     }
 
-    override fun hashCode() : Int{
+    override fun hashCode() : Int {
       var result = section.hashCode()
       result += 31 * result + content.hashCode()
       return result
@@ -311,7 +311,7 @@ sealed class KSNumber {
       return sb.toString()
     }
 
-    override fun equals(other : Any?) : Boolean{
+    override fun equals(other : Any?) : Boolean {
       if (this === other) return true
       if (other?.javaClass != javaClass) return false
       other as KSNumberSectionSubsection
@@ -320,7 +320,7 @@ sealed class KSNumber {
       return true
     }
 
-    override fun hashCode() : Int{
+    override fun hashCode() : Int {
       var result = section.hashCode()
       result += 31 * result + subsection.hashCode()
       return result
@@ -350,7 +350,7 @@ sealed class KSNumber {
       return sb.toString()
     }
 
-    override fun equals(other : Any?) : Boolean{
+    override fun equals(other : Any?) : Boolean {
       if (this === other) return true
       if (other?.javaClass != javaClass) return false
       other as KSNumberSectionSubsectionContent
@@ -360,7 +360,7 @@ sealed class KSNumber {
       return true
     }
 
-    override fun hashCode() : Int{
+    override fun hashCode() : Int {
       var result = section.hashCode()
       result += 31 * result + subsection.hashCode()
       result += 31 * result + content.hashCode()

@@ -1,4 +1,6 @@
-package com.io7m.kstructural.tests.xom/*
+package com.io7m.kstructural.tests.xom
+
+/*
  * Copyright © 2016 <code@io7m.com> http://io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any

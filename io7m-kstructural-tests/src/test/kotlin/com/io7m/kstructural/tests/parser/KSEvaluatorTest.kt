@@ -22,7 +22,7 @@ import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
 import com.io7m.jsx.parser.JSXParserConfiguration
 import com.io7m.junreachable.UnreachableCodeException
-import com.io7m.kstructural.core.KSBlock
+import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.evaluator.KSEvaluation
 import com.io7m.kstructural.core.evaluator.KSEvaluationError
@@ -72,7 +72,7 @@ class KSEvaluatorTest : KSEvaluatorContract() {
       }
     }
 
-    val eval = object: KSEvaluatorType {
+    val eval = object : KSEvaluatorType {
       override fun evaluate(
         d : KSBlock.KSBlockDocument<Unit>)
         : KSResult<KSBlock.KSBlockDocument<KSEvaluation>, KSEvaluationError> {
@@ -97,17 +97,19 @@ class KSEvaluatorTest : KSEvaluatorContract() {
       when (d) {
         is KSResult.KSSuccess -> {
           when (d.result) {
-            is KSBlock.KSBlockDocument   -> {
+            is KSBlock.KSBlockDocument -> {
               d.result as KSBlock.KSBlockDocument<Unit>
             }
             is KSBlock.KSBlockSection,
             is KSBlock.KSBlockSubsection,
             is KSBlock.KSBlockParagraph,
             is KSBlock.KSBlockFormalItem,
-            is KSBlock.KSBlockPart       -> {
+            is KSBlock.KSBlockFootnote,
+            is KSBlock.KSBlockPart     -> {
               LOG.error("Parser unexpectedly returned: {}", d.result)
               throw UnreachableCodeException()
             }
+
           }
         }
         is KSResult.KSFailure -> {

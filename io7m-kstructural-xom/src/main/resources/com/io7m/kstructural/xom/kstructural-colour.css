@@ -129,13 +129,17 @@
   color:            #ccc;
   background-color: #ccc;
 }
-.st300_footnote_number
+.st300_footnote_id
 {
 
 }
 .st300_footnote_body
 {
 
+}
+.st300_footnote_reference
+{
+  font-family: monospace;
 }
 
 /*
