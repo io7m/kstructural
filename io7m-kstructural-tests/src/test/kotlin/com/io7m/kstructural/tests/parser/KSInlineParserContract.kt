@@ -25,6 +25,7 @@ import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTable
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTerm
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineVerbatim
+import com.io7m.kstructural.core.KSElement.KSInline.*
 import com.io7m.kstructural.core.KSElement.KSInline.KSSize
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSLink
@@ -591,6 +592,20 @@ abstract class KSInlineParserContract {
     val pp = newParserForString("[footnote-ref]")
     val i = pp.p.parse(pp.s())
 
+    i as KSFailure
+  }
+
+  @Test fun testInlineInclude() {
+    val pp = newParserForString("[include \"x\"]")
+    val i = pp.p.parse(pp.s())
+
+    i as KSSuccess<KSInlineInclude<*>, KSParseError>
+    Assert.assertEquals("x", i.result.file.text)
+  }
+
+  @Test fun testInlineIncludeError() {
+    val pp = newParserForString("[include [x]]")
+    val i = pp.p.parse(pp.s())
     i as KSFailure
   }
 }

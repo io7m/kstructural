@@ -37,8 +37,18 @@ import com.io7m.kstructural.parser.KSParseError
 import org.slf4j.LoggerFactory
 import java.io.InputStreamReader
 import java.io.StringReader
+import java.nio.file.Path
+import java.nio.file.Paths
 
 class KSEvaluatorTest : KSEvaluatorContract() {
+
+  override fun readTextForPath(p : Path) : KSResult<String, Throwable> {
+    throw UnsupportedOperationException()
+  }
+
+  override fun defaultPath() : Path {
+    return Paths.get("")
+  }
 
   override fun newEvaluatorForFile(file : String) : Evaluator {
     val s = KSEvaluatorTest::class.java.getResourceAsStream(file)
@@ -55,7 +65,7 @@ class KSEvaluatorTest : KSEvaluatorContract() {
     return evaluatorForReader(r)
   }
 
-  private fun evaluatorForReader(r : UnicodeCharacterReaderPushBackType?) : Evaluator {
+  private fun evaluatorForReader(r : UnicodeCharacterReaderPushBackType) : Evaluator {
     val lcb = JSXLexerConfiguration.newBuilder()
     lcb.setNewlinesInQuotedStrings(true)
     lcb.setSquareBrackets(true)
@@ -85,11 +95,14 @@ class KSEvaluatorTest : KSEvaluatorContract() {
     }
 
     val eval = object : KSEvaluatorType {
+
       override fun evaluate(
-        d : KSBlock.KSBlockDocument<Unit>)
+        d : KSBlock.KSBlockDocument<Unit>,
+        f : Path,
+        r : (Path) -> KSResult<String, Throwable>)
         : KSResult<KSBlock.KSBlockDocument<KSEvaluation>, KSEvaluationError> {
 
-        val r = KSEvaluator.evaluate(d)
+        val r = KSEvaluator.evaluate(d,f,r)
         return when (r) {
           is KSResult.KSSuccess -> {
             r

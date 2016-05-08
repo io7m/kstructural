@@ -33,6 +33,7 @@ import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
 import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineImage
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineLink
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListOrdered
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListUnordered
@@ -1023,6 +1024,7 @@ class KSBlockParser private constructor(
           is KSInlineListOrdered,
           is KSInlineListUnordered,
           is KSInlineTable,
+          is KSInlineInclude,
           is KSInlineImage -> {
             val sb = StringBuilder()
             sb.append("Expected text.")

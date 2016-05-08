@@ -34,6 +34,7 @@ import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
 import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineImage
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineLink
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListOrdered
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListUnordered
@@ -53,6 +54,7 @@ import com.io7m.kstructural.core.KSLink.KSLinkExternal
 import com.io7m.kstructural.core.KSLink.KSLinkInternal
 import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSLinkContent.KSLinkImage
+import com.io7m.kstructural.core.KSLinkContent.KSLinkInclude
 import com.io7m.kstructural.core.KSLinkContent.KSLinkText
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSSubsectionContent
@@ -71,6 +73,8 @@ import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSectionSubsectionCon
 import org.slf4j.LoggerFactory
 import org.valid4j.Assertive
 import java.nio.file.Path
+import java.util.ArrayDeque
+import java.util.Deque
 import java.util.HashMap
 import java.util.Optional
 import java.util.OptionalLong
@@ -79,16 +83,50 @@ object KSEvaluator : KSEvaluatorType {
 
   private val LOG = LoggerFactory.getLogger(KSEvaluator::class.java)
 
-  private data class Context(
-    private var serial_pool : Long = 0L,
-    private val all_by_serial : MutableMap<KSSerial, KSElement<KSEvaluation>> = HashMap(),
-    private val blocks_by_id : MutableMap<String, KSBlock<KSEvaluation>> = HashMap(),
-    private val blocks_by_number : MutableMap<KSNumber, KSBlock<KSEvaluation>> = HashMap(),
-    private val id_references : MutableList<KSID<KSEvaluation>> = mutableListOf(),
+  private data class Context private constructor(
+    private var serial_pool : Long,
+    private val all_by_serial : MutableMap<KSSerial, KSElement<KSEvaluation>>,
+    private val blocks_by_id : MutableMap<String, KSBlock<KSEvaluation>>,
+    private val blocks_by_number : MutableMap<KSNumber, KSBlock<KSEvaluation>>,
+    private val id_references : MutableList<KSID<KSEvaluation>>,
 
+    val text_read : (Path) -> KSResult<String, Throwable>,
+    val file_stack : Deque<Path>,
+    val includes_by_file : MutableMap<Path, String>,
+    val includes_by_serial : MutableMap<KSSerial, String>,
     var enclosing_table : Boolean = false,
     var enclosing_table_pos : Optional<LexicalPositionType<Path>> = Optional.empty())
   : KSEvaluationContextType {
+
+    companion object {
+      fun create(
+        f : Path,
+        r : (Path) -> KSResult<String, Throwable>) : Context {
+        val c = Context(
+          serial_pool = 0L,
+          all_by_serial = HashMap(),
+          blocks_by_id = HashMap(),
+          blocks_by_number = HashMap(),
+          id_references = mutableListOf(),
+          text_read = r,
+          file_stack = ArrayDeque(),
+          includes_by_file = HashMap(),
+          includes_by_serial = HashMap(),
+          enclosing_table = false,
+          enclosing_table_pos = Optional.empty())
+        c.file_stack.push(f)
+        return c
+      }
+    }
+
+    override fun textForInclude(
+      i : KSInlineInclude<KSEvaluation>) : String {
+      return if (this.includes_by_serial.containsKey(i.data.serial)) {
+        this.includes_by_serial[i.data.serial]!!
+      } else {
+        throw UnreachableCodeException()
+      }
+    }
 
     override fun elementForSerial(s : KSSerial) : Optional<KSElement<KSEvaluation>> {
       return if (this.all_by_serial.containsKey(s)) {
@@ -590,9 +628,11 @@ object KSEvaluator : KSEvaluatorType {
   }
 
   override fun evaluate(
-    d : KSBlockDocument<Unit>)
+    d : KSBlockDocument<Unit>,
+    f : Path,
+    r : (Path) -> KSResult<String, Throwable>)
     : KSResult<KSBlockDocument<KSEvaluation>, KSEvaluationError> {
-    val c = Context()
+    val c = Context.create(f, r)
     val act_doc = evaluateDocument(c, d)
     return act_doc flatMap { d ->
       checkIDs(c, d) flatMap { d ->
@@ -757,7 +797,55 @@ object KSEvaluator : KSEvaluatorType {
       is KSInlineListUnordered     -> evaluateInlineListUnordered(c, e, parent)
       is KSInlineTable             -> evaluateInlineTable(c, e, parent)
       is KSInlineFootnoteReference -> evaluateInlineFootnoteReference(c, e, parent)
+      is KSInlineInclude           -> evaluateInlineInclude(c, e, parent)
     }
+
+  private fun evaluateInlineInclude(
+    c : Context,
+    e : KSInlineInclude<Unit>,
+    parent : KSSerial)
+    : KSResult<KSInlineInclude<KSEvaluation>, KSEvaluationError> {
+
+    val serial = c.freshSerial()
+    val eval = KSEvaluation(c, serial, parent, Optional.empty())
+    return evaluateInlineText(c, e.file, serial) flatMap { file ->
+
+      val base = c.file_stack.peek()!!
+      val base_abs = base.toAbsolutePath()
+      val real = base_abs.resolveSibling(file.text)
+
+      val r = try {
+        LOG.debug("include: {}", real)
+        c.text_read.invoke(real)
+      } catch (x : Throwable) {
+        KSResult.fail<String, Throwable>(x)
+      }
+
+      when (r) {
+        is KSResult.KSSuccess -> {
+          c.includes_by_file[real] = r.result
+          c.includes_by_serial[serial] = r.result
+
+          KSResult.succeed<KSInlineInclude<KSEvaluation>, KSEvaluationError>(
+            KSInlineInclude(e.position, eval, file))
+        }
+        is KSResult.KSFailure -> {
+          val sb = StringBuilder()
+          sb.append("Failed to include file.")
+          sb.append(System.lineSeparator())
+          sb.append("  File:  ")
+          sb.append(real)
+          sb.append(System.lineSeparator())
+          sb.append("  Error(s): ")
+          r.errors.forEach { x ->
+            sb.append(x)
+            sb.append(System.lineSeparator())
+          }
+          KSResult.fail(KSEvaluationError(e.position, sb.toString()))
+        }
+      }
+    }
+  }
 
   private fun evaluateInlineFootnoteReference(
     c : Context,
@@ -1077,19 +1165,25 @@ object KSEvaluator : KSEvaluatorType {
 
     val serial = c.freshSerial()
     return when (cc) {
-      is KSLinkContent.KSLinkText  ->
+      is KSLinkContent.KSLinkText    ->
         evaluateInlineText(c, cc.actual, serial) flatMap { t ->
           val ev = KSEvaluation(c, serial, parent, Optional.empty())
           KSResult.succeed<KSLinkContent<KSEvaluation>, KSEvaluationError>(
             KSLinkText(cc.position, ev, t))
         }
-      is KSLinkContent.KSLinkImage -> {
+      is KSLinkContent.KSLinkImage   -> {
         evaluateInlineImage(c, cc.actual, serial) flatMap { t ->
           val ev = KSEvaluation(c, serial, parent, Optional.empty())
           KSResult.succeed<KSLinkContent<KSEvaluation>, KSEvaluationError>(
             KSLinkImage(cc.position, ev, t))
         }
       }
+      is KSLinkContent.KSLinkInclude ->
+        evaluateInlineInclude(c, cc.actual, serial) flatMap { t ->
+          val ev = KSEvaluation(c, serial, parent, Optional.empty())
+          KSResult.succeed<KSLinkContent<KSEvaluation>, KSEvaluationError>(
+            KSLinkInclude(cc.position, ev, t))
+        }
     }
   }
 

@@ -608,6 +608,21 @@ sealed class KSElement<T>(
         return sb.toString()
       }
     }
+
+    class KSInlineInclude<T>(
+      position : Optional<LexicalPositionType<Path>>,
+      data : T,
+      val file : KSInlineText<T>)
+    : KSInline<T>(position, data) {
+
+      override fun toString() : String {
+        val sb = StringBuilder()
+        sb.append("[include \"")
+        sb.append(file)
+        sb.append("\"]")
+        return sb.toString()
+      }
+    }
   }
 }
 

@@ -20,6 +20,7 @@ import com.io7m.junreachable.UnreachableCodeException
 import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineImage
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineLink
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListOrdered
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListUnordered
@@ -91,6 +92,11 @@ object KSInlineParser : KSInlineParserType {
       KSExpressionMatch.prefixOfList(listOf(image_name, target, size, symbol_or_string))
     val image_with_type_size =
       KSExpressionMatch.prefixOfList(listOf(image_name, target, type, size, symbol_or_string))
+
+    val include_name =
+      KSExpressionMatch.exactSymbol("include")
+    val include =
+      KSExpressionMatch.allOfList(listOf(include_name, KSExpressionMatch.anyString()))
 
     val footnote_ref_name =
       KSExpressionMatch.exactSymbol("footnote-ref")
@@ -395,6 +401,22 @@ object KSInlineParser : KSInlineParserType {
     }
   }
 
+  private fun parseInlineInclude(
+    e : KSExpressionList)
+    : KSResult<KSInlineInclude<Unit>, KSParseError> {
+    when {
+      KSExpressionMatch.matches(e, CommandMatchers.include) -> {
+        Assertive.require(e.elements.size == 2)
+        return parseInlineText(e.elements[1]) flatMap { file ->
+          KSResult.succeed<KSInlineInclude<Unit>, KSParseError>(
+            KSInlineInclude(e.position, Unit, file))
+        }
+      }
+    }
+
+    return failedToMatchResult(e, listOf(CommandMatchers.include))
+  }
+
   private fun parseInlineVerbatim(
     e : KSExpressionList)
     : KSResult<KSInlineVerbatim<Unit>, KSParseError> {
@@ -474,31 +496,34 @@ object KSInlineParser : KSInlineParserType {
   private fun parseInlineToLinkContent(
     e : KSInline<Unit>) : KSResult<KSLinkContent<Unit>, KSParseError> {
     return when (e) {
-      is KSInlineText                       ->
+      is KSInlineInclude           ->
+        KSResult.succeed(KSLinkContent.KSLinkInclude(e.position, Unit, e))
+
+      is KSInlineText              ->
         KSResult.succeed(KSLinkContent.KSLinkText(e.position, Unit, e))
 
-      is KSInlineImage                      ->
+      is KSInlineImage             ->
         KSResult.succeed(KSLinkContent.KSLinkImage(e.position, Unit, e))
 
-      is KSInlineLink                       ->
+      is KSInlineLink              ->
         parseError(e, "Link elements cannot appear inside link elements")
 
-      is KSInlineVerbatim                   ->
+      is KSInlineVerbatim          ->
         parseError(e, "Verbatim elements cannot appear inside link elements")
 
-      is KSInlineTerm                       ->
+      is KSInlineTerm              ->
         parseError(e, "Term elements cannot appear inside link elements")
 
-      is KSInline.KSInlineListOrdered       ->
+      is KSInlineListOrdered       ->
         parseError(e, "List elements cannot appear inside link elements")
 
-      is KSInline.KSInlineListUnordered     ->
+      is KSInlineListUnordered     ->
         parseError(e, "List elements cannot appear inside link elements")
 
-      is KSInline.KSInlineTable             ->
+      is KSInlineTable             ->
         parseError(e, "Table elements cannot appear inside link elements")
 
-      is KSInline.KSInlineFootnoteReference ->
+      is KSInlineFootnoteReference ->
         parseError(e, "Footnote references cannot appear inside link elements")
     }
   }
@@ -860,6 +885,7 @@ object KSInlineParser : KSInlineParserType {
     m.put("link", ElementParser("link", { parseInlineLinkInternal(it) }))
     m.put("footnote-ref", ElementParser("footnote-ref", { parseInlineFootnoteReference(it) }))
     m.put("image", ElementParser("image", { parseInlineImage(it) }))
+    m.put("include", ElementParser("include", { parseInlineInclude(it) }))
     m.put("list-ordered", ElementParser("list-ordered", { parseInlineListOrdered(it) }))
     m.put("list-unordered", ElementParser("list-unordered", { parseInlineListUnordered(it) }))
     m.put("table", ElementParser("table", { parseInlineTable(it) }))

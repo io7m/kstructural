@@ -22,6 +22,7 @@ import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
 import com.io7m.jsx.parser.JSXParserConfiguration
 import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.evaluator.KSEvaluator
@@ -29,20 +30,26 @@ import com.io7m.kstructural.parser.KSBlockParser
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSInlineParser
 import java.io.FileInputStream
+import java.io.IOException
 import java.io.InputStreamReader
 import java.io.Reader
+import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Optional
 
 object KSDocumentEvaluatorDemo {
 
   fun main(args : Array<String>) : Unit {
-    val lcb = JSXLexerConfiguration.newBuilder()
-    lcb.setFile(if (args.size > 0) {
+
+    val path = if (args.size > 0) {
       Optional.of(Paths.get(args[0]))
     } else {
       Optional.empty()
-    })
+    }
+
+    val lcb = JSXLexerConfiguration.newBuilder()
+    lcb.setFile(path)
     lcb.setNewlinesInQuotedStrings(true)
     lcb.setSquareBrackets(true)
     val lc = lcb.build()
@@ -61,7 +68,8 @@ object KSDocumentEvaluatorDemo {
       val r = bp.parse(KSExpression.of(e_opt.get()))
       when (r) {
         is KSSuccess ->
-          evaluate(r.result)
+          evaluate(path.orElseGet { Paths.get("") }, r.result)
+
         is KSFailure -> {
           for (a in r.errors) {
             System.out.print("parse error: ")
@@ -77,7 +85,9 @@ object KSDocumentEvaluatorDemo {
     }
   }
 
-  private fun evaluate(result : KSBlock<Unit>) =
+  private fun evaluate(
+    file : Path,
+    result : KSBlock<Unit>) =
     when (result) {
       is KSBlock.KSBlockSection    -> TODO()
       is KSBlock.KSBlockSubsection -> TODO()
@@ -87,7 +97,15 @@ object KSDocumentEvaluatorDemo {
       is KSBlock.KSBlockFootnote   -> TODO()
       is KSBlock.KSBlockDocument   -> {
 
-        val rr = KSEvaluator.evaluate(result)
+        val rr = KSEvaluator.evaluate(result, file, { p ->
+          try {
+            val text = java.lang.String(Files.readAllBytes(p), "UTF-8")
+            KSResult.succeed<String, Throwable>(text.replace("", ""))
+          } catch (x : IOException) {
+            KSResult.fail<String, Throwable>(x)
+          }
+        })
+
         when (rr) {
           is KSSuccess -> {
             System.out.println(rr)

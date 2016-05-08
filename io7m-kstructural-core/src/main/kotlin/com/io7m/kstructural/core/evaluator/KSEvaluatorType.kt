@@ -18,10 +18,14 @@ package com.io7m.kstructural.core.evaluator
 
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSResult
+import java.nio.file.Path
 
 interface KSEvaluatorType {
 
-  fun evaluate(d : KSBlockDocument<Unit>)
+  fun evaluate(
+    d : KSBlockDocument<Unit>,
+    f : Path,
+    r : (Path) -> KSResult<String, Throwable>)
     : KSResult<KSBlockDocument<KSEvaluation>, KSEvaluationError>
 
 }

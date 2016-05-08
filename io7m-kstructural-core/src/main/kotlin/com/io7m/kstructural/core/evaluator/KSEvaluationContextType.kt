@@ -17,16 +17,20 @@
 package com.io7m.kstructural.core.evaluator
 
 import com.io7m.kstructural.core.KSElement
-import com.io7m.kstructural.core.KSElement.KSInline.*
 import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
 import com.io7m.kstructural.core.KSID
 import java.util.Optional
 
 interface KSEvaluationContextType {
 
   val document : KSBlockDocument<KSEvaluation>
+
+  fun textForInclude(
+    i : KSInlineInclude<KSEvaluation>) : String
 
   fun elementForID(
     id : KSID<KSEvaluation>) : KSBlock<KSEvaluation>
