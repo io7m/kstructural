@@ -17,6 +17,7 @@
 package com.io7m.kstructural.tests.parser
 
 import com.io7m.jeucreader.UnicodeCharacterReader
+import com.io7m.jeucreader.UnicodeCharacterReaderPushBackType
 import com.io7m.jsx.lexer.JSXLexer
 import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
@@ -34,26 +35,37 @@ import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSInlineParser
 import com.io7m.kstructural.parser.KSParseError
 import org.slf4j.LoggerFactory
+import java.io.InputStreamReader
 import java.io.StringReader
 
 class KSEvaluatorTest : KSEvaluatorContract() {
+
+  override fun newEvaluatorForFile(file : String) : Evaluator {
+    val s = KSEvaluatorTest::class.java.getResourceAsStream(file)
+    val r = UnicodeCharacterReader.newReader(InputStreamReader(s))
+    return evaluatorForReader(r)
+  }
 
   companion object {
     private val LOG = LoggerFactory.getLogger(KSBlockParserTest::class.java)
   }
 
   override fun newEvaluatorForString(text : String) : KSEvaluatorContract.Evaluator {
-    val lcb = JSXLexerConfiguration.newBuilder();
-    lcb.setNewlinesInQuotedStrings(true);
-    lcb.setSquareBrackets(true)
-    val lc = lcb.build();
+    val r = UnicodeCharacterReader.newReader(StringReader(text))
+    return evaluatorForReader(r)
+  }
 
-    val r = UnicodeCharacterReader.newReader(StringReader(text));
-    val lex = JSXLexer.newLexer(lc, r);
-    val pcb = JSXParserConfiguration.newBuilder();
-    pcb.preserveLexicalInformation(true);
-    val pc = pcb.build();
-    val p = JSXParser.newParser(pc, lex);
+  private fun evaluatorForReader(r : UnicodeCharacterReaderPushBackType?) : Evaluator {
+    val lcb = JSXLexerConfiguration.newBuilder()
+    lcb.setNewlinesInQuotedStrings(true)
+    lcb.setSquareBrackets(true)
+    val lc = lcb.build()
+
+    val lex = JSXLexer.newLexer(lc, r)
+    val pcb = JSXParserConfiguration.newBuilder()
+    pcb.preserveLexicalInformation(true)
+    val pc = pcb.build()
+    val p = JSXParser.newParser(pc, lex)
     val bp = KSBlockParser.get(KSInlineParser)
     val bpp = object : KSBlockParserType {
       override fun parse(e : KSExpression) : KSResult<KSBlock<Unit>, KSParseError> {

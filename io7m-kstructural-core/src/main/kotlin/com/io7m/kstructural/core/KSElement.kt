@@ -493,9 +493,10 @@ sealed class KSElement<T>(
     }
 
     class KSTableHeadColumnName<T>(
-      override val position : Optional<LexicalPositionType<Path>>,
-      val data : T,
-      val content : List<KSInlineText<T>>) : KSLexicalType {
+      position : Optional<LexicalPositionType<Path>>,
+      data : T,
+      val content : List<KSInlineText<T>>)
+    : KSElement<T>(position, data) {
 
       override fun toString() : String {
         val sb = StringBuilder()
@@ -507,9 +508,10 @@ sealed class KSElement<T>(
     }
 
     class KSTableHead<T>(
-      override val position : Optional<LexicalPositionType<Path>>,
-      val data : T,
-      val column_names : List<KSTableHeadColumnName<T>>) : KSLexicalType {
+      position : Optional<LexicalPositionType<Path>>,
+      data : T,
+      val column_names : List<KSTableHeadColumnName<T>>)
+    : KSElement<T>(position, data) {
 
       override fun toString() : String {
         val sb = StringBuilder()
@@ -521,9 +523,10 @@ sealed class KSElement<T>(
     }
 
     class KSTableBodyCell<T>(
-      override val position : Optional<LexicalPositionType<Path>>,
-      val data : T,
-      val content : List<KSInline<T>>) : KSLexicalType {
+      position : Optional<LexicalPositionType<Path>>,
+      data : T,
+      val content : List<KSInline<T>>)
+    : KSElement<T>(position, data) {
 
       override fun toString() : String {
         val sb = StringBuilder()
@@ -535,9 +538,10 @@ sealed class KSElement<T>(
     }
 
     class KSTableBodyRow<T>(
-      override val position : Optional<LexicalPositionType<Path>>,
-      val data : T,
-      val cells : List<KSTableBodyCell<T>>) : KSLexicalType {
+      position : Optional<LexicalPositionType<Path>>,
+      data : T,
+      val cells : List<KSTableBodyCell<T>>)
+    : KSElement<T>(position, data) {
 
       override fun toString() : String {
         val sb = StringBuilder()
@@ -549,9 +553,10 @@ sealed class KSElement<T>(
     }
 
     class KSTableBody<T>(
-      override val position : Optional<LexicalPositionType<Path>>,
-      val data : T,
-      val rows : List<KSTableBodyRow<T>>) : KSLexicalType {
+      position : Optional<LexicalPositionType<Path>>,
+      data : T,
+      val rows : List<KSTableBodyRow<T>>)
+    : KSElement<T>(position, data) {
 
       override fun toString() : String {
         val sb = StringBuilder()
@@ -563,9 +568,10 @@ sealed class KSElement<T>(
     }
 
     class KSTableSummary<T>(
-      override val position : Optional<LexicalPositionType<Path>>,
-      val data : T,
-      val content : List<KSInlineText<T>>) : KSLexicalType {
+      position : Optional<LexicalPositionType<Path>>,
+      data : T,
+      val content : List<KSInlineText<T>>)
+    : KSElement<T>(position, data) {
 
       override fun toString() : String {
         val sb = StringBuilder()

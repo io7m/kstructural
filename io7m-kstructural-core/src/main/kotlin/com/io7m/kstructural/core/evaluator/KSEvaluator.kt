@@ -843,6 +843,7 @@ object KSEvaluator : KSEvaluatorType {
         act_names flatMap { names ->
           val eval = KSEvaluation(c, serial, parent, Optional.empty())
           val head = KSTableHead(eh.position, eval, names)
+          c.addElement(head)
           KSResult.succeed<Optional<KSTableHead<KSEvaluation>>, KSEvaluationError>(
             Optional.of(head))
         }
@@ -864,8 +865,9 @@ object KSEvaluator : KSEvaluatorType {
     }, name.content)
       .flatMap { content ->
         val eval = KSEvaluation(c, serial, parent, Optional.empty())
-        KSResult.succeed<KSTableHeadColumnName<KSEvaluation>, KSEvaluationError>(
-          KSTableHeadColumnName(name.position, eval, content))
+        val re = KSTableHeadColumnName(name.position, eval, content)
+        c.addElement(re)
+        KSResult.succeed<KSTableHeadColumnName<KSEvaluation>, KSEvaluationError>(re)
       }
   }
 
@@ -881,8 +883,9 @@ object KSEvaluator : KSEvaluatorType {
 
     return act_rows.flatMap { rows ->
       val eval = KSEvaluation(c, serial, parent, Optional.empty())
-      KSResult.succeed<KSTableBody<KSEvaluation>, KSEvaluationError>(
-        KSTableBody(b.position, eval, rows))
+      val re = KSTableBody(b.position, eval, rows)
+      c.addElement(re)
+      KSResult.succeed<KSTableBody<KSEvaluation>, KSEvaluationError>(re)
     }
   }
 
@@ -900,8 +903,9 @@ object KSEvaluator : KSEvaluatorType {
 
     return act_cells flatMap { cells ->
       val eval = KSEvaluation(c, serial, parent, Optional.empty())
-      KSResult.succeed<KSTableBodyRow<KSEvaluation>, KSEvaluationError>(
-        KSTableBodyRow(row.position, eval, cells))
+      val re = KSTableBodyRow(row.position, eval, cells)
+      c.addElement(re)
+      KSResult.succeed<KSTableBodyRow<KSEvaluation>, KSEvaluationError>(re)
     }
   }
 
@@ -916,8 +920,9 @@ object KSEvaluator : KSEvaluatorType {
       KSResult.listMap({ cc -> evaluateInline(c, cc, serial) }, cell.content)
     return act_content.flatMap { content ->
       val eval = KSEvaluation(c, serial, parent, Optional.empty())
-      KSResult.succeed<KSTableBodyCell<KSEvaluation>, KSEvaluationError>(
-        KSTableBodyCell(cell.position, eval, content))
+      val re = KSTableBodyCell(cell.position, eval, content)
+      c.addElement(re)
+      KSResult.succeed<KSTableBodyCell<KSEvaluation>, KSEvaluationError>(re)
     }
   }
 
@@ -931,8 +936,9 @@ object KSEvaluator : KSEvaluatorType {
       KSResult.listMap({ cc -> evaluateInlineText(c, cc, serial) }, s.content)
     return act_content flatMap { content ->
       val eval = KSEvaluation(c, serial, parent, Optional.empty())
-      KSResult.succeed<KSTableSummary<KSEvaluation>, KSEvaluationError>(
-        KSTableSummary(s.position, eval, content))
+      val re = KSTableSummary(s.position, eval, content)
+      c.addElement(re)
+      KSResult.succeed<KSTableSummary<KSEvaluation>, KSEvaluationError>(re)
     }
   }
 
