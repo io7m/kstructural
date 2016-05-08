@@ -1065,6 +1065,87 @@ abstract class KSEvaluatorContract {
     Assert.assertEquals(1, r.errors.size)
   }
 
+  @Test fun testFootnoteReferenceDocument() {
+    val ee = newEvaluatorForString("""
+[document (title dt) (id d0)
+  (section [title st]
+    [paragraph (footnote-ref d0).])]
+""")
+
+    val i = ee.s()
+    val r = ee.e.evaluate(i)
+    r as KSFailure
+    Assert.assertEquals(1, r.errors.size)
+  }
+
+  @Test fun testFootnoteReferenceSection() {
+    val ee = newEvaluatorForString("""
+[document (title dt)
+  (section [title st] [id s0]
+    [paragraph (footnote-ref s0).])]
+""")
+
+    val i = ee.s()
+    val r = ee.e.evaluate(i)
+    r as KSFailure
+    Assert.assertEquals(1, r.errors.size)
+  }
+
+  @Test fun testFootnoteReferenceSubsection() {
+    val ee = newEvaluatorForString("""
+[document (title dt)
+  (section [title st]
+    (subsection [title ss] [id s0]
+      [paragraph (footnote-ref s0).]))]
+""")
+
+    val i = ee.s()
+    val r = ee.e.evaluate(i)
+    r as KSFailure
+    Assert.assertEquals(1, r.errors.size)
+  }
+
+  @Test fun testFootnoteReferenceParagraph() {
+    val ee = newEvaluatorForString("""
+[document (title dt)
+  (section [title st]
+    (subsection [title ss]
+      [paragraph [id s0] (footnote-ref s0).]))]
+""")
+
+    val i = ee.s()
+    val r = ee.e.evaluate(i)
+    r as KSFailure
+    Assert.assertEquals(1, r.errors.size)
+  }
+
+  @Test fun testFootnoteReferencePart() {
+    val ee = newEvaluatorForString("""
+[document (title dt)
+  (part [title p] [id x]
+    (section [title s]
+      (paragraph [footnote-ref x])))]
+""")
+
+    val i = ee.s()
+    val r = ee.e.evaluate(i)
+    r as KSFailure
+    Assert.assertEquals(1, r.errors.size)
+  }
+
+  @Test fun testFootnoteReferenceFormal() {
+    val ee = newEvaluatorForString("""
+[document (title dt)
+  (section [title st]
+    (formal-item [title z] [id x] [footnote-ref x]))]
+""")
+
+    val i = ee.s()
+    val r = ee.e.evaluate(i)
+    r as KSFailure
+    Assert.assertEquals(1, r.errors.size)
+  }
+
   @Test fun testSimpleDocument() {
     val ee = newEvaluatorForFile("/com/io7m/kstructural/tests/simple.sd")
     val i = ee.s()
