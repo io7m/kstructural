@@ -14,9 +14,11 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.tests.parser
+package com.io7m.kstructural.tests.core
 
 import com.io7m.kstructural.core.KSElement
+import com.io7m.kstructural.core.KSElement.KSBlock.*
+import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
@@ -24,6 +26,8 @@ import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSection
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithSubsections
 import com.io7m.kstructural.core.KSLink
 import com.io7m.kstructural.core.KSLinkContent
+import com.io7m.kstructural.core.KSParse
+import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
@@ -40,10 +44,13 @@ import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSectionContent
 import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSectionSubsection
 import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberSectionSubsectionContent
 import com.io7m.kstructural.core.evaluator.KSSerial
+import org.junit.After
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
 import org.slf4j.LoggerFactory
 import java.io.FileNotFoundException
+import java.nio.file.FileSystem
 import java.nio.file.FileSystemNotFoundException
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -51,14 +58,19 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class KSEvaluatorContract {
 
-  private val readText : (Path) -> KSResult<String, Throwable> = { p ->
-    this.readTextForPath(p)
+  protected abstract fun newFilesystem() : FileSystem
+
+  private var filesystem : FileSystem? = null
+
+  @Before fun setupFilesystem() : Unit {
+    this.filesystem = newFilesystem()
   }
 
-  protected abstract fun readTextForPath(
-    p : Path) : KSResult<String, Throwable>
+  @After fun tearDownFilesystem() : Unit {
+    this.filesystem!!.close()
+  }
 
-  protected abstract fun defaultPath() : Path
+  private fun defaultFile() = filesystem!!.getPath("file.txt")
 
   protected abstract fun newEvaluatorForString(
     text : String) : KSEvaluatorContract.Evaluator
@@ -68,7 +80,7 @@ abstract class KSEvaluatorContract {
 
   data class Evaluator(
     val e : KSEvaluatorType,
-    val s : () -> KSBlockDocument<Unit>)
+    val s : (Path) -> KSBlockDocument<KSParse>)
 
   @Test fun testDuplicateID() {
     val ee = newEvaluatorForString("""
@@ -77,7 +89,7 @@ abstract class KSEvaluatorContract {
     [paragraph p])]
 """)
 
-    val r = ee.e.evaluate(ee.s(), defaultPath(), readText)
+    val r = ee.e.evaluate(ee.s(defaultFile()), defaultFile())
     r as KSFailure
     Assert.assertEquals(1, r.errors.size)
   }
@@ -89,7 +101,7 @@ abstract class KSEvaluatorContract {
     [paragraph (link [target d1] x)])]
 """)
 
-    val r = ee.e.evaluate(ee.s(), defaultPath(), readText)
+    val r = ee.e.evaluate(ee.s(defaultFile()), defaultFile())
     r as KSFailure
     Assert.assertEquals(1, r.errors.size)
   }
@@ -101,8 +113,8 @@ abstract class KSEvaluatorContract {
     [paragraph (link [target d0] x)])]
 """)
 
-    val i = ee.s()
-    val r = ee.e.evaluate(i, defaultPath(), readText)
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
     r as KSSuccess<KSBlockDocumentWithSections<KSEvaluation>, *>
   }
 
@@ -203,6 +215,9 @@ abstract class KSEvaluatorContract {
       }
       is KSElement.KSBlock.KSBlockPart       -> {
         e.content.forEach { c -> checkAll(c, e) }
+      }
+      is KSElement.KSBlock.KSBlockImport     -> {
+        checkAll(e.file, e)
       }
     }
   }
@@ -353,8 +368,8 @@ abstract class KSEvaluatorContract {
     [paragraph p3])]
 """)
 
-    val i = ee.s()
-    val r = ee.e.evaluate(i, defaultPath(), readText)
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
     r as KSSuccess<KSBlockDocumentWithSections<KSEvaluation>, *>
 
     val ctx = r.result.data.context
@@ -471,8 +486,8 @@ abstract class KSEvaluatorContract {
       (paragraph s2ss2p2)])]
 """)
 
-    val i = ee.s()
-    val r = ee.e.evaluate(i, defaultPath(), readText)
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
     r as KSSuccess<KSBlockDocumentWithSections<KSEvaluation>, *>
 
     val ctx = r.result.data.context
@@ -612,8 +627,8 @@ abstract class KSEvaluatorContract {
       (paragraph p2)])]
 """)
 
-    val i = ee.s()
-    val r = ee.e.evaluate(i, defaultPath(), readText)
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
     r as KSSuccess<KSBlockDocumentWithParts<KSEvaluation>, *>
 
     val ctx = r.result.data.context
@@ -776,8 +791,8 @@ abstract class KSEvaluatorContract {
         [paragraph p2])])]
 """)
 
-    val i = ee.s()
-    val r = ee.e.evaluate(i, defaultPath(), readText)
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
     r as KSSuccess<KSBlockDocumentWithParts<KSEvaluation>, *>
 
     val ctx = r.result.data.context
@@ -1032,8 +1047,8 @@ abstract class KSEvaluatorContract {
 ]
 """)
 
-    val i = ee.s()
-    val r = ee.e.evaluate(i, defaultPath(), readText)
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
     r as KSFailure
     Assert.assertEquals(1, r.errors.size)
   }
@@ -1056,8 +1071,8 @@ abstract class KSEvaluatorContract {
 ]
 """)
 
-    val i = ee.s()
-    val r = ee.e.evaluate(i, defaultPath(), readText)
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
     r as KSFailure
     Assert.assertEquals(1, r.errors.size)
   }
@@ -1079,8 +1094,8 @@ abstract class KSEvaluatorContract {
 ]
 """)
 
-    val i = ee.s()
-    val r = ee.e.evaluate(i, defaultPath(), readText)
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
     r as KSFailure
     Assert.assertEquals(1, r.errors.size)
   }
@@ -1092,8 +1107,8 @@ abstract class KSEvaluatorContract {
     [paragraph (footnote-ref d0).])]
 """)
 
-    val i = ee.s()
-    val r = ee.e.evaluate(i, defaultPath(), readText)
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
     r as KSFailure
     Assert.assertEquals(1, r.errors.size)
   }
@@ -1105,8 +1120,8 @@ abstract class KSEvaluatorContract {
     [paragraph (footnote-ref s0).])]
 """)
 
-    val i = ee.s()
-    val r = ee.e.evaluate(i, defaultPath(), readText)
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
     r as KSFailure
     Assert.assertEquals(1, r.errors.size)
   }
@@ -1119,8 +1134,8 @@ abstract class KSEvaluatorContract {
       [paragraph (footnote-ref s0).]))]
 """)
 
-    val i = ee.s()
-    val r = ee.e.evaluate(i, defaultPath(), readText)
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
     r as KSFailure
     Assert.assertEquals(1, r.errors.size)
   }
@@ -1133,8 +1148,8 @@ abstract class KSEvaluatorContract {
       [paragraph [id s0] (footnote-ref s0).]))]
 """)
 
-    val i = ee.s()
-    val r = ee.e.evaluate(i, defaultPath(), readText)
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
     r as KSFailure
     Assert.assertEquals(1, r.errors.size)
   }
@@ -1147,8 +1162,8 @@ abstract class KSEvaluatorContract {
       (paragraph [footnote-ref x])))]
 """)
 
-    val i = ee.s()
-    val r = ee.e.evaluate(i, defaultPath(), readText)
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
     r as KSFailure
     Assert.assertEquals(1, r.errors.size)
   }
@@ -1160,50 +1175,17 @@ abstract class KSEvaluatorContract {
     (formal-item [title z] [id x] [footnote-ref x]))]
 """)
 
-    val i = ee.s()
-    val r = ee.e.evaluate(i, defaultPath(), readText)
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
     r as KSFailure
     Assert.assertEquals(1, r.errors.size)
   }
 
   @Test fun testSimpleDocument() {
     val ee = newEvaluatorForFile("/com/io7m/kstructural/tests/simple.sd")
-    val i = ee.s()
-    val r = ee.e.evaluate(i, defaultPath(), readText)
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
     r as KSSuccess
     checkDocument(r.result)
-  }
-
-  @Test fun testIncludeFailure() {
-    val ee = newEvaluatorForString("""
-[document (title dt)
-  (section [title st]
-    (paragraph [include "nonexistent.txt"]))]
-""")
-    var called = false
-    val i = ee.s()
-    val r = ee.e.evaluate(i, defaultPath(), { p ->
-      called = true
-      KSResult.fail(FileNotFoundException(p.toString()))
-    })
-    r as KSFailure
-    Assert.assertTrue(called)
-  }
-
-  @Test fun testIncludeOK() {
-    val ee = newEvaluatorForString("""
-[document (title dt)
-  (section [title st]
-    (paragraph [include "ok.txt"]))]
-""")
-    var called = false
-    val i = ee.s()
-    val r = ee.e.evaluate(i, defaultPath(), { p ->
-      called = true
-      Assert.assertEquals("ok.txt", p.fileName.toString())
-      KSResult.succeed("OK")
-    })
-    r as KSSuccess
-    Assert.assertTrue(called)
   }
 }

@@ -17,10 +17,18 @@
 package com.io7m.kstructural.parser
 
 import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSParse
+import com.io7m.kstructural.core.KSParseContextType
+import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
+import java.nio.file.Path
 
 interface KSBlockParserType {
 
-  fun parse(e : KSExpression) : KSResult<KSBlock<Unit>, KSParseError>
+  fun parse(
+    context : KSParseContextType,
+    expression : KSExpression,
+    file : Path)
+    : KSResult<KSBlock<KSParse>, KSParseError>
 
 }

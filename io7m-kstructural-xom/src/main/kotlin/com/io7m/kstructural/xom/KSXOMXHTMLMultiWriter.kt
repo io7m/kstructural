@@ -100,6 +100,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
                 is KSBlockParagraph,
                 is KSBlockFormalItem,
                 is KSBlockFootnote -> containingSegment(r)
+                is KSElement.KSBlock.KSBlockImport -> TODO()
               }
             is KSElement.KSInline                       -> containingSegment(r)
             is KSElement.KSInline.KSListItem            -> containingSegment(r)
@@ -214,6 +215,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
           is KSBlockPart       -> fileForNumber(e.data.number.get()) + "#" + a
           is KSBlockFormalItem -> fileForNumber(e.data.number.get()) + "#" + a
           is KSBlockFootnote   -> throw UnsupportedOperationException("Cannot resolve a footnote directly!")
+          is KSElement.KSBlock.KSBlockImport -> TODO()
         }
       }
     }
@@ -361,6 +363,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
         writeFormalItem(prov, d, sc.formal)
       is KSSubsectionContent.KSSubsectionFootnote   ->
         Text("")
+      is KSSubsectionContent.KSSubsectionImport     -> TODO()
     }
   }
 

@@ -17,10 +17,18 @@
 package com.io7m.kstructural.parser
 
 import com.io7m.kstructural.core.KSElement.KSInline
+import com.io7m.kstructural.core.KSParse
+import com.io7m.kstructural.core.KSParseContextType
+import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
+import java.nio.file.Path
 
 interface KSInlineParserType {
 
-  fun parse(e : KSExpression) : KSResult<KSInline<Unit>, KSParseError>
+  fun parse(
+    context : KSParseContextType,
+    expression : KSExpression,
+    file : Path)
+    : KSResult<KSInline<KSParse>, KSParseError>
 
 }

@@ -14,21 +14,8 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.core.evaluator
+package com.io7m.kstructural.core
 
-import com.io7m.kstructural.core.KSElement
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
-import com.io7m.kstructural.core.KSElement.KSBlock
-import com.io7m.kstructural.core.KSParse
-import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSResult
-import java.nio.file.Path
-
-interface KSEvaluatorType {
-
-  fun evaluate(
-    document : KSBlockDocument<KSParse>,
-    document_file : Path)
-    : KSResult<KSBlockDocument<KSEvaluation>, KSEvaluationError>
+interface KSParseContextType : KSParseContextReadableType, KSParseContextWritableType {
 
 }

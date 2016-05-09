@@ -20,6 +20,7 @@ import com.io7m.jlexing.core.LexicalPositionType
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockParagraph
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
 import java.nio.file.Path
 import java.util.Optional
 
@@ -39,5 +40,10 @@ sealed class KSSubsectionContent<T>(
   class KSSubsectionFootnote<T>(val footnote : KSBlockFootnote<T>)
   : KSSubsectionContent<T>(footnote.position) {
     override fun toString() : String = footnote.toString()
+  }
+
+  class KSSubsectionImport<T>(val import : KSBlockImport<T>)
+  : KSSubsectionContent<T>(import.position) {
+    override fun toString() : String = import.toString()
   }
 }

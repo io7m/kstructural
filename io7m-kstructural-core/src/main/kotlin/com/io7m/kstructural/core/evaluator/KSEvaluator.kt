@@ -20,6 +20,7 @@ import com.io7m.jlexing.core.LexicalPositionType
 import com.io7m.junreachable.UnreachableCodeException
 import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSElement.KSBlock.*
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
@@ -56,9 +57,12 @@ import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSLinkContent.KSLinkImage
 import com.io7m.kstructural.core.KSLinkContent.KSLinkInclude
 import com.io7m.kstructural.core.KSLinkContent.KSLinkText
+import com.io7m.kstructural.core.KSParse
+import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSSubsectionContent
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFootnote
+import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionImport
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFormalItem
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
 import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberPart
@@ -90,25 +94,25 @@ object KSEvaluator : KSEvaluatorType {
     private val blocks_by_number : MutableMap<KSNumber, KSBlock<KSEvaluation>>,
     private val id_references : MutableList<KSID<KSEvaluation>>,
 
-    val text_read : (Path) -> KSResult<String, Throwable>,
     val file_stack : Deque<Path>,
+
     val includes_by_file : MutableMap<Path, String>,
     val includes_by_serial : MutableMap<KSSerial, String>,
+
     var enclosing_table : Boolean = false,
     var enclosing_table_pos : Optional<LexicalPositionType<Path>> = Optional.empty())
   : KSEvaluationContextType {
 
     companion object {
       fun create(
-        f : Path,
-        r : (Path) -> KSResult<String, Throwable>) : Context {
+        f : Path)
+        : Context {
         val c = Context(
           serial_pool = 0L,
           all_by_serial = HashMap(),
           blocks_by_id = HashMap(),
           blocks_by_number = HashMap(),
           id_references = mutableListOf(),
-          text_read = r,
           file_stack = ArrayDeque(),
           includes_by_file = HashMap(),
           includes_by_serial = HashMap(),
@@ -211,13 +215,14 @@ object KSEvaluator : KSEvaluatorType {
     override fun elementSegmentPrevious(
       b : KSBlock<KSEvaluation>) : Optional<KSBlock<KSEvaluation>> =
       when (b) {
-        is KSBlock.KSBlockDocument -> Optional.empty()
-        is KSBlock.KSBlockSection,
-        is KSBlock.KSBlockSubsection,
-        is KSBlock.KSBlockParagraph,
-        is KSBlock.KSBlockFormalItem,
-        is KSBlock.KSBlockFootnote,
-        is KSBlock.KSBlockPart     -> {
+        is KSBlockDocument -> Optional.empty()
+        is KSBlockSection,
+        is KSBlockSubsection,
+        is KSBlockParagraph,
+        is KSBlockFormalItem,
+        is KSBlockFootnote,
+        is KSBlockImport,
+        is KSBlockPart     -> {
           Assertive.require(b.data.number.isPresent)
           val n = b.data.number.get()
           when (n) {
@@ -293,14 +298,15 @@ object KSEvaluator : KSEvaluatorType {
     override fun elementSegmentUp(
       b : KSBlock<KSEvaluation>) : Optional<KSBlock<KSEvaluation>> =
       when (b) {
-        is KSBlock.KSBlockDocument ->
+        is KSBlockDocument ->
           Optional.empty()
-        is KSBlock.KSBlockSubsection,
-        is KSBlock.KSBlockParagraph,
-        is KSBlock.KSBlockFormalItem,
-        is KSBlock.KSBlockFootnote,
-        is KSBlock.KSBlockPart,
-        is KSBlock.KSBlockSection  -> {
+        is KSBlockSubsection,
+        is KSBlockParagraph,
+        is KSBlockFormalItem,
+        is KSBlockFootnote,
+        is KSBlockImport,
+        is KSBlockPart,
+        is KSBlockSection  -> {
           Assertive.require(b.data.number.isPresent)
           val n = b.data.number.get()
           when (n) {
@@ -335,21 +341,22 @@ object KSEvaluator : KSEvaluatorType {
     override fun elementSegmentNext(
       b : KSBlock<KSEvaluation>) : Optional<KSBlock<KSEvaluation>> =
       when (b) {
-        is KSBlock.KSBlockDocument -> {
+        is KSBlockDocument -> {
           val bb : KSBlockDocument<KSEvaluation> = b
           when (bb) {
-            is KSBlock.KSBlockDocument.KSBlockDocumentWithParts    ->
+            is KSBlockDocument.KSBlockDocumentWithParts    ->
               Optional.of(bb.content[0] as KSBlock<KSEvaluation>)
-            is KSBlock.KSBlockDocument.KSBlockDocumentWithSections ->
+            is KSBlockDocument.KSBlockDocumentWithSections ->
               Optional.of(bb.content[0] as KSBlock<KSEvaluation>)
           }
         }
-        is KSBlock.KSBlockSection,
-        is KSBlock.KSBlockSubsection,
-        is KSBlock.KSBlockParagraph,
-        is KSBlock.KSBlockFormalItem,
-        is KSBlock.KSBlockFootnote,
-        is KSBlock.KSBlockPart     -> {
+        is KSBlockSection,
+        is KSBlockSubsection,
+        is KSBlockParagraph,
+        is KSBlockFormalItem,
+        is KSBlockFootnote,
+        is KSBlockImport,
+        is KSBlockPart     -> {
           Assertive.require(b.data.number.isPresent)
           val n = b.data.number.get()
           when (n) {
@@ -434,7 +441,7 @@ object KSEvaluator : KSEvaluatorType {
       return KSSerial(this.serial_pool)
     }
 
-    fun <T : KSBlock<Unit>, U : KSBlock<KSEvaluation>> recordID(
+    fun <T : KSBlock<KSParse>, U : KSBlock<KSEvaluation>> recordID(
       c : Context,
       b : T,
       parent : KSSerial,
@@ -529,15 +536,16 @@ object KSEvaluator : KSEvaluatorType {
         LOG.trace("check footnote ref: {}", target)
         val r = this.blocks_by_id.get(target.value)!!
         when (r) {
-          is KSBlock.KSBlockFootnote -> {
+          is KSBlockFootnote -> {
             KSResult.succeed<Unit, KSEvaluationError>(Unit)
           }
-          is KSBlock.KSBlockDocument,
-          is KSBlock.KSBlockSection,
-          is KSBlock.KSBlockSubsection,
-          is KSBlock.KSBlockParagraph,
-          is KSBlock.KSBlockFormalItem,
-          is KSBlock.KSBlockPart     -> {
+          is KSBlockDocument,
+          is KSBlockSection,
+          is KSBlockSubsection,
+          is KSBlockParagraph,
+          is KSBlockImport,
+          is KSBlockFormalItem,
+          is KSBlockPart     -> {
             val sb = StringBuilder()
             sb.append("Footnote reference to non-footnote.")
             sb.append(System.lineSeparator())
@@ -546,13 +554,14 @@ object KSEvaluator : KSEvaluatorType {
             sb.append(System.lineSeparator())
             sb.append("  Target:    ")
             sb.append(when (r) {
-              is KSBlock.KSBlockDocument   -> "document"
-              is KSBlock.KSBlockSection    -> "section"
-              is KSBlock.KSBlockSubsection -> "subsection"
-              is KSBlock.KSBlockParagraph  -> "paragraph"
-              is KSBlock.KSBlockFormalItem -> "formal-item"
-              is KSBlock.KSBlockFootnote   -> throw UnreachableCodeException()
-              is KSBlock.KSBlockPart       -> "part"
+              is KSBlockDocument   -> "document"
+              is KSBlockSection    -> "section"
+              is KSBlockSubsection -> "subsection"
+              is KSBlockParagraph  -> "paragraph"
+              is KSBlockFormalItem -> "formal-item"
+              is KSBlockFootnote   -> throw UnreachableCodeException()
+              is KSBlockPart       -> "part"
+              is KSBlockImport -> "import"
             })
             target.position.ifPresent { pos ->
               sb.append(" at ")
@@ -628,12 +637,11 @@ object KSEvaluator : KSEvaluatorType {
   }
 
   override fun evaluate(
-    d : KSBlockDocument<Unit>,
-    f : Path,
-    r : (Path) -> KSResult<String, Throwable>)
+    document : KSBlockDocument<KSParse>,
+    document_file : Path)
     : KSResult<KSBlockDocument<KSEvaluation>, KSEvaluationError> {
-    val c = Context.create(f, r)
-    val act_doc = evaluateDocument(c, d)
+    val c = Context.create(document_file)
+    val act_doc = evaluateDocument(c, document)
     return act_doc flatMap { d ->
       checkIDs(c, d) flatMap { d ->
         c.checkFootnoteReferences() flatMap { k ->
@@ -656,7 +664,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateDocument(
     c : Context,
-    d : KSBlockDocument<Unit>)
+    d : KSBlockDocument<KSParse>)
     : KSResult<KSBlockDocument<KSEvaluation>, KSEvaluationError> =
     when (d) {
       is KSBlockDocument.KSBlockDocumentWithParts    ->
@@ -667,7 +675,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateDocumentWithSections(
     c : Context,
-    d : KSBlockDocumentWithSections<Unit>)
+    d : KSBlockDocumentWithSections<KSParse>)
     : KSResult<KSBlockDocumentWithSections<KSEvaluation>, KSEvaluationError> {
 
     val serial = c.freshSerial()
@@ -698,7 +706,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateDocumentWithParts(
     c : Context,
-    d : KSBlockDocumentWithParts<Unit>)
+    d : KSBlockDocumentWithParts<KSParse>)
     : KSResult<KSBlockDocumentWithParts<KSEvaluation>, KSEvaluationError> {
 
     val serial = c.freshSerial()
@@ -723,7 +731,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateInlineText(
     c : Context,
-    e : KSInlineText<Unit>,
+    e : KSInlineText<KSParse>,
     parent : KSSerial)
     : KSResult<KSInlineText<KSEvaluation>, KSEvaluationError> {
     val eval = KSEvaluation(c, c.freshSerial(), parent, Optional.empty())
@@ -734,7 +742,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateInlineImage(
     c : Context,
-    e : KSInlineImage<Unit>,
+    e : KSInlineImage<KSParse>,
     parent : KSSerial)
     : KSResult<KSInlineImage<KSEvaluation>, KSEvaluationError> {
 
@@ -753,7 +761,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateInlineTerm(
     c : Context,
-    e : KSInlineTerm<Unit>,
+    e : KSInlineTerm<KSParse>,
     parent : KSSerial)
     : KSResult<KSInlineTerm<KSEvaluation>, KSEvaluationError> {
 
@@ -772,7 +780,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateInlineVerbatim(
     c : Context,
-    e : KSInlineVerbatim<Unit>,
+    e : KSInlineVerbatim<KSParse>,
     parent : KSSerial)
     : KSResult<KSInlineVerbatim<KSEvaluation>, KSEvaluationError> {
 
@@ -784,7 +792,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateInline(
     c : Context,
-    e : KSInline<Unit>,
+    e : KSInline<KSParse>,
     parent : KSSerial)
     : KSResult<KSInline<KSEvaluation>, KSEvaluationError> =
     when (e) {
@@ -802,54 +810,28 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateInlineInclude(
     c : Context,
-    e : KSInlineInclude<Unit>,
+    e : KSInlineInclude<KSParse>,
     parent : KSSerial)
     : KSResult<KSInlineInclude<KSEvaluation>, KSEvaluationError> {
+
+    Assertive.require(e.data.context.include_paths.containsKey(e))
+    val p = e.data.context.include_paths[e]!!
+    Assertive.require(e.data.context.includes.containsKey(p))
+    val t = e.data.context.includes[p]!!
 
     val serial = c.freshSerial()
     val eval = KSEvaluation(c, serial, parent, Optional.empty())
     return evaluateInlineText(c, e.file, serial) flatMap { file ->
-
-      val base = c.file_stack.peek()!!
-      val base_abs = base.toAbsolutePath()
-      val real = base_abs.resolveSibling(file.text)
-
-      val r = try {
-        LOG.debug("include: {}", real)
-        c.text_read.invoke(real)
-      } catch (x : Throwable) {
-        KSResult.fail<String, Throwable>(x)
-      }
-
-      when (r) {
-        is KSResult.KSSuccess -> {
-          c.includes_by_file[real] = r.result
-          c.includes_by_serial[serial] = r.result
-
-          KSResult.succeed<KSInlineInclude<KSEvaluation>, KSEvaluationError>(
-            KSInlineInclude(e.position, eval, file))
-        }
-        is KSResult.KSFailure -> {
-          val sb = StringBuilder()
-          sb.append("Failed to include file.")
-          sb.append(System.lineSeparator())
-          sb.append("  File:  ")
-          sb.append(real)
-          sb.append(System.lineSeparator())
-          sb.append("  Error(s): ")
-          r.errors.forEach { x ->
-            sb.append(x)
-            sb.append(System.lineSeparator())
-          }
-          KSResult.fail(KSEvaluationError(e.position, sb.toString()))
-        }
-      }
+      val re = KSInlineInclude(e.position, eval, file)
+      c.includes_by_file[p] = t
+      c.includes_by_serial[serial] = t
+      KSResult.succeed<KSInlineInclude<KSEvaluation>, KSEvaluationError>(re)
     }
   }
 
   private fun evaluateInlineFootnoteReference(
     c : Context,
-    e : KSInlineFootnoteReference<Unit>,
+    e : KSInlineFootnoteReference<KSParse>,
     parent : KSSerial)
     : KSResult<KSInlineFootnoteReference<KSEvaluation>, KSEvaluationError> {
 
@@ -867,7 +849,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateInlineTable(
     c : Context,
-    e : KSInlineTable<Unit>,
+    e : KSInlineTable<KSParse>,
     parent : KSSerial)
     : KSResult<KSInlineTable<KSEvaluation>, KSEvaluationError> {
 
@@ -913,7 +895,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateInlineTableHeadOptional(
     c : Context,
-    e : KSInlineTable<Unit>,
+    e : KSInlineTable<KSParse>,
     parent : KSSerial)
     : KSResult<Optional<KSTableHead<KSEvaluation>>, KSEvaluationError> {
 
@@ -943,7 +925,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateInlineTableHeadColumnName(
     c : Context,
-    name : KSTableHeadColumnName<Unit>,
+    name : KSTableHeadColumnName<KSParse>,
     parent : KSSerial)
     : KSResult<KSTableHeadColumnName<KSEvaluation>, KSEvaluationError> {
 
@@ -961,7 +943,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateInlineTableBody(
     c : Context,
-    b : KSTableBody<Unit>,
+    b : KSTableBody<KSParse>,
     parent : KSSerial)
     : KSResult<KSTableBody<KSEvaluation>, KSEvaluationError> {
 
@@ -979,7 +961,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateInlineTableRow(
     c : Context,
-    row : KSTableBodyRow<Unit>,
+    row : KSTableBodyRow<KSParse>,
     parent : KSSerial)
     : KSResult<KSTableBodyRow<KSEvaluation>, KSEvaluationError> {
 
@@ -999,7 +981,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateInlineTableCell(
     c : Context,
-    cell : KSTableBodyCell<Unit>,
+    cell : KSTableBodyCell<KSParse>,
     parent : KSSerial)
     : KSResult<KSTableBodyCell<KSEvaluation>, KSEvaluationError> {
 
@@ -1016,7 +998,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateInlineTableSummary(
     c : Context,
-    s : KSTableSummary<Unit>,
+    s : KSTableSummary<KSParse>,
     parent : KSSerial)
     : KSResult<KSTableSummary<KSEvaluation>, KSEvaluationError> {
     val serial = c.freshSerial()
@@ -1031,7 +1013,8 @@ object KSEvaluator : KSEvaluatorType {
   }
 
   private fun evaluateInlineTableCheckColumnCount(
-    e : KSInlineTable<Unit>) : KSResult<List<Unit>, KSEvaluationError> {
+    e : KSInlineTable<KSParse>)
+    : KSResult<List<Unit>, KSEvaluationError> {
     return if (e.head.isPresent) {
       val head = e.head.get()
       val col_count = head.column_names.size
@@ -1064,7 +1047,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateInlineListUnordered(
     c : Context,
-    e : KSInlineListUnordered<Unit>,
+    e : KSInlineListUnordered<KSParse>,
     parent : KSSerial)
     : KSResult<KSInlineListUnordered<KSEvaluation>, KSEvaluationError> {
 
@@ -1082,7 +1065,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateInlineListOrdered(
     c : Context,
-    e : KSInlineListOrdered<Unit>,
+    e : KSInlineListOrdered<KSParse>,
     parent : KSSerial)
     : KSResult<KSInlineListOrdered<KSEvaluation>, KSEvaluationError> {
 
@@ -1100,7 +1083,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateListItem(
     c : Context,
-    item : KSListItem<Unit>,
+    item : KSListItem<KSParse>,
     parent : KSSerial)
     : KSResult<KSListItem<KSEvaluation>, KSEvaluationError> {
 
@@ -1118,7 +1101,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateInlineLink(
     c : Context,
-    e : KSInlineLink<Unit>,
+    e : KSInlineLink<KSParse>,
     parent : KSSerial)
     : KSResult<KSInlineLink<KSEvaluation>, KSEvaluationError> {
 
@@ -1159,7 +1142,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateLinkContent(
     c : KSEvaluator.Context,
-    cc : KSLinkContent<Unit>,
+    cc : KSLinkContent<KSParse>,
     parent : KSSerial)
     : KSResult<KSLinkContent<KSEvaluation>, KSEvaluationError> {
 
@@ -1189,7 +1172,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateSection(
     c : Context,
-    e : KSBlockSection<Unit>,
+    e : KSBlockSection<KSParse>,
     parent : KSSerial)
     : KSResult<KSBlockSection<KSEvaluation>, KSEvaluationError> =
     when (e) {
@@ -1201,7 +1184,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateSectionWithContent(
     c : Context,
-    e : KSBlockSectionWithContent<Unit>,
+    e : KSBlockSectionWithContent<KSParse>,
     parent : KSSerial)
     : KSResult<KSBlockSectionWithContent<KSEvaluation>, KSEvaluationError> {
 
@@ -1236,7 +1219,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateSubsectionContent(
     c : Context,
-    cc : KSSubsectionContent<Unit>,
+    cc : KSSubsectionContent<KSParse>,
     parent : KSSerial)
     : KSResult<KSSubsectionContent<KSEvaluation>, KSEvaluationError> =
     when (cc) {
@@ -1252,11 +1235,24 @@ object KSEvaluator : KSEvaluatorType {
         evaluateFootnote(c, cc.footnote, parent) map { x ->
           KSSubsectionFootnote(x)
         }
+      is KSSubsectionContent.KSSubsectionImport     ->
+        evaluateImport(c, cc.import, parent) map { x ->
+          KSSubsectionImport(x)
+        }
     }
+
+  private fun evaluateImport(
+    c : Context,
+    e : KSBlockImport<KSParse>,
+    parent : KSSerial)
+    : KSResult<KSBlockImport<KSEvaluation>, KSEvaluationError> {
+
+    throw TODO()
+  }
 
   private fun evaluateFootnote(
     c : Context,
-    f : KSBlockFootnote<Unit>,
+    f : KSBlockFootnote<KSParse>,
     parent : KSSerial)
     : KSResult<KSBlockFootnote<KSEvaluation>, KSEvaluationError> {
 
@@ -1280,7 +1276,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateFormalItem(
     c : Context,
-    f : KSBlockFormalItem<Unit>,
+    f : KSBlockFormalItem<KSParse>,
     parent : KSSerial)
     : KSResult<KSBlockFormalItem<KSEvaluation>, KSEvaluationError> {
 
@@ -1330,7 +1326,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateParagraph(
     c : Context,
-    p : KSBlockParagraph<Unit>,
+    p : KSBlockParagraph<KSParse>,
     parent : KSSerial)
     : KSResult<KSBlockParagraph<KSEvaluation>, KSEvaluationError> {
 
@@ -1376,7 +1372,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateSectionWithSubsections(
     c : Context,
-    e : KSBlockSectionWithSubsections<Unit>,
+    e : KSBlockSectionWithSubsections<KSParse>,
     parent : KSSerial)
     : KSResult<KSBlockSectionWithSubsections<KSEvaluation>, KSEvaluationError> {
 
@@ -1409,7 +1405,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluateSubsection(
     c : Context,
-    ss : KSBlockSubsection<Unit>,
+    ss : KSBlockSubsection<KSParse>,
     parent : KSSerial)
     : KSResult<KSBlockSubsection<KSEvaluation>, KSEvaluationError> {
 
@@ -1451,7 +1447,7 @@ object KSEvaluator : KSEvaluatorType {
 
   private fun evaluatePart(
     c : Context,
-    e : KSBlockPart<Unit>,
+    e : KSBlockPart<KSParse>,
     parent : KSSerial) : KSResult<KSBlockPart<KSEvaluation>, KSEvaluationError> {
 
     val serial = c.freshSerial()

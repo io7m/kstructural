@@ -40,18 +40,37 @@ import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSLexicalType
 import com.io7m.kstructural.core.KSLink
 import com.io7m.kstructural.core.KSLinkContent
+import com.io7m.kstructural.core.KSParse
+import com.io7m.kstructural.core.KSParseContextType
+import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
+import com.io7m.kstructural.core.evaluator.KSEvaluation
+import com.io7m.kstructural.core.evaluator.KSEvaluationError
+import com.io7m.kstructural.core.evaluator.KSEvaluator
 import com.io7m.kstructural.parser.KSExpression.KSExpressionList
 import com.io7m.kstructural.parser.KSExpression.KSExpressionQuoted
 import com.io7m.kstructural.parser.KSExpression.KSExpressionSymbol
+import org.slf4j.LoggerFactory
 import org.valid4j.Assertive
 import java.math.BigInteger
 import java.net.URI
 import java.net.URISyntaxException
+import java.nio.file.Path
 import java.util.HashMap
 import java.util.Optional
 
-object KSInlineParser : KSInlineParserType {
+class KSInlineParser private constructor(
+  private val text_reader : (Path) -> KSResult<String, Throwable>)
+: KSInlineParserType {
+
+  companion object {
+
+    private val LOG = LoggerFactory.getLogger(KSInlineParser::class.java)
+
+    fun get(text_reader : (Path) -> KSResult<String, Throwable>) : KSInlineParserType =
+      KSInlineParser(text_reader)
+
+  }
 
   private object CommandMatchers {
 
@@ -184,9 +203,16 @@ object KSInlineParser : KSInlineParserType {
       KSExpressionMatch.prefixOfList(listOf(table_name, summary, type, head, body))
   }
 
+  private data class Context(
+    val context : KSParseContextType,
+    val file : Path)
+
   override fun parse(
-    e : KSExpression) : KSResult<KSInline<Unit>, KSParseError> {
-    return parseInlineAny(e)
+    context : KSParseContextType,
+    expression : KSExpression,
+    file : Path)
+    : KSResult<KSInline<KSParse>, KSParseError> {
+    return parseInlineAny(expression, Context(context, file))
   }
 
   private fun <A : Any> parseError(
@@ -276,8 +302,9 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseInlineImage(
-    e : KSExpressionList)
-    : KSResult<KSInlineImage<Unit>, KSParseError> {
+    e : KSExpressionList,
+    c : Context)
+    : KSResult<KSInlineImage<KSParse>, KSParseError> {
     when {
       KSExpressionMatch.matches(e, CommandMatchers.image_with_type_size) -> {
         Assertive.require(e.elements.size >= 5)
@@ -291,14 +318,13 @@ object KSInlineParser : KSInlineParserType {
         val texts =
           e.elements.subList(4, e.elements.size)
         val act_content =
-          KSResult.listMap({ t -> parseInlineText(t) }, texts)
+          KSResult.listMap({ t -> parseInlineText(t, c) }, texts)
 
         return act_size flatMap { size ->
           act_content flatMap { content ->
             act_target flatMap { target ->
-              KSResult.succeed<KSInlineImage<Unit>, KSParseError>(
-                KSInlineImage(
-                  e.position, Unit, type, target, Optional.of(size), content))
+              KSResult.succeed<KSInlineImage<KSParse>, KSParseError>(
+                KSInlineImage(e.position, KSParse(c.context), type, target, Optional.of(size), content))
             }
           }
         }
@@ -316,12 +342,12 @@ object KSInlineParser : KSInlineParserType {
         val texts =
           e.elements.subList(3, e.elements.size)
         val act_content =
-          KSResult.listMap({ t -> parseInlineText(t) }, texts)
+          KSResult.listMap({ t -> parseInlineText(t, c) }, texts)
 
         return act_content flatMap { content ->
           act_target flatMap { target ->
-            KSResult.succeed<KSInlineImage<Unit>, KSParseError>(
-              KSInlineImage(e.position, Unit, type, target, size, content))
+            KSResult.succeed<KSInlineImage<KSParse>, KSParseError>(
+              KSInlineImage(e.position, KSParse(c.context), type, target, size, content))
           }
         }
       }
@@ -338,14 +364,13 @@ object KSInlineParser : KSInlineParserType {
         val texts =
           e.elements.subList(3, e.elements.size)
         val act_content =
-          KSResult.listMap({ t -> parseInlineText(t) }, texts)
+          KSResult.listMap({ t -> parseInlineText(t, c) }, texts)
 
         return act_size flatMap { size ->
           act_content flatMap { content ->
             act_target flatMap { target ->
-              KSResult.succeed<KSInlineImage<Unit>, KSParseError>(
-                KSInlineImage(
-                  e.position, Unit, type, target, Optional.of(size), content))
+              KSResult.succeed<KSInlineImage<KSParse>, KSParseError>(
+                KSInlineImage(e.position, KSParse(c.context), type, target, Optional.of(size), content))
             }
           }
         }
@@ -362,12 +387,12 @@ object KSInlineParser : KSInlineParserType {
         val texts =
           e.elements.subList(2, e.elements.size)
         val act_content =
-          KSResult.listMap({ t -> parseInlineText(t) }, texts)
+          KSResult.listMap({ t -> parseInlineText(t, c) }, texts)
 
         return act_content flatMap { content ->
           act_target flatMap { target ->
-            KSResult.succeed<KSInlineImage<Unit>, KSParseError>(
-              KSInlineImage(e.position, Unit, type, target, size, content))
+            KSResult.succeed<KSInlineImage<KSParse>, KSParseError>(
+              KSInlineImage(e.position, KSParse(c.context), type, target, size, content))
           }
         }
       }
@@ -381,7 +406,9 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseInlineText(
-    e : KSExpression) : KSResult<KSInlineText<Unit>, KSParseError> {
+    e : KSExpression,
+    c : Context)
+    : KSResult<KSInlineText<KSParse>, KSParseError> {
     return when (e) {
       is KSExpressionList   -> {
         val sb = StringBuilder()
@@ -395,21 +422,65 @@ object KSInlineParser : KSInlineParserType {
         parseError(e, sb.toString())
       }
       is KSExpressionSymbol ->
-        KSResult.succeed(KSInlineText(e.position, Unit, e.text))
+        KSResult.succeed(KSInlineText(e.position, KSParse(c.context), e.text))
       is KSExpressionQuoted ->
-        KSResult.succeed(KSInlineText(e.position, Unit, e.text))
+        KSResult.succeed(KSInlineText(e.position, KSParse(c.context), e.text))
+    }
+  }
+
+  private fun loadInclude(
+    i : KSInlineInclude<KSParse>,
+    c : Context,
+    f : KSInlineText<KSParse>)
+    : KSResult<KSInlineInclude<KSParse>, KSParseError> {
+
+    val base_abs = c.file.toAbsolutePath()
+    val real = base_abs.resolveSibling(f.text)
+
+    val r = if (c.context.includes.containsKey(real)) {
+      KSResult.succeed(c.context.includes.get(real)!!)
+    } else {
+      try {
+        LOG.debug("include: {}", real)
+        this.text_reader.invoke(real)
+      } catch (x : Throwable) {
+        KSResult.fail<String, Throwable>(x)
+      }
+    }
+
+    return when (r) {
+      is KSResult.KSSuccess -> {
+        c.context.addInclude(i, real, r.result)
+        KSResult.succeed<KSInlineInclude<KSParse>, KSParseError>(i)
+      }
+      is KSResult.KSFailure -> {
+        val sb = StringBuilder()
+        sb.append("Failed to include file.")
+        sb.append(System.lineSeparator())
+        sb.append("  File:  ")
+        sb.append(real)
+        sb.append(System.lineSeparator())
+        sb.append("  Error(s): ")
+        r.errors.forEach { x ->
+          sb.append(x)
+          sb.append(System.lineSeparator())
+        }
+        KSResult.fail<KSInlineInclude<KSParse>, KSParseError>(
+          KSParseError(i.position, sb.toString()))
+      }
     }
   }
 
   private fun parseInlineInclude(
-    e : KSExpressionList)
-    : KSResult<KSInlineInclude<Unit>, KSParseError> {
+    e : KSExpressionList,
+    c : Context)
+    : KSResult<KSInlineInclude<KSParse>, KSParseError> {
     when {
       KSExpressionMatch.matches(e, CommandMatchers.include) -> {
         Assertive.require(e.elements.size == 2)
-        return parseInlineText(e.elements[1]) flatMap { file ->
-          KSResult.succeed<KSInlineInclude<Unit>, KSParseError>(
-            KSInlineInclude(e.position, Unit, file))
+        return parseInlineText(e.elements[1], c) flatMap { file ->
+          val re = KSInlineInclude(e.position, KSParse(c.context), file)
+          loadInclude(re, c, file)
         }
       }
     }
@@ -418,8 +489,9 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseInlineVerbatim(
-    e : KSExpressionList)
-    : KSResult<KSInlineVerbatim<Unit>, KSParseError> {
+    e : KSExpressionList,
+    c : Context)
+    : KSResult<KSInlineVerbatim<KSParse>, KSParseError> {
     when {
       KSExpressionMatch.matches(e, CommandMatchers.verbatim_type) -> {
         Assertive.require(e.elements.size == 3)
@@ -428,14 +500,14 @@ object KSInlineParser : KSInlineParserType {
         val content =
           (e.elements[2] as KSExpressionQuoted).text
         return KSResult.succeed(
-          KSInlineVerbatim(e.position, Unit, Optional.of(type), content))
+          KSInlineVerbatim(e.position, KSParse(c.context), Optional.of(type), content))
       }
       KSExpressionMatch.matches(e, CommandMatchers.verbatim)      -> {
         Assertive.require(e.elements.size == 2)
         val content =
           (e.elements[1] as KSExpressionQuoted).text
         return KSResult.succeed(
-          KSInlineVerbatim(e.position, Unit, Optional.empty(), content))
+          KSInlineVerbatim(e.position, KSParse(c.context), Optional.empty(), content))
       }
     }
 
@@ -444,8 +516,9 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseLinkInternal(
-    e : KSExpressionList)
-    : KSResult<KSLink.KSLinkInternal<Unit>, KSParseError> {
+    e : KSExpressionList,
+    c : Context)
+    : KSResult<KSLink.KSLinkInternal<KSParse>, KSParseError> {
 
     if (KSExpressionMatch.matches(e, CommandMatchers.link)) {
       Assertive.require(e.elements.size >= 3)
@@ -455,11 +528,11 @@ object KSInlineParser : KSInlineParserType {
       val target =
         parseAttributeTarget(e.elements[1] as KSExpressionList)
       val kid =
-        KSID(e.elements[1].position, target, Unit)
+        KSID(e.elements[1].position, target, KSParse(c.context))
       val content =
-        KSResult.listMap({ t -> parseLinkContent(t) }, texts)
+        KSResult.listMap({ t -> parseLinkContent(t, c) }, texts)
       return content flatMap { cs ->
-        KSResult.succeed<KSLink.KSLinkInternal<Unit>, KSParseError>(
+        KSResult.succeed<KSLink.KSLinkInternal<KSParse>, KSParseError>(
           KSLink.KSLinkInternal(e.position, kid, cs))
       }
     } else {
@@ -468,8 +541,9 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseLinkExternal(
-    e : KSExpressionList)
-    : KSResult<KSLink.KSLinkExternal<Unit>, KSParseError> {
+    e : KSExpressionList,
+    c : Context)
+    : KSResult<KSLink.KSLinkExternal<KSParse>, KSParseError> {
 
     if (KSExpressionMatch.matches(e, CommandMatchers.link_ext)) {
       Assertive.require(e.elements.size >= 3)
@@ -479,9 +553,9 @@ object KSInlineParser : KSInlineParserType {
       val target = parseAttributeTarget(e.elements[1] as KSExpressionList)
       try {
         val uri = URI(target)
-        val content = KSResult.listMap({ t -> parseLinkContent(t) }, texts)
+        val content = KSResult.listMap({ t -> parseLinkContent(t, c) }, texts)
         return content flatMap { cs ->
-          KSResult.succeed<KSLink.KSLinkExternal<Unit>, KSParseError>(
+          KSResult.succeed<KSLink.KSLinkExternal<KSParse>, KSParseError>(
             KSLink.KSLinkExternal(e.position, uri, cs))
         }
       } catch (x : URISyntaxException) {
@@ -494,16 +568,21 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseInlineToLinkContent(
-    e : KSInline<Unit>) : KSResult<KSLinkContent<Unit>, KSParseError> {
+    e : KSInline<KSParse>,
+    c : Context)
+    : KSResult<KSLinkContent<KSParse>, KSParseError> {
     return when (e) {
       is KSInlineInclude           ->
-        KSResult.succeed(KSLinkContent.KSLinkInclude(e.position, Unit, e))
+        KSResult.succeed(
+          KSLinkContent.KSLinkInclude(e.position, KSParse(c.context), e))
 
       is KSInlineText              ->
-        KSResult.succeed(KSLinkContent.KSLinkText(e.position, Unit, e))
+        KSResult.succeed(
+          KSLinkContent.KSLinkText(e.position, KSParse(c.context), e))
 
       is KSInlineImage             ->
-        KSResult.succeed(KSLinkContent.KSLinkImage(e.position, Unit, e))
+        KSResult.succeed(
+          KSLinkContent.KSLinkImage(e.position, KSParse(c.context), e))
 
       is KSInlineLink              ->
         parseError(e, "Link elements cannot appear inside link elements")
@@ -529,42 +608,53 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseLinkContent(
-    e : KSExpression) : KSResult<KSLinkContent<Unit>, KSParseError> {
+    e : KSExpression,
+    c : Context)
+    : KSResult<KSLinkContent<KSParse>, KSParseError> {
     return when (e) {
       is KSExpressionList   ->
-        parseInlineAny(e) flatMap { result -> parseInlineToLinkContent(result) }
+        parseInlineAny(e, c) flatMap { result ->
+          parseInlineToLinkContent(result, c)
+        }
       is KSExpressionSymbol ->
         KSResult.succeed(KSLinkContent.KSLinkText(
-          e.position, Unit, KSInlineText(e.position, Unit, e.text)))
+          e.position,
+          KSParse(c.context),
+          KSInlineText(e.position, KSParse(c.context), e.text)))
       is KSExpressionQuoted ->
         KSResult.succeed(KSLinkContent.KSLinkText(
-          e.position, Unit, KSInlineText(e.position, Unit, e.text)))
+          e.position,
+          KSParse(c.context),
+          KSInlineText(e.position, KSParse(c.context), e.text)))
     }
   }
 
   private fun parseInlineLinkInternal(
-    e : KSExpressionList)
-    : KSResult<KSInlineLink<Unit>, KSParseError> {
-    return parseLinkInternal(e) flatMap {
+    e : KSExpressionList,
+    c : Context)
+    : KSResult<KSInlineLink<KSParse>, KSParseError> {
+    return parseLinkInternal(e, c) flatMap {
       link ->
-      KSResult.succeed<KSInlineLink<Unit>, KSParseError>(
-        KSInlineLink(e.position, Unit, link))
+      KSResult.succeed<KSInlineLink<KSParse>, KSParseError>(
+        KSInlineLink(e.position, KSParse(c.context), link))
     }
   }
 
   private fun parseInlineLinkExternal(
-    e : KSExpressionList)
-    : KSResult<KSInlineLink<Unit>, KSParseError> {
-    return parseLinkExternal(e) flatMap {
+    e : KSExpressionList,
+    c : Context)
+    : KSResult<KSInlineLink<KSParse>, KSParseError> {
+    return parseLinkExternal(e, c) flatMap {
       link ->
-      KSResult.succeed<KSInlineLink<Unit>, KSParseError>(
-        KSInlineLink(e.position, Unit, link))
+      KSResult.succeed<KSInlineLink<KSParse>, KSParseError>(
+        KSInlineLink(e.position, KSParse(c.context), link))
     }
   }
 
   private fun parseInlineTerm(
-    e : KSExpressionList)
-    : KSResult<KSInlineTerm<Unit>, KSParseError> {
+    e : KSExpressionList,
+    c : Context)
+    : KSResult<KSInlineTerm<KSParse>, KSParseError> {
     when {
       KSExpressionMatch.matches(e, CommandMatchers.term_type) -> {
         Assertive.require(e.elements.size >= 3)
@@ -574,10 +664,10 @@ object KSInlineParser : KSInlineParserType {
         val type =
           parseAttributeType(e.elements[1] as KSExpressionList)
         val content =
-          KSResult.listMap({ t -> parseInlineText(t) }, texts)
+          KSResult.listMap({ t -> parseInlineText(t, c) }, texts)
         return content flatMap { cs ->
-          KSResult.succeed<KSInlineTerm<Unit>, KSParseError>(
-            KSInlineTerm(e.position, Unit, Optional.of(type), cs))
+          KSResult.succeed<KSInlineTerm<KSParse>, KSParseError>(
+            KSInlineTerm(e.position, KSParse(c.context), Optional.of(type), cs))
         }
       }
 
@@ -587,10 +677,10 @@ object KSInlineParser : KSInlineParserType {
           e.elements.subList(1, e.elements.size)
         Assertive.require(texts.size >= 1)
         val content =
-          KSResult.listMap({ t -> parseInlineText(t) }, texts)
+          KSResult.listMap({ t -> parseInlineText(t, c) }, texts)
         return content flatMap { cs ->
-          KSResult.succeed<KSInlineTerm<Unit>, KSParseError>(
-            KSInlineTerm(e.position, Unit, Optional.empty(), cs))
+          KSResult.succeed<KSInlineTerm<KSParse>, KSParseError>(
+            KSInlineTerm(e.position, KSParse(c.context), Optional.empty(), cs))
         }
       }
     }
@@ -600,17 +690,18 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseInlineListOrdered(
-    e : KSExpressionList)
-    : KSResult<KSInlineListOrdered<Unit>, KSParseError> {
+    e : KSExpressionList,
+    c : Context)
+    : KSResult<KSInlineListOrdered<KSParse>, KSParseError> {
 
     when {
       KSExpressionMatch.matches(e, CommandMatchers.list_ordered) -> {
         Assertive.require(e.elements.size >= 1)
         val texts = e.elements.subList(1, e.elements.size)
-        val content = KSResult.listMap({ t -> parseListItem(t) }, texts)
+        val content = KSResult.listMap({ t -> parseListItem(t, c) }, texts)
         return content flatMap { cs ->
-          KSResult.succeed<KSInlineListOrdered<Unit>, KSParseError>(
-            KSInlineListOrdered(e.position, Unit, cs))
+          KSResult.succeed<KSInlineListOrdered<KSParse>, KSParseError>(
+            KSInlineListOrdered(e.position, KSParse(c.context), cs))
         }
       }
     }
@@ -619,17 +710,18 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseInlineListUnordered(
-    e : KSExpressionList)
-    : KSResult<KSInlineListUnordered<Unit>, KSParseError> {
+    e : KSExpressionList,
+    c : Context)
+    : KSResult<KSInlineListUnordered<KSParse>, KSParseError> {
 
     when {
       KSExpressionMatch.matches(e, CommandMatchers.list_unordered) -> {
         Assertive.require(e.elements.size >= 1)
         val texts = e.elements.subList(1, e.elements.size)
-        val content = KSResult.listMap({ t -> parseListItem(t) }, texts)
+        val content = KSResult.listMap({ t -> parseListItem(t, c) }, texts)
         return content flatMap { cs ->
-          KSResult.succeed<KSInlineListUnordered<Unit>, KSParseError>(
-            KSInlineListUnordered(e.position, Unit, cs))
+          KSResult.succeed<KSInlineListUnordered<KSParse>, KSParseError>(
+            KSInlineListUnordered(e.position, KSParse(c.context), cs))
         }
       }
     }
@@ -638,7 +730,9 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseListItem(
-    e : KSExpression) : KSResult<KSListItem<Unit>, KSParseError> {
+    e : KSExpression,
+    c : Context)
+    : KSResult<KSListItem<KSParse>, KSParseError> {
     when {
       KSExpressionMatch.matches(e, CommandMatchers.list_item) -> {
         e as KSExpressionList
@@ -646,10 +740,10 @@ object KSInlineParser : KSInlineParserType {
         val contents = e.elements.subList(1, e.elements.size)
         Assertive.require(contents.size >= 1)
         val act_content =
-          KSResult.listMap({ ce -> parseInlineAny(ce) }, contents)
+          KSResult.listMap({ ce -> parseInlineAny(ce, c) }, contents)
         return act_content flatMap { cs ->
-          KSResult.succeed<KSListItem<Unit>, KSParseError>(
-            KSListItem(e.position, Unit, cs))
+          KSResult.succeed<KSListItem<KSParse>, KSParseError>(
+            KSListItem(e.position, KSParse(c.context), cs))
         }
       }
     }
@@ -658,25 +752,26 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseInlineTable(
-    e : KSExpressionList)
-    : KSResult<KSInlineTable<Unit>, KSParseError> {
+    e : KSExpressionList,
+    c : Context)
+    : KSResult<KSInlineTable<KSParse>, KSParseError> {
 
     when {
       KSExpressionMatch.matches(e, CommandMatchers.table_head_type) -> {
         Assertive.require(e.elements.size == 5)
 
-        val act_summary = parseTableSummary(e.elements[1])
+        val act_summary = parseTableSummary(e.elements[1], c)
         val type = parseAttributeType(e.elements[2] as KSExpressionList)
-        val act_head = parseTableHead(e.elements[3] as KSExpressionList)
-        val act_body = parseTableBody(e.elements[4] as KSExpressionList)
+        val act_head = parseTableHead(e.elements[3] as KSExpressionList, c)
+        val act_body = parseTableBody(e.elements[4] as KSExpressionList, c)
 
         return act_summary flatMap { summary ->
           act_head flatMap { head ->
             act_body flatMap { body ->
               val opt_type = Optional.of(type)
               val opt_head = Optional.of(head)
-              KSResult.succeed<KSInlineTable<Unit>, KSParseError>(KSInlineTable(
-                e.position, Unit, opt_type, summary, opt_head, body))
+              KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(
+                KSInlineTable(e.position, KSParse(c.context), opt_type, summary, opt_head, body))
             }
           }
         }
@@ -685,17 +780,17 @@ object KSInlineParser : KSInlineParserType {
       KSExpressionMatch.matches(e, CommandMatchers.table_head)      -> {
         Assertive.require(e.elements.size == 4)
 
-        val act_summary = parseTableSummary(e.elements[1])
-        val act_head = parseTableHead(e.elements[2] as KSExpressionList)
-        val act_body = parseTableBody(e.elements[3] as KSExpressionList)
+        val act_summary = parseTableSummary(e.elements[1], c)
+        val act_head = parseTableHead(e.elements[2] as KSExpressionList, c)
+        val act_body = parseTableBody(e.elements[3] as KSExpressionList, c)
 
         return act_summary flatMap { summary ->
           act_head flatMap { head ->
             act_body flatMap { body ->
               val opt_type = Optional.empty<String>()
               val opt_head = Optional.of(head)
-              KSResult.succeed<KSInlineTable<Unit>, KSParseError>(KSInlineTable(
-                e.position, Unit, opt_type, summary, opt_head, body))
+              KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(KSInlineTable(
+                e.position, KSParse(c.context), opt_type, summary, opt_head, body))
             }
           }
         }
@@ -704,16 +799,16 @@ object KSInlineParser : KSInlineParserType {
       KSExpressionMatch.matches(e, CommandMatchers.table_type)      -> {
         Assertive.require(e.elements.size == 4)
 
-        val act_summary = parseTableSummary(e.elements[1])
+        val act_summary = parseTableSummary(e.elements[1], c)
         val type = parseAttributeType(e.elements[2] as KSExpressionList)
-        val act_body = parseTableBody(e.elements[3] as KSExpressionList)
+        val act_body = parseTableBody(e.elements[3] as KSExpressionList, c)
 
         return act_summary flatMap { summary ->
           act_body flatMap { body ->
             val opt_type = Optional.of(type)
-            val opt_head = Optional.empty<KSTableHead<Unit>>()
-            KSResult.succeed<KSInlineTable<Unit>, KSParseError>(KSInlineTable(
-              e.position, Unit, opt_type, summary, opt_head, body))
+            val opt_head = Optional.empty<KSTableHead<KSParse>>()
+            KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(KSInlineTable(
+              e.position, KSParse(c.context), opt_type, summary, opt_head, body))
           }
         }
       }
@@ -721,15 +816,15 @@ object KSInlineParser : KSInlineParserType {
       KSExpressionMatch.matches(e, CommandMatchers.table)           -> {
         Assertive.require(e.elements.size == 3)
 
-        val act_summary = parseTableSummary(e.elements[1])
-        val act_body = parseTableBody(e.elements[2] as KSExpressionList)
+        val act_summary = parseTableSummary(e.elements[1], c)
+        val act_body = parseTableBody(e.elements[2] as KSExpressionList, c)
 
         return act_summary flatMap { summary ->
           act_body flatMap { body ->
             val opt_type = Optional.empty<String>()
-            val opt_head = Optional.empty<KSTableHead<Unit>>()
-            KSResult.succeed<KSInlineTable<Unit>, KSParseError>(KSInlineTable(
-              e.position, Unit, opt_type, summary, opt_head, body))
+            val opt_head = Optional.empty<KSTableHead<KSParse>>()
+            KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(KSInlineTable(
+              e.position, KSParse(c.context), opt_type, summary, opt_head, body))
           }
         }
       }
@@ -743,16 +838,18 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseTableBody(
-    e : KSExpressionList) : KSResult<KSTableBody<Unit>, KSParseError> {
+    e : KSExpressionList,
+    c : Context)
+    : KSResult<KSTableBody<KSParse>, KSParseError> {
     when {
       KSExpressionMatch.matches(e, CommandMatchers.body) -> {
         Assertive.require(e.elements.size >= 1)
         val contents = e.elements.subList(1, e.elements.size)
         val act_content =
-          KSResult.listMap({ ce -> parseTableBodyRow(ce) }, contents)
+          KSResult.listMap({ ce -> parseTableBodyRow(ce, c) }, contents)
         return act_content flatMap { cs ->
-          KSResult.succeed<KSTableBody<Unit>, KSParseError>(
-            KSTableBody(e.position, Unit, cs))
+          KSResult.succeed<KSTableBody<KSParse>, KSParseError>(
+            KSTableBody(e.position, KSParse(c.context), cs))
         }
       }
     }
@@ -761,17 +858,19 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseTableBodyRow(
-    e : KSExpression) : KSResult<KSTableBodyRow<Unit>, KSParseError> {
+    e : KSExpression,
+    c : Context)
+    : KSResult<KSTableBodyRow<KSParse>, KSParseError> {
     when {
       KSExpressionMatch.matches(e, CommandMatchers.row) -> {
         e as KSExpressionList
         Assertive.require(e.elements.size >= 1)
         val contents = e.elements.subList(1, e.elements.size)
         val act_content =
-          KSResult.listMap({ ce -> parseTableBodyCell(ce) }, contents)
+          KSResult.listMap({ ce -> parseTableBodyCell(ce, c) }, contents)
         return act_content flatMap { cs ->
-          KSResult.succeed<KSTableBodyRow<Unit>, KSParseError>(
-            KSTableBodyRow(e.position, Unit, cs))
+          KSResult.succeed<KSTableBodyRow<KSParse>, KSParseError>(
+            KSTableBodyRow(e.position, KSParse(c.context), cs))
         }
       }
     }
@@ -780,17 +879,19 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseTableBodyCell(
-    e : KSExpression) : KSResult<KSTableBodyCell<Unit>, KSParseError> {
+    e : KSExpression,
+    c : Context)
+    : KSResult<KSTableBodyCell<KSParse>, KSParseError> {
     when {
       KSExpressionMatch.matches(e, CommandMatchers.cell) -> {
         e as KSExpressionList
         Assertive.require(e.elements.size >= 1)
         val contents = e.elements.subList(1, e.elements.size)
         val act_content =
-          KSResult.listMap({ ce -> parseInlineAny(ce) }, contents)
+          KSResult.listMap({ ce -> parseInlineAny(ce, c) }, contents)
         return act_content flatMap { cs ->
-          KSResult.succeed<KSTableBodyCell<Unit>, KSParseError>(
-            KSTableBodyCell(e.position, Unit, cs))
+          KSResult.succeed<KSTableBodyCell<KSParse>, KSParseError>(
+            KSTableBodyCell(e.position, KSParse(c.context), cs))
         }
       }
     }
@@ -799,16 +900,18 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseTableHead(
-    e : KSExpressionList) : KSResult<KSTableHead<Unit>, KSParseError> {
+    e : KSExpressionList,
+    c : Context)
+    : KSResult<KSTableHead<KSParse>, KSParseError> {
     when {
       KSExpressionMatch.matches(e, CommandMatchers.head) -> {
         Assertive.require(e.elements.size >= 1)
         val contents = e.elements.subList(1, e.elements.size)
         val act_content =
-          KSResult.listMap({ ce -> parseTableColumnName(ce) }, contents)
+          KSResult.listMap({ ce -> parseTableColumnName(ce, c) }, contents)
         return act_content flatMap { cs ->
-          KSResult.succeed<KSTableHead<Unit>, KSParseError>(
-            KSTableHead(e.position, Unit, cs))
+          KSResult.succeed<KSTableHead<KSParse>, KSParseError>(
+            KSTableHead(e.position, KSParse(c.context), cs))
         }
       }
     }
@@ -817,7 +920,9 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseTableColumnName(
-    e : KSExpression) : KSResult<KSTableHeadColumnName<Unit>, KSParseError> {
+    e : KSExpression,
+    c : Context)
+    : KSResult<KSTableHeadColumnName<KSParse>, KSParseError> {
     when {
       KSExpressionMatch.matches(e, CommandMatchers.name) -> {
         e as KSExpressionList
@@ -825,10 +930,10 @@ object KSInlineParser : KSInlineParserType {
         val contents = e.elements.subList(1, e.elements.size)
         Assertive.require(contents.size >= 1)
         val act_content =
-          KSResult.listMap({ ce -> parseInlineText(ce) }, contents)
+          KSResult.listMap({ ce -> parseInlineText(ce, c) }, contents)
         return act_content flatMap { cs ->
-          KSResult.succeed<KSTableHeadColumnName<Unit>, KSParseError>(
-            KSTableHeadColumnName(e.position, Unit, cs))
+          KSResult.succeed<KSTableHeadColumnName<KSParse>, KSParseError>(
+            KSTableHeadColumnName(e.position, KSParse(c.context), cs))
         }
       }
     }
@@ -837,7 +942,9 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseTableSummary(
-    e : KSExpression) : KSResult<KSTableSummary<Unit>, KSParseError> {
+    e : KSExpression,
+    c : Context)
+    : KSResult<KSTableSummary<KSParse>, KSParseError> {
     when {
       KSExpressionMatch.matches(e, CommandMatchers.summary) -> {
         e as KSExpressionList
@@ -845,10 +952,10 @@ object KSInlineParser : KSInlineParserType {
         val contents = e.elements.subList(1, e.elements.size)
         Assertive.require(contents.size >= 1)
         val act_content =
-          KSResult.listMap({ ce -> parseInlineText(ce) }, contents)
+          KSResult.listMap({ ce -> parseInlineText(ce, c) }, contents)
         return act_content flatMap { cs ->
-          KSResult.succeed<KSTableSummary<Unit>, KSParseError>(
-            KSTableSummary(e.position, Unit, cs))
+          KSResult.succeed<KSTableSummary<KSParse>, KSParseError>(
+            KSTableSummary(e.position, KSParse(c.context), cs))
         }
       }
     }
@@ -857,15 +964,17 @@ object KSInlineParser : KSInlineParserType {
   }
 
   private fun parseInlineFootnoteReference(
-    e : KSExpressionList)
-    : KSResult<KSInlineFootnoteReference<Unit>, KSParseError> {
+    e : KSExpressionList,
+    c : Context)
+    : KSResult<KSInlineFootnoteReference<KSParse>, KSParseError> {
 
     when {
       KSExpressionMatch.matches(e, CommandMatchers.footnote_ref) -> {
         Assertive.require(e.elements.size == 2)
         val target = parseAttributeTarget(e)
-        val kid = KSID(e.elements[1].position, target, Unit)
-        return KSResult.succeed(KSInlineFootnoteReference(e.position, Unit, kid))
+        val kid = KSID(e.elements[1].position, target, KSParse(c.context))
+        return KSResult.succeed(
+          KSInlineFootnoteReference(e.position, KSParse(c.context), kid))
       }
     }
 
@@ -879,22 +988,42 @@ object KSInlineParser : KSInlineParserType {
 
   private fun makeParsers() : Map<String, ElementParser> {
     val m = HashMap<String, ElementParser>()
-    m.put("term", ElementParser("term", { parseInlineTerm(it) }))
-    m.put("verbatim", ElementParser("verbatim", { parseInlineVerbatim(it) }))
-    m.put("link-ext", ElementParser("link-ext", { parseInlineLinkExternal(it) }))
-    m.put("link", ElementParser("link", { parseInlineLinkInternal(it) }))
-    m.put("footnote-ref", ElementParser("footnote-ref", { parseInlineFootnoteReference(it) }))
-    m.put("image", ElementParser("image", { parseInlineImage(it) }))
-    m.put("include", ElementParser("include", { parseInlineInclude(it) }))
-    m.put("list-ordered", ElementParser("list-ordered", { parseInlineListOrdered(it) }))
-    m.put("list-unordered", ElementParser("list-unordered", { parseInlineListUnordered(it) }))
-    m.put("table", ElementParser("table", { parseInlineTable(it) }))
+    m.put("term", ElementParser("term", {
+      e,c -> parseInlineTerm(e,c)
+    }))
+    m.put("verbatim", ElementParser("verbatim", {
+      e,c -> parseInlineVerbatim(e,c)
+    }))
+    m.put("link-ext", ElementParser("link-ext", {
+      e,c -> parseInlineLinkExternal(e,c)
+    }))
+    m.put("link", ElementParser("link", {
+      e,c -> parseInlineLinkInternal(e,c)
+    }))
+    m.put("footnote-ref", ElementParser("footnote-ref", {
+      e,c -> parseInlineFootnoteReference(e,c)
+    }))
+    m.put("image", ElementParser("image", {
+      e,c -> parseInlineImage(e,c)
+    }))
+    m.put("include", ElementParser("include", {
+      e,c -> parseInlineInclude(e,c)
+    }))
+    m.put("list-ordered", ElementParser("list-ordered", {
+      e,c -> parseInlineListOrdered(e,c)
+    }))
+    m.put("list-unordered", ElementParser("list-unordered", {
+      e,c -> parseInlineListUnordered(e,c)
+    }))
+    m.put("table", ElementParser("table", {
+      e,c -> parseInlineTable(e,c)
+    }))
     return m
   }
 
   private data class ElementParser(
     val name : String,
-    val parser : (KSExpressionList) -> KSResult<KSInline<Unit>, KSParseError>)
+    val parser : (KSExpressionList, Context) -> KSResult<KSInline<KSParse>, KSParseError>)
 
   private fun makeMapDescription(m : Map<String, Any>) : String {
     val sb = StringBuilder()
@@ -923,12 +1052,14 @@ object KSInlineParser : KSInlineParserType {
         parserDescriptions)))
 
   private fun parseInlineAny(
-    e : KSExpression) : KSResult<KSInline<Unit>, KSParseError> {
+    e : KSExpression,
+    c : Context)
+    : KSResult<KSInline<KSParse>, KSParseError> {
     return when (e) {
       is KSExpressionQuoted ->
-        KSResult.succeed(KSInlineText(e.position, Unit, e.text))
+        KSResult.succeed(KSInlineText(e.position, KSParse(c.context), e.text))
       is KSExpressionSymbol ->
-        KSResult.succeed(KSInlineText(e.position, Unit, e.text))
+        KSResult.succeed(KSInlineText(e.position, KSParse(c.context), e.text))
       is KSExpressionList   -> {
         if (!KSExpressionMatch.matches(e, isInlineElement)) {
           val sb = StringBuilder()
@@ -947,7 +1078,7 @@ object KSInlineParser : KSInlineParserType {
         Assertive.require(parsers.containsKey(name))
         val ic = parsers.get(name)!!
         Assertive.require(ic.name == name)
-        return ic.parser.invoke(e)
+        return ic.parser.invoke(e, c)
       }
     }
   }

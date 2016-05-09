@@ -14,17 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.parser
+package com.io7m.kstructural.core
 
-import com.io7m.jlexing.core.LexicalPositionType
-import com.io7m.kstructural.core.KSLexicalType
-import java.nio.file.Path
-import java.util.Optional
-
-data class KSParseError(
-  override val position : Optional<LexicalPositionType<Path>>,
-  val message : String) : KSLexicalType {
-
-  override fun toString() : String =
-    "[KSParseError $position \"$message\"]"
-}
+data class KSParse(
+  val context : KSParseContextReadableType)

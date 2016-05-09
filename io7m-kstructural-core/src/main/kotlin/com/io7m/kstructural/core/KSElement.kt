@@ -332,6 +332,23 @@ sealed class KSElement<T>(
         return sb.toString()
       }
     }
+
+    class KSBlockImport<T>(
+      position : Optional<LexicalPositionType<Path>>,
+      data : T,
+      override val type : Optional<String>,
+      override val id : Optional<KSID<T>>,
+      val file : KSInline.KSInlineText<T>)
+    : KSBlock<T>(position, data) {
+
+      override fun toString() : String {
+        val sb = StringBuilder()
+        sb.append("[import \"")
+        sb.append(file)
+        sb.append("\"]")
+        return sb.toString()
+      }
+    }
   }
 
   sealed class KSInline<T>(

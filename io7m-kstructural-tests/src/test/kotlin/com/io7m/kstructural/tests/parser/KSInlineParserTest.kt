@@ -26,11 +26,23 @@ import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSInlineParser
 import com.io7m.kstructural.parser.KSInlineParserType
-import com.io7m.kstructural.parser.KSParseError
+import com.io7m.kstructural.core.KSParseError
+import com.io7m.kstructural.core.KSParse
+import com.io7m.kstructural.core.KSParseContextType
+import com.io7m.kstructural.tests.KSTestFilesystems
+import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import java.io.StringReader
+import java.nio.charset.StandardCharsets
+import java.nio.file.FileSystem
+import java.nio.file.Files
+import java.nio.file.Path
 
 class KSInlineParserTest : KSInlineParserContract() {
+
+  override fun newFilesystem() : FileSystem {
+    return KSTestFilesystems.newUnixFilesystem()
+  }
 
   companion object {
     private val LOG = LoggerFactory.getLogger(KSInlineParserTest::class.java)
@@ -49,11 +61,24 @@ class KSInlineParserTest : KSInlineParserContract() {
     val pc = pcb.build();
     val p = JSXParser.newParser(pc, lex);
 
-    val ip = KSInlineParser
+    val ip = KSInlineParser.get { p ->
+      Files.newInputStream(p).use { s ->
+        try {
+          KSResult.succeed(IOUtils.toString(s, StandardCharsets.UTF_8))
+        } catch (x : Throwable) {
+          KSResult.fail(x)
+        }
+      }
+    }
+
     val ipp = object : KSInlineParserType {
       override fun parse(
-        e : KSExpression) : KSResult<KSInline<Unit>, KSParseError> {
-        val r = ip.parse(e)
+        context : KSParseContextType,
+        expression : KSExpression,
+        file : Path)
+        : KSResult<KSInline<KSParse>, KSParseError> {
+
+        val r = ip.parse(context, expression, file)
         return when (r) {
           is KSResult.KSSuccess -> {
             LOG.debug("successfully parsed: {}", r.result)

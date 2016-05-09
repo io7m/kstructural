@@ -34,10 +34,18 @@ import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSInlineParserType
-import com.io7m.kstructural.parser.KSParseError
+import com.io7m.kstructural.core.KSParseError
+import com.io7m.kstructural.core.KSParseContext
+import org.apache.commons.io.IOUtils
+import org.junit.After
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
 import java.math.BigInteger
+import java.nio.charset.StandardCharsets
+import java.nio.file.FileSystem
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.Optional
 
 
@@ -45,13 +53,27 @@ abstract class KSInlineParserContract {
 
   protected abstract fun newParserForString(text : String) : Parser
 
+  protected abstract fun newFilesystem() : FileSystem
+
+  private var filesystem : FileSystem? = null
+
+  @Before fun setupFilesystem() : Unit {
+    this.filesystem = newFilesystem()
+  }
+  
+  @After fun tearDownFilesystem() : Unit {
+    this.filesystem!!.close()
+  }
+
+  private fun defaultFile() = filesystem!!.getPath("file.txt")
+
   data class Parser(
     val p : KSInlineParserType,
     val s : () -> KSExpression)
 
   @Test fun testInlineText() {
     val pp = newParserForString("x")
-    val r = pp.p.parse(pp.s())
+    val r = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     r as KSSuccess<KSInlineText<*>, KSParseError>
     Assert.assertEquals("x", r.result.text)
@@ -59,7 +81,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineTextQuoted() {
     val pp = newParserForString("\"x\"")
-    val r = pp.p.parse(pp.s())
+    val r = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     r as KSSuccess<KSInlineText<*>, KSParseError>
     Assert.assertEquals("x", r.result.text)
@@ -67,25 +89,25 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineTermError() {
     val pp = newParserForString("[term]")
-    val r = pp.p.parse(pp.s())
+    val r = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     r as KSFailure
   }
 
   @Test fun testInlineTermTypeError() {
     val pp = newParserForString("[term [type]]")
-    val r = pp.p.parse(pp.s())
+    val r = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     r as KSFailure
   }
 
   @Test fun testInlineTermNestedError() {
     val pp = newParserForString("[term x [term y]]")
-    val r = pp.p.parse(pp.s())
+    val r = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     r as KSFailure
   }
 
   @Test fun testInlineTerm() {
     val pp = newParserForString("[term x]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTerm<*>, KSParseError>
     Assert.assertEquals("x", i.result.content[0].text)
@@ -94,7 +116,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineTermType() {
     val pp = newParserForString("[term [type y] x]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTerm<*>, KSParseError>
     Assert.assertEquals("x", i.result.content[0].text)
@@ -103,7 +125,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineTermQuoted() {
     val pp = newParserForString("[term \"x\"]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTerm<*>, KSParseError>
     Assert.assertEquals("x", i.result.content[0].text)
@@ -112,7 +134,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineTermQuotedType() {
     val pp = newParserForString("[term [type y] \"x\"]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTerm<*>, KSParseError>
     Assert.assertEquals("x", i.result.content[0].text)
@@ -121,7 +143,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineVerbatim() {
     val pp = newParserForString("[verbatim \"x\"]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineVerbatim<*>, KSParseError>
     Assert.assertEquals("x", i.result.text)
@@ -129,7 +151,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineVerbatimType() {
     val pp = newParserForString("[verbatim [type y] \"x\"]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineVerbatim<*>, KSParseError>
     Assert.assertEquals("x", i.result.text)
@@ -138,13 +160,13 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineVerbatimError() {
     val pp = newParserForString("[verbatim [x]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineLinkInternal() {
     val pp = newParserForString("[link [target \"x\"] y]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineLink<*>, KSParseError>
     val l = i.result.actual as KSLink.KSLinkInternal
@@ -156,7 +178,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineLinkInternalQuoted() {
     val pp = newParserForString("[link [target \"x\"] \"y\"]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineLink<*>, KSParseError>
     val l = i.result.actual as KSLink.KSLinkInternal
@@ -168,7 +190,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineLinkInternalImage() {
     val pp = newParserForString("[link [target \"x\"] (image [target \"q\"] y)]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineLink<*>, KSParseError>
     val l = i.result.actual as KSLink.KSLinkInternal
@@ -180,43 +202,43 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineLinkInternalError0() {
     val pp = newParserForString("[link]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineLinkInternalError1() {
     val pp = newParserForString("[link x y]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineLinkInternalError2() {
     val pp = newParserForString("[link [target \"x\"] [x]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineLinkInternalErrorNestedLink() {
     val pp = newParserForString("[link (target \"x\") q (link [target \"y\"] z)]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineLinkInternalErrorNestedVerbatim() {
     val pp = newParserForString("[link (target \"x\") q (verbatim \"x\")]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineLinkInternalErrorNestedTerm() {
     val pp = newParserForString("[link (target \"x\") q (term \"x\")]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineLinkExternal() {
     val pp = newParserForString("[link-ext [target \"http://example.com\"] y]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineLink<*>, KSParseError>
     val l = i.result.actual as KSLink.KSLinkExternal
@@ -228,7 +250,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineLinkExternalQuoted() {
     val pp = newParserForString("[link-ext [target \"http://example.com\"] \"y\"]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineLink<*>, KSParseError>
     val l = i.result.actual as KSLink.KSLinkExternal
@@ -240,43 +262,43 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineLinkExternalError0() {
     val pp = newParserForString("[link-ext [target \" \"] x]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineLinkExternalError1() {
     val pp = newParserForString("[link-ext [target \"http://example.com\"] [x]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineLinkExternalErrorNestedLink() {
     val pp = newParserForString("[link-ext (target \"x\") q (link [target \"y\"] z)]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineLinkExternalErrorEmpty() {
     val pp = newParserForString("[link-ext]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineLinkExternalErrorNestedVerbatim() {
     val pp = newParserForString("[link-ext (target \"x\") q (verbatim \"x\")]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineLinkExternalErrorNestedTerm() {
     val pp = newParserForString("[link-ext (target \"x\") q (term \"x\")]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineImage() {
     val pp = newParserForString("[image [target \"x\"] y]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineImage<*>, KSParseError>
     Assert.assertEquals("x", i.result.target.toString())
@@ -287,7 +309,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineImageType() {
     val pp = newParserForString("[image [target \"x\"] [type y] z]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineImage<*>, KSParseError>
     Assert.assertEquals("x", i.result.target.toString())
@@ -298,7 +320,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineImageTypeSize() {
     val pp = newParserForString("[image [target \"x\"] [type y] [size 100 200] z]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineImage<*>, KSParseError>
     Assert.assertEquals("x", i.result.target.toString())
@@ -312,7 +334,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineImageSize() {
     val pp = newParserForString("[image [target \"x\"] [size 100 200] z]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineImage<*>, KSParseError>
     Assert.assertEquals("x", i.result.target.toString())
@@ -326,55 +348,55 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineImageError() {
     val pp = newParserForString("[image y]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineImageErrorBadTarget() {
     val pp = newParserForString("[image [target \" \"] z]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineImageErrorBadWidth() {
     val pp = newParserForString("[image [target \"x\"] [size x 100] y]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineImageErrorBadWidthNegative() {
     val pp = newParserForString("[image [target \"x\"] [size -100 100] y]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineImageErrorBadHeight() {
     val pp = newParserForString("[image [target \"x\"] [size 100 x] y]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineImageErrorBadHeightNegative() {
     val pp = newParserForString("[image [target \"x\"] [size 100 -100] y]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineIncludeError0() {
     val pp = newParserForString("[include x]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineIncludeError1() {
     val pp = newParserForString("[include]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 
   @Test fun testInlineListOrdered() {
     val pp = newParserForString("[list-ordered [item x]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineListOrdered<*>, KSParseError>
     Assert.assertEquals(1, i.result.content.size)
@@ -385,7 +407,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineListOrderedEmpty() {
     val pp = newParserForString("[list-ordered]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineListOrdered<*>, KSParseError>
     Assert.assertEquals(0, i.result.content.size)
@@ -393,14 +415,14 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineListOrderedError() {
     val pp = newParserForString("[list-ordered z]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSFailure
   }
 
   @Test fun testInlineListUnordered() {
     val pp = newParserForString("[list-unordered [item x]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineListUnordered<*>, KSParseError>
     Assert.assertEquals(1, i.result.content.size)
@@ -411,7 +433,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineListUnorderedEmpty() {
     val pp = newParserForString("[list-unordered]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineListUnordered<*>, KSParseError>
     Assert.assertEquals(0, i.result.content.size)
@@ -419,56 +441,56 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineListUnorderedError() {
     val pp = newParserForString("[list-unordered z]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSFailure
   }
 
   @Test fun testInlineTableError() {
     val pp = newParserForString("[table]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSFailure
   }
 
   @Test fun testInlineTableSummaryError() {
     val pp = newParserForString("[table [summary [term q]] [body]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSFailure
   }
 
   @Test fun testInlineTableSummaryBodyError() {
     val pp = newParserForString("[table [summary s] [body q]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSFailure
   }
 
   @Test fun testInlineTableSummaryBodyErrorCell() {
     val pp = newParserForString("[table [summary s] [body [row x]]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSFailure
   }
 
   @Test fun testInlineTableSummaryHeadBodyError() {
     val pp = newParserForString("[table [summary s] [head x] [body]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSFailure
   }
 
   @Test fun testInlineTableSummaryHeadBodyNameError() {
     val pp = newParserForString("[table [summary s] [head [name [term z]]] [body]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSFailure
   }
 
   @Test fun testInlineTableSummaryBody() {
     val pp = newParserForString("[table [summary s] [body]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTable<*>, KSParseError>
     Assert.assertFalse(i.result.type.isPresent)
@@ -478,7 +500,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineTableSummaryBodyRow() {
     val pp = newParserForString("[table [summary s] [body [row]]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTable<*>, KSParseError>
     Assert.assertFalse(i.result.type.isPresent)
@@ -489,7 +511,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineTableSummaryBodyRowCell() {
     val pp = newParserForString("[table [summary s] [body [row [cell]]]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTable<*>, KSParseError>
     Assert.assertFalse(i.result.type.isPresent)
@@ -501,7 +523,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineTableSummaryHeadBody() {
     val pp = newParserForString("[table [summary s] [head] [body]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTable<*>, KSParseError>
     Assert.assertFalse(i.result.type.isPresent)
@@ -512,7 +534,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineTableSummaryHeadNamesBody() {
     val pp = newParserForString("[table [summary s] [head [name x]] [body]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTable<*>, KSParseError>
     Assert.assertFalse(i.result.type.isPresent)
@@ -524,7 +546,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineTableSummaryTypeBody() {
     val pp = newParserForString("[table [summary s] [type t] [body]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTable<*>, KSParseError>
     Assert.assertEquals(Optional.of("t"), i.result.type)
@@ -534,7 +556,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineTableSummaryTypeBodyRow() {
     val pp = newParserForString("[table [summary s] [type t] [body [row]]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTable<*>, KSParseError>
     Assert.assertEquals(Optional.of("t"), i.result.type)
@@ -545,7 +567,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineTableSummaryTypeBodyRowCell() {
     val pp = newParserForString("[table [summary s] [type t] [body [row [cell]]]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTable<*>, KSParseError>
     Assert.assertEquals(Optional.of("t"), i.result.type)
@@ -557,7 +579,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineTableSummaryTypeHeadBody() {
     val pp = newParserForString("[table [summary s] [type t] [head] [body]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTable<*>, KSParseError>
     Assert.assertEquals(Optional.of("t"), i.result.type)
@@ -568,7 +590,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineTableSummaryTypeHeadNamesBody() {
     val pp = newParserForString("[table [summary s] [type t] [head [name x]] [body]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTable<*>, KSParseError>
     Assert.assertEquals(Optional.of("t"), i.result.type)
@@ -580,7 +602,7 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineFootnoteReference() {
     val pp = newParserForString("[footnote-ref \"x\"]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineFootnoteReference<*>, KSParseError>
     val l = i.result as KSInlineFootnoteReference<Unit>
@@ -590,22 +612,32 @@ abstract class KSInlineParserContract {
 
   @Test fun testInlineFootnoteReferenceError() {
     val pp = newParserForString("[footnote-ref]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSFailure
   }
 
   @Test fun testInlineInclude() {
-    val pp = newParserForString("[include \"x\"]")
-    val i = pp.p.parse(pp.s())
+    val pp = newParserForString("[include \"other.txt\"]")
+
+    val file = filesystem!!.getPath("other.txt").toAbsolutePath()
+    Files.newOutputStream(file).use { f ->
+      IOUtils.write("hello", f, StandardCharsets.UTF_8)
+      f.flush()
+    }
+
+    val c = KSParseContext.empty()
+    val i = pp.p.parse(c, pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineInclude<*>, KSParseError>
-    Assert.assertEquals("x", i.result.file.text)
+    Assert.assertEquals("other.txt", i.result.file.text)
+    Assert.assertTrue(c.includes.containsKey(file))
+    Assert.assertEquals("hello", c.includes[file])
   }
 
   @Test fun testInlineIncludeError() {
     val pp = newParserForString("[include [x]]")
-    val i = pp.p.parse(pp.s())
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
   }
 }

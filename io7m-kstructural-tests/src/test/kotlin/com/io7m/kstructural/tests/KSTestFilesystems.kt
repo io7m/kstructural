@@ -14,21 +14,18 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.core.evaluator
+package com.io7m.kstructural.tests
 
-import com.io7m.kstructural.core.KSElement
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
-import com.io7m.kstructural.core.KSElement.KSBlock
-import com.io7m.kstructural.core.KSParse
-import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSResult
-import java.nio.file.Path
+import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder
+import com.github.marschall.memoryfilesystem.StringTransformers
+import java.nio.file.FileSystem
+import java.nio.file.attribute.PosixFileAttributeView
 
-interface KSEvaluatorType {
+object KSTestFilesystems {
 
-  fun evaluate(
-    document : KSBlockDocument<KSParse>,
-    document_file : Path)
-    : KSResult<KSBlockDocument<KSEvaluation>, KSEvaluationError>
+  fun newUnixFilesystem() : FileSystem {
+    val fsb = MemoryFileSystemBuilder.newEmpty()
+    return fsb.build("unixdata")
+  }
 
 }
