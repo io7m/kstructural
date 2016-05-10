@@ -29,8 +29,13 @@ interface KSParseContextWritableType {
     s : String) : Unit
 
   fun addImport(
-    i : KSBlockImport<KSParse>,
-    p : Path,
-    e : KSBlock<KSParse>)
+    importer : Path,
+    import : KSBlockImport<KSParse>,
+    imported_path : Path, imported : KSBlock<KSParse>) : KSResult<Unit, KSParseError>
+
+  fun checkImportCycle(
+    importer : Path,
+    import : KSBlockImport<KSParse>,
+    imported_path : Path) : KSResult<Unit, KSParseError>
 
 }

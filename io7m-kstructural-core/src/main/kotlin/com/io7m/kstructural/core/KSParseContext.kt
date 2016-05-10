@@ -16,12 +16,15 @@
 
 package com.io7m.kstructural.core
 
+import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
+import org.jgrapht.EdgeFactory
+import org.jgrapht.alg.DijkstraShortestPath
+import org.jgrapht.experimental.dag.DirectedAcyclicGraph
 import org.slf4j.LoggerFactory
 import org.valid4j.Assertive
 import java.nio.file.Path
-import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
-import com.io7m.kstructural.core.KSElement.KSBlock.*
-import com.io7m.kstructural.core.KSElement.KSBlock
 import java.util.HashMap
 import java.util.IdentityHashMap
 
@@ -32,14 +35,76 @@ class KSParseContext private constructor(
   override val import_paths : MutableMap<KSBlockImport<KSParse>, Path>)
 : KSParseContextType {
 
+  override fun checkImportCycle(
+    importer : Path,
+    import : KSBlockImport<KSParse>,
+    imported_path : Path)
+    : KSResult<Unit, KSParseError> {
+
+    LOG.trace("import: {} -> {}", importer, imported_path)
+    Assertive.require(!import_paths.containsKey(import))
+
+    return try {
+      import_graph.addVertex(importer)
+      import_graph.addVertex(imported_path)
+      import_graph.addDagEdge(importer, imported_path)
+      KSResult.succeed(Unit)
+    } catch (x : DirectedAcyclicGraph.CycleFoundException) {
+
+      /**
+       * Because a cycle as occurred on an insertion of edge A → B, then
+       * there must be some path B → A already in the graph. Use a
+       * shortest path algorithm to determine that path.
+       */
+
+      val path = DijkstraShortestPath(import_graph, imported_path, importer)
+
+      val sb = StringBuilder()
+      sb.append("Cyclic import detected.")
+      sb.append(System.lineSeparator())
+      sb.append("  Sequence: ")
+      sb.append(System.lineSeparator())
+      path.pathEdgeList.forEach { edge ->
+        sb.append("    ")
+        sb.append(edge.from)
+        sb.append(" -> ")
+        sb.append(edge.to)
+        sb.append(System.lineSeparator())
+      }
+      val last = path.pathEdgeList[path.pathEdgeList.size - 1]
+      sb.append("    ")
+      sb.append(last.to)
+      sb.append(" -> ")
+      sb.append(imported_path)
+
+      KSResult.fail(KSParseError(import.position, sb.toString()))
+    }
+  }
+
+  private data class Import(
+    val from : Path,
+    val to : Path)
+
+  private val import_graph : DirectedAcyclicGraph<Path, Import> =
+    DirectedAcyclicGraph(object : EdgeFactory<Path, Import> {
+      override fun createEdge(p0 : Path, p1 : Path) : Import = Import(p0, p1)
+    })
+
   override fun addImport(
-    i : KSBlockImport<KSParse>,
-    p : Path,
-    e : KSBlock<KSParse>) {
-    LOG.trace("import: {}: {}", p, e.javaClass.simpleName)
-    Assertive.require(!import_paths.containsKey(i))
-    this.imports[p] = e
-    this.import_paths[i] = p
+    importer : Path,
+    import : KSBlockImport<KSParse>,
+    imported_path : Path,
+    imported : KSBlock<KSParse>)
+    : KSResult<Unit, KSParseError> {
+
+    LOG.trace("import: {}: {}", imported_path, imported.javaClass.simpleName)
+    Assertive.require(!import_paths.containsKey(import))
+
+    return checkImportCycle(importer, import, imported_path) flatMap {
+      this.imports[imported_path] = imported
+      this.import_paths[import] = imported_path
+      KSResult.succeed<Unit, KSParseError>(Unit)
+    }
   }
 
   companion object {

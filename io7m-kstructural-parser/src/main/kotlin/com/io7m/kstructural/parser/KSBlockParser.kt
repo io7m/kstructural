@@ -464,31 +464,41 @@ class KSBlockParser private constructor(
     val base_abs = c.file.toAbsolutePath()
     val real = base_abs.resolveSibling(f.text)
 
-    val r : KSResult<KSBlock<KSParse>, KSParseError> =
-      if (c.context.imports.containsKey(real)) {
-        KSResult.succeed(c.context.imports.get(real)!!)
-      } else {
-        try {
-          LOG.debug("import: {}", real)
-          this.importer.invoke(c.context, this, real)
-        } catch (x : Throwable) {
-          val sb = StringBuilder()
-          sb.append("Failed to import file.")
-          sb.append(System.lineSeparator())
-          sb.append("  File:  ")
-          sb.append(real)
-          sb.append(System.lineSeparator())
-          sb.append("  Error: ")
-          sb.append(x)
-          sb.append(System.lineSeparator())
-          KSResult.fail<KSBlock<KSParse>, KSParseError>(
-            KSParseError(e.position, sb.toString()))
-        }
-      }
+    return c.context.checkImportCycle(
+      importer = base_abs,
+      import = e,
+      imported_path = real) flatMap {
 
-    return r flatMap { b ->
-      c.context.addImport(e, real, b)
-      KSResult.succeed<KSBlockImport<KSParse>, KSParseError>(e)
+      val r : KSResult<KSBlock<KSParse>, KSParseError> =
+        if (c.context.imports.containsKey(real)) {
+          KSResult.succeed(c.context.imports.get(real)!!)
+        } else {
+          try {
+            LOG.debug("import: {}", real)
+            this.importer.invoke(c.context, this, real)
+          } catch (x : Throwable) {
+            val sb = StringBuilder()
+            sb.append("Failed to import file.")
+            sb.append(System.lineSeparator())
+            sb.append("  File:  ")
+            sb.append(real)
+            sb.append(System.lineSeparator())
+            sb.append("  Error: ")
+            sb.append(x)
+            sb.append(System.lineSeparator())
+            KSResult.fail<KSBlock<KSParse>, KSParseError>(
+              KSParseError(e.position, sb.toString()))
+          }
+        }
+
+      r flatMap { b ->
+        c.context.addImport(
+          importer = base_abs,
+          import = e,
+          imported_path = real,
+          imported = b)
+          KSResult.succeed<KSBlockImport<KSParse>, KSParseError>(e)
+      }
     }
   }
 

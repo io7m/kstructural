@@ -1057,4 +1057,19 @@ abstract class KSBlockParserContract {
 
     e as KSSuccess<KSBlockPart<KSParse>, KSParseError>
   }
+
+  @Test fun testImportCircular() {
+    val first_path = filesystem!!.getPath("first.txt").toAbsolutePath()
+    Files.write(first_path, """[import "second.txt"]""".toByteArray(StandardCharsets.UTF_8))
+    val second_path = filesystem!!.getPath("second.txt").toAbsolutePath()
+    Files.write(second_path, """[import "third.txt"]""".toByteArray(StandardCharsets.UTF_8))
+    val third_path = filesystem!!.getPath("third.txt").toAbsolutePath()
+    Files.write(third_path, """[import "first.txt"]""".toByteArray(StandardCharsets.UTF_8))
+
+    val pp = newParserForString("""[import "first.txt"]]""")
+    val c = KSParseContext.empty()
+    val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
+
+    e as KSFailure
+  }
 }
