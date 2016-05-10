@@ -16,7 +16,6 @@
 
 package com.io7m.kstructural.parser
 
-import com.io7m.junreachable.UnreachableCodeException
 import com.io7m.kstructural.core.KSDocumentContent
 import com.io7m.kstructural.core.KSDocumentContent.KSDocumentPart
 import com.io7m.kstructural.core.KSDocumentContent.KSDocumentSection
@@ -26,9 +25,9 @@ import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocume
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockParagraph
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockPart
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
 import com.io7m.kstructural.core.KSElement.KSInline
@@ -55,9 +54,7 @@ import com.io7m.kstructural.core.KSSubsectionContent
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFootnote
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFormalItem
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
-import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionImport
 import com.io7m.kstructural.parser.KSExpression.KSExpressionList
-import com.io7m.kstructural.parser.KSExpression.KSExpressionQuoted
 import com.io7m.kstructural.parser.KSExpression.KSExpressionSymbol
 import org.slf4j.LoggerFactory
 import org.valid4j.Assertive
@@ -69,11 +66,11 @@ class KSBlockParser private constructor(
   private val inlines : (KSParseContextType, KSExpression, Path) -> KSResult<KSInline<KSParse>, KSParseError>,
   private val importer : (KSParseContextType, KSBlockParserType, Path) -> KSResult<KSBlock<KSParse>, KSParseError>)
 : KSBlockParserType {
-  
+
   private data class Context(
     val context : KSParseContextType,
     val file : Path)
-  
+
   companion object {
 
     private val LOG = LoggerFactory.getLogger(KSBlockParser::class.java)
@@ -469,31 +466,29 @@ class KSBlockParser private constructor(
 
     val r : KSResult<KSBlock<KSParse>, KSParseError> =
       if (c.context.imports.containsKey(real)) {
-      KSResult.succeed(c.context.imports.get(real)!!)
-    } else {
-      try {
-        LOG.debug("import: {}", real)
-        this.importer.invoke(c.context, this, real)
-      } catch (x : Throwable) {
-        val sb = StringBuilder()
-        sb.append("Failed to import file.")
-        sb.append(System.lineSeparator())
-        sb.append("  File:  ")
-        sb.append(real)
-        sb.append(System.lineSeparator())
-        sb.append("  Error: ")
-        sb.append(x)
-        sb.append(System.lineSeparator())
-        KSResult.fail<KSBlock<KSParse>, KSParseError>(
-          KSParseError(e.position, sb.toString()))
+        KSResult.succeed(c.context.imports.get(real)!!)
+      } else {
+        try {
+          LOG.debug("import: {}", real)
+          this.importer.invoke(c.context, this, real)
+        } catch (x : Throwable) {
+          val sb = StringBuilder()
+          sb.append("Failed to import file.")
+          sb.append(System.lineSeparator())
+          sb.append("  File:  ")
+          sb.append(real)
+          sb.append(System.lineSeparator())
+          sb.append("  Error: ")
+          sb.append(x)
+          sb.append(System.lineSeparator())
+          KSResult.fail<KSBlock<KSParse>, KSParseError>(
+            KSParseError(e.position, sb.toString()))
+        }
       }
-    }
 
     return r flatMap { b ->
       c.context.addImport(e, real, b)
-      val re = KSBlockImport(
-        e.position, KSParse(c.context), Optional.empty(), Optional.empty(), f)
-      KSResult.succeed<KSBlockImport<KSParse>, KSParseError>(re)
+      KSResult.succeed<KSBlockImport<KSParse>, KSParseError>(e)
     }
   }
 
@@ -584,7 +579,7 @@ class KSBlockParser private constructor(
     content : List<KSInline<KSParse>>,
     e : KSExpressionList,
     id : Optional<KSID<KSParse>>,
-    type : Optional<String>) 
+    type : Optional<String>)
     : KSBlockParagraph<KSParse> {
     return KSBlockParagraph(e.position, KSParse(c.context), type, id, content)
   }
@@ -906,67 +901,6 @@ class KSBlockParser private constructor(
     }
   }
 
-  private fun anyToSubsectionContent(
-    e : KSBlock<KSParse>,
-    c : Context)
-    : KSResult<KSSubsectionContent<KSParse>, KSParseError> {
-    return when (e) {
-      is KSBlockDocument,
-      is KSBlockSection,
-      is KSBlockSubsection,
-      is KSBlockPart       -> {
-        val sb = StringBuilder()
-        sb.append("Expected subsection content.")
-        sb.append(System.lineSeparator())
-        sb.append("  Expected: Subsection content")
-        sb.append(System.lineSeparator())
-        sb.append("  Received: ")
-        sb.append(e)
-        sb.append(System.lineSeparator())
-        parseError(e, sb.toString())
-      }
-      is KSBlockParagraph  ->
-        KSResult.succeed(KSSubsectionParagraph(e))
-      is KSBlockFormalItem ->
-        KSResult.succeed(KSSubsectionFormalItem(e))
-      is KSBlockFootnote   ->
-        KSResult.succeed(KSSubsectionFootnote(e))
-      is KSBlockImport ->
-        KSResult.succeed(KSSubsectionImport(e))
-    }
-  }
-
-  private fun anyToSectionContent(
-    e : KSBlock<KSParse>,
-    c : Context)
-    : KSResult<KSSectionContent<KSParse>, KSParseError> {
-    return when (e) {
-      is KSBlockDocument,
-      is KSBlockSection,
-      is KSBlockPart       -> {
-        val sb = StringBuilder()
-        sb.append("Expected section content.")
-        sb.append(System.lineSeparator())
-        sb.append("  Expected: Section content")
-        sb.append(System.lineSeparator())
-        sb.append("  Received: ")
-        sb.append(e)
-        sb.append(System.lineSeparator())
-        parseError(e, sb.toString())
-      }
-      is KSBlockSubsection ->
-        KSResult.succeed(KSSectionSubsection(e))
-      is KSBlockParagraph  ->
-        KSResult.succeed(KSSectionSubsectionContent(KSSubsectionParagraph(e)))
-      is KSBlockFormalItem ->
-        KSResult.succeed(KSSectionSubsectionContent(KSSubsectionFormalItem(e)))
-      is KSBlockFootnote   ->
-        KSResult.succeed(KSSectionSubsectionContent(KSSubsectionFootnote(e)))
-      is KSBlockImport ->
-        TODO()
-    }
-  }
-
   private fun parseSubsectionContent(
     e : KSExpression,
     c : Context)
@@ -1094,30 +1028,7 @@ class KSBlockParser private constructor(
     e : KSExpression,
     c : Context)
     : KSResult<KSBlockSection<KSParse>, KSParseError> {
-    return parseBlockAny(e, c) flatMap { ee ->
-      when (ee) {
-        is KSBlockSection   ->
-          KSResult.succeed<KSBlockSection<KSParse>, KSParseError>(ee)
-        is KSBlockDocument,
-        is KSBlockFormalItem,
-        is KSBlockFootnote,
-        is KSBlockPart,
-        is KSBlockSubsection,
-        is KSBlockParagraph -> {
-          val sb = StringBuilder()
-          sb.append("Expected section.")
-          sb.append(System.lineSeparator())
-          sb.append("  Expected: A section")
-          sb.append(System.lineSeparator())
-          sb.append("  Received: ")
-          sb.append(e)
-          sb.append(System.lineSeparator())
-          parseError(e, sb.toString())
-        }
-        is KSBlockImport ->
-          TODO()
-      }
-    }
+    return parseBlockAny(e, c) flatMap { ee -> anyToSection(c, ee) }
   }
 
   private fun parseInlineTexts(
@@ -1189,7 +1100,7 @@ class KSBlockParser private constructor(
     return KSResult.listMap({ k -> parseSectionContent(k, c) }, e)
   }
 
-  private fun anyToDocumentContent(
+  tailrec private fun anyToDocumentContent(
     e : KSBlock<KSParse>,
     c : Context)
     : KSResult<KSDocumentContent<KSParse>, KSParseError> {
@@ -1214,8 +1125,117 @@ class KSBlockParser private constructor(
         KSResult.succeed(KSDocumentSection(e))
       is KSBlockPart      ->
         KSResult.succeed(KSDocumentPart(e))
-      is KSBlockImport ->
-        TODO()
+      is KSBlockImport    -> {
+        Assertive.require(c.context.import_paths.containsKey(e))
+        val path = c.context.import_paths[e]!!
+        Assertive.require(c.context.imports.containsKey(path))
+        val imported = c.context.imports[path]!!
+        anyToDocumentContent(imported, c)
+      }
+    }
+  }
+
+  tailrec private fun anyToSection(
+    c : Context,
+    e : KSBlock<KSParse>)
+    : KSResult<KSBlockSection<KSParse>, KSParseError> {
+    return when (e) {
+      is KSBlockSection   ->
+        KSResult.succeed<KSBlockSection<KSParse>, KSParseError>(e)
+      is KSBlockDocument,
+      is KSBlockFormalItem,
+      is KSBlockFootnote,
+      is KSBlockPart,
+      is KSBlockSubsection,
+      is KSBlockParagraph -> {
+        val sb = StringBuilder()
+        sb.append("Expected section.")
+        sb.append(System.lineSeparator())
+        sb.append("  Expected: A section")
+        sb.append(System.lineSeparator())
+        sb.append("  Received: ")
+        sb.append(e)
+        sb.append(System.lineSeparator())
+        parseError(e, sb.toString())
+      }
+      is KSBlockImport    -> {
+        Assertive.require(c.context.import_paths.containsKey(e))
+        val path = c.context.import_paths[e]!!
+        Assertive.require(c.context.imports.containsKey(path))
+        val imported = c.context.imports[path]!!
+        anyToSection(c, imported)
+      }
+    }
+  }
+
+  tailrec private fun anyToSubsectionContent(
+    e : KSBlock<KSParse>,
+    c : Context)
+    : KSResult<KSSubsectionContent<KSParse>, KSParseError> {
+    return when (e) {
+      is KSBlockDocument,
+      is KSBlockSection,
+      is KSBlockSubsection,
+      is KSBlockPart       -> {
+        val sb = StringBuilder()
+        sb.append("Expected subsection content.")
+        sb.append(System.lineSeparator())
+        sb.append("  Expected: Subsection content")
+        sb.append(System.lineSeparator())
+        sb.append("  Received: ")
+        sb.append(e)
+        sb.append(System.lineSeparator())
+        parseError(e, sb.toString())
+      }
+      is KSBlockParagraph  ->
+        KSResult.succeed(KSSubsectionParagraph(e))
+      is KSBlockFormalItem ->
+        KSResult.succeed(KSSubsectionFormalItem(e))
+      is KSBlockFootnote   ->
+        KSResult.succeed(KSSubsectionFootnote(e))
+      is KSBlockImport     -> {
+        Assertive.require(c.context.import_paths.containsKey(e))
+        val path = c.context.import_paths[e]!!
+        Assertive.require(c.context.imports.containsKey(path))
+        val imported = c.context.imports[path]!!
+        anyToSubsectionContent(imported, c)
+      }
+    }
+  }
+
+  tailrec private fun anyToSectionContent(
+    e : KSBlock<KSParse>,
+    c : Context)
+    : KSResult<KSSectionContent<KSParse>, KSParseError> {
+    return when (e) {
+      is KSBlockDocument,
+      is KSBlockSection,
+      is KSBlockPart       -> {
+        val sb = StringBuilder()
+        sb.append("Expected section content.")
+        sb.append(System.lineSeparator())
+        sb.append("  Expected: Section content")
+        sb.append(System.lineSeparator())
+        sb.append("  Received: ")
+        sb.append(e)
+        sb.append(System.lineSeparator())
+        parseError(e, sb.toString())
+      }
+      is KSBlockSubsection ->
+        KSResult.succeed(KSSectionSubsection(e))
+      is KSBlockParagraph  ->
+        KSResult.succeed(KSSectionSubsectionContent(KSSubsectionParagraph(e)))
+      is KSBlockFormalItem ->
+        KSResult.succeed(KSSectionSubsectionContent(KSSubsectionFormalItem(e)))
+      is KSBlockFootnote   ->
+        KSResult.succeed(KSSectionSubsectionContent(KSSubsectionFootnote(e)))
+      is KSBlockImport     -> {
+        Assertive.require(c.context.import_paths.containsKey(e))
+        val path = c.context.import_paths[e]!!
+        Assertive.require(c.context.imports.containsKey(path))
+        val imported = c.context.imports[path]!!
+        anyToSectionContent(imported, c)
+      }
     }
   }
 
@@ -1416,29 +1436,37 @@ class KSBlockParser private constructor(
 
   private fun makeParsers() : Map<String, ElementParser> {
     val m = HashMap<String, ElementParser>()
-    m.put("paragraph", ElementParser("paragraph", { 
-      e,c -> parseBlockPara(e,c)
+    m.put("paragraph", ElementParser("paragraph", {
+      e, c ->
+      parseBlockPara(e, c)
     }))
-    m.put("formal-item", ElementParser("formal-item", { 
-      e,c-> parseBlockFormalItem(e,c)
+    m.put("formal-item", ElementParser("formal-item", {
+      e, c ->
+      parseBlockFormalItem(e, c)
     }))
-    m.put("footnote", ElementParser("footnote", { 
-      e,c -> parseBlockFootnote(e,c)
+    m.put("footnote", ElementParser("footnote", {
+      e, c ->
+      parseBlockFootnote(e, c)
     }))
     m.put("import", ElementParser("import", {
-      e,c -> parseBlockImport(e,c)
+      e, c ->
+      parseBlockImport(e, c)
     }))
-    m.put("subsection", ElementParser("subsection", { 
-      e,c -> parseBlockSubsection(e,c)
+    m.put("subsection", ElementParser("subsection", {
+      e, c ->
+      parseBlockSubsection(e, c)
     }))
-    m.put("section", ElementParser("section", { 
-      e,c -> parseBlockSection(e,c)
+    m.put("section", ElementParser("section", {
+      e, c ->
+      parseBlockSection(e, c)
     }))
-    m.put("part", ElementParser("part", { 
-      e,c -> parseBlockPart(e,c)
+    m.put("part", ElementParser("part", {
+      e, c ->
+      parseBlockPart(e, c)
     }))
-    m.put("document", ElementParser("document", { 
-      e,c -> parseBlockDocument(e,c)
+    m.put("document", ElementParser("document", {
+      e, c ->
+      parseBlockDocument(e, c)
     }))
     return m
   }
@@ -1475,7 +1503,7 @@ class KSBlockParser private constructor(
 
   private fun parseBlockAny(
     e : KSExpression,
-    c : Context) 
+    c : Context)
     : KSResult<KSBlock<KSParse>, KSParseError> {
     if (!KSExpressionMatch.matches(e, isElement)) {
       val sb = StringBuilder()

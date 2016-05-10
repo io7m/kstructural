@@ -963,4 +963,98 @@ abstract class KSBlockParserContract {
 
     e as KSFailure<KSBlockImport<KSParse>, KSParseError>
   }
+
+  @Test fun testImportDedup() {
+    val other_path = filesystem!!.getPath("other.txt").toAbsolutePath()
+    Files.write(other_path,
+      "[paragraph p]".toByteArray(StandardCharsets.UTF_8))
+
+    val pp = newParserForString("""
+[subsection [title s]
+  [import "other.txt"]
+  [import "other.txt"]]
+""")
+    val c = KSParseContext.empty()
+    val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
+  }
+
+  @Test fun testImportDocumentSections() {
+    val other_path = filesystem!!.getPath("other.txt").toAbsolutePath()
+    Files.write(other_path,
+      "[section [title s] [paragraph p]]".toByteArray(StandardCharsets.UTF_8))
+
+    val pp = newParserForString("""
+[document [title d]
+  [import "other.txt"]]
+""")
+    val c = KSParseContext.empty()
+    val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSBlockDocumentWithSections<KSParse>, KSParseError>
+  }
+
+  @Test fun testImportDocumentParts() {
+    val other_path = filesystem!!.getPath("other.txt").toAbsolutePath()
+    Files.write(other_path, """
+[part [title p]
+  [section [title s]
+    [paragraph q]]]
+""".toByteArray(StandardCharsets.UTF_8))
+
+    val pp = newParserForString("""
+[document [title d]
+  [import "other.txt"]]
+""")
+    val c = KSParseContext.empty()
+    val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSBlockDocumentWithParts<KSParse>, KSParseError>
+  }
+
+  @Test fun testImportSectionContent() {
+    val other_path = filesystem!!.getPath("other.txt").toAbsolutePath()
+    Files.write(other_path,
+      "[paragraph p]".toByteArray(StandardCharsets.UTF_8))
+
+    val pp = newParserForString("""
+[section [title d]
+  [import "other.txt"]]
+""")
+    val c = KSParseContext.empty()
+    val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSBlockSectionWithContent<KSParse>, KSParseError>
+  }
+
+  @Test fun testImportSectionSubsection() {
+    val other_path = filesystem!!.getPath("other.txt").toAbsolutePath()
+    Files.write(other_path,
+      "[subsection [title s] [paragraph p]]".toByteArray(StandardCharsets.UTF_8))
+
+    val pp = newParserForString("""
+[section [title d]
+  [import "other.txt"]]
+""")
+    val c = KSParseContext.empty()
+    val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSBlockSectionWithSubsections<KSParse>, KSParseError>
+  }
+
+  @Test fun testImportPartSection() {
+    val other_path = filesystem!!.getPath("other.txt").toAbsolutePath()
+    Files.write(other_path,
+      "[section [title s] [paragraph p]]".toByteArray(StandardCharsets.UTF_8))
+
+    val pp = newParserForString("""
+[part [title p]
+  [import "other.txt"]]
+""")
+    val c = KSParseContext.empty()
+    val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSBlockPart<KSParse>, KSParseError>
+  }
 }
