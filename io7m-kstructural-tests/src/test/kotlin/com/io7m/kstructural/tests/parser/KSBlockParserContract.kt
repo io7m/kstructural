@@ -42,7 +42,9 @@ import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
+import java.nio.file.Files
 import java.util.Optional
 
 
@@ -52,7 +54,7 @@ abstract class KSBlockParserContract {
 
   protected abstract fun newFilesystem() : FileSystem
 
-  private var filesystem : FileSystem? = null
+  protected var filesystem : FileSystem? = null
 
   @Before fun setupFilesystem() : Unit {
     this.filesystem = newFilesystem()
@@ -62,7 +64,7 @@ abstract class KSBlockParserContract {
     this.filesystem!!.close()
   }
 
-  private fun defaultFile() = filesystem!!.getPath("file.txt")
+  protected fun defaultFile() = filesystem!!.getPath("file.txt")
   
   data class Parser(
     val p : KSBlockParserType,
@@ -926,5 +928,39 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("t", e.result.type.get())
     Assert.assertEquals(1, e.result.content.size)
     Assert.assertEquals("z", (e.result.content[0] as KSInlineText).text)
+  }
+
+  @Test fun testImport() {
+    val other_path = filesystem!!.getPath("other.txt").toAbsolutePath()
+    Files.write(other_path, "[paragraph p]".toByteArray(StandardCharsets.UTF_8))
+
+    val pp = newParserForString("[import \"other.txt\"]")
+    val c = KSParseContext.empty()
+    val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSBlockImport<KSParse>, KSParseError>
+    Assert.assertEquals("other.txt", e.result.file.text)
+
+    val r = c.imports.get(other_path) as KSBlockParagraph<KSParse>
+    Assert.assertEquals("p", (r.content[0] as KSInlineText).text)
+  }
+
+  @Test fun testImportNonexistent() {
+    val other_path = filesystem!!.getPath("nonexistent.txt").toAbsolutePath()
+    Files.deleteIfExists(other_path)
+
+    val pp = newParserForString("[import \"nonexistent.txt\"]")
+    val c = KSParseContext.empty()
+    val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
+
+    e as KSFailure<KSBlockImport<KSParse>, KSParseError>
+  }
+
+  @Test fun testImportIncorrect() {
+    val pp = newParserForString("[import [x]]")
+    val c = KSParseContext.empty()
+    val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
+
+    e as KSFailure<KSBlockImport<KSParse>, KSParseError>
   }
 }

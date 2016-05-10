@@ -24,12 +24,14 @@ import com.io7m.jsx.parser.JSXParserConfiguration
 import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContext
+import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.evaluator.KSEvaluator
 import com.io7m.kstructural.parser.KSBlockParser
 import com.io7m.kstructural.parser.KSExpression
+import com.io7m.kstructural.parser.KSExpressionParsers
 import com.io7m.kstructural.parser.KSInlineParser
 import com.io7m.kstructural.xom.KSXOMSettings
 import com.io7m.kstructural.xom.KSXOMXHTMLMultiWriter
@@ -83,11 +85,17 @@ object KSXOMXHTMLMultiWriterDemo {
     }
 
     val bp = KSBlockParser.get(
-      inlines = { c, e, f ->
-        ip.parse(c, e, f)
+      inlines = { context, expr, file ->
+        ip.parse (context, expr, file)
       },
-      importer = { c, p ->
-        throw UnsupportedOperationException()
+      importer = { context, parser, file ->
+        val ep = KSExpressionParsers.create(file)
+        val eo = ep.invoke()
+        if (eo.isPresent) {
+          parser.parse(context, eo.get(), file)
+        } else {
+          KSResult.fail(KSParseError(Optional.empty(), "Unexpected EOF"))
+        }
       })
 
     val e_opt = p.parseExpressionOrEOF()

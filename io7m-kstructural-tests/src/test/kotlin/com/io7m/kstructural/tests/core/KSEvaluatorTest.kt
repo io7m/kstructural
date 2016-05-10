@@ -38,6 +38,7 @@ import com.io7m.kstructural.parser.KSBlockParserType
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSInlineParser
 import com.io7m.kstructural.core.KSParseError
+import com.io7m.kstructural.parser.KSExpressionParsers
 import com.io7m.kstructural.parser.KSInlineParserType
 import com.io7m.kstructural.tests.KSTestFilesystems
 import com.io7m.kstructural.tests.parser.KSBlockParserTest
@@ -50,6 +51,7 @@ import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.Optional
 
 class KSEvaluatorTest : KSEvaluatorContract() {
 
@@ -116,12 +118,18 @@ class KSEvaluatorTest : KSEvaluatorContract() {
       }
     }
 
-    val bpp = KSBlockParser.get(
-      inlines = { c, e, f ->
-        ipp.parse(c, e, f)
+    val bp = KSBlockParser.get(
+      inlines = { context, expr, file ->
+        ipp.parse (context, expr, file)
       },
-      importer = { c, p ->
-        throw UnsupportedOperationException()
+      importer = { context, parser, file ->
+        val ep = KSExpressionParsers.create(file)
+        val eo = ep.invoke()
+        if (eo.isPresent) {
+          parser.parse(context, eo.get(), file)
+        } else {
+          KSResult.fail(KSParseError(Optional.empty(), "Unexpected EOF"))
+        }
       })
 
     val eval = object : KSEvaluatorType {
@@ -147,7 +155,7 @@ class KSEvaluatorTest : KSEvaluatorContract() {
     return Evaluator(eval, { path ->
       val se = KSExpression.of(p.parseExpression())
       val c = KSParseContext.empty()
-      val d = bpp.parse(c, se, path)
+      val d = bp.parse(c, se, path)
       when (d) {
         is KSResult.KSSuccess -> {
           when (d.result) {

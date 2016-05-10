@@ -67,7 +67,7 @@ import java.util.Optional
 
 class KSBlockParser private constructor(
   private val inlines : (KSParseContextType, KSExpression, Path) -> KSResult<KSInline<KSParse>, KSParseError>,
-  private val importer : (KSParseContextType, Path) -> KSResult<KSBlock<KSParse>, KSParseError>)
+  private val importer : (KSParseContextType, KSBlockParserType, Path) -> KSResult<KSBlock<KSParse>, KSParseError>)
 : KSBlockParserType {
   
   private data class Context(
@@ -80,7 +80,7 @@ class KSBlockParser private constructor(
 
     fun get(
       inlines : (KSParseContextType, KSExpression, Path) -> KSResult<KSInline<KSParse>, KSParseError>,
-      importer : (KSParseContextType, Path) -> KSResult<KSBlock<KSParse>, KSParseError>)
+      importer : (KSParseContextType, KSBlockParserType, Path) -> KSResult<KSBlock<KSParse>, KSParseError>)
       : KSBlockParserType =
       KSBlockParser(inlines, importer)
 
@@ -473,7 +473,7 @@ class KSBlockParser private constructor(
     } else {
       try {
         LOG.debug("import: {}", real)
-        this.importer.invoke(c.context, real)
+        this.importer.invoke(c.context, this, real)
       } catch (x : Throwable) {
         val sb = StringBuilder()
         sb.append("Failed to import file.")

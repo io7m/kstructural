@@ -28,6 +28,8 @@ import com.io7m.kstructural.parser.KSBlockParser
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSInlineParser
 import com.io7m.kstructural.core.KSParseContext
+import com.io7m.kstructural.core.KSParseError
+import com.io7m.kstructural.parser.KSExpressionParsers
 import org.apache.commons.io.IOUtils
 import java.io.FileInputStream
 import java.io.InputStreamReader
@@ -35,6 +37,7 @@ import java.io.Reader
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.util.Optional
 
 object KSBlockParserDemo {
 
@@ -69,11 +72,17 @@ object KSBlockParserDemo {
     }
 
     val bp = KSBlockParser.get(
-      inlines = { c, e, f ->
-        ip.parse(c, e, f)
+      inlines = { context, expr, file ->
+        ip.parse (context, expr, file)
       },
-      importer = { c, p ->
-        throw UnsupportedOperationException()
+      importer = { context, parser, file ->
+        val ep = KSExpressionParsers.create(file)
+        val eo = ep.invoke()
+        if (eo.isPresent) {
+          parser.parse(context, eo.get(), file)
+        } else {
+          KSResult.fail(KSParseError(Optional.empty(), "Unexpected EOF"))
+        }
       })
 
     val pcontext = KSParseContext.empty()
