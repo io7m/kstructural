@@ -31,8 +31,9 @@ import java.util.IdentityHashMap
 class KSParseContext private constructor(
   override val includes : MutableMap<Path, String>,
   override val include_paths : MutableMap<KSInlineInclude<KSParse>, Path>,
-  override val imports : MutableMap<Path, KSBlock<KSParse>>,
-  override val import_paths : MutableMap<KSBlockImport<KSParse>, Path>)
+  override val imports_by_path : MutableMap<Path, KSBlock<KSParse>>,
+  override val import_paths_by_element : MutableMap<KSBlockImport<KSParse>, Path>,
+  override val imports_by_element : MutableMap<KSBlock<KSParse>, KSBlockImport<KSParse>>)
 : KSParseContextType {
 
   override fun checkImportCycle(
@@ -42,7 +43,7 @@ class KSParseContext private constructor(
     : KSResult<Unit, KSParseError> {
 
     LOG.trace("import: {} -> {}", importer, imported_path)
-    Assertive.require(!import_paths.containsKey(import))
+    Assertive.require(!import_paths_by_element.containsKey(import))
 
     return try {
       import_graph.addVertex(importer)
@@ -98,11 +99,13 @@ class KSParseContext private constructor(
     : KSResult<Unit, KSParseError> {
 
     LOG.trace("import: {}: {}", imported_path, imported.javaClass.simpleName)
-    Assertive.require(!import_paths.containsKey(import))
+    Assertive.require(!import_paths_by_element.containsKey(import))
+    Assertive.require(!imports_by_element.containsKey(imported))
 
     return checkImportCycle(importer, import, imported_path) flatMap {
-      this.imports[imported_path] = imported
-      this.import_paths[import] = imported_path
+      this.imports_by_path[imported_path] = imported
+      this.import_paths_by_element[import] = imported_path
+      this.imports_by_element[imported] = import
       KSResult.succeed<Unit, KSParseError>(Unit)
     }
   }
@@ -114,8 +117,9 @@ class KSParseContext private constructor(
       return KSParseContext(
         includes = HashMap(),
         include_paths = IdentityHashMap(),
-        imports = HashMap(),
-        import_paths = IdentityHashMap())
+        imports_by_path = HashMap(),
+        import_paths_by_element = IdentityHashMap(),
+        imports_by_element = IdentityHashMap())
     }
   }
 

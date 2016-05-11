@@ -363,7 +363,6 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
         writeFormalItem(prov, d, sc.formal)
       is KSSubsectionContent.KSSubsectionFootnote   ->
         Text("")
-      is KSSubsectionContent.KSSubsectionImport     -> TODO()
     }
   }
 

@@ -18,6 +18,7 @@ package com.io7m.kstructural.core.evaluator
 
 import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
@@ -31,6 +32,8 @@ interface KSEvaluationContextType {
 
   fun textForInclude(
     i : KSInlineInclude<KSEvaluation>) : String
+
+  val imports : Map<KSBlock<KSEvaluation>, KSBlockImport<KSEvaluation>>
 
   fun elementForID(
     id : KSID<KSEvaluation>) : KSBlock<KSEvaluation>

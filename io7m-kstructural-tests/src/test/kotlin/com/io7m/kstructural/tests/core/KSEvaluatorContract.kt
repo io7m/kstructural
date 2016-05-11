@@ -50,8 +50,10 @@ import org.junit.Before
 import org.junit.Test
 import org.slf4j.LoggerFactory
 import java.io.FileNotFoundException
+import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
 import java.nio.file.FileSystemNotFoundException
+import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.atomic.AtomicBoolean
@@ -1187,5 +1189,20 @@ abstract class KSEvaluatorContract {
     val r = ee.e.evaluate(i, defaultFile())
     r as KSSuccess
     checkDocument(r.result)
+  }
+
+  @Test fun testImport() {
+    val other_path = filesystem!!.getPath("other.txt").toAbsolutePath()
+    Files.write(other_path,
+      "[section [title s] [paragraph p]]".toByteArray(StandardCharsets.UTF_8))
+
+    val ee = newEvaluatorForString("""
+[document (title dt) (import "other.txt")]
+""")
+
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
+    r as KSSuccess<KSBlockDocumentWithSections<KSEvaluation>, *>
+    Assert.assertEquals(1, r.result.data.context.imports.size)
   }
 }

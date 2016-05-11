@@ -41,9 +41,4 @@ sealed class KSSubsectionContent<T>(
   : KSSubsectionContent<T>(footnote.position) {
     override fun toString() : String = footnote.toString()
   }
-
-  class KSSubsectionImport<T>(val import : KSBlockImport<T>)
-  : KSSubsectionContent<T>(import.position) {
-    override fun toString() : String = import.toString()
-  }
 }

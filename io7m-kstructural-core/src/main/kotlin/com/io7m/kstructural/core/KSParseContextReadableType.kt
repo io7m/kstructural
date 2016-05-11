@@ -27,8 +27,9 @@ interface KSParseContextReadableType {
 
   val include_paths : Map<KSInlineInclude<KSParse>, Path>
 
-  val imports : Map<Path, KSBlock<KSParse>>
+  val imports_by_path : Map<Path, KSBlock<KSParse>>
 
-  val import_paths : Map<KSBlockImport<KSParse>, Path>
+  val import_paths_by_element : Map<KSBlockImport<KSParse>, Path>
 
+  val imports_by_element : Map<KSBlock<KSParse>, KSBlockImport<KSParse>>
 }

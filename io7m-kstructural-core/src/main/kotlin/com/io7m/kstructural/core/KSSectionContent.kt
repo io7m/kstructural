@@ -17,7 +17,8 @@
 package com.io7m.kstructural.core
 
 import com.io7m.jlexing.core.LexicalPositionType
-import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
 import java.nio.file.Path
 import java.util.Optional
 
@@ -29,7 +30,7 @@ sealed class KSSectionContent<T>(
     override fun toString() : String = content.toString()
   }
 
-  class KSSectionSubsection<T>(val subsection : KSBlock.KSBlockSubsection<T>)
+  class KSSectionSubsection<T>(val subsection : KSBlockSubsection<T>)
   : KSSectionContent<T>(subsection.position) {
     override fun toString() : String = subsection.toString()
   }

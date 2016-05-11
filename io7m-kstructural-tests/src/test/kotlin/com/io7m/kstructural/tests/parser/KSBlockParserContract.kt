@@ -38,6 +38,7 @@ import com.io7m.kstructural.parser.KSBlockParserType
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSParseContext
+import com.io7m.kstructural.core.KSSectionContent
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -941,8 +942,10 @@ abstract class KSBlockParserContract {
     e as KSSuccess<KSBlockImport<KSParse>, KSParseError>
     Assert.assertEquals("other.txt", e.result.file.text)
 
-    val r = c.imports.get(other_path) as KSBlockParagraph<KSParse>
+    val r = c.imports_by_path.get(other_path) as KSBlockParagraph<KSParse>
     Assert.assertEquals("p", (r.content[0] as KSInlineText).text)
+    Assert.assertTrue(c.imports_by_path.containsKey(other_path))
+    Assert.assertTrue(c.imports_by_element.containsKey(r))
   }
 
   @Test fun testImportNonexistent() {
@@ -978,6 +981,11 @@ abstract class KSBlockParserContract {
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
+    Assert.assertTrue(c.imports_by_path.containsKey(other_path))
+    val e0 = e.result.content[0] as KSSubsectionContent.KSSubsectionParagraph
+    val e1 = e.result.content[1] as KSSubsectionContent.KSSubsectionParagraph
+    Assert.assertTrue(c.imports_by_element.containsKey(e0.paragraph))
+    Assert.assertTrue(c.imports_by_element.containsKey(e1.paragraph))
   }
 
   @Test fun testImportDocumentSections() {
@@ -993,6 +1001,8 @@ abstract class KSBlockParserContract {
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithSections<KSParse>, KSParseError>
+    Assert.assertTrue(c.imports_by_path.containsKey(other_path))
+    Assert.assertTrue(c.imports_by_element.containsKey(e.result.content[0]))
   }
 
   @Test fun testImportDocumentParts() {
@@ -1011,6 +1021,8 @@ abstract class KSBlockParserContract {
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithParts<KSParse>, KSParseError>
+    Assert.assertTrue(c.imports_by_path.containsKey(other_path))
+    Assert.assertTrue(c.imports_by_element.containsKey(e.result.content[0]))
   }
 
   @Test fun testImportSectionContent() {
@@ -1026,6 +1038,9 @@ abstract class KSBlockParserContract {
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSectionWithContent<KSParse>, KSParseError>
+    Assert.assertTrue(c.imports_by_path.containsKey(other_path))
+    val e0 = (e.result.content[0] as KSSubsectionContent.KSSubsectionParagraph<KSParse>)
+    Assert.assertTrue(c.imports_by_element.containsKey(e0.paragraph))
   }
 
   @Test fun testImportSectionSubsection() {
@@ -1041,6 +1056,8 @@ abstract class KSBlockParserContract {
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSectionWithSubsections<KSParse>, KSParseError>
+    Assert.assertTrue(c.imports_by_path.containsKey(other_path))
+    Assert.assertTrue(c.imports_by_element.containsKey(e.result.content[0]))
   }
 
   @Test fun testImportPartSection() {
@@ -1056,6 +1073,8 @@ abstract class KSBlockParserContract {
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockPart<KSParse>, KSParseError>
+    Assert.assertTrue(c.imports_by_path.containsKey(other_path))
+    Assert.assertTrue(c.imports_by_element.containsKey(e.result.content[0]))
   }
 
   @Test fun testImportCircular() {

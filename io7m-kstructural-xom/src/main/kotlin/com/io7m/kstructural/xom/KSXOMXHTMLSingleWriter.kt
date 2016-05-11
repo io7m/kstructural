@@ -166,7 +166,6 @@ object KSXOMXHTMLSingleWriter : KSXOMXHTMLWriterType {
       is KSSubsectionContent.KSSubsectionFormalItem ->
         writeFormalItem(prov, d, sc.formal)
       is KSSubsectionContent.KSSubsectionFootnote   -> TODO()
-      is KSSubsectionContent.KSSubsectionImport     -> TODO()
     }
   }
 

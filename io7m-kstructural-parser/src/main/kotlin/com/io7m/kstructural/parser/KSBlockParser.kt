@@ -470,25 +470,21 @@ class KSBlockParser private constructor(
       imported_path = real) flatMap {
 
       val r : KSResult<KSBlock<KSParse>, KSParseError> =
-        if (c.context.imports.containsKey(real)) {
-          KSResult.succeed(c.context.imports.get(real)!!)
-        } else {
-          try {
-            LOG.debug("import: {}", real)
-            this.importer.invoke(c.context, this, real)
-          } catch (x : Throwable) {
-            val sb = StringBuilder()
-            sb.append("Failed to import file.")
-            sb.append(System.lineSeparator())
-            sb.append("  File:  ")
-            sb.append(real)
-            sb.append(System.lineSeparator())
-            sb.append("  Error: ")
-            sb.append(x)
-            sb.append(System.lineSeparator())
-            KSResult.fail<KSBlock<KSParse>, KSParseError>(
-              KSParseError(e.position, sb.toString()))
-          }
+        try {
+          LOG.debug("import: {}", real)
+          this.importer.invoke(c.context, this, real)
+        } catch (x : Throwable) {
+          val sb = StringBuilder()
+          sb.append("Failed to import file.")
+          sb.append(System.lineSeparator())
+          sb.append("  File:  ")
+          sb.append(real)
+          sb.append(System.lineSeparator())
+          sb.append("  Error: ")
+          sb.append(x)
+          sb.append(System.lineSeparator())
+          KSResult.fail<KSBlock<KSParse>, KSParseError>(
+            KSParseError(e.position, sb.toString()))
         }
 
       r flatMap { b ->
@@ -497,7 +493,7 @@ class KSBlockParser private constructor(
           import = e,
           imported_path = real,
           imported = b)
-          KSResult.succeed<KSBlockImport<KSParse>, KSParseError>(e)
+        KSResult.succeed<KSBlockImport<KSParse>, KSParseError>(e)
       }
     }
   }
@@ -884,7 +880,8 @@ class KSBlockParser private constructor(
     return if (content.isEmpty()) {
       parseError(e, "Sections cannot be empty")
     } else {
-      when (content[0]) {
+      val c0 = content[0]
+      when (c0) {
         is KSSectionSubsectionContent -> {
           val act_contents =
             KSResult.listMap({ cc ->
@@ -1038,7 +1035,7 @@ class KSBlockParser private constructor(
     e : KSExpression,
     c : Context)
     : KSResult<KSBlockSection<KSParse>, KSParseError> {
-    return parseBlockAny(e, c) flatMap { ee -> anyToSection(c, ee) }
+    return parseBlockAny(e, c) flatMap { ee -> anyToSection(ee, c) }
   }
 
   private fun parseInlineTexts(
@@ -1110,6 +1107,29 @@ class KSBlockParser private constructor(
     return KSResult.listMap({ k -> parseSectionContent(k, c) }, e)
   }
 
+  tailrec private fun chaseImport(
+    e : KSBlockImport<KSParse>,
+    c : Context)
+    : KSBlock<KSParse> {
+
+    Assertive.require(c.context.import_paths_by_element.containsKey(e))
+    val path = c.context.import_paths_by_element[e]!!
+    Assertive.require(c.context.imports_by_path.containsKey(path))
+    val imported = c.context.imports_by_path[path]!!
+    return when (imported) {
+      is KSBlockDocument,
+      is KSBlockSection,
+      is KSBlockSubsection,
+      is KSBlockParagraph,
+      is KSBlockFormalItem,
+      is KSBlockFootnote,
+      is KSBlockPart   ->
+        imported
+      is KSBlockImport ->
+        chaseImport(imported, c)
+    }
+  }
+
   tailrec private fun anyToDocumentContent(
     e : KSBlock<KSParse>,
     c : Context)
@@ -1135,19 +1155,14 @@ class KSBlockParser private constructor(
         KSResult.succeed(KSDocumentSection(e))
       is KSBlockPart      ->
         KSResult.succeed(KSDocumentPart(e))
-      is KSBlockImport    -> {
-        Assertive.require(c.context.import_paths.containsKey(e))
-        val path = c.context.import_paths[e]!!
-        Assertive.require(c.context.imports.containsKey(path))
-        val imported = c.context.imports[path]!!
-        anyToDocumentContent(imported, c)
-      }
+      is KSBlockImport    ->
+        anyToDocumentContent(chaseImport(e, c), c)
     }
   }
 
   tailrec private fun anyToSection(
-    c : Context,
-    e : KSBlock<KSParse>)
+    e : KSBlock<KSParse>,
+    c : Context)
     : KSResult<KSBlockSection<KSParse>, KSParseError> {
     return when (e) {
       is KSBlockSection   ->
@@ -1168,13 +1183,8 @@ class KSBlockParser private constructor(
         sb.append(System.lineSeparator())
         parseError(e, sb.toString())
       }
-      is KSBlockImport    -> {
-        Assertive.require(c.context.import_paths.containsKey(e))
-        val path = c.context.import_paths[e]!!
-        Assertive.require(c.context.imports.containsKey(path))
-        val imported = c.context.imports[path]!!
-        anyToSection(c, imported)
-      }
+      is KSBlockImport    ->
+        anyToSection(chaseImport(e, c), c)
     }
   }
 
@@ -1203,13 +1213,8 @@ class KSBlockParser private constructor(
         KSResult.succeed(KSSubsectionFormalItem(e))
       is KSBlockFootnote   ->
         KSResult.succeed(KSSubsectionFootnote(e))
-      is KSBlockImport     -> {
-        Assertive.require(c.context.import_paths.containsKey(e))
-        val path = c.context.import_paths[e]!!
-        Assertive.require(c.context.imports.containsKey(path))
-        val imported = c.context.imports[path]!!
-        anyToSubsectionContent(imported, c)
-      }
+      is KSBlockImport     ->
+        anyToSubsectionContent(chaseImport(e, c), c)
     }
   }
 
@@ -1239,13 +1244,8 @@ class KSBlockParser private constructor(
         KSResult.succeed(KSSectionSubsectionContent(KSSubsectionFormalItem(e)))
       is KSBlockFootnote   ->
         KSResult.succeed(KSSectionSubsectionContent(KSSubsectionFootnote(e)))
-      is KSBlockImport     -> {
-        Assertive.require(c.context.import_paths.containsKey(e))
-        val path = c.context.import_paths[e]!!
-        Assertive.require(c.context.imports.containsKey(path))
-        val imported = c.context.imports[path]!!
-        anyToSectionContent(imported, c)
-      }
+      is KSBlockImport     ->
+        anyToSectionContent(chaseImport(e, c), c)
     }
   }
 
@@ -1378,26 +1378,47 @@ class KSBlockParser private constructor(
     return if (content.isEmpty()) {
       parseError(e, "Documents cannot be empty")
     } else {
-      when (content[0]) {
-        is KSDocumentPart    -> {
-          val act_contents =
-            KSResult.listMap({ c -> documentContentToPart(c) }, content)
-          act_contents flatMap { contents ->
-            KSResult.succeed<KSBlockDocument<KSParse>, KSParseError>(
-              KSBlockDocumentWithParts(
-                e.position, KSParse(c.context), id, type, title, contents))
-          }
-        }
-        is KSDocumentSection -> {
-          val act_contents =
-            KSResult.listMap({ c -> documentContentToSection(c) }, content)
-          act_contents flatMap { contents ->
-            KSResult.succeed<KSBlockDocument<KSParse>, KSParseError>(
-              KSBlockDocumentWithSections(
-                e.position, KSParse(c.context), id, type, title, contents))
-          }
-        }
+      val c0 = content[0]
+      when (c0) {
+        is KSDocumentPart    ->
+          toDocumentWithParts(c, content, e, id, title, type)
+        is KSDocumentSection ->
+          toDocumentWithSections(c, content, e, id, title, type)
       }
+    }
+  }
+
+  private fun toDocumentWithSections(
+    c : Context,
+    content : List<KSDocumentContent<KSParse>>,
+    e : KSExpressionList,
+    id : Optional<KSID<KSParse>>,
+    title : List<KSInlineText<KSParse>>,
+    type : Optional<String>)
+    : KSResult<KSBlockDocument<KSParse>, KSParseError> {
+    val act_contents =
+      KSResult.listMap({ c -> documentContentToSection(c) }, content)
+    return act_contents flatMap { contents ->
+      KSResult.succeed<KSBlockDocument<KSParse>, KSParseError>(
+        KSBlockDocumentWithSections(
+          e.position, KSParse(c.context), id, type, title, contents))
+    }
+  }
+
+  private fun toDocumentWithParts(
+    c : Context,
+    content : List<KSDocumentContent<KSParse>>,
+    e : KSExpressionList,
+    id : Optional<KSID<KSParse>>,
+    title : List<KSInlineText<KSParse>>,
+    type : Optional<String>)
+    : KSResult<KSBlockDocument<KSParse>, KSParseError> {
+    val act_contents =
+      KSResult.listMap({ ec -> documentContentToPart(ec) }, content)
+    return act_contents flatMap { contents ->
+      KSResult.succeed<KSBlockDocument<KSParse>, KSParseError>(
+        KSBlockDocumentWithParts(
+          e.position, KSParse(c.context), id, type, title, contents))
     }
   }
 
