@@ -118,7 +118,7 @@ class KSBlockParser private constructor(
       Assertive.require(e.elements.size == 2)
       Assertive.require(e.elements[0] is KSExpressionSymbol)
       Assertive.require(e.elements[1] is KSExpressionSymbol)
-      return (e.elements[1] as KSExpressionSymbol).text
+      return (e.elements[1] as KSExpressionSymbol).value
     }
 
     private fun parseAttributeID(
@@ -128,7 +128,7 @@ class KSBlockParser private constructor(
       Assertive.require(e.elements.size == 2)
       Assertive.require(e.elements[0] is KSExpressionSymbol)
       Assertive.require(e.elements[1] is KSExpressionSymbol)
-      return KSID(e.position, (e.elements[1] as KSExpressionSymbol).text, KSParse(c.context))
+      return KSID(e.position, (e.elements[1] as KSExpressionSymbol).value, KSParse(c.context))
     }
   }
 
@@ -1523,7 +1523,7 @@ class KSBlockParser private constructor(
   private fun elementName(e : KSExpressionList) : String {
     Assertive.require(e.elements.size > 0)
     Assertive.require(e.elements[0] is KSExpressionSymbol)
-    return (e.elements[0] as KSExpressionSymbol).text
+    return (e.elements[0] as KSExpressionSymbol).value
   }
 
   private val isElement =

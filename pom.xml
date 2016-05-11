@@ -109,12 +109,12 @@
       <dependency>
         <groupId>com.io7m.jsx</groupId>
         <artifactId>io7m-jsx-core</artifactId>
-        <version>0.4.1</version>
+        <version>0.5.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jsx</groupId>
         <artifactId>io7m-jsx-parser</artifactId>
-        <version>0.4.1</version>
+        <version>0.5.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jlexing</groupId>

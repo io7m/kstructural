@@ -108,7 +108,7 @@ sealed class KSExpressionMatch {
       when (e) {
         is KSExpression.KSExpressionSymbol ->
           return when (m) {
-            is MatchSymbol -> m.name.invoke(e.text)
+            is MatchSymbol -> m.name.invoke(e.value)
             is MatchList   -> false
             is MatchAny    -> true
             is MatchString -> false
@@ -165,7 +165,7 @@ sealed class KSExpressionMatch {
             is MatchSymbol -> false
             is MatchList   -> false
             is MatchAny    -> true
-            is MatchString -> m.content.invoke(e.text)
+            is MatchString -> m.content.invoke(e.value)
             is MatchOneOf  -> {
               for (i in 0 .. m.cases.size - 1) {
                 if (matches(e, m.cases[i])) {

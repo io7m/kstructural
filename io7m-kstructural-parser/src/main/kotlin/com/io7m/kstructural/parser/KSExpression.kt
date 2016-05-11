@@ -29,30 +29,67 @@ import java.nio.file.Path
 import java.util.Optional
 
 sealed class KSExpression(
-  override val position : Optional<LexicalPositionType<Path>>) : KSLexicalType {
+  override val position : Optional<LexicalPositionType<Path>>)
+: KSLexicalType, SExpressionType {
 
   class KSExpressionSymbol(
     position : Optional<LexicalPositionType<Path>>,
-    val text : String) : KSExpression(position) {
-    override fun toString() : String = text
+    val value : String) : KSExpression(position), SExpressionSymbolType {
+
+    override fun getLexicalInformation() : Optional<LexicalPositionType<Path>> =
+      position
+
+    override fun <A : Any, E : Exception> matchExpression(
+      p0 : SExpressionMatcherType<A, E>) : A =
+      p0.symbol(this)
+
+    override fun getText() : String = value
+    override fun toString() : String = value
   }
 
   class KSExpressionList(
     position : Optional<LexicalPositionType<Path>>,
-    val elements : List<KSExpression>) : KSExpression(position) {
+    val square : Boolean,
+    val elements : List<KSExpression>)
+  : KSExpression(position), SExpressionListType {
+
+    override fun size() : Int =
+      elements.size
+
+    override fun get(index : Int) : SExpressionType =
+      elements.get(index)
+
+    override fun isSquare() : Boolean = square
+
     override fun toString() : String {
       val sb = StringBuilder()
-      sb.append("[")
+      sb.append(if (square) "[" else "(")
       KSTextUtilities.concatenateInto(sb, this.elements)
-      sb.append("]")
+      sb.append(if (square) "]" else ")")
       return sb.toString()
     }
+
+    override fun getLexicalInformation() : Optional<LexicalPositionType<Path>> =
+      position
+
+    override fun <A : Any, E : Exception> matchExpression(
+      p0 : SExpressionMatcherType<A, E>) : A =
+      p0.list(this)
   }
 
   class KSExpressionQuoted(
     position : Optional<LexicalPositionType<Path>>,
-    val text : String) : KSExpression(position) {
-    override fun toString() : String = "\"" + text + "\""
+    val value : String) : KSExpression(position), SExpressionQuotedStringType {
+
+    override fun getLexicalInformation() : Optional<LexicalPositionType<Path>> =
+      position
+
+    override fun <A : Any, E : Exception> matchExpression(
+      p0 : SExpressionMatcherType<A, E>) : A =
+      p0.quotedString(this)
+
+    override fun getText() : String = value
+    override fun toString() : String = "\"" + value + "\""
   }
 
   companion object {
@@ -60,7 +97,11 @@ sealed class KSExpression(
       return e.matchExpression(
         object : SExpressionMatcherType<KSExpression, UnreachableCodeException> {
           override fun list(e : SExpressionListType) : KSExpression {
-            return KSExpressionList(e.lexicalInformation, e.map { of(it) })
+            val xs = mutableListOf<KSExpression>()
+            for (i in 0 .. e.size()) {
+              xs.add(of(e.get(i)))
+            }
+            return KSExpressionList(e.lexicalInformation, e.isSquare, xs)
           }
 
           override fun quotedString(e : SExpressionQuotedStringType) : KSExpression {

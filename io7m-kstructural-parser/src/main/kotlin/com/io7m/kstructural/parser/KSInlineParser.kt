@@ -252,7 +252,7 @@ class KSInlineParser private constructor(
     Assertive.require(e.elements.size == 2)
     Assertive.require(e.elements[0] is KSExpressionSymbol)
     Assertive.require(e.elements[1] is KSExpressionSymbol)
-    return (e.elements[1] as KSExpressionSymbol).text
+    return (e.elements[1] as KSExpressionSymbol).value
   }
 
   private fun parseAttributeTarget(e : KSExpressionList) : String {
@@ -261,8 +261,8 @@ class KSInlineParser private constructor(
     val target = e.elements[1]
     return when (target) {
       is KSExpressionList   -> throw UnreachableCodeException()
-      is KSExpressionSymbol -> target.text
-      is KSExpressionQuoted -> target.text
+      is KSExpressionSymbol -> target.value
+      is KSExpressionQuoted -> target.value
     }
   }
 
@@ -285,8 +285,8 @@ class KSInlineParser private constructor(
     Assertive.require(e.elements[2] is KSExpressionSymbol)
 
     return try {
-      val w = BigInteger((e.elements[1] as KSExpressionSymbol).text)
-      val h = BigInteger((e.elements[2] as KSExpressionSymbol).text)
+      val w = BigInteger((e.elements[1] as KSExpressionSymbol).value)
+      val h = BigInteger((e.elements[2] as KSExpressionSymbol).value)
 
       if (w.compareTo(BigInteger.ZERO) < 0) {
         return parseError(e.elements[1], "Width is negative")
@@ -422,9 +422,9 @@ class KSInlineParser private constructor(
         parseError(e, sb.toString())
       }
       is KSExpressionSymbol ->
-        KSResult.succeed(KSInlineText(e.position, KSParse(c.context), e.text))
+        KSResult.succeed(KSInlineText(e.position, KSParse(c.context), e.value))
       is KSExpressionQuoted ->
-        KSResult.succeed(KSInlineText(e.position, KSParse(c.context), e.text))
+        KSResult.succeed(KSInlineText(e.position, KSParse(c.context), e.value))
     }
   }
 
@@ -498,14 +498,14 @@ class KSInlineParser private constructor(
         val type =
           parseAttributeType(e.elements[1] as KSExpressionList)
         val content =
-          (e.elements[2] as KSExpressionQuoted).text
+          (e.elements[2] as KSExpressionQuoted).value
         return KSResult.succeed(
           KSInlineVerbatim(e.position, KSParse(c.context), Optional.of(type), content))
       }
       KSExpressionMatch.matches(e, CommandMatchers.verbatim)      -> {
         Assertive.require(e.elements.size == 2)
         val content =
-          (e.elements[1] as KSExpressionQuoted).text
+          (e.elements[1] as KSExpressionQuoted).value
         return KSResult.succeed(
           KSInlineVerbatim(e.position, KSParse(c.context), Optional.empty(), content))
       }
@@ -620,12 +620,12 @@ class KSInlineParser private constructor(
         KSResult.succeed(KSLinkContent.KSLinkText(
           e.position,
           KSParse(c.context),
-          KSInlineText(e.position, KSParse(c.context), e.text)))
+          KSInlineText(e.position, KSParse(c.context), e.value)))
       is KSExpressionQuoted ->
         KSResult.succeed(KSLinkContent.KSLinkText(
           e.position,
           KSParse(c.context),
-          KSInlineText(e.position, KSParse(c.context), e.text)))
+          KSInlineText(e.position, KSParse(c.context), e.value)))
     }
   }
 
@@ -1042,7 +1042,7 @@ class KSInlineParser private constructor(
   private fun commandName(e : KSExpressionList) : String {
     Assertive.require(e.elements.size > 0)
     Assertive.require(e.elements[0] is KSExpressionSymbol)
-    return (e.elements[0] as KSExpressionSymbol).text
+    return (e.elements[0] as KSExpressionSymbol).value
   }
 
   private val isInlineElement =
@@ -1057,9 +1057,9 @@ class KSInlineParser private constructor(
     : KSResult<KSInline<KSParse>, KSParseError> {
     return when (e) {
       is KSExpressionQuoted ->
-        KSResult.succeed(KSInlineText(e.position, KSParse(c.context), e.text))
+        KSResult.succeed(KSInlineText(e.position, KSParse(c.context), e.value))
       is KSExpressionSymbol ->
-        KSResult.succeed(KSInlineText(e.position, KSParse(c.context), e.text))
+        KSResult.succeed(KSInlineText(e.position, KSParse(c.context), e.value))
       is KSExpressionList   -> {
         if (!KSExpressionMatch.matches(e, isInlineElement)) {
           val sb = StringBuilder()
