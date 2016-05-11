@@ -28,6 +28,7 @@ import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
 import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineImage
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineLink
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListOrdered
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListUnordered
@@ -283,7 +284,13 @@ internal object KSXOM {
       is KSInlineListUnordered     -> inlineListUnordered(prov, c)
       is KSInlineTable             -> inlineTable(prov, c)
       is KSInlineFootnoteReference -> inlineFootnoteReference(prov, c)
+      is KSInlineInclude           -> inlineInclude(c)
     }
+
+  private fun inlineInclude(
+    c : KSInlineInclude<KSEvaluation>) : Node {
+    return Text(c.data.context.textForInclude(c))
+  }
 
   private fun inlineFootnoteReference(
     prov : KSXOMLinkProviderType,
@@ -404,8 +411,9 @@ internal object KSXOM {
 
   fun linkContent(c : KSLinkContent<KSEvaluation>) : Node =
     when (c) {
-      is KSLinkContent.KSLinkText  -> inlineText(c.actual)
-      is KSLinkContent.KSLinkImage -> inlineImage(c.actual)
+      is KSLinkContent.KSLinkText    -> inlineText(c.actual)
+      is KSLinkContent.KSLinkImage   -> inlineImage(c.actual)
+      is KSLinkContent.KSLinkInclude -> inlineInclude(c.actual)
     }
 
   private fun inlineImage(c : KSInlineImage<KSEvaluation>) : Node {

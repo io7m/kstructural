@@ -17,7 +17,7 @@
 package com.io7m.kstructural.xom
 
 import com.io7m.kstructural.core.KSElement
-import com.io7m.kstructural.core.KSElement.*
+import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
@@ -91,18 +91,25 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
         return if (e.isPresent) {
           val r = e.get()
           when (r) {
-            is KSElement.KSBlock             ->
+            is KSElement.KSBlock                        ->
               when (r as KSBlock) {
                 is KSBlockDocument,
                 is KSBlockSection,
-                is KSBlockPart -> Optional.of(r)
+                is KSBlockPart     -> Optional.of(r)
                 is KSBlockSubsection,
                 is KSBlockParagraph,
                 is KSBlockFormalItem,
                 is KSBlockFootnote -> containingSegment(r)
+                is KSElement.KSBlock.KSBlockImport -> TODO()
               }
-            is KSElement.KSInline            -> containingSegment(r)
-            is KSElement.KSInline.KSListItem -> containingSegment(r)
+            is KSElement.KSInline                       -> containingSegment(r)
+            is KSElement.KSInline.KSListItem            -> containingSegment(r)
+            is KSElement.KSInline.KSTableHeadColumnName -> containingSegment(r)
+            is KSElement.KSInline.KSTableHead           -> containingSegment(r)
+            is KSElement.KSInline.KSTableBodyCell       -> containingSegment(r)
+            is KSElement.KSInline.KSTableBodyRow        -> containingSegment(r)
+            is KSElement.KSInline.KSTableBody           -> containingSegment(r)
+            is KSElement.KSInline.KSTableSummary        -> containingSegment(r)
           }
         } else {
           Optional.empty<KSBlock<KSEvaluation>>()
@@ -208,6 +215,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
           is KSBlockPart       -> fileForNumber(e.data.number.get()) + "#" + a
           is KSBlockFormalItem -> fileForNumber(e.data.number.get()) + "#" + a
           is KSBlockFootnote   -> throw UnsupportedOperationException("Cannot resolve a footnote directly!")
+          is KSElement.KSBlock.KSBlockImport -> TODO()
         }
       }
     }

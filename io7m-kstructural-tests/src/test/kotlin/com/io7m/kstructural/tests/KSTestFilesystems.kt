@@ -14,24 +14,18 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.core
+package com.io7m.kstructural.tests
 
-import com.io7m.jlexing.core.LexicalPositionType
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
-import java.nio.file.Path
-import java.util.Optional
+import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder
+import com.github.marschall.memoryfilesystem.StringTransformers
+import java.nio.file.FileSystem
+import java.nio.file.attribute.PosixFileAttributeView
 
-sealed class KSSectionContent<T>(
-  override val position : Optional<LexicalPositionType<Path>>) : KSLexicalType {
+object KSTestFilesystems {
 
-  class KSSectionSubsectionContent<T>(val content : KSSubsectionContent<T>)
-  : KSSectionContent<T>(content.position) {
-    override fun toString() : String = content.toString()
+  fun newUnixFilesystem() : FileSystem {
+    val fsb = MemoryFileSystemBuilder.newEmpty()
+    return fsb.build("unixdata")
   }
 
-  class KSSectionSubsection<T>(val subsection : KSBlockSubsection<T>)
-  : KSSectionContent<T>(subsection.position) {
-    override fun toString() : String = subsection.toString()
-  }
 }

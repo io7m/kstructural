@@ -17,21 +17,14 @@
 package com.io7m.kstructural.core
 
 import com.io7m.jlexing.core.LexicalPositionType
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
+import com.io7m.kstructural.core.KSLexicalType
 import java.nio.file.Path
 import java.util.Optional
 
-sealed class KSSectionContent<T>(
-  override val position : Optional<LexicalPositionType<Path>>) : KSLexicalType {
+data class KSParseError(
+  override val position : Optional<LexicalPositionType<Path>>,
+  val message : String) : KSLexicalType {
 
-  class KSSectionSubsectionContent<T>(val content : KSSubsectionContent<T>)
-  : KSSectionContent<T>(content.position) {
-    override fun toString() : String = content.toString()
-  }
-
-  class KSSectionSubsection<T>(val subsection : KSBlockSubsection<T>)
-  : KSSectionContent<T>(subsection.position) {
-    override fun toString() : String = subsection.toString()
-  }
+  override fun toString() : String =
+    "[KSParseError $position \"$message\"]"
 }

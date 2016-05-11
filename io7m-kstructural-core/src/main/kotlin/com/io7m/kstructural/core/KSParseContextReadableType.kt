@@ -16,22 +16,20 @@
 
 package com.io7m.kstructural.core
 
-import com.io7m.jlexing.core.LexicalPositionType
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
 import java.nio.file.Path
-import java.util.Optional
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
+import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
 
-sealed class KSSectionContent<T>(
-  override val position : Optional<LexicalPositionType<Path>>) : KSLexicalType {
+interface KSParseContextReadableType {
 
-  class KSSectionSubsectionContent<T>(val content : KSSubsectionContent<T>)
-  : KSSectionContent<T>(content.position) {
-    override fun toString() : String = content.toString()
-  }
+  val includes : Map<Path, String>
 
-  class KSSectionSubsection<T>(val subsection : KSBlockSubsection<T>)
-  : KSSectionContent<T>(subsection.position) {
-    override fun toString() : String = subsection.toString()
-  }
+  val include_paths : Map<KSInlineInclude<KSParse>, Path>
+
+  val imports_by_path : Map<Path, KSBlock<KSParse>>
+
+  val import_paths_by_element : Map<KSBlockImport<KSParse>, Path>
+
+  val imports_by_element : Map<KSBlock<KSParse>, KSBlockImport<KSParse>>
 }

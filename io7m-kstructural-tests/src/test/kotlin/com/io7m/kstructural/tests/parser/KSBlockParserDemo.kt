@@ -21,18 +21,34 @@ import com.io7m.jsx.lexer.JSXLexer
 import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
 import com.io7m.jsx.parser.JSXParserConfiguration
+import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.parser.KSBlockParser
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSInlineParser
+import com.io7m.kstructural.core.KSParseContext
+import com.io7m.kstructural.core.KSParseError
+import com.io7m.kstructural.parser.KSExpressionParsers
+import org.apache.commons.io.IOUtils
 import java.io.FileInputStream
 import java.io.InputStreamReader
 import java.io.Reader
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.Optional
 
 object KSBlockParserDemo {
 
   fun main(args : Array<String>) : Unit {
+    if (args.size != 1) {
+      System.err.println("usage: file.sd")
+      System.exit(1)
+    }
+
+    val path = Paths.get(args[0])
+
     val lcb = JSXLexerConfiguration.newBuilder()
     lcb.setNewlinesInQuotedStrings(true)
     lcb.setSquareBrackets(true)
@@ -44,13 +60,39 @@ object KSBlockParserDemo {
     pcb.preserveLexicalInformation(true)
     val pc = pcb.build()
     val p = JSXParser.newParser(pc, lex)
-    val bp = KSBlockParser.get(KSInlineParser)
+
+    val ip = KSInlineParser.get { path ->
+      Files.newInputStream(path).use { s ->
+        try {
+          KSResult.succeed(IOUtils.toString(s, StandardCharsets.UTF_8))
+        } catch (x : Throwable) {
+          KSResult.fail(x)
+        }
+      }
+    }
+
+    val bp = KSBlockParser.get(
+      inlines = { context, expr, file ->
+        ip.parse (context, expr, file)
+      },
+      importer = { context, parser, file ->
+        val ep = KSExpressionParsers.create(file)
+        val eo = ep.invoke()
+        if (eo.isPresent) {
+          parser.parse(context, eo.get(), file)
+        } else {
+          KSResult.fail(KSParseError(Optional.empty(), "Unexpected EOF"))
+        }
+      })
+
+    val pcontext = KSParseContext.empty()
 
     var eof = false
     while (!eof) {
       val e_opt = p.parseExpressionOrEOF()
       if (e_opt.isPresent) {
-        val r = bp.parse(KSExpression.of(e_opt.get()))
+        val ee = KSExpression.of(e_opt.get())
+        val r = bp.parse(pcontext, ee, path)
 
         when (r) {
           is KSSuccess -> {

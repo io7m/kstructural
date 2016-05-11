@@ -14,17 +14,28 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.parser
+package com.io7m.kstructural.core
 
-import com.io7m.jlexing.core.LexicalPositionType
-import com.io7m.kstructural.core.KSLexicalType
 import java.nio.file.Path
-import java.util.Optional
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
+import com.io7m.kstructural.core.KSElement.KSBlock
 
-data class KSParseError(
-  override val position : Optional<LexicalPositionType<Path>>,
-  val message : String) : KSLexicalType {
+interface KSParseContextWritableType {
 
-  override fun toString() : String =
-    "[KSParseError $position \"$message\"]"
+  fun addInclude(
+    i : KSInlineInclude<KSParse>,
+    p : Path,
+    s : String) : Unit
+
+  fun addImport(
+    importer : Path,
+    import : KSBlockImport<KSParse>,
+    imported_path : Path, imported : KSBlock<KSParse>) : KSResult<Unit, KSParseError>
+
+  fun checkImportCycle(
+    importer : Path,
+    import : KSBlockImport<KSParse>,
+    imported_path : Path) : KSResult<Unit, KSParseError>
+
 }

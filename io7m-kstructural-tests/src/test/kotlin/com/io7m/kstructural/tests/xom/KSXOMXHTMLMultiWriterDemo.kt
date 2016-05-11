@@ -22,19 +22,27 @@ import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
 import com.io7m.jsx.parser.JSXParserConfiguration
 import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSParse
+import com.io7m.kstructural.core.KSParseContext
+import com.io7m.kstructural.core.KSParseError
+import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.evaluator.KSEvaluator
 import com.io7m.kstructural.parser.KSBlockParser
 import com.io7m.kstructural.parser.KSExpression
+import com.io7m.kstructural.parser.KSExpressionParsers
 import com.io7m.kstructural.parser.KSInlineParser
 import com.io7m.kstructural.xom.KSXOMSettings
 import com.io7m.kstructural.xom.KSXOMXHTMLMultiWriter
 import nu.xom.Serializer
+import org.apache.commons.io.IOUtils
 import java.io.FileInputStream
+import java.io.IOException
 import java.io.InputStreamReader
 import java.io.Reader
 import java.net.URI
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -43,12 +51,17 @@ import java.util.Optional
 object KSXOMXHTMLMultiWriterDemo {
 
   fun main(args : Array<String>) : Unit {
+
+    if (args.size != 2) {
+      System.err.println("usage: file.sd out-directory")
+      System.exit(1)
+    }
+
+    val path = Paths.get(args[0])
+    val outdir = Paths.get(args[1])
+
     val lcb = JSXLexerConfiguration.newBuilder()
-    lcb.setFile(if (args.size > 0) {
-      Optional.of(Paths.get(args[0]))
-    } else {
-      Optional.empty()
-    })
+    lcb.setFile(Optional.of(path))
     lcb.setNewlinesInQuotedStrings(true)
     lcb.setSquareBrackets(true)
     val lc = lcb.build()
@@ -60,14 +73,39 @@ object KSXOMXHTMLMultiWriterDemo {
     pcb.preserveLexicalInformation(true)
     val pc = pcb.build()
     val p = JSXParser.newParser(pc, lex)
-    val bp = KSBlockParser.get(KSInlineParser)
+
+    val ip = KSInlineParser.get { p ->
+      Files.newInputStream(p).use { s ->
+        try {
+          KSResult.succeed(IOUtils.toString(s, StandardCharsets.UTF_8))
+        } catch (x : Throwable) {
+          KSResult.fail(x)
+        }
+      }
+    }
+
+    val bp = KSBlockParser.get(
+      inlines = { context, expr, file ->
+        ip.parse (context, expr, file)
+      },
+      importer = { context, parser, file ->
+        val ep = KSExpressionParsers.create(file)
+        val eo = ep.invoke()
+        if (eo.isPresent) {
+          parser.parse(context, eo.get(), file)
+        } else {
+          KSResult.fail(KSParseError(Optional.empty(), "Unexpected EOF"))
+        }
+      })
 
     val e_opt = p.parseExpressionOrEOF()
     if (e_opt.isPresent) {
-      val r = bp.parse(KSExpression.of(e_opt.get()))
+      val pcontext = KSParseContext.empty()
+      val ee = KSExpression.of(e_opt.get())
+      val r = bp.parse(pcontext, ee, path)
       when (r) {
         is KSSuccess ->
-          evaluate(r.result, Paths.get(System.getProperty("java.io.tmpdir")))
+          evaluate(r.result, path, outdir)
         is KSFailure -> {
           for (a in r.errors) {
             System.out.print("parse error: ")
@@ -83,7 +121,10 @@ object KSXOMXHTMLMultiWriterDemo {
     }
   }
 
-  private fun evaluate(result : KSBlock<Unit>, out : Path) =
+  private fun evaluate(
+    result : KSBlock<KSParse>,
+    base : Path,
+    out : Path) =
     when (result) {
       is KSBlock.KSBlockSection    -> TODO()
       is KSBlock.KSBlockSubsection -> TODO()
@@ -91,8 +132,10 @@ object KSXOMXHTMLMultiWriterDemo {
       is KSBlock.KSBlockPart       -> TODO()
       is KSBlock.KSBlockFormalItem -> TODO()
       is KSBlock.KSBlockFootnote   -> TODO()
+      is KSBlock.KSBlockImport     -> TODO()
       is KSBlock.KSBlockDocument   -> {
-        val rr = KSEvaluator.evaluate(result)
+
+        val rr = KSEvaluator.evaluate(result, base)
         when (rr) {
           is KSSuccess -> {
             val settings = KSXOMSettings(
@@ -101,11 +144,10 @@ object KSXOMXHTMLMultiWriterDemo {
                 URI.create("kstructural-colour.css"),
                 URI.create("custom.css")))
             val docs = KSXOMXHTMLMultiWriter.write(settings, rr.result)
-            val ksdir = out.resolve("kstructural")
-            Files.createDirectories(ksdir)
+            Files.createDirectories(out)
 
             docs.entries.forEach { p ->
-              var out_file = ksdir.resolve(p.key)
+              var out_file = out.resolve(p.key)
               val os = Files.newOutputStream(out_file)
               os.use {
                 val s = Serializer(os)

@@ -21,15 +21,28 @@ import com.io7m.jsx.lexer.JSXLexer
 import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
 import com.io7m.jsx.parser.JSXParserConfiguration
+import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.parser.KSBlockParser
 import com.io7m.kstructural.parser.KSBlockParserType
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSInlineParser
-import com.io7m.kstructural.parser.KSParseError
+import com.io7m.kstructural.core.KSParseError
+import com.io7m.kstructural.parser.KSInlineParserType
+import com.io7m.kstructural.core.KSParse
+import com.io7m.kstructural.core.KSParseContextType
+import com.io7m.kstructural.parser.KSExpressionParsers
+import com.io7m.kstructural.tests.KSTestFilesystems
+import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import java.io.StringReader
+import java.nio.charset.StandardCharsets
+import java.nio.file.FileSystem
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.util.Optional
 
 class KSBlockParserTest : KSBlockParserContract() {
 
@@ -37,23 +50,30 @@ class KSBlockParserTest : KSBlockParserContract() {
     private val LOG = LoggerFactory.getLogger(KSBlockParserTest::class.java)
   }
 
-  override fun newParserForString(text : String) : Parser {
-    val lcb = JSXLexerConfiguration.newBuilder();
-    lcb.setNewlinesInQuotedStrings(true);
-    lcb.setSquareBrackets(true)
-    val lc = lcb.build();
+  override fun newFilesystem() : FileSystem {
+    return KSTestFilesystems.newUnixFilesystem()
+  }
 
-    val r = UnicodeCharacterReader.newReader(StringReader(text));
-    val lex = JSXLexer.newLexer(lc, r);
-    val pcb = JSXParserConfiguration.newBuilder();
-    pcb.preserveLexicalInformation(true);
-    val pc = pcb.build();
-    val p = JSXParser.newParser(pc, lex);
-    val bp = KSBlockParser.get(KSInlineParser)
-    val bpp = object : KSBlockParserType {
+  override fun newParserForString(text : String) : Parser {
+
+    val ip = KSInlineParser.get { path ->
+      Files.newInputStream(path).use { s ->
+        try {
+          KSResult.succeed(IOUtils.toString(s, StandardCharsets.UTF_8))
+        } catch (x : Throwable) {
+          KSResult.fail(x)
+        }
+      }
+    }
+
+    val ipp = object : KSInlineParserType {
       override fun parse(
-        e : KSExpression) : KSResult<KSBlock<Unit>, KSParseError> {
-        val r = bp.parse(e)
+        context : KSParseContextType,
+        expression : KSExpression,
+        file : Path)
+        : KSResult<KSElement.KSInline<KSParse>, KSParseError> {
+
+        val r = ip.parse(context, expression, file)
         return when (r) {
           is KSResult.KSSuccess -> {
             LOG.debug("successfully parsed: {}", r.result)
@@ -68,7 +88,43 @@ class KSBlockParserTest : KSBlockParserContract() {
       }
     }
 
-    return Parser(bpp, { KSExpression.of(p.parseExpression()) })
+    val bp = KSBlockParser.get(
+      inlines = { context, expr, file ->
+        ipp.parse (context, expr, file)
+      },
+      importer = { context, parser, file ->
+        val ep = KSExpressionParsers.create(file)
+        val eo = ep.invoke()
+        if (eo.isPresent) {
+          parser.parse(context, eo.get(), file)
+        } else {
+          KSResult.fail(KSParseError(Optional.empty(), "Unexpected EOF"))
+        }
+      })
+
+    val bpp = object : KSBlockParserType {
+      override fun parse(
+        c : KSParseContextType,
+        e : KSExpression,
+        f : Path)
+        : KSResult<KSBlock<KSParse>, KSParseError> {
+        val r = bp.parse(c, e, f)
+        return when (r) {
+          is KSResult.KSSuccess -> {
+            LOG.debug("successfully parsed: {}", r.result)
+            r
+          }
+          is KSResult.KSFailure -> {
+            LOG.debug("failed to parse: {}", r.partial)
+            r.errors.map { k -> LOG.debug("error: {}", k.message) }
+            r
+          }
+        }
+      }
+    }
+
+    var ep = KSExpressionParsers.createWithReader(defaultFile(), StringReader(text))
+    return Parser(bpp, { ep.invoke().get() })
   }
 
 }
