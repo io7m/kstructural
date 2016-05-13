@@ -10,6 +10,10 @@
     <target>System.err</target>
   </appender>
 
+  <logger
+    name="com.io7m.kstructural.tests.pretty.KSPrettyPrinterDemo$LoggingWriter"
+    level="DEBUG"/>
+
   <root level="TRACE">
     <appender-ref ref="STDERR"/>
   </root>

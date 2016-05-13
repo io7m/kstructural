@@ -19,6 +19,7 @@
     <module>io7m-kstructural-core</module>
     <module>io7m-kstructural-documentation</module>
     <module>io7m-kstructural-parser</module>
+    <module>io7m-kstructural-pretty</module>
     <module>io7m-kstructural-tests</module>
     <module>io7m-kstructural-xom</module>
   </modules>
@@ -117,6 +118,11 @@
         <version>0.5.0-SNAPSHOT</version>
       </dependency>
       <dependency>
+        <groupId>com.io7m.jsx</groupId>
+        <artifactId>io7m-jsx-prettyprint</artifactId>
+        <version>0.5.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
         <groupId>com.io7m.jlexing</groupId>
         <artifactId>io7m-jlexing-core</artifactId>
         <version>0.1.1</version>
@@ -125,6 +131,11 @@
         <groupId>org.valid4j</groupId>
         <artifactId>valid4j</artifactId>
         <version>0.4.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jpplib</groupId>
+        <artifactId>io7m-jpplib-core</artifactId>
+        <version>0.7.1-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.jgrapht</groupId>

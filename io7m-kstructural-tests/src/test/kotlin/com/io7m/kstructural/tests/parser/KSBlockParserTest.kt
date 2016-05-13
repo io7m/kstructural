@@ -34,6 +34,7 @@ import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.parser.KSExpressionParsers
 import com.io7m.kstructural.tests.KSTestFilesystems
+import com.io7m.kstructural.tests.KSTestIO
 import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import java.io.StringReader
@@ -56,15 +57,7 @@ class KSBlockParserTest : KSBlockParserContract() {
 
   override fun newParserForString(text : String) : Parser {
 
-    val ip = KSInlineParser.get { path ->
-      Files.newInputStream(path).use { s ->
-        try {
-          KSResult.succeed(IOUtils.toString(s, StandardCharsets.UTF_8))
-        } catch (x : Throwable) {
-          KSResult.fail(x)
-        }
-      }
-    }
+    val ip = KSInlineParser.get(KSTestIO.utf8_reader)
 
     val ipp = object : KSInlineParserType {
       override fun parse(

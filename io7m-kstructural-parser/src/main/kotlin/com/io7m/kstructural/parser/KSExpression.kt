@@ -98,7 +98,8 @@ sealed class KSExpression(
         object : SExpressionMatcherType<KSExpression, UnreachableCodeException> {
           override fun list(e : SExpressionListType) : KSExpression {
             val xs = mutableListOf<KSExpression>()
-            for (i in 0 .. e.size()) {
+            val max = e.size() - 1
+            for (i in 0 .. max) {
               xs.add(of(e.get(i)))
             }
             return KSExpressionList(e.lexicalInformation, e.isSquare, xs)
