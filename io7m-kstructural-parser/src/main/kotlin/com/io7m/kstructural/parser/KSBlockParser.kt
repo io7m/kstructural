@@ -279,6 +279,7 @@ class KSBlockParser private constructor(
           KSResult.succeed<KSBlockFootnote<KSParse>, KSParseError>(
             KSBlockFootnote(
               e.position,
+              e.square,
               KSParse(c.context),
               id = Optional.of(id),
               type = Optional.of(type),
@@ -296,6 +297,7 @@ class KSBlockParser private constructor(
           KSResult.succeed<KSBlockFootnote<KSParse>, KSParseError>(
             KSBlockFootnote(
               e.position,
+              e.square,
               KSParse(c.context),
               id = Optional.of(id),
               type = Optional.empty(),
@@ -331,6 +333,7 @@ class KSBlockParser private constructor(
             KSResult.succeed<KSBlockFormalItem<KSParse>, KSParseError>(
               KSBlockFormalItem(
                 e.position,
+                e.square,
                 KSParse(c.context),
                 title = title,
                 id = Optional.of(id),
@@ -353,6 +356,7 @@ class KSBlockParser private constructor(
             KSResult.succeed<KSBlockFormalItem<KSParse>, KSParseError>(
               KSBlockFormalItem(
                 e.position,
+                e.square,
                 KSParse(c.context),
                 title = title,
                 id = Optional.of(id),
@@ -374,6 +378,7 @@ class KSBlockParser private constructor(
             KSResult.succeed<KSBlockFormalItem<KSParse>, KSParseError>(
               KSBlockFormalItem(
                 e.position,
+                e.square,
                 KSParse(c.context),
                 title = title,
                 id = Optional.empty(),
@@ -395,6 +400,7 @@ class KSBlockParser private constructor(
             KSResult.succeed<KSBlockFormalItem<KSParse>, KSParseError>(
               KSBlockFormalItem(
                 e.position,
+                e.square,
                 KSParse(c.context),
                 title = title,
                 id = Optional.of(id),
@@ -415,6 +421,7 @@ class KSBlockParser private constructor(
             KSResult.succeed<KSBlockFormalItem<KSParse>, KSParseError>(
               KSBlockFormalItem(
                 e.position,
+                e.square,
                 KSParse(c.context),
                 title = title,
                 id = Optional.empty(),
@@ -446,7 +453,7 @@ class KSBlockParser private constructor(
         Assertive.require(e.elements.size == 2)
         return parseInlineText(c, e.elements[1]) flatMap { file ->
           val re = KSBlockImport(
-            e.position, KSParse(c.context), Optional.empty(), Optional.empty(), file)
+            e.position, e.square, KSParse(c.context), Optional.empty(), Optional.empty(), file)
           loadImport(re, c, file)
         }
       }
@@ -587,7 +594,8 @@ class KSBlockParser private constructor(
     id : Optional<KSID<KSParse>>,
     type : Optional<String>)
     : KSBlockParagraph<KSParse> {
-    return KSBlockParagraph(e.position, KSParse(c.context), type, id, content)
+    return KSBlockParagraph(
+      e.position, e.square, KSParse(c.context), type, id, content)
   }
 
   private fun parseBlockSubsection(
@@ -614,6 +622,7 @@ class KSBlockParser private constructor(
             KSResult.succeed<KSBlockSubsection<KSParse>, KSParseError>(
               KSBlockSubsection(
                 e.position,
+                e.square,
                 KSParse(c.context),
                 title = title,
                 id = Optional.of(id),
@@ -639,6 +648,7 @@ class KSBlockParser private constructor(
             KSResult.succeed<KSBlockSubsection<KSParse>, KSParseError>(
               KSBlockSubsection(
                 e.position,
+                e.square,
                 KSParse(c.context),
                 title = title,
                 id = Optional.of(id),
@@ -662,6 +672,7 @@ class KSBlockParser private constructor(
             KSResult.succeed<KSBlockSubsection<KSParse>, KSParseError>(
               KSBlockSubsection(
                 e.position,
+                e.square,
                 KSParse(c.context),
                 title = title,
                 id = Optional.empty(),
@@ -685,6 +696,7 @@ class KSBlockParser private constructor(
             KSResult.succeed<KSBlockSubsection<KSParse>, KSParseError>(
               KSBlockSubsection(
                 e.position,
+                e.square,
                 KSParse(c.context),
                 title = title,
                 id = Optional.of(id),
@@ -706,6 +718,7 @@ class KSBlockParser private constructor(
             KSResult.succeed<KSBlockSubsection<KSParse>, KSParseError>(
               KSBlockSubsection(
                 e.position,
+                e.square,
                 KSParse(c.context),
                 title = title,
                 id = Optional.empty(),
@@ -890,7 +903,7 @@ class KSBlockParser private constructor(
           act_contents flatMap { contents ->
             KSResult.succeed<KSBlockSection<KSParse>, KSParseError>(
               KSBlockSection.KSBlockSectionWithContent(
-                e.position, KSParse(c.context), type, id, title, contents))
+                e.position, e.square, KSParse(c.context), type, id, title, contents))
           }
         }
         is KSSectionSubsection        -> {
@@ -901,7 +914,7 @@ class KSBlockParser private constructor(
           act_contents flatMap { contents ->
             KSResult.succeed<KSBlockSection<KSParse>, KSParseError>(
               KSBlockSection.KSBlockSectionWithSubsections(
-                e.position, KSParse(c.context), type, id, title, contents))
+                e.position, e.square, KSParse(c.context), type, id, title, contents))
           }
         }
       }
@@ -945,7 +958,13 @@ class KSBlockParser private constructor(
         return act_content flatMap { content ->
           act_title flatMap { title ->
             KSResult.succeed<KSBlockPart<KSParse>, KSParseError>(KSBlockPart(
-              e.position, KSParse(c.context), Optional.of(type), Optional.of(id), title, content))
+              e.position,
+              e.square,
+              KSParse(c.context),
+              Optional.of(type),
+              Optional.of(id),
+              title,
+              content))
           }
         }
       }
@@ -965,7 +984,13 @@ class KSBlockParser private constructor(
         return act_content flatMap { content ->
           act_title flatMap { title ->
             KSResult.succeed<KSBlockPart<KSParse>, KSParseError>(KSBlockPart(
-              e.position, KSParse(c.context), Optional.of(type), Optional.of(id), title, content))
+              e.position,
+              e.square,
+              KSParse(c.context),
+              Optional.of(type),
+              Optional.of(id),
+              title,
+              content))
           }
         }
       }
@@ -983,7 +1008,13 @@ class KSBlockParser private constructor(
         return act_content flatMap { content ->
           act_title flatMap { title ->
             KSResult.succeed<KSBlockPart<KSParse>, KSParseError>(KSBlockPart(
-              e.position, KSParse(c.context), Optional.of(type), Optional.empty(), title, content))
+              e.position,
+              e.square,
+              KSParse(c.context),
+              Optional.of(type),
+              Optional.empty(),
+              title,
+              content))
           }
         }
       }
@@ -1001,7 +1032,13 @@ class KSBlockParser private constructor(
         return act_content flatMap { content ->
           act_title flatMap { title ->
             KSResult.succeed<KSBlockPart<KSParse>, KSParseError>(KSBlockPart(
-              e.position, KSParse(c.context), Optional.empty(), Optional.of(id), title, content))
+              e.position,
+              e.square,
+              KSParse(c.context),
+              Optional.empty(),
+              Optional.of(id),
+              title,
+              content))
           }
         }
       }
@@ -1017,7 +1054,13 @@ class KSBlockParser private constructor(
         return act_content flatMap { content ->
           act_title flatMap { title ->
             KSResult.succeed<KSBlockPart<KSParse>, KSParseError>(KSBlockPart(
-              e.position, KSParse(c.context), Optional.empty(), Optional.empty(), title, content))
+              e.position,
+              e.square,
+              KSParse(c.context),
+              Optional.empty(),
+              Optional.empty(),
+              title,
+              content))
           }
         }
       }
@@ -1401,7 +1444,7 @@ class KSBlockParser private constructor(
     return act_contents flatMap { contents ->
       KSResult.succeed<KSBlockDocument<KSParse>, KSParseError>(
         KSBlockDocumentWithSections(
-          e.position, KSParse(c.context), id, type, title, contents))
+          e.position, e.square, KSParse(c.context), id, type, title, contents))
     }
   }
 
@@ -1418,7 +1461,7 @@ class KSBlockParser private constructor(
     return act_contents flatMap { contents ->
       KSResult.succeed<KSBlockDocument<KSParse>, KSParseError>(
         KSBlockDocumentWithParts(
-          e.position, KSParse(c.context), id, type, title, contents))
+          e.position, e.square, KSParse(c.context), id, type, title, contents))
     }
   }
 

@@ -148,6 +148,18 @@ abstract class KSPrettyPrinterContract {
 """.trim(), imports = false)
   }
 
+  @Test fun testTextSpacing()
+  {
+    roundTrip("""
+[document
+  [title d]
+  [section
+    [title s]
+    [paragraph
+      p0 "  p1  " p2]]]
+""".trim(), imports = false)
+  }
+
   @Test fun testTerm()
   {
     roundTrip("""
@@ -564,6 +576,34 @@ abstract class KSPrettyPrinterContract {
             [cell x]
             [cell y]
             [cell z]]]]]]]
+""".trim(), imports = false)
+  }
+
+  @Test fun testSquareRound()
+  {
+    roundTrip("""
+(document
+  [title d0 d1 d2]
+  [id d0]
+  [part
+    [title p0 p1 p2]
+    [id p0]
+    (section
+      [title s0 s1 s2]
+      [id p0s0]
+      [paragraph
+        p])]
+  [part
+    [title p0 p1 p2]
+    [id p1]
+    (section
+      [title s0 s1 s2]
+      [id p1s0]
+      [subsection
+        [title ss0 ss1 ss2]
+        [id p1s0ss0]
+        (paragraph
+          p)])])
 """.trim(), imports = false)
   }
 }
