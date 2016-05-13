@@ -324,7 +324,14 @@ class KSInlineParser private constructor(
           act_content flatMap { content ->
             act_target flatMap { target ->
               KSResult.succeed<KSInlineImage<KSParse>, KSParseError>(
-                KSInlineImage(e.position, KSParse(c.context), type, target, Optional.of(size), content))
+                KSInlineImage(
+                  e.position,
+                  e.square,
+                  KSParse(c.context),
+                  type,
+                  target,
+                  Optional.of(size),
+                  content))
             }
           }
         }
@@ -347,7 +354,14 @@ class KSInlineParser private constructor(
         return act_content flatMap { content ->
           act_target flatMap { target ->
             KSResult.succeed<KSInlineImage<KSParse>, KSParseError>(
-              KSInlineImage(e.position, KSParse(c.context), type, target, size, content))
+              KSInlineImage(
+                e.position,
+                e.square,
+                KSParse(c.context),
+                type,
+                target,
+                size,
+                content))
           }
         }
       }
@@ -370,7 +384,14 @@ class KSInlineParser private constructor(
           act_content flatMap { content ->
             act_target flatMap { target ->
               KSResult.succeed<KSInlineImage<KSParse>, KSParseError>(
-                KSInlineImage(e.position, KSParse(c.context), type, target, Optional.of(size), content))
+                KSInlineImage(
+                  e.position,
+                  e.square,
+                  KSParse(c.context),
+                  type,
+                  target,
+                  Optional.of(size),
+                  content))
             }
           }
         }
@@ -392,7 +413,14 @@ class KSInlineParser private constructor(
         return act_content flatMap { content ->
           act_target flatMap { target ->
             KSResult.succeed<KSInlineImage<KSParse>, KSParseError>(
-              KSInlineImage(e.position, KSParse(c.context), type, target, size, content))
+              KSInlineImage(
+                e.position,
+                e.square,
+                KSParse(c.context),
+                type,
+                target,
+                size,
+                content))
           }
         }
       }
@@ -423,10 +451,10 @@ class KSInlineParser private constructor(
       }
       is KSExpressionSymbol ->
         KSResult.succeed(
-          KSInlineText(e.position, KSParse(c.context), false, e.value))
+          KSInlineText(e.position, false, KSParse(c.context), false, e.value))
       is KSExpressionQuoted ->
         KSResult.succeed(
-          KSInlineText(e.position, KSParse(c.context), true, e.value))
+          KSInlineText(e.position, false, KSParse(c.context), true, e.value))
     }
   }
 
@@ -481,7 +509,7 @@ class KSInlineParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.include) -> {
         Assertive.require(e.elements.size == 2)
         return parseInlineText(e.elements[1], c) flatMap { file ->
-          val re = KSInlineInclude(e.position, KSParse(c.context), file)
+          val re = KSInlineInclude(e.position, e.square, KSParse(c.context), file)
           loadInclude(re, c, file)
         }
       }
@@ -502,14 +530,16 @@ class KSInlineParser private constructor(
         val content =
           (e.elements[2] as KSExpressionQuoted).value
         return KSResult.succeed(
-          KSInlineVerbatim(e.position, KSParse(c.context), Optional.of(type), content))
+          KSInlineVerbatim(
+            e.position, e.square, KSParse(c.context), Optional.of(type), content))
       }
       KSExpressionMatch.matches(e, CommandMatchers.verbatim)      -> {
         Assertive.require(e.elements.size == 2)
         val content =
           (e.elements[1] as KSExpressionQuoted).value
         return KSResult.succeed(
-          KSInlineVerbatim(e.position, KSParse(c.context), Optional.empty(), content))
+          KSInlineVerbatim(
+            e.position, e.square, KSParse(c.context), Optional.empty(), content))
       }
     }
 
@@ -622,12 +652,12 @@ class KSInlineParser private constructor(
         KSResult.succeed(KSLinkContent.KSLinkText(
           e.position,
           KSParse(c.context),
-          KSInlineText(e.position, KSParse(c.context), false, e.value)))
+          KSInlineText(e.position, false, KSParse(c.context), false, e.value)))
       is KSExpressionQuoted ->
         KSResult.succeed(KSLinkContent.KSLinkText(
           e.position,
           KSParse(c.context),
-          KSInlineText(e.position, KSParse(c.context), true, e.value)))
+          KSInlineText(e.position, false, KSParse(c.context), true, e.value)))
     }
   }
 
@@ -638,7 +668,7 @@ class KSInlineParser private constructor(
     return parseLinkInternal(e, c) flatMap {
       link ->
       KSResult.succeed<KSInlineLink<KSParse>, KSParseError>(
-        KSInlineLink(e.position, KSParse(c.context), link))
+        KSInlineLink(e.position, e.square, KSParse(c.context), link))
     }
   }
 
@@ -649,7 +679,7 @@ class KSInlineParser private constructor(
     return parseLinkExternal(e, c) flatMap {
       link ->
       KSResult.succeed<KSInlineLink<KSParse>, KSParseError>(
-        KSInlineLink(e.position, KSParse(c.context), link))
+        KSInlineLink(e.position, e.square, KSParse(c.context), link))
     }
   }
 
@@ -669,7 +699,8 @@ class KSInlineParser private constructor(
           KSResult.listMap({ t -> parseInlineText(t, c) }, texts)
         return content flatMap { cs ->
           KSResult.succeed<KSInlineTerm<KSParse>, KSParseError>(
-            KSInlineTerm(e.position, KSParse(c.context), Optional.of(type), cs))
+            KSInlineTerm(
+              e.position, e.square, KSParse(c.context), Optional.of(type), cs))
         }
       }
 
@@ -682,7 +713,8 @@ class KSInlineParser private constructor(
           KSResult.listMap({ t -> parseInlineText(t, c) }, texts)
         return content flatMap { cs ->
           KSResult.succeed<KSInlineTerm<KSParse>, KSParseError>(
-            KSInlineTerm(e.position, KSParse(c.context), Optional.empty(), cs))
+            KSInlineTerm(
+              e.position, e.square, KSParse(c.context), Optional.empty(), cs))
         }
       }
     }
@@ -703,7 +735,7 @@ class KSInlineParser private constructor(
         val content = KSResult.listMap({ t -> parseListItem(t, c) }, texts)
         return content flatMap { cs ->
           KSResult.succeed<KSInlineListOrdered<KSParse>, KSParseError>(
-            KSInlineListOrdered(e.position, KSParse(c.context), cs))
+            KSInlineListOrdered(e.position, e.square, KSParse(c.context), cs))
         }
       }
     }
@@ -723,7 +755,7 @@ class KSInlineParser private constructor(
         val content = KSResult.listMap({ t -> parseListItem(t, c) }, texts)
         return content flatMap { cs ->
           KSResult.succeed<KSInlineListUnordered<KSParse>, KSParseError>(
-            KSInlineListUnordered(e.position, KSParse(c.context), cs))
+            KSInlineListUnordered(e.position, e.square, KSParse(c.context), cs))
         }
       }
     }
@@ -745,7 +777,7 @@ class KSInlineParser private constructor(
           KSResult.listMap({ ce -> parseInlineAny(ce, c) }, contents)
         return act_content flatMap { cs ->
           KSResult.succeed<KSListItem<KSParse>, KSParseError>(
-            KSListItem(e.position, KSParse(c.context), cs))
+            KSListItem(e.position, e.square, KSParse(c.context), cs))
         }
       }
     }
@@ -773,7 +805,14 @@ class KSInlineParser private constructor(
               val opt_type = Optional.of(type)
               val opt_head = Optional.of(head)
               KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(
-                KSInlineTable(e.position, KSParse(c.context), opt_type, summary, opt_head, body))
+                KSInlineTable(
+                  e.position,
+                  e.square,
+                  KSParse(c.context),
+                  opt_type,
+                  summary,
+                  opt_head,
+                  body))
             }
           }
         }
@@ -792,7 +831,13 @@ class KSInlineParser private constructor(
               val opt_type = Optional.empty<String>()
               val opt_head = Optional.of(head)
               KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(KSInlineTable(
-                e.position, KSParse(c.context), opt_type, summary, opt_head, body))
+                e.position,
+                e.square,
+                KSParse(c.context),
+                opt_type,
+                summary,
+                opt_head,
+                body))
             }
           }
         }
@@ -810,7 +855,13 @@ class KSInlineParser private constructor(
             val opt_type = Optional.of(type)
             val opt_head = Optional.empty<KSTableHead<KSParse>>()
             KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(KSInlineTable(
-              e.position, KSParse(c.context), opt_type, summary, opt_head, body))
+              e.position,
+              e.square,
+              KSParse(c.context),
+              opt_type,
+              summary,
+              opt_head,
+              body))
           }
         }
       }
@@ -826,7 +877,13 @@ class KSInlineParser private constructor(
             val opt_type = Optional.empty<String>()
             val opt_head = Optional.empty<KSTableHead<KSParse>>()
             KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(KSInlineTable(
-              e.position, KSParse(c.context), opt_type, summary, opt_head, body))
+              e.position,
+              e.square,
+              KSParse(c.context),
+              opt_type,
+              summary,
+              opt_head,
+              body))
           }
         }
       }
@@ -851,7 +908,7 @@ class KSInlineParser private constructor(
           KSResult.listMap({ ce -> parseTableBodyRow(ce, c) }, contents)
         return act_content flatMap { cs ->
           KSResult.succeed<KSTableBody<KSParse>, KSParseError>(
-            KSTableBody(e.position, KSParse(c.context), cs))
+            KSTableBody(e.position, e.square, KSParse(c.context), cs))
         }
       }
     }
@@ -872,7 +929,7 @@ class KSInlineParser private constructor(
           KSResult.listMap({ ce -> parseTableBodyCell(ce, c) }, contents)
         return act_content flatMap { cs ->
           KSResult.succeed<KSTableBodyRow<KSParse>, KSParseError>(
-            KSTableBodyRow(e.position, KSParse(c.context), cs))
+            KSTableBodyRow(e.position, e.square, KSParse(c.context), cs))
         }
       }
     }
@@ -893,7 +950,7 @@ class KSInlineParser private constructor(
           KSResult.listMap({ ce -> parseInlineAny(ce, c) }, contents)
         return act_content flatMap { cs ->
           KSResult.succeed<KSTableBodyCell<KSParse>, KSParseError>(
-            KSTableBodyCell(e.position, KSParse(c.context), cs))
+            KSTableBodyCell(e.position, e.square, KSParse(c.context), cs))
         }
       }
     }
@@ -913,7 +970,7 @@ class KSInlineParser private constructor(
           KSResult.listMap({ ce -> parseTableColumnName(ce, c) }, contents)
         return act_content flatMap { cs ->
           KSResult.succeed<KSTableHead<KSParse>, KSParseError>(
-            KSTableHead(e.position, KSParse(c.context), cs))
+            KSTableHead(e.position, e.square, KSParse(c.context), cs))
         }
       }
     }
@@ -935,7 +992,7 @@ class KSInlineParser private constructor(
           KSResult.listMap({ ce -> parseInlineText(ce, c) }, contents)
         return act_content flatMap { cs ->
           KSResult.succeed<KSTableHeadColumnName<KSParse>, KSParseError>(
-            KSTableHeadColumnName(e.position, KSParse(c.context), cs))
+            KSTableHeadColumnName(e.position, e.square, KSParse(c.context), cs))
         }
       }
     }
@@ -957,7 +1014,7 @@ class KSInlineParser private constructor(
           KSResult.listMap({ ce -> parseInlineText(ce, c) }, contents)
         return act_content flatMap { cs ->
           KSResult.succeed<KSTableSummary<KSParse>, KSParseError>(
-            KSTableSummary(e.position, KSParse(c.context), cs))
+            KSTableSummary(e.position, e.square, KSParse(c.context), cs))
         }
       }
     }
@@ -976,7 +1033,7 @@ class KSInlineParser private constructor(
         val target = parseAttributeTarget(e)
         val kid = KSID(e.elements[1].position, target, KSParse(c.context))
         return KSResult.succeed(
-          KSInlineFootnoteReference(e.position, KSParse(c.context), kid))
+          KSInlineFootnoteReference(e.position, e.square, KSParse(c.context), kid))
       }
     }
 
@@ -1060,10 +1117,10 @@ class KSInlineParser private constructor(
     return when (e) {
       is KSExpressionQuoted ->
         KSResult.succeed(
-          KSInlineText(e.position, KSParse(c.context), true, e.value))
+          KSInlineText(e.position, false, KSParse(c.context), true, e.value))
       is KSExpressionSymbol ->
         KSResult.succeed(
-          KSInlineText(e.position, KSParse(c.context), false, e.value))
+          KSInlineText(e.position, false, KSParse(c.context), false, e.value))
       is KSExpressionList   -> {
         if (!KSExpressionMatch.matches(e, isInlineElement)) {
           val sb = StringBuilder()

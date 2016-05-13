@@ -716,7 +716,7 @@ object KSEvaluator : KSEvaluatorType {
         val eval = KSEvaluation(c, serial, parent, Optional.empty())
         c.recordID(c, d, serial, { d, id ->
           val d_eval = KSBlockDocumentWithSections(
-            d.position, eval, id, d.type, title, content)
+            d.position, d.square, eval, id, d.type, title, content)
           c.recordBlock(d, { c, i, s -> translateImport(c, i, s) },  d_eval)
         })
       }
@@ -732,8 +732,9 @@ object KSEvaluator : KSEvaluatorType {
     val es = c.freshSerial()
     val ie = KSEvaluation(c, es, parent, Optional.empty())
     val te = KSEvaluation(c, c.freshSerial(), es, Optional.empty())
-    val file = KSInlineText(i.file.position, te, true, i.file.text)
-    return KSBlockImport(i.position, ie, Optional.empty(), Optional.empty(), file)
+    val file = KSInlineText(i.file.position, false, te, true, i.file.text)
+    return KSBlockImport(
+      i.position, i.square, ie, Optional.empty(), Optional.empty(), file)
   }
 
   private fun evaluateDocumentWithParts(
@@ -756,7 +757,7 @@ object KSEvaluator : KSEvaluatorType {
         val ev = KSEvaluation(c, serial, parent, Optional.empty())
         c.recordID(c, d, serial, { ss, id ->
           val d_eval = KSBlockDocumentWithParts(
-            d.position, ev, id, d.type, title, content)
+            d.position, d.square, ev, id, d.type, title, content)
           c.recordBlock(d, { c, i, s -> translateImport(c, i, s) }, d_eval)
         })
       }
@@ -769,7 +770,7 @@ object KSEvaluator : KSEvaluatorType {
     parent : KSSerial)
     : KSResult<KSInlineText<KSEvaluation>, KSEvaluationError> {
     val eval = KSEvaluation(c, c.freshSerial(), parent, Optional.empty())
-    val re = KSInlineText(e.position, eval, e.quote, e.text)
+    val re = KSInlineText(e.position, false, eval, e.quote, e.text)
     c.addElement(re)
     return KSResult.succeed<KSInlineText<KSEvaluation>, KSEvaluationError>(re)
   }
@@ -787,7 +788,8 @@ object KSEvaluator : KSEvaluatorType {
 
     return act_content flatMap { content ->
       val eval = KSEvaluation(c, serial, parent, Optional.empty())
-      val re = KSInlineImage(e.position, eval, e.type, e.target, e.size, content)
+      val re = KSInlineImage(
+        e.position, e.square, eval, e.type, e.target, e.size, content)
       c.addElement(re)
       KSResult.succeed<KSInlineImage<KSEvaluation>, KSEvaluationError>(re)
     }
@@ -806,7 +808,7 @@ object KSEvaluator : KSEvaluatorType {
 
     return act_content flatMap { content ->
       val eval = KSEvaluation(c, serial, parent, Optional.empty())
-      val re = KSInlineTerm(e.position, eval, e.type, content)
+      val re = KSInlineTerm(e.position, e.square, eval, e.type, content)
       c.addElement(re)
       KSResult.succeed<KSInlineTerm<KSEvaluation>, KSEvaluationError>(re)
     }
@@ -819,7 +821,7 @@ object KSEvaluator : KSEvaluatorType {
     : KSResult<KSInlineVerbatim<KSEvaluation>, KSEvaluationError> {
 
     val eval = KSEvaluation(c, c.freshSerial(), parent, Optional.empty())
-    val re = KSInlineVerbatim(e.position, eval, e.type, e.text)
+    val re = KSInlineVerbatim(e.position, e.square, eval, e.type, e.text)
     c.addElement(re)
     return KSResult.succeed<KSInlineVerbatim<KSEvaluation>, KSEvaluationError>(re)
   }
@@ -856,7 +858,7 @@ object KSEvaluator : KSEvaluatorType {
     val serial = c.freshSerial()
     val eval = KSEvaluation(c, serial, parent, Optional.empty())
     return evaluateInlineText(c, e.file, serial) flatMap { file ->
-      val re = KSInlineInclude(e.position, eval, file)
+      val re = KSInlineInclude(e.position, e.square, eval, file)
       c.includes_by_file[p] = t
       c.includes_by_serial[serial] = t
       KSResult.succeed<KSInlineInclude<KSEvaluation>, KSEvaluationError>(re)
@@ -873,7 +875,7 @@ object KSEvaluator : KSEvaluatorType {
     val id_eval = KSEvaluation(c, c.freshSerial(), serial, Optional.empty())
     val ksid = KSID(e.target.position, e.target.value, id_eval)
     val eval = KSEvaluation(c, serial, parent, Optional.empty())
-    val re = KSInlineFootnoteReference(e.position, eval, ksid)
+    val re = KSInlineFootnoteReference(e.position, e.square, eval, ksid)
     c.addElement(re)
 
     return c.referenceFootnote(re, ksid) flatMap { ref ->
@@ -915,7 +917,8 @@ object KSEvaluator : KSEvaluatorType {
         act_summary flatMap { summary ->
           act_head flatMap { head ->
             val eval = KSEvaluation(c, serial, parent, Optional.empty())
-            val table = KSInlineTable(e.position, eval, e.type, summary, head, body)
+            val table = KSInlineTable(
+              e.position, e.square, eval, e.type, summary, head, body)
             c.addElement(table)
             KSResult.succeed<KSInlineTable<KSEvaluation>, KSEvaluationError>(table)
           }
@@ -946,7 +949,7 @@ object KSEvaluator : KSEvaluatorType {
 
         act_names flatMap { names ->
           val eval = KSEvaluation(c, serial, parent, Optional.empty())
-          val head = KSTableHead(eh.position, eval, names)
+          val head = KSTableHead(eh.position, e.square, eval, names)
           c.addElement(head)
           KSResult.succeed<Optional<KSTableHead<KSEvaluation>>, KSEvaluationError>(
             Optional.of(head))
@@ -969,7 +972,7 @@ object KSEvaluator : KSEvaluatorType {
     }, name.content)
       .flatMap { content ->
         val eval = KSEvaluation(c, serial, parent, Optional.empty())
-        val re = KSTableHeadColumnName(name.position, eval, content)
+        val re = KSTableHeadColumnName(name.position, name.square, eval, content)
         c.addElement(re)
         KSResult.succeed<KSTableHeadColumnName<KSEvaluation>, KSEvaluationError>(re)
       }
@@ -987,7 +990,7 @@ object KSEvaluator : KSEvaluatorType {
 
     return act_rows.flatMap { rows ->
       val eval = KSEvaluation(c, serial, parent, Optional.empty())
-      val re = KSTableBody(b.position, eval, rows)
+      val re = KSTableBody(b.position, b.square, eval, rows)
       c.addElement(re)
       KSResult.succeed<KSTableBody<KSEvaluation>, KSEvaluationError>(re)
     }
@@ -1007,7 +1010,7 @@ object KSEvaluator : KSEvaluatorType {
 
     return act_cells flatMap { cells ->
       val eval = KSEvaluation(c, serial, parent, Optional.empty())
-      val re = KSTableBodyRow(row.position, eval, cells)
+      val re = KSTableBodyRow(row.position, row.square, eval, cells)
       c.addElement(re)
       KSResult.succeed<KSTableBodyRow<KSEvaluation>, KSEvaluationError>(re)
     }
@@ -1024,7 +1027,7 @@ object KSEvaluator : KSEvaluatorType {
       KSResult.listMap({ cc -> evaluateInline(c, cc, serial) }, cell.content)
     return act_content.flatMap { content ->
       val eval = KSEvaluation(c, serial, parent, Optional.empty())
-      val re = KSTableBodyCell(cell.position, eval, content)
+      val re = KSTableBodyCell(cell.position, cell.square, eval, content)
       c.addElement(re)
       KSResult.succeed<KSTableBodyCell<KSEvaluation>, KSEvaluationError>(re)
     }
@@ -1040,7 +1043,7 @@ object KSEvaluator : KSEvaluatorType {
       KSResult.listMap({ cc -> evaluateInlineText(c, cc, serial) }, s.content)
     return act_content flatMap { content ->
       val eval = KSEvaluation(c, serial, parent, Optional.empty())
-      val re = KSTableSummary(s.position, eval, content)
+      val re = KSTableSummary(s.position, s.square, eval, content)
       c.addElement(re)
       KSResult.succeed<KSTableSummary<KSEvaluation>, KSEvaluationError>(re)
     }
@@ -1091,7 +1094,7 @@ object KSEvaluator : KSEvaluatorType {
 
     return act_items flatMap { items ->
       val eval = KSEvaluation(c, serial, parent, Optional.empty())
-      val re = KSInlineListUnordered(e.position, eval, items)
+      val re = KSInlineListUnordered(e.position, e.square, eval, items)
       c.addElement(re)
       KSResult.succeed<KSInlineListUnordered<KSEvaluation>, KSEvaluationError>(re)
     }
@@ -1109,7 +1112,7 @@ object KSEvaluator : KSEvaluatorType {
 
     return act_items flatMap { items ->
       val eval = KSEvaluation(c, serial, parent, Optional.empty())
-      val re = KSInlineListOrdered(e.position, eval, items)
+      val re = KSInlineListOrdered(e.position, e.square, eval, items)
       c.addElement(re)
       KSResult.succeed<KSInlineListOrdered<KSEvaluation>, KSEvaluationError>(re)
     }
@@ -1127,7 +1130,7 @@ object KSEvaluator : KSEvaluatorType {
 
     return act_item_content flatMap { content ->
       val eval = KSEvaluation(c, serial, parent, Optional.empty())
-      val re = KSListItem(item.position, eval, content)
+      val re = KSListItem(item.position, item.square, eval, content)
       c.addElement(re)
       KSResult.succeed<KSListItem<KSEvaluation>, KSEvaluationError>(re)
     }
@@ -1149,7 +1152,7 @@ object KSEvaluator : KSEvaluatorType {
         act_content flatMap { content ->
           val link = KSLinkExternal(act.position, act.target, content)
           val eval = KSEvaluation(c, serial, parent, Optional.empty())
-          val re = KSInlineLink(e.position, eval, link)
+          val re = KSInlineLink(e.position, e.square, eval, link)
           c.addElement(re)
           KSResult.succeed<KSInlineLink<KSEvaluation>, KSEvaluationError>(re)
         }
@@ -1166,7 +1169,7 @@ object KSEvaluator : KSEvaluatorType {
         act_content flatMap { content ->
           val link = KSLinkInternal(act.position, ksid, content)
           val eval = KSEvaluation(c, serial, parent, Optional.empty())
-          val re = KSInlineLink(e.position, eval, link)
+          val re = KSInlineLink(e.position, e.square, eval, link)
           c.addElement(re)
           KSResult.succeed<KSInlineLink<KSEvaluation>, KSEvaluationError>(re)
         }
@@ -1245,7 +1248,7 @@ object KSEvaluator : KSEvaluatorType {
         val ev = KSEvaluation(c, serial, parent, Optional.of(num))
         c.recordID(c, e, serial, { e, id ->
           val e_eval = KSBlockSectionWithContent(
-            e.position, ev, e.type, id, title, content)
+            e.position, e.square, ev, e.type, id, title, content)
           c.recordBlock(e, { c, i, s -> translateImport(c, i, s) }, e_eval)
         })
       }
@@ -1289,7 +1292,8 @@ object KSEvaluator : KSEvaluatorType {
     return act_content flatMap { content ->
       val ev = KSEvaluation(c, serial, parent, Optional.empty())
       c.recordID(c, f, serial, { f, id ->
-        val f_eval = KSBlockFootnote(f.position, ev, f.type, id, content)
+        val f_eval = KSBlockFootnote(
+          f.position, f.square, ev, f.type, id, content)
         c.recordFootnote(f_eval)
         c.recordBlock(f, { c, i, s -> translateImport(c, i, s) }, f_eval)
       })
@@ -1339,7 +1343,8 @@ object KSEvaluator : KSEvaluatorType {
 
         val ev = KSEvaluation(c, serial, parent, Optional.of(num))
         c.recordID(c, f, serial, { f, id ->
-          val f_eval = KSBlockFormalItem(f.position, ev, f.type, id, title, content)
+          val f_eval = KSBlockFormalItem(
+            f.position, f.square, ev, f.type, id, title, content)
           c.recordBlock(f, { c, i, s -> translateImport(c, i, s) }, f_eval)
         })
       }
@@ -1387,7 +1392,8 @@ object KSEvaluator : KSEvaluatorType {
 
       val ev = KSEvaluation(c, serial, parent, Optional.of(num))
       c.recordID(c, p, serial, { p, id ->
-        val p_eval = KSBlockParagraph(p.position, ev, p.type, id, content)
+        val p_eval = KSBlockParagraph(
+          p.position, p.square, ev, p.type, id, content)
         c.recordBlock(p, { c, i, s -> translateImport(c, i, s) }, p_eval)
       })
     }
@@ -1420,7 +1426,7 @@ object KSEvaluator : KSEvaluatorType {
         val ev = KSEvaluation(c, serial, parent, Optional.of(num))
         c.recordID(c, e, serial, { e, id ->
           val e_eval = KSBlockSectionWithSubsections(
-            e.position, ev, e.type, id, title, content)
+            e.position, e.square, ev, e.type, id, title, content)
           c.recordBlock(e, { c, i, s -> translateImport(c, i, s) }, e_eval)
         })
       }
@@ -1463,7 +1469,7 @@ object KSEvaluator : KSEvaluatorType {
         val ev = KSEvaluation(c, serial, parent, Optional.of(num))
         c.recordID(c, ss, serial, { ss, id ->
           val ss_eval = KSBlockSubsection(
-            ss.position, ev, ss.type, id, title, content)
+            ss.position, ss.square, ev, ss.type, id, title, content)
           c.recordBlock(ss, { c, i, s -> translateImport(c, i, s) }, ss_eval)
         })
       }
@@ -1494,7 +1500,8 @@ object KSEvaluator : KSEvaluatorType {
         val ev = KSEvaluation(
           c, serial, parent, Optional.of(KSNumberPart(c.part_number.asLong)))
         c.recordID(c, e, serial, { e, id ->
-          val e_eval = KSBlockPart(e.position, ev, e.type, id, title, content)
+          val e_eval = KSBlockPart(
+            e.position, e.square, ev, e.type, id, title, content)
           c.recordBlock(e, { c, i, s -> translateImport(c, i, s) }, e_eval)
         })
       }
