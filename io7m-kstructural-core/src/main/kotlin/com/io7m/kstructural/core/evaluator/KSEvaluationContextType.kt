@@ -30,9 +30,6 @@ interface KSEvaluationContextType {
 
   val document : KSBlockDocument<KSEvaluation>
 
-  fun textForInclude(
-    i : KSInlineInclude<KSEvaluation>) : String
-
   val imports : Map<KSBlock<KSEvaluation>, KSBlockImport<KSEvaluation>>
 
   fun elementForID(

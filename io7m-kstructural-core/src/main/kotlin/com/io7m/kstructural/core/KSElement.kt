@@ -448,7 +448,7 @@ sealed class KSElement<T>(
       square : Boolean,
       data : T,
       override val type : Optional<String>,
-      val text : String)
+      val text : KSInlineText<T>)
     : KSInline<T>(position, square, data), KSTypeableType {
 
       override fun toString() : String {
@@ -465,9 +465,9 @@ sealed class KSElement<T>(
         }
         sb.append("\"")
 
-        val max = text.length - 1
+        val max = text.text.length - 1
         for (i in 0 .. max) {
-          val c = text.get(i)
+          val c = text.text.get(i)
           if (c == '"') {
             sb.append("\\\"")
           } else {

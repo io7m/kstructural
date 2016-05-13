@@ -43,12 +43,4 @@ sealed class KSLinkContent<T>(
     override fun toString() = actual.toString()
   }
 
-  class KSLinkInclude<T>(
-    position : Optional<LexicalPositionType<Path>>,
-    data : T,
-    val actual : KSInlineInclude<T>)
-  : KSLinkContent<T>(position, data) {
-    override fun toString() = actual.toString()
-  }
-
 }

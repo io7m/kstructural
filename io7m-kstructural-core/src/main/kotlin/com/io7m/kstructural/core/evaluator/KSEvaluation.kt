@@ -16,12 +16,12 @@
 
 package com.io7m.kstructural.core.evaluator
 
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
 import java.util.Optional
 
 data class KSEvaluation(
   val context : KSEvaluationContextType,
   val serial : KSSerial,
   val parent : KSSerial,
-  val number : Optional<KSNumber>) {
-
-}
+  val number : Optional<KSNumber>,
+  val include : Optional<KSInlineInclude<KSEvaluation>> = Optional.empty())

@@ -16,6 +16,7 @@
 
 package com.io7m.kstructural.pretty
 
+import com.io7m.junreachable.UnimplementedCodeException
 import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
@@ -273,7 +274,6 @@ class KSPrettyPrinter private constructor(
     when (c) {
       is KSLinkContent.KSLinkText    -> prettyInline(c.actual)
       is KSLinkContent.KSLinkImage   -> prettyInline(c.actual)
-      is KSLinkContent.KSLinkInclude -> prettyInline(c.actual)
     }
 
   private fun prettyInlineFootnoteReference(
@@ -284,14 +284,9 @@ class KSPrettyPrinter private constructor(
   }
 
   private fun prettyInlineInclude(e : KSInlineInclude<KSEvaluation>) : Unit {
-    if (imports) {
-      outStartMinor("include", e.square)
-      layout.print(String.format("\"%s\"", e.file.text))
-      outEnd(e.square)
-    } else {
-      val text = e.data.context.textForInclude(e)
-      layout.print(text)
-    }
+    outStartMinor("include", e.square)
+    layout.print(String.format("\"%s\"", e.file.text))
+    outEnd(e.square)
   }
 
   private fun prettyInlineTerm(e : KSInlineTerm<KSEvaluation>) : Unit {
@@ -302,10 +297,14 @@ class KSPrettyPrinter private constructor(
   }
 
   private fun prettyInlineText(e : KSInlineText<KSEvaluation>) : Unit {
-    if (e.quote) {
-      layout.print(String.format("\"%s\"", e.text))
+    if (imports && e.data.include.isPresent) {
+      prettyInlineInclude(e.data.include.get())
     } else {
-      layout.print(e.text)
+      if (e.quote) {
+        layout.print(String.format("\"%s\"", e.text))
+      } else {
+        layout.print(e.text)
+      }
     }
   }
 

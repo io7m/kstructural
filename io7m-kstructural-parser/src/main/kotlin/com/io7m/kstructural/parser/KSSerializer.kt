@@ -80,7 +80,7 @@ class KSSerializer : KSSerializerType {
   private fun serializeVerbatim(e : KSInlineVerbatim<KSEvaluation>) : KSExpression {
     val es = mutableListOf<KSExpression>()
     es.add(KSExpressionSymbol(e.position, "verbatim"))
-    es.add(KSExpressionQuoted(e.position, e.text))
+    es.add(KSExpressionQuoted(e.position, e.text.text))
     return KSExpressionList(e.position, false, es)
   }
 
@@ -104,7 +104,6 @@ class KSSerializer : KSSerializerType {
   when (c) {
     is KSLinkContent.KSLinkText    -> serialize(c.actual)
     is KSLinkContent.KSLinkImage   -> serialize(c.actual)
-    is KSLinkContent.KSLinkInclude -> serialize(c.actual)
   }
 
   private fun serializeLinkExternal(e : KSLink.KSLinkExternal<KSEvaluation>) : KSExpression {

@@ -30,6 +30,7 @@ import com.io7m.kstructural.core.KSElement.KSInline.KSSize
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSLink
 import com.io7m.kstructural.core.KSLinkContent
+import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.parser.KSExpression
@@ -87,12 +88,6 @@ abstract class KSInlineParserContract {
     Assert.assertEquals("x", r.result.text)
   }
 
-  @Test fun testInlineTermError() {
-    val pp = newParserForString("[term]")
-    val r = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
-    r as KSFailure
-  }
-
   @Test fun testInlineTermTypeError() {
     val pp = newParserForString("[term [type]]")
     val r = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
@@ -141,12 +136,27 @@ abstract class KSInlineParserContract {
     Assert.assertEquals(Optional.of("y"), i.result.type)
   }
 
+  @Test fun testInlineTermInclude() {
+    val file = filesystem!!.getPath("other.txt").toAbsolutePath()
+    Files.newOutputStream(file).use { f ->
+      IOUtils.write("hello", f, StandardCharsets.UTF_8)
+      f.flush()
+    }
+
+    val pp = newParserForString("[term [include \"other.txt\"]]")
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
+
+    i as KSSuccess<KSInlineTerm<*>, KSParseError>
+    Assert.assertEquals("hello", i.result.content[0].text)
+    Assert.assertEquals(Optional.empty<String>(), i.result.type)
+  }
+
   @Test fun testInlineVerbatim() {
     val pp = newParserForString("[verbatim \"x\"]")
     val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineVerbatim<*>, KSParseError>
-    Assert.assertEquals("x", i.result.text)
+    Assert.assertEquals("x", i.result.text.text)
   }
 
   @Test fun testInlineVerbatimType() {
@@ -154,14 +164,43 @@ abstract class KSInlineParserContract {
     val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineVerbatim<*>, KSParseError>
-    Assert.assertEquals("x", i.result.text)
+    Assert.assertEquals("x", i.result.text.text)
     Assert.assertEquals("y", i.result.type.get())
+  }
+
+  @Test fun testInlineVerbatimInclude() {
+    val file = filesystem!!.getPath("other.txt").toAbsolutePath()
+    Files.newOutputStream(file).use { f ->
+      IOUtils.write("hello", f, StandardCharsets.UTF_8)
+      f.flush()
+    }
+
+    val pp = newParserForString("[verbatim (include \"other.txt\")]")
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
+
+    i as KSSuccess<KSInlineVerbatim<*>, KSParseError>
+    Assert.assertEquals("hello", i.result.text.text)
   }
 
   @Test fun testInlineVerbatimError() {
     val pp = newParserForString("[verbatim [x]]")
     val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
     i as KSFailure
+  }
+
+  @Test fun testInlineVerbatimTypeInclude() {
+    val file = filesystem!!.getPath("other.txt").toAbsolutePath()
+    Files.newOutputStream(file).use { f ->
+      IOUtils.write("hello", f, StandardCharsets.UTF_8)
+      f.flush()
+    }
+
+    val pp = newParserForString("[verbatim (type t) (include \"other.txt\")]")
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
+
+    i as KSSuccess<KSInlineVerbatim<*>, KSParseError>
+    Assert.assertEquals("hello", i.result.text.text)
+    Assert.assertEquals("t", i.result.type.get())
   }
 
   @Test fun testInlineLinkInternal() {
@@ -629,10 +668,21 @@ abstract class KSInlineParserContract {
     val c = KSParseContext.empty()
     val i = pp.p.parse(c, pp.s(), defaultFile())
 
-    i as KSSuccess<KSInlineInclude<*>, KSParseError>
-    Assert.assertEquals("other.txt", i.result.file.text)
+    i as KSSuccess<KSInlineText<KSParse>, KSParseError>
+    Assert.assertEquals("hello", i.result.text)
+    Assert.assertTrue(i.result.data.include.isPresent)
+    Assert.assertEquals("other.txt", i.result.data.include.get().file.text)
     Assert.assertTrue(c.includes.containsKey(file))
     Assert.assertEquals("hello", c.includes[file])
+  }
+
+  @Test fun testInlineIncludeNonexistent() {
+    val pp = newParserForString("[include \"nonexistent.txt\"]")
+
+    val c = KSParseContext.empty()
+    val i = pp.p.parse(c, pp.s(), defaultFile())
+
+    i as KSFailure
   }
 
   @Test fun testInlineIncludeError() {

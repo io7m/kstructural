@@ -55,7 +55,6 @@ import com.io7m.kstructural.core.KSLink.KSLinkExternal
 import com.io7m.kstructural.core.KSLink.KSLinkInternal
 import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSLinkContent.KSLinkImage
-import com.io7m.kstructural.core.KSLinkContent.KSLinkInclude
 import com.io7m.kstructural.core.KSLinkContent.KSLinkText
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSResult
@@ -122,15 +121,6 @@ object KSEvaluator : KSEvaluatorType {
           enclosing_table_pos = Optional.empty())
         c.file_stack.push(f)
         return c
-      }
-    }
-
-    override fun textForInclude(
-      i : KSInlineInclude<KSEvaluation>) : String {
-      return if (this.includes_by_serial.containsKey(i.data.serial)) {
-        this.includes_by_serial[i.data.serial]!!
-      } else {
-        throw UnreachableCodeException()
       }
     }
 
@@ -583,7 +573,7 @@ object KSEvaluator : KSEvaluatorType {
     }
 
     fun <T : KSBlock<KSParse>,
-         U : KSBlock<KSEvaluation>>
+      U : KSBlock<KSEvaluation>>
       recordBlock(
       a : T,
       f : (Context, KSBlockImport<KSParse>, KSSerial) -> KSBlockImport<KSEvaluation>,
@@ -717,7 +707,7 @@ object KSEvaluator : KSEvaluatorType {
         c.recordID(c, d, serial, { d, id ->
           val d_eval = KSBlockDocumentWithSections(
             d.position, d.square, eval, id, d.type, title, content)
-          c.recordBlock(d, { c, i, s -> translateImport(c, i, s) },  d_eval)
+          c.recordBlock(d, { c, i, s -> translateImport(c, i, s) }, d_eval)
         })
       }
     }
@@ -769,10 +759,23 @@ object KSEvaluator : KSEvaluatorType {
     e : KSInlineText<KSParse>,
     parent : KSSerial)
     : KSResult<KSInlineText<KSEvaluation>, KSEvaluationError> {
-    val eval = KSEvaluation(c, c.freshSerial(), parent, Optional.empty())
-    val re = KSInlineText(e.position, false, eval, e.quote, e.text)
-    c.addElement(re)
-    return KSResult.succeed<KSInlineText<KSEvaluation>, KSEvaluationError>(re)
+
+    val serial = c.freshSerial()
+    return if (e.data.include.isPresent) {
+      val ii = e.data.include.get()
+      evaluateInlineInclude(c, ii, parent).flatMap { inc ->
+        val eval = KSEvaluation(
+          c, serial, parent, Optional.empty(), Optional.of(inc))
+        val re = KSInlineText(e.position, false, eval, e.quote, e.text)
+        c.addElement(re)
+        KSResult.succeed<KSInlineText<KSEvaluation>, KSEvaluationError>(re)
+      }
+    } else {
+      val eval = KSEvaluation(c, serial, parent, Optional.empty())
+      val re = KSInlineText(e.position, false, eval, e.quote, e.text)
+      c.addElement(re)
+      KSResult.succeed<KSInlineText<KSEvaluation>, KSEvaluationError>(re)
+    }
   }
 
   private fun evaluateInlineImage(
@@ -820,10 +823,15 @@ object KSEvaluator : KSEvaluatorType {
     parent : KSSerial)
     : KSResult<KSInlineVerbatim<KSEvaluation>, KSEvaluationError> {
 
-    val eval = KSEvaluation(c, c.freshSerial(), parent, Optional.empty())
-    val re = KSInlineVerbatim(e.position, e.square, eval, e.type, e.text)
-    c.addElement(re)
-    return KSResult.succeed<KSInlineVerbatim<KSEvaluation>, KSEvaluationError>(re)
+    val serial = c.freshSerial()
+    val eval = KSEvaluation(c, serial, parent, Optional.empty())
+    val act_content = evaluateInlineText(c, e.text, serial)
+
+    return act_content.flatMap { text ->
+      val re = KSInlineVerbatim(e.position, e.square, eval, e.type, text)
+      c.addElement(re)
+      KSResult.succeed<KSInlineVerbatim<KSEvaluation>, KSEvaluationError>(re)
+    }
   }
 
   private fun evaluateInline(
@@ -1185,25 +1193,19 @@ object KSEvaluator : KSEvaluatorType {
 
     val serial = c.freshSerial()
     return when (cc) {
-      is KSLinkContent.KSLinkText    ->
+      is KSLinkContent.KSLinkText  ->
         evaluateInlineText(c, cc.actual, serial) flatMap { t ->
           val ev = KSEvaluation(c, serial, parent, Optional.empty())
           KSResult.succeed<KSLinkContent<KSEvaluation>, KSEvaluationError>(
             KSLinkText(cc.position, ev, t))
         }
-      is KSLinkContent.KSLinkImage   -> {
+      is KSLinkContent.KSLinkImage -> {
         evaluateInlineImage(c, cc.actual, serial) flatMap { t ->
           val ev = KSEvaluation(c, serial, parent, Optional.empty())
           KSResult.succeed<KSLinkContent<KSEvaluation>, KSEvaluationError>(
             KSLinkImage(cc.position, ev, t))
         }
       }
-      is KSLinkContent.KSLinkInclude ->
-        evaluateInlineInclude(c, cc.actual, serial) flatMap { t ->
-          val ev = KSEvaluation(c, serial, parent, Optional.empty())
-          KSResult.succeed<KSLinkContent<KSEvaluation>, KSEvaluationError>(
-            KSLinkInclude(cc.position, ev, t))
-        }
     }
   }
 

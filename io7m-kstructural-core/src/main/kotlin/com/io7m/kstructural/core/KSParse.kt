@@ -16,5 +16,9 @@
 
 package com.io7m.kstructural.core
 
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
+import java.util.Optional
+
 data class KSParse(
-  val context : KSParseContextReadableType)
+  val context : KSParseContextReadableType,
+  val include : Optional<KSInlineInclude<KSParse>> = Optional.empty())

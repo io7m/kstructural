@@ -289,7 +289,7 @@ internal object KSXOM {
 
   private fun inlineInclude(
     c : KSInlineInclude<KSEvaluation>) : Node {
-    return Text(c.data.context.textForInclude(c))
+    throw TODO()
   }
 
   private fun inlineFootnoteReference(
@@ -413,7 +413,6 @@ internal object KSXOM {
     when (c) {
       is KSLinkContent.KSLinkText    -> inlineText(c.actual)
       is KSLinkContent.KSLinkImage   -> inlineImage(c.actual)
-      is KSLinkContent.KSLinkInclude -> inlineInclude(c.actual)
     }
 
   private fun inlineImage(c : KSInlineImage<KSEvaluation>) : Node {
@@ -454,7 +453,7 @@ internal object KSXOM {
 
     val sc = Element("pre", XHTML_URI_TEXT)
     sc.addAttribute(Attribute("class", null, classes_text))
-    sc.appendChild(c.text)
+    sc.appendChild(c.text.text)
     return sc
   }
 
