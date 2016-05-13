@@ -366,6 +366,7 @@ sealed class KSElement<T>(
     class KSInlineText<T>(
       position : Optional<LexicalPositionType<Path>>,
       data : T,
+      val quote : Boolean,
       val text : String) : KSInline<T>(position, data) {
       override fun toString() : String = text
     }

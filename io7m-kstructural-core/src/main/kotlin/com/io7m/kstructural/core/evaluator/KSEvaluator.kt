@@ -732,7 +732,7 @@ object KSEvaluator : KSEvaluatorType {
     val es = c.freshSerial()
     val ie = KSEvaluation(c, es, parent, Optional.empty())
     val te = KSEvaluation(c, c.freshSerial(), es, Optional.empty())
-    val file = KSInlineText(i.file.position, te, i.file.text)
+    val file = KSInlineText(i.file.position, te, true, i.file.text)
     return KSBlockImport(i.position, ie, Optional.empty(), Optional.empty(), file)
   }
 
@@ -769,7 +769,7 @@ object KSEvaluator : KSEvaluatorType {
     parent : KSSerial)
     : KSResult<KSInlineText<KSEvaluation>, KSEvaluationError> {
     val eval = KSEvaluation(c, c.freshSerial(), parent, Optional.empty())
-    val re = KSInlineText(e.position, eval, e.text)
+    val re = KSInlineText(e.position, eval, e.quote, e.text)
     c.addElement(re)
     return KSResult.succeed<KSInlineText<KSEvaluation>, KSEvaluationError>(re)
   }

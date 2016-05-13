@@ -148,6 +148,18 @@ abstract class KSPrettyPrinterContract {
 """.trim(), imports = false)
   }
 
+  @Test fun testTextSpacing()
+  {
+    roundTrip("""
+[document
+  [title d]
+  [section
+    [title s]
+    [paragraph
+      p0 "  p1  " p2]]]
+""".trim(), imports = false)
+  }
+
   @Test fun testTerm()
   {
     roundTrip("""

@@ -299,7 +299,11 @@ class KSPrettyPrinter private constructor(
   }
 
   private fun prettyInlineText(e : KSInlineText<KSEvaluation>) : Unit {
-    layout.print(e.text)
+    if (e.quote) {
+      layout.print(String.format("\"%s\"", e.text))
+    } else {
+      layout.print(e.text)
+    }
   }
 
   private fun prettyFormalItem(e : KSBlockFormalItem<KSEvaluation>) : Unit {

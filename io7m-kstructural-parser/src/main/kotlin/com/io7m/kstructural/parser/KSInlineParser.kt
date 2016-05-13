@@ -422,9 +422,11 @@ class KSInlineParser private constructor(
         parseError(e, sb.toString())
       }
       is KSExpressionSymbol ->
-        KSResult.succeed(KSInlineText(e.position, KSParse(c.context), e.value))
+        KSResult.succeed(
+          KSInlineText(e.position, KSParse(c.context), false, e.value))
       is KSExpressionQuoted ->
-        KSResult.succeed(KSInlineText(e.position, KSParse(c.context), e.value))
+        KSResult.succeed(
+          KSInlineText(e.position, KSParse(c.context), true, e.value))
     }
   }
 
@@ -620,12 +622,12 @@ class KSInlineParser private constructor(
         KSResult.succeed(KSLinkContent.KSLinkText(
           e.position,
           KSParse(c.context),
-          KSInlineText(e.position, KSParse(c.context), e.value)))
+          KSInlineText(e.position, KSParse(c.context), false, e.value)))
       is KSExpressionQuoted ->
         KSResult.succeed(KSLinkContent.KSLinkText(
           e.position,
           KSParse(c.context),
-          KSInlineText(e.position, KSParse(c.context), e.value)))
+          KSInlineText(e.position, KSParse(c.context), true, e.value)))
     }
   }
 
@@ -1057,9 +1059,11 @@ class KSInlineParser private constructor(
     : KSResult<KSInline<KSParse>, KSParseError> {
     return when (e) {
       is KSExpressionQuoted ->
-        KSResult.succeed(KSInlineText(e.position, KSParse(c.context), e.value))
+        KSResult.succeed(
+          KSInlineText(e.position, KSParse(c.context), true, e.value))
       is KSExpressionSymbol ->
-        KSResult.succeed(KSInlineText(e.position, KSParse(c.context), e.value))
+        KSResult.succeed(
+          KSInlineText(e.position, KSParse(c.context), false, e.value))
       is KSExpressionList   -> {
         if (!KSExpressionMatch.matches(e, isInlineElement)) {
           val sb = StringBuilder()
