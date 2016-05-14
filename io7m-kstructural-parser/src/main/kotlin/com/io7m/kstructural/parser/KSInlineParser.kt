@@ -1183,6 +1183,9 @@ class KSInlineParser private constructor(
         { s -> parsers.containsKey(s) },
         parserDescriptions)))
 
+  override fun maybe(expression : KSExpression) : Boolean =
+    KSExpressionMatch.matches(expression, isInlineElement)
+
   private fun parseInlineAny(
     e : KSExpression,
     c : Context)

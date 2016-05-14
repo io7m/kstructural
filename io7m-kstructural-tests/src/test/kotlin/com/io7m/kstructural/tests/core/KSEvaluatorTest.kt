@@ -28,17 +28,16 @@ import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.core.KSParseContextType
+import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.evaluator.KSEvaluation
 import com.io7m.kstructural.core.evaluator.KSEvaluationError
 import com.io7m.kstructural.core.evaluator.KSEvaluator
 import com.io7m.kstructural.core.evaluator.KSEvaluatorType
 import com.io7m.kstructural.parser.KSBlockParser
-import com.io7m.kstructural.parser.KSBlockParserType
 import com.io7m.kstructural.parser.KSExpression
-import com.io7m.kstructural.parser.KSInlineParser
-import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.parser.KSExpressionParsers
+import com.io7m.kstructural.parser.KSInlineParser
 import com.io7m.kstructural.parser.KSInlineParserType
 import com.io7m.kstructural.tests.KSTestFilesystems
 import com.io7m.kstructural.tests.parser.KSBlockParserTest
@@ -50,7 +49,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.util.Optional
 
 class KSEvaluatorTest : KSEvaluatorContract() {
@@ -97,6 +95,9 @@ class KSEvaluatorTest : KSEvaluatorContract() {
     }
 
     val ipp = object : KSInlineParserType {
+      override fun maybe(expression : KSExpression) : Boolean =
+        ip.maybe(expression)
+
       override fun parse(
         context : KSParseContextType,
         expression : KSExpression,

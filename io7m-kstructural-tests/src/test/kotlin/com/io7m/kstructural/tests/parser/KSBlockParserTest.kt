@@ -60,6 +60,9 @@ class KSBlockParserTest : KSBlockParserContract() {
     val ip = KSInlineParser.get(KSTestIO.utf8_reader)
 
     val ipp = object : KSInlineParserType {
+      override fun maybe(expression : KSExpression) : Boolean =
+        ip.maybe(expression)
+
       override fun parse(
         context : KSParseContextType,
         expression : KSExpression,
