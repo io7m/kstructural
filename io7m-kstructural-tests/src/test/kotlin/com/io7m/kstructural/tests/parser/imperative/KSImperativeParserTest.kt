@@ -16,22 +16,28 @@
 
 package com.io7m.kstructural.tests.parser.imperative
 
+import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
+import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpressionParsers
-import com.io7m.kstructural.parser.KSInlineParser
-import com.io7m.kstructural.parser.KSInlineParserType
+import com.io7m.kstructural.parser.KSImporterConstructorType
+import com.io7m.kstructural.parser.KSImporterType
+import com.io7m.kstructural.parser.canon.KSCanonInlineParser
+import com.io7m.kstructural.parser.canon.KSCanonInlineParserType
 import com.io7m.kstructural.parser.imperative.KSImperativeParser
 import com.io7m.kstructural.tests.KSTestFilesystems
 import com.io7m.kstructural.tests.KSTestIO
+import com.io7m.kstructural.tests.parser.canon.KSCanonBlockParserTest
 import org.slf4j.LoggerFactory
 import java.io.StringReader
 import java.nio.file.FileSystem
 import java.nio.file.Path
+import java.util.Optional
 
 class KSImperativeParserTest : KSImperativeParserContract() {
 
@@ -45,9 +51,8 @@ class KSImperativeParserTest : KSImperativeParserContract() {
 
   override fun newParserForString(text : String) : Parser {
 
-    val ip = KSInlineParser.get(KSTestIO.utf8_reader)
-
-    val ipp = object : KSInlineParserType {
+    val ip = KSCanonInlineParser.create(KSTestIO.utf8_includer)
+    val ipp = object : KSCanonInlineParserType {
 
       override fun maybe(expression : KSExpression) : Boolean =
         ip.maybe(expression)
@@ -73,10 +78,7 @@ class KSImperativeParserTest : KSImperativeParserContract() {
       }
     }
 
-    val cp = KSImperativeParser.create(
-      inlines = { context, expr, file -> ipp.parse (context, expr, file) },
-      inlines_maybe = { expr -> ipp.maybe(expr) })
-
+    val cp = KSImperativeParser.create(ip)
     val ep = KSExpressionParsers.createWithReader(
       defaultFile(), StringReader(text))
     return Parser(cp, { ep.invoke().get() })

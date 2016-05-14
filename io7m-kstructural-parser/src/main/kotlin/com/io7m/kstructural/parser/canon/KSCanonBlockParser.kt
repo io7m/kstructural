@@ -14,7 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.parser
+package com.io7m.kstructural.parser.canon
 
 import com.io7m.kstructural.core.KSDocumentContent
 import com.io7m.kstructural.core.KSDocumentContent.KSDocumentPart
@@ -54,18 +54,21 @@ import com.io7m.kstructural.core.KSSubsectionContent
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFootnote
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFormalItem
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
+import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpression.KSExpressionList
 import com.io7m.kstructural.parser.KSExpression.KSExpressionSymbol
+import com.io7m.kstructural.parser.KSExpressionMatch
+import com.io7m.kstructural.parser.KSImporterConstructorType
 import org.slf4j.LoggerFactory
 import org.valid4j.Assertive
 import java.nio.file.Path
 import java.util.HashMap
 import java.util.Optional
 
-class KSBlockParser private constructor(
-  private val inlines : (KSParseContextType, KSExpression, Path) -> KSResult<KSInline<KSParse>, KSParseError>,
-  private val importer : (KSParseContextType, KSBlockParserType, Path) -> KSResult<KSBlock<KSParse>, KSParseError>)
-: KSBlockParserType {
+class KSCanonBlockParser private constructor(
+  private val inlines : KSCanonInlineParserType,
+  private val importers : KSImporterConstructorType)
+: KSCanonBlockParserType {
 
   private data class Context(
     val context : KSParseContextType,
@@ -73,13 +76,13 @@ class KSBlockParser private constructor(
 
   companion object {
 
-    private val LOG = LoggerFactory.getLogger(KSBlockParser::class.java)
+    private val LOG = LoggerFactory.getLogger(KSCanonBlockParser::class.java)
 
-    fun get(
-      inlines : (KSParseContextType, KSExpression, Path) -> KSResult<KSInline<KSParse>, KSParseError>,
-      importer : (KSParseContextType, KSBlockParserType, Path) -> KSResult<KSBlock<KSParse>, KSParseError>)
-      : KSBlockParserType =
-      KSBlockParser(inlines, importer)
+    fun create(
+      inlines : KSCanonInlineParserType,
+      importers : KSImporterConstructorType)
+      : KSCanonBlockParserType =
+      KSCanonBlockParser(inlines, importers)
 
     private fun failedToMatch(
       e : KSExpressionList,
@@ -479,7 +482,8 @@ class KSBlockParser private constructor(
       val r : KSResult<KSBlock<KSParse>, KSParseError> =
         try {
           LOG.debug("import: {}", real)
-          this.importer.invoke(c.context, this, real)
+          val importer = this.importers.create(c.context, real)
+          importer.import(c.context, real)
         } catch (x : Throwable) {
           val sb = StringBuilder()
           sb.append("Failed to import file.")
@@ -742,9 +746,9 @@ class KSBlockParser private constructor(
     c : Context)
     : KSResult<KSSubsectionContent<KSParse>, KSParseError> =
     when (e) {
-      is KSSectionContent.KSSectionSubsectionContent ->
+      is KSSectionSubsectionContent ->
         KSResult.succeed<KSSubsectionContent<KSParse>, KSParseError>(e.content)
-      is KSSectionContent.KSSectionSubsection        -> {
+      is KSSectionSubsection        -> {
         val sb = StringBuilder()
         sb.append("Expected subsection content.")
         sb.append(System.lineSeparator())
@@ -762,7 +766,7 @@ class KSBlockParser private constructor(
     c : Context)
     : KSResult<KSBlockSubsection<KSParse>, KSParseError> =
     when (e) {
-      is KSSectionContent.KSSectionSubsectionContent -> {
+      is KSSectionSubsectionContent -> {
         val sb = StringBuilder()
         sb.append("Expected a subsection.")
         sb.append(System.lineSeparator())
@@ -773,7 +777,7 @@ class KSBlockParser private constructor(
         sb.append(System.lineSeparator())
         parseError(e, sb.toString())
       }
-      is KSSectionContent.KSSectionSubsection        -> {
+      is KSSectionSubsection        -> {
         KSResult.succeed<KSBlockSubsection<KSParse>, KSParseError>(e.subsection)
       }
     }
@@ -1092,7 +1096,7 @@ class KSBlockParser private constructor(
     c : Context,
     e : KSExpression)
     : KSResult<KSInlineText<KSParse>, KSParseError> {
-    return inlines.invoke(c.context, e, c.file) flatMap { r ->
+    return inlines.parse(c.context, e, c.file) flatMap { r ->
       checkInlineText(e, r)
     }
   }
@@ -1131,7 +1135,7 @@ class KSBlockParser private constructor(
     c : Context)
     : KSResult<List<KSInline<KSParse>>, KSParseError> {
     return KSResult.listMap({ k ->
-      val r = this.inlines.invoke(c.context, k, c.file)
+      val r = this.inlines.parse(c.context, k, c.file)
       r flatMap { z -> KSResult.succeed<KSInline<KSParse>, KSParseError>(z) }
     }, e)
   }
@@ -1469,9 +1473,9 @@ class KSBlockParser private constructor(
     e : KSDocumentContent<KSParse>)
     : KSResult<KSBlockSection<KSParse>, KSParseError> =
     when (e) {
-      is KSDocumentContent.KSDocumentSection ->
+      is KSDocumentSection ->
         KSResult.succeed(e.section)
-      is KSDocumentContent.KSDocumentPart    -> {
+      is KSDocumentPart    -> {
         val sb = StringBuilder()
         sb.append("Expected section.")
         sb.append(System.lineSeparator())
@@ -1488,9 +1492,9 @@ class KSBlockParser private constructor(
     e : KSDocumentContent<KSParse>)
     : KSResult<KSBlockPart<KSParse>, KSParseError> =
     when (e) {
-      is KSDocumentContent.KSDocumentPart    ->
+      is KSDocumentPart    ->
         KSResult.succeed(e.part)
-      is KSDocumentContent.KSDocumentSection -> {
+      is KSDocumentSection -> {
         val sb = StringBuilder()
         sb.append("Expected part.")
         sb.append(System.lineSeparator())

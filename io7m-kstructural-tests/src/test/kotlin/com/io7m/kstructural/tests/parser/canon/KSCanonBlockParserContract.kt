@@ -14,7 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.tests.parser
+package com.io7m.kstructural.tests.parser.canon
 
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
@@ -34,7 +34,7 @@ import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.KSSubsectionContent
-import com.io7m.kstructural.parser.KSBlockParserType
+import com.io7m.kstructural.parser.canon.KSCanonBlockParserType
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSParseContext
@@ -49,7 +49,7 @@ import java.nio.file.Files
 import java.util.Optional
 
 
-abstract class KSBlockParserContract {
+abstract class KSCanonBlockParserContract {
 
   protected abstract fun newParserForString(text : String) : Parser
 
@@ -68,7 +68,7 @@ abstract class KSBlockParserContract {
   protected fun defaultFile() = filesystem!!.getPath("file.txt")
   
   data class Parser(
-    val p : KSBlockParserType,
+    val p : KSCanonBlockParserType,
     val s : () -> KSExpression)
 
   @Test fun testParaError0() {
@@ -86,7 +86,7 @@ abstract class KSBlockParserContract {
 
     e as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
     Assert.assertEquals(1, e.result.content.size)
-    val t0 = e.result.content[0] as KSInline.KSInlineText<KSParse>
+    val t0 = e.result.content[0] as KSInlineText<KSParse>
     Assert.assertEquals("Hello.", t0.text)
   }
 
@@ -97,7 +97,7 @@ abstract class KSBlockParserContract {
     e as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
     Assert.assertEquals("x", e.result.id.get().value)
     Assert.assertEquals(1, e.result.content.size)
-    val t0 = e.result.content[0] as KSInline.KSInlineText<KSParse>
+    val t0 = e.result.content[0] as KSInlineText<KSParse>
     Assert.assertEquals("Hello.", t0.text)
   }
 
@@ -108,7 +108,7 @@ abstract class KSBlockParserContract {
     e as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
     Assert.assertEquals("x", e.result.type.get())
     Assert.assertEquals(1, e.result.content.size)
-    val t0 = e.result.content[0] as KSInline.KSInlineText<KSParse>
+    val t0 = e.result.content[0] as KSInlineText<KSParse>
     Assert.assertEquals("Hello.", t0.text)
   }
 
@@ -120,7 +120,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("x", e.result.type.get())
     Assert.assertEquals("y", e.result.id.get().value)
     Assert.assertEquals(1, e.result.content.size)
-    val t0 = e.result.content[0] as KSInline.KSInlineText<KSParse>
+    val t0 = e.result.content[0] as KSInlineText<KSParse>
     Assert.assertEquals("Hello.", t0.text)
   }
 
@@ -132,7 +132,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("x", e.result.type.get())
     Assert.assertEquals("y", e.result.id.get().value)
     Assert.assertEquals(1, e.result.content.size)
-    val t0 = e.result.content[0] as KSInline.KSInlineText<KSParse>
+    val t0 = e.result.content[0] as KSInlineText<KSParse>
     Assert.assertEquals("Hello.", t0.text)
   }
 
@@ -228,7 +228,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals(Optional.empty<KSID<KSParse>>(), e.result.id)
     Assert.assertEquals(1, e.result.content.size)
     val p = e.result.content[0] as KSSubsectionContent.KSSubsectionParagraph<KSParse>
-    val t = p.paragraph.content[0] as KSInline.KSInlineText<KSParse>
+    val t = p.paragraph.content[0] as KSInlineText<KSParse>
     Assert.assertEquals("Hello.", t.text)
   }
 
@@ -886,7 +886,7 @@ abstract class KSBlockParserContract {
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals(Optional.empty<KSID<KSParse>>(), e.result.id)
     Assert.assertEquals(1, e.result.content.size)
-    val t = e.result.content[0] as KSInline.KSInlineText<KSParse>
+    val t = e.result.content[0] as KSInlineText<KSParse>
     Assert.assertEquals("Hello.", t.text)
   }
 

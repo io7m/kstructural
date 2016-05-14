@@ -24,19 +24,26 @@ import com.io7m.jsx.parser.JSXParserConfiguration
 import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContext
+import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.evaluator.KSEvaluator
-import com.io7m.kstructural.parser.KSBlockParser
+import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpressionParsers
-import com.io7m.kstructural.parser.KSInlineParser
+import com.io7m.kstructural.parser.KSImporterConstructorType
+import com.io7m.kstructural.parser.KSImporterType
+import com.io7m.kstructural.parser.canon.KSCanonInlineParser
+import com.io7m.kstructural.tests.KSTestIO
+import com.io7m.kstructural.tests.parser.KSSerializerDemo
+import com.io7m.kstructural.tests.pretty.KSPrettyPrinterTest
 import com.io7m.kstructural.xom.KSXOMSettings
 import com.io7m.kstructural.xom.KSXOMXHTMLMultiWriter
 import nu.xom.Serializer
 import org.apache.commons.io.IOUtils
+import org.slf4j.LoggerFactory
 import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStreamReader
@@ -49,6 +56,9 @@ import java.nio.file.Paths
 import java.util.Optional
 
 object KSXOMXHTMLMultiWriterDemo {
+
+  private val LOG = LoggerFactory.getLogger(
+    KSXOMXHTMLMultiWriterDemo::class.java)
 
   fun main(args : Array<String>) : Unit {
 
@@ -74,30 +84,34 @@ object KSXOMXHTMLMultiWriterDemo {
     val pc = pcb.build()
     val p = JSXParser.newParser(pc, lex)
 
-    val ip = KSInlineParser.get { p ->
-      Files.newInputStream(p).use { s ->
-        try {
-          KSResult.succeed(IOUtils.toString(s, StandardCharsets.UTF_8))
-        } catch (x : Throwable) {
-          KSResult.fail(x)
+    val ip = KSCanonInlineParser.create(KSTestIO.utf8_includer)
+    val importers = object: KSImporterConstructorType {
+      override fun create(
+        context : KSParseContextType,
+        file : Path)
+        : KSImporterType {
+
+        LOG.trace("instantiating parser for {}", file)
+        val iis = this
+        return object: KSImporterType {
+          override fun import(
+            context : KSParseContextType,
+            file : Path)
+            : KSResult<KSBlock<KSParse>, KSParseError> {
+            val pp = KSCanonBlockParser.create(ip, iis)
+            val ep = KSExpressionParsers.create(file)
+            val eo = ep.invoke()
+            return if (eo.isPresent) {
+              pp.parse(context, eo.get(), file)
+            } else {
+              KSResult.fail(KSParseError(Optional.empty(), "Unexpected EOF"))
+            }
+          }
         }
       }
     }
 
-    val bp = KSBlockParser.get(
-      inlines = { context, expr, file ->
-        ip.parse (context, expr, file)
-      },
-      importer = { context, parser, file ->
-        val ep = KSExpressionParsers.create(file)
-        val eo = ep.invoke()
-        if (eo.isPresent) {
-          parser.parse(context, eo.get(), file)
-        } else {
-          KSResult.fail(KSParseError(Optional.empty(), "Unexpected EOF"))
-        }
-      })
-
+    val bp = KSCanonBlockParser.create(ip, importers)
     val e_opt = p.parseExpressionOrEOF()
     if (e_opt.isPresent) {
       val pcontext = KSParseContext.empty()

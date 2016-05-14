@@ -21,6 +21,7 @@ import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpression.KSExpressionList
 import com.io7m.kstructural.parser.KSExpression.KSExpressionSymbol
 import com.io7m.kstructural.parser.KSExpressionMatch
+import com.io7m.kstructural.parser.canon.KSCanonInlineParserType
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.*
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeInline
 import org.valid4j.Assertive
@@ -29,8 +30,7 @@ import java.util.HashMap
 import java.util.Optional
 
 class KSImperativeParser private constructor(
-  private val inlines : (KSParseContextType, KSExpression, Path) -> KSResult<KSInline<KSParse>, KSParseError>,
-  private val inlines_maybe : (KSExpression) -> Boolean)
+  private val inlines : KSCanonInlineParserType)
 : KSImperativeParserType {
 
   companion object {
@@ -85,12 +85,8 @@ class KSImperativeParser private constructor(
       return KSID(e.position, (e.elements[1] as KSExpressionSymbol).value, KSParse(c.context))
     }
 
-    fun create(
-      inlines : (KSParseContextType, KSExpression, Path) -> KSResult<KSInline<KSParse>, KSParseError>,
-      inlines_maybe : (KSExpression) -> Boolean)
-      : KSImperativeParserType {
-      return KSImperativeParser(inlines, inlines_maybe)
-    }
+    fun create(inlines : KSCanonInlineParserType) : KSImperativeParserType =
+      KSImperativeParser(inlines)
   }
 
   private object CommandMatchers {
@@ -355,7 +351,7 @@ class KSImperativeParser private constructor(
     Assertive.require(e.elements[0] is KSExpressionSymbol)
     val texts = e.elements.subList(1, e.elements.size)
     return KSResult.listMap({ ic ->
-      this.inlines.invoke(c.context, ic, c.file).flatMap { x ->
+      this.inlines.parse(c.context, ic, c.file).flatMap { x ->
         when (x) {
           is KSInlineText    ->
             KSResult.succeed(x)
@@ -963,13 +959,13 @@ class KSImperativeParser private constructor(
     return when (expression) {
       is KSExpression.KSExpressionQuoted,
       is KSExpression.KSExpressionSymbol ->
-        inlines.invoke(context, expression, file).flatMap { i ->
+        inlines.parse(context, expression, file).flatMap { i ->
           KSResult.succeed<KSImperative, KSParseError>(KSImperativeInline(i))
         }
       is KSExpression.KSExpressionList   -> {
         if (!KSExpressionMatch.matches(expression, isElement)) {
-          if (inlines_maybe.invoke(expression)) {
-            return inlines.invoke(context, expression, file).flatMap { i ->
+          if (inlines.maybe(expression)) {
+            return inlines.parse(context, expression, file).flatMap { i ->
               KSResult.succeed<KSImperative, KSParseError>(KSImperativeInline(i))
             }
           }

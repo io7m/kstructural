@@ -94,7 +94,12 @@ sealed class KSImperative(
 
   }
 
+  class KSImperativeEOF(
+    position : Optional<LexicalPositionType<Path>>)
+  : KSImperative(position)
+
   class KSImperativeInline(
     val value : KSElement.KSInline<KSParse>)
   : KSImperative(value.position)
+
 }
