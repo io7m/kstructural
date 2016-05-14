@@ -16,18 +16,20 @@
 
 package com.io7m.kstructural.tests.parser.imperative
 
-import com.io7m.kstructural.core.KSElement
-import com.io7m.kstructural.core.KSElement.*
-import com.io7m.kstructural.core.KSElement.KSInline.*
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSResult
-import com.io7m.kstructural.core.KSResult.*
-import com.io7m.kstructural.parser.KSBlockParserType
+import com.io7m.kstructural.core.KSResult.KSFailure
+import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.parser.KSExpression
-import com.io7m.kstructural.parser.imperative.KSImperative
-import com.io7m.kstructural.parser.imperative.KSImperative.*
-import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.*
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeDocument
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeFormalItem
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeParagraph
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativePart
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeSection
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeSubsection
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeFootnote
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeInline
 import com.io7m.kstructural.parser.imperative.KSImperativeParserType
 import org.junit.After
 import org.junit.Assert
@@ -137,5 +139,335 @@ abstract class KSImperativeParserContract {
     e as KSSuccess<KSImperativeParagraph, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
     Assert.assertEquals("t", e.result.type.get())
+  }
+
+  @Test fun testPart() {
+    val pp = newParserForString("[part [title ttt]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativePart, KSParseError>
+    Assert.assertFalse(e.result.id.isPresent)
+    Assert.assertFalse(e.result.type.isPresent)
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testPartError() {
+    val pp = newParserForString("[part x]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSFailure
+  }
+
+  @Test fun testPartID() {
+    val pp = newParserForString("[part [title ttt] [id x]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativePart, KSParseError>
+    Assert.assertTrue(e.result.id.isPresent)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertFalse(e.result.type.isPresent)
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testPartIDType() {
+    val pp = newParserForString("[part [title ttt] [id x] [type t]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativePart, KSParseError>
+    Assert.assertTrue(e.result.id.isPresent)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testPartTypeID() {
+    val pp = newParserForString("[part [title ttt] [type t] [id x]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativePart, KSParseError>
+    Assert.assertTrue(e.result.id.isPresent)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testPartType() {
+    val pp = newParserForString("[part [title ttt] [type t]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativePart, KSParseError>
+    Assert.assertFalse(e.result.id.isPresent)
+    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+
+  @Test fun testSection() {
+    val pp = newParserForString("[section [title ttt]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeSection, KSParseError>
+    Assert.assertFalse(e.result.id.isPresent)
+    Assert.assertFalse(e.result.type.isPresent)
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testSectionError() {
+    val pp = newParserForString("[section x]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSFailure
+  }
+
+  @Test fun testSectionID() {
+    val pp = newParserForString("[section [title ttt] [id x]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeSection, KSParseError>
+    Assert.assertTrue(e.result.id.isPresent)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertFalse(e.result.type.isPresent)
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testSectionIDType() {
+    val pp = newParserForString("[section [title ttt] [id x] [type t]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeSection, KSParseError>
+    Assert.assertTrue(e.result.id.isPresent)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testSectionTypeID() {
+    val pp = newParserForString("[section [title ttt] [type t] [id x]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeSection, KSParseError>
+    Assert.assertTrue(e.result.id.isPresent)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testSectionType() {
+    val pp = newParserForString("[section [title ttt] [type t]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeSection, KSParseError>
+    Assert.assertFalse(e.result.id.isPresent)
+    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+
+  @Test fun testFormalItem() {
+    val pp = newParserForString("[formal-item [title ttt]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeFormalItem, KSParseError>
+    Assert.assertFalse(e.result.id.isPresent)
+    Assert.assertFalse(e.result.type.isPresent)
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testFormalItemError() {
+    val pp = newParserForString("[formal-item x]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSFailure
+  }
+
+  @Test fun testFormalItemID() {
+    val pp = newParserForString("[formal-item [title ttt] [id x]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeFormalItem, KSParseError>
+    Assert.assertTrue(e.result.id.isPresent)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertFalse(e.result.type.isPresent)
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testFormalItemIDType() {
+    val pp = newParserForString("[formal-item [title ttt] [id x] [type t]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeFormalItem, KSParseError>
+    Assert.assertTrue(e.result.id.isPresent)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testFormalItemTypeID() {
+    val pp = newParserForString("[formal-item [title ttt] [type t] [id x]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeFormalItem, KSParseError>
+    Assert.assertTrue(e.result.id.isPresent)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testFormalItemType() {
+    val pp = newParserForString("[formal-item [title ttt] [type t]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeFormalItem, KSParseError>
+    Assert.assertFalse(e.result.id.isPresent)
+    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+
+  @Test fun testSubsection() {
+    val pp = newParserForString("[subsection [title ttt]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeSubsection, KSParseError>
+    Assert.assertFalse(e.result.id.isPresent)
+    Assert.assertFalse(e.result.type.isPresent)
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testSubsectionError() {
+    val pp = newParserForString("[subsection x]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSFailure
+  }
+
+  @Test fun testSubsectionID() {
+    val pp = newParserForString("[subsection [title ttt] [id x]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeSubsection, KSParseError>
+    Assert.assertTrue(e.result.id.isPresent)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertFalse(e.result.type.isPresent)
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testSubsectionIDType() {
+    val pp = newParserForString("[subsection [title ttt] [id x] [type t]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeSubsection, KSParseError>
+    Assert.assertTrue(e.result.id.isPresent)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testSubsectionTypeID() {
+    val pp = newParserForString("[subsection [title ttt] [type t] [id x]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeSubsection, KSParseError>
+    Assert.assertTrue(e.result.id.isPresent)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testSubsectionType() {
+    val pp = newParserForString("[subsection [title ttt] [type t]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeSubsection, KSParseError>
+    Assert.assertFalse(e.result.id.isPresent)
+    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testFootnoteError() {
+    val pp = newParserForString("[footnote x]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSFailure
+  }
+
+  @Test fun testFootnoteID() {
+    val pp = newParserForString("[footnote [id x]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeFootnote, KSParseError>
+    Assert.assertTrue(e.result.id.isPresent)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertFalse(e.result.type.isPresent)
+  }
+
+  @Test fun testFootnoteIDType() {
+    val pp = newParserForString("[footnote [id x] [type t]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeFootnote, KSParseError>
+    Assert.assertTrue(e.result.id.isPresent)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals("t", e.result.type.get())
+  }
+
+  @Test fun testDocument() {
+    val pp = newParserForString("[document [title ttt]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeDocument, KSParseError>
+    Assert.assertFalse(e.result.id.isPresent)
+    Assert.assertFalse(e.result.type.isPresent)
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testDocumentError() {
+    val pp = newParserForString("[document x]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSFailure
+  }
+
+  @Test fun testDocumentID() {
+    val pp = newParserForString("[document [title ttt] [id x]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeDocument, KSParseError>
+    Assert.assertTrue(e.result.id.isPresent)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertFalse(e.result.type.isPresent)
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testDocumentIDType() {
+    val pp = newParserForString("[document [title ttt] [id x] [type t]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeDocument, KSParseError>
+    Assert.assertTrue(e.result.id.isPresent)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testDocumentTypeID() {
+    val pp = newParserForString("[document [title ttt] [type t] [id x]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeDocument, KSParseError>
+    Assert.assertTrue(e.result.id.isPresent)
+    Assert.assertEquals("x", e.result.id.get().value)
+    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testDocumentType() {
+    val pp = newParserForString("[document [title ttt] [type t]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeDocument, KSParseError>
+    Assert.assertFalse(e.result.id.isPresent)
+    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("ttt", e.result.title[0].text)
   }
 }

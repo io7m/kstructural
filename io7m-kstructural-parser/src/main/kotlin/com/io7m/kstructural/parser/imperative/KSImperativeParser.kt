@@ -1,18 +1,26 @@
 package com.io7m.kstructural.parser.imperative
 
-import com.io7m.kstructural.core.KSElement
-import com.io7m.kstructural.core.KSElement.*
+import com.io7m.kstructural.core.KSElement.KSInline
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineImage
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineLink
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListOrdered
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListUnordered
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTable
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTerm
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineVerbatim
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSLexicalType
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
-import com.io7m.kstructural.parser.KSBlockParser
 import com.io7m.kstructural.parser.KSExpression
-import com.io7m.kstructural.parser.KSExpression.*
+import com.io7m.kstructural.parser.KSExpression.KSExpressionList
+import com.io7m.kstructural.parser.KSExpression.KSExpressionSymbol
 import com.io7m.kstructural.parser.KSExpressionMatch
-import com.io7m.kstructural.parser.imperative.KSImperative.*
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.*
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeInline
 import org.valid4j.Assertive
@@ -152,54 +160,54 @@ class KSImperativeParser private constructor(
     val subsection_name =
       KSExpressionMatch.exactSymbol("subsection")
     val subsection_none =
-      KSExpressionMatch.prefixOfList(listOf(subsection_name, title))
+      KSExpressionMatch.allOfList(listOf(subsection_name, title))
     val subsection_with_id =
-      KSExpressionMatch.prefixOfList(listOf(subsection_name, title, id))
+      KSExpressionMatch.allOfList(listOf(subsection_name, title, id))
     val subsection_with_id_type =
-      KSExpressionMatch.prefixOfList(listOf(subsection_name, title, id, type))
+      KSExpressionMatch.allOfList(listOf(subsection_name, title, id, type))
     val subsection_with_type_id =
-      KSExpressionMatch.prefixOfList(listOf(subsection_name, title, type, id))
+      KSExpressionMatch.allOfList(listOf(subsection_name, title, type, id))
     val subsection_with_type =
-      KSExpressionMatch.prefixOfList(listOf(subsection_name, title, type))
+      KSExpressionMatch.allOfList(listOf(subsection_name, title, type))
 
     val section_name =
       KSExpressionMatch.exactSymbol("section")
     val section_none =
-      KSExpressionMatch.prefixOfList(listOf(section_name, title))
+      KSExpressionMatch.allOfList(listOf(section_name, title))
     val section_with_id =
-      KSExpressionMatch.prefixOfList(listOf(section_name, title, id))
+      KSExpressionMatch.allOfList(listOf(section_name, title, id))
     val section_with_id_type =
-      KSExpressionMatch.prefixOfList(listOf(section_name, title, id, type))
+      KSExpressionMatch.allOfList(listOf(section_name, title, id, type))
     val section_with_type_id =
-      KSExpressionMatch.prefixOfList(listOf(section_name, title, type, id))
+      KSExpressionMatch.allOfList(listOf(section_name, title, type, id))
     val section_with_type =
-      KSExpressionMatch.prefixOfList(listOf(section_name, title, type))
+      KSExpressionMatch.allOfList(listOf(section_name, title, type))
 
     val part_name =
       KSExpressionMatch.exactSymbol("part")
     val part_none =
-      KSExpressionMatch.prefixOfList(listOf(part_name, title))
+      KSExpressionMatch.allOfList(listOf(part_name, title))
     val part_with_id =
-      KSExpressionMatch.prefixOfList(listOf(part_name, title, id))
+      KSExpressionMatch.allOfList(listOf(part_name, title, id))
     val part_with_id_type =
-      KSExpressionMatch.prefixOfList(listOf(part_name, title, id, type))
+      KSExpressionMatch.allOfList(listOf(part_name, title, id, type))
     val part_with_type_id =
-      KSExpressionMatch.prefixOfList(listOf(part_name, title, type, id))
+      KSExpressionMatch.allOfList(listOf(part_name, title, type, id))
     val part_with_type =
-      KSExpressionMatch.prefixOfList(listOf(part_name, title, type))
+      KSExpressionMatch.allOfList(listOf(part_name, title, type))
 
     val document_name =
       KSExpressionMatch.exactSymbol("document")
     val document_none =
-      KSExpressionMatch.prefixOfList(listOf(document_name, title))
+      KSExpressionMatch.allOfList(listOf(document_name, title))
     val document_with_id =
-      KSExpressionMatch.prefixOfList(listOf(document_name, title, id))
+      KSExpressionMatch.allOfList(listOf(document_name, title, id))
     val document_with_id_type =
-      KSExpressionMatch.prefixOfList(listOf(document_name, title, id, type))
+      KSExpressionMatch.allOfList(listOf(document_name, title, id, type))
     val document_with_type_id =
-      KSExpressionMatch.prefixOfList(listOf(document_name, title, type, id))
+      KSExpressionMatch.allOfList(listOf(document_name, title, type, id))
     val document_with_type =
-      KSExpressionMatch.prefixOfList(listOf(document_name, title, type))
+      KSExpressionMatch.allOfList(listOf(document_name, title, type))
   }
 
   private data class Context(
@@ -217,8 +225,26 @@ class KSImperativeParser private constructor(
 
   private fun makeParsers() : Map<String, ElementParser> {
     val m = HashMap<String, ElementParser>()
+    m.put("document", ElementParser("document", {
+      e, c -> parseDocument(e, c)
+    }))
+    m.put("footnote", ElementParser("footnote", {
+      e, c -> parseFootnote(e, c)
+    }))
+    m.put("formal-item", ElementParser("formal-item", {
+      e, c -> parseFormalItem(e, c)
+    }))
     m.put("paragraph", ElementParser("paragraph", {
       e, c -> parsePara(e, c)
+    }))
+    m.put("part", ElementParser("part", {
+      e, c -> parsePart(e, c)
+    }))
+    m.put("section", ElementParser("section", {
+      e, c -> parseSection(e, c)
+    }))
+    m.put("subsection", ElementParser("subsection", {
+      e, c -> parseSubsection(e, c)
     }))
     return m
   }
@@ -287,6 +313,621 @@ class KSImperativeParser private constructor(
       CommandMatchers.para_with_type))
   }
 
+  private fun parseFootnote(
+    e : KSExpressionList,
+    c : Context) : KSResult<KSImperative, KSParseError> {
+
+    Assertive.require(e.elements.size > 0)
+    Assertive.require(e.elements[0] is KSExpressionSymbol)
+
+    when {
+      KSExpressionMatch.matches(e, CommandMatchers.footnote_type) -> {
+        Assertive.require(e.elements.size >= 3)
+        val id = parseAttributeID(
+          e.elements[1] as KSExpressionList, c)
+        val type = parseAttributeType(
+          e.elements[2] as KSExpressionList)
+        return KSResult.succeed(
+          KSImperativeFootnote(
+            e.position, e.square, Optional.of(type), Optional.of(id)))
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.footnote)      -> {
+        Assertive.require(e.elements.size >= 2)
+        val id = parseAttributeID(
+          e.elements[1] as KSExpressionList, c)
+        return KSResult.succeed(
+          KSImperativeFootnote(
+            e.position, e.square, Optional.empty(), Optional.of(id)))
+      }
+    }
+
+    return failedToMatchResult(e, listOf(
+      CommandMatchers.footnote,
+      CommandMatchers.footnote_type))
+  }
+  
+  private fun parseAttributeTitle(
+    e : KSExpressionList,
+    c : Context)
+    : KSResult<List<KSInlineText<KSParse>>, KSParseError> {
+    Assertive.require(e.elements.size >= 2)
+    Assertive.require(e.elements[0] is KSExpressionSymbol)
+    val texts = e.elements.subList(1, e.elements.size)
+    return KSResult.listMap({ ic ->
+      this.inlines.invoke(c.context, ic, c.file).flatMap { x ->
+        when (x) {
+          is KSInlineText    ->
+            KSResult.succeed(x)
+          is KSInlineLink,
+          is KSInlineVerbatim,
+          is KSInlineTerm,
+          is KSInlineFootnoteReference,
+          is KSInlineImage,
+          is KSInlineListOrdered,
+          is KSInlineListUnordered,
+          is KSInlineTable,
+          is KSInlineInclude -> {
+            val sb = StringBuilder()
+            sb.append("Expected inline text.")
+            sb.append(System.lineSeparator())
+            sb.append("Expected: Inline text")
+            sb.append(System.lineSeparator())
+            sb.append("Received: ")
+            sb.append(x)
+            sb.append(System.lineSeparator())
+            KSResult.fail<KSInlineText<KSParse>, KSParseError>(
+              KSParseError(x.position, sb.toString()))
+          }
+        }
+      }
+    }, texts)
+  }
+
+  private fun parsePart(
+    e : KSExpressionList,
+    c : Context) : KSResult<KSImperative, KSParseError> {
+
+    Assertive.require(e.elements.size > 0)
+    Assertive.require(e.elements[0] is KSExpressionSymbol)
+
+    when {
+      KSExpressionMatch.matches(e, CommandMatchers.part_with_id_type) -> {
+        Assertive.require(e.elements.size >= 3)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val id = parseAttributeID(
+          e.elements[2] as KSExpressionList, c)
+        val type = parseAttributeType(
+          e.elements[3] as KSExpressionList)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativePart(
+              e.position,
+              e.square,
+              Optional.of(type),
+              Optional.of(id),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.part_with_type_id) -> {
+        Assertive.require(e.elements.size >= 3)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val type = parseAttributeType(
+          e.elements[2] as KSExpressionList)
+        val id = parseAttributeID(
+          e.elements[3] as KSExpressionList, c)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativePart(
+              e.position,
+              e.square,
+              Optional.of(type),
+              Optional.of(id),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.part_with_id)      -> {
+        Assertive.require(e.elements.size >= 2)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val id = parseAttributeID(
+          e.elements[2] as KSExpressionList, c)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativePart(
+              e.position,
+              e.square,
+              Optional.empty(),
+              Optional.of(id),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.part_with_type)    -> {
+        Assertive.require(e.elements.size >= 2)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val type = parseAttributeType(
+          e.elements[2] as KSExpressionList)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativePart(
+              e.position,
+              e.square,
+              Optional.of(type),
+              Optional.empty(),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.part_none)         -> {
+        Assertive.require(e.elements.size >= 1)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativePart(
+              e.position,
+              e.square,
+              Optional.empty(),
+              Optional.empty(),
+              title))
+        }
+      }
+    }
+
+    return failedToMatchResult(e, listOf(
+      CommandMatchers.part_none,
+      CommandMatchers.part_with_id,
+      CommandMatchers.part_with_id_type,
+      CommandMatchers.part_with_type_id,
+      CommandMatchers.part_with_type))
+  }
+
+  private fun parseDocument(
+    e : KSExpressionList,
+    c : Context) : KSResult<KSImperative, KSParseError> {
+
+    Assertive.require(e.elements.size > 0)
+    Assertive.require(e.elements[0] is KSExpressionSymbol)
+
+    when {
+      KSExpressionMatch.matches(e, CommandMatchers.document_with_id_type) -> {
+        Assertive.require(e.elements.size >= 3)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val id = parseAttributeID(
+          e.elements[2] as KSExpressionList, c)
+        val type = parseAttributeType(
+          e.elements[3] as KSExpressionList)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeDocument(
+              e.position,
+              e.square,
+              Optional.of(type),
+              Optional.of(id),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.document_with_type_id) -> {
+        Assertive.require(e.elements.size >= 3)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val type = parseAttributeType(
+          e.elements[2] as KSExpressionList)
+        val id = parseAttributeID(
+          e.elements[3] as KSExpressionList, c)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeDocument(
+              e.position,
+              e.square,
+              Optional.of(type),
+              Optional.of(id),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.document_with_id)      -> {
+        Assertive.require(e.elements.size >= 2)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val id = parseAttributeID(
+          e.elements[2] as KSExpressionList, c)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeDocument(
+              e.position,
+              e.square,
+              Optional.empty(),
+              Optional.of(id),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.document_with_type)    -> {
+        Assertive.require(e.elements.size >= 2)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val type = parseAttributeType(
+          e.elements[2] as KSExpressionList)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeDocument(
+              e.position,
+              e.square,
+              Optional.of(type),
+              Optional.empty(),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.document_none)         -> {
+        Assertive.require(e.elements.size >= 1)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeDocument(
+              e.position,
+              e.square,
+              Optional.empty(),
+              Optional.empty(),
+              title))
+        }
+      }
+    }
+
+    return failedToMatchResult(e, listOf(
+      CommandMatchers.document_none,
+      CommandMatchers.document_with_id,
+      CommandMatchers.document_with_id_type,
+      CommandMatchers.document_with_type_id,
+      CommandMatchers.document_with_type))
+  }
+
+  private fun parseSection(
+    e : KSExpressionList,
+    c : Context) : KSResult<KSImperative, KSParseError> {
+
+    Assertive.require(e.elements.size > 0)
+    Assertive.require(e.elements[0] is KSExpressionSymbol)
+
+    when {
+      KSExpressionMatch.matches(e, CommandMatchers.section_with_id_type) -> {
+        Assertive.require(e.elements.size >= 3)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val id = parseAttributeID(
+          e.elements[2] as KSExpressionList, c)
+        val type = parseAttributeType(
+          e.elements[3] as KSExpressionList)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeSection(
+              e.position,
+              e.square,
+              Optional.of(type),
+              Optional.of(id),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.section_with_type_id) -> {
+        Assertive.require(e.elements.size >= 3)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val type = parseAttributeType(
+          e.elements[2] as KSExpressionList)
+        val id = parseAttributeID(
+          e.elements[3] as KSExpressionList, c)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeSection(
+              e.position,
+              e.square,
+              Optional.of(type),
+              Optional.of(id),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.section_with_id)      -> {
+        Assertive.require(e.elements.size >= 2)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val id = parseAttributeID(
+          e.elements[2] as KSExpressionList, c)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeSection(
+              e.position,
+              e.square,
+              Optional.empty(),
+              Optional.of(id),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.section_with_type)    -> {
+        Assertive.require(e.elements.size >= 2)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val type = parseAttributeType(
+          e.elements[2] as KSExpressionList)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeSection(
+              e.position,
+              e.square,
+              Optional.of(type),
+              Optional.empty(),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.section_none)         -> {
+        Assertive.require(e.elements.size >= 1)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeSection(
+              e.position,
+              e.square,
+              Optional.empty(),
+              Optional.empty(),
+              title))
+        }
+      }
+    }
+
+    return failedToMatchResult(e, listOf(
+      CommandMatchers.section_none,
+      CommandMatchers.section_with_id,
+      CommandMatchers.section_with_id_type,
+      CommandMatchers.section_with_type_id,
+      CommandMatchers.section_with_type))
+  }
+
+  private fun parseSubsection(
+    e : KSExpressionList,
+    c : Context) : KSResult<KSImperative, KSParseError> {
+
+    Assertive.require(e.elements.size > 0)
+    Assertive.require(e.elements[0] is KSExpressionSymbol)
+
+    when {
+      KSExpressionMatch.matches(e, CommandMatchers.subsection_with_id_type) -> {
+        Assertive.require(e.elements.size >= 3)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val id = parseAttributeID(
+          e.elements[2] as KSExpressionList, c)
+        val type = parseAttributeType(
+          e.elements[3] as KSExpressionList)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeSubsection(
+              e.position,
+              e.square,
+              Optional.of(type),
+              Optional.of(id),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.subsection_with_type_id) -> {
+        Assertive.require(e.elements.size >= 3)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val type = parseAttributeType(
+          e.elements[2] as KSExpressionList)
+        val id = parseAttributeID(
+          e.elements[3] as KSExpressionList, c)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeSubsection(
+              e.position,
+              e.square,
+              Optional.of(type),
+              Optional.of(id),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.subsection_with_id)      -> {
+        Assertive.require(e.elements.size >= 2)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val id = parseAttributeID(
+          e.elements[2] as KSExpressionList, c)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeSubsection(
+              e.position,
+              e.square,
+              Optional.empty(),
+              Optional.of(id),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.subsection_with_type)    -> {
+        Assertive.require(e.elements.size >= 2)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val type = parseAttributeType(
+          e.elements[2] as KSExpressionList)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeSubsection(
+              e.position,
+              e.square,
+              Optional.of(type),
+              Optional.empty(),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.subsection_none)         -> {
+        Assertive.require(e.elements.size >= 1)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeSubsection(
+              e.position,
+              e.square,
+              Optional.empty(),
+              Optional.empty(),
+              title))
+        }
+      }
+    }
+
+    return failedToMatchResult(e, listOf(
+      CommandMatchers.subsection_none,
+      CommandMatchers.subsection_with_id,
+      CommandMatchers.subsection_with_id_type,
+      CommandMatchers.subsection_with_type_id,
+      CommandMatchers.subsection_with_type))
+  }
+
+  private fun parseFormalItem(
+    e : KSExpressionList,
+    c : Context) : KSResult<KSImperative, KSParseError> {
+
+    Assertive.require(e.elements.size > 0)
+    Assertive.require(e.elements[0] is KSExpressionSymbol)
+
+    when {
+      KSExpressionMatch.matches(e, CommandMatchers.formal_item_with_id_type) -> {
+        Assertive.require(e.elements.size >= 3)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val id = parseAttributeID(
+          e.elements[2] as KSExpressionList, c)
+        val type = parseAttributeType(
+          e.elements[3] as KSExpressionList)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeFormalItem(
+              e.position,
+              e.square,
+              Optional.of(type),
+              Optional.of(id),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.formal_item_with_type_id) -> {
+        Assertive.require(e.elements.size >= 3)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val type = parseAttributeType(
+          e.elements[2] as KSExpressionList)
+        val id = parseAttributeID(
+          e.elements[3] as KSExpressionList, c)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeFormalItem(
+              e.position,
+              e.square,
+              Optional.of(type),
+              Optional.of(id),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.formal_item_with_id)      -> {
+        Assertive.require(e.elements.size >= 2)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val id = parseAttributeID(
+          e.elements[2] as KSExpressionList, c)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeFormalItem(
+              e.position,
+              e.square,
+              Optional.empty(),
+              Optional.of(id),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.formal_item_with_type)    -> {
+        Assertive.require(e.elements.size >= 2)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+        val type = parseAttributeType(
+          e.elements[2] as KSExpressionList)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeFormalItem(
+              e.position,
+              e.square,
+              Optional.of(type),
+              Optional.empty(),
+              title))
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.formal_item_none)         -> {
+        Assertive.require(e.elements.size >= 1)
+        val act_title = parseAttributeTitle(
+          e.elements[1] as KSExpressionList, c)
+
+        return act_title.flatMap { title ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeFormalItem(
+              e.position,
+              e.square,
+              Optional.empty(),
+              Optional.empty(),
+              title))
+        }
+      }
+    }
+
+    return failedToMatchResult(e, listOf(
+      CommandMatchers.formal_item_none,
+      CommandMatchers.formal_item_with_id,
+      CommandMatchers.formal_item_with_id_type,
+      CommandMatchers.formal_item_with_type_id,
+      CommandMatchers.formal_item_with_type))
+  }
 
   private fun makeMapDescription(m : Map<String, Any>) : String {
     val sb = StringBuilder()

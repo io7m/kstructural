@@ -18,6 +18,7 @@ package com.io7m.kstructural.parser.imperative
 
 import com.io7m.jlexing.core.LexicalPositionType
 import com.io7m.kstructural.core.KSElement
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSIDableType
 import com.io7m.kstructural.core.KSLexicalType
@@ -43,6 +44,54 @@ sealed class KSImperative(
       type : Optional<String>,
       id : Optional<KSID<KSParse>>)
     : KSImperativeCommand(position, square, type, id)
+
+    class KSImperativeFootnote(
+      position : Optional<LexicalPositionType<Path>>,
+      square : Boolean,
+      type : Optional<String>,
+      id : Optional<KSID<KSParse>>)
+    : KSImperativeCommand(position, square, type, id)
+
+    class KSImperativeDocument(
+      position : Optional<LexicalPositionType<Path>>,
+      square : Boolean,
+      type : Optional<String>,
+      id : Optional<KSID<KSParse>>,
+      val title : List<KSInlineText<KSParse>>)
+    : KSImperativeCommand(position, square, type, id)
+
+    class KSImperativePart(
+      position : Optional<LexicalPositionType<Path>>,
+      square : Boolean,
+      type : Optional<String>,
+      id : Optional<KSID<KSParse>>,
+      val title : List<KSInlineText<KSParse>>)
+    : KSImperativeCommand(position, square, type, id)
+
+    class KSImperativeSection(
+      position : Optional<LexicalPositionType<Path>>,
+      square : Boolean,
+      type : Optional<String>,
+      id : Optional<KSID<KSParse>>,
+      val title : List<KSInlineText<KSParse>>)
+    : KSImperativeCommand(position, square, type, id)
+
+    class KSImperativeSubsection(
+      position : Optional<LexicalPositionType<Path>>,
+      square : Boolean,
+      type : Optional<String>,
+      id : Optional<KSID<KSParse>>,
+      val title : List<KSInlineText<KSParse>>)
+    : KSImperativeCommand(position, square, type, id)
+
+    class KSImperativeFormalItem(
+      position : Optional<LexicalPositionType<Path>>,
+      square : Boolean,
+      type : Optional<String>,
+      id : Optional<KSID<KSParse>>,
+      val title : List<KSInlineText<KSParse>>)
+    : KSImperativeCommand(position, square, type, id)
+
   }
 
   class KSImperativeInline(
