@@ -501,7 +501,7 @@ class KSInlineParser private constructor(
     return when (r) {
       is KSResult.KSSuccess -> {
         val parse = KSParse(c.context, Optional.of(i))
-        val re = KSInlineText(i.position, i.square, parse, false, r.result)
+        val re = KSInlineText(i.position, i.square, parse, true, r.result)
         c.context.addInclude(i, real, r.result)
         KSResult.succeed<KSInlineText<KSParse>, KSParseError>(re)
       }

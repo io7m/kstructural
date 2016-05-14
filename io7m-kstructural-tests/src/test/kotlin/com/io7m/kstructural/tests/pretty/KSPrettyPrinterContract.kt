@@ -203,7 +203,7 @@ abstract class KSPrettyPrinterContract {
   @Test fun testIncludeExpanded()
   {
     Files.newOutputStream(filesystem!!.getPath("other.txt")).use { os ->
-      os.write("Hello".toByteArray(StandardCharsets.UTF_8))
+      os.write("Hello A B C D".toByteArray(StandardCharsets.UTF_8))
     }
 
     roundTripExpanded("""
@@ -219,7 +219,7 @@ abstract class KSPrettyPrinterContract {
   [section
     [title s]
     [paragraph
-      Hello]]]
+      "Hello A B C D"]]]
 """.trim(), imports = false)
   }
 
