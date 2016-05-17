@@ -1,5 +1,7 @@
 package com.io7m.kstructural.parser.imperative
 
+import com.io7m.kstructural.core.KSElement
+import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineImage
@@ -21,19 +23,25 @@ import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpression.KSExpressionList
 import com.io7m.kstructural.parser.KSExpression.KSExpressionSymbol
 import com.io7m.kstructural.parser.KSExpressionMatch
+import com.io7m.kstructural.parser.KSImporterConstructorType
+import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.canon.KSCanonInlineParserType
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.*
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeInline
+import org.slf4j.LoggerFactory
 import org.valid4j.Assertive
 import java.nio.file.Path
 import java.util.HashMap
 import java.util.Optional
 
 class KSImperativeParser private constructor(
-  private val inlines : KSCanonInlineParserType)
+  private val inlines : KSCanonInlineParserType,
+  private val importers : KSImporterConstructorType)
 : KSImperativeParserType {
 
   companion object {
+
+    private val LOG = LoggerFactory.getLogger(KSImperativeParser::class.java)
 
     private fun failedToMatch(
       e : KSExpressionList,
@@ -85,8 +93,10 @@ class KSImperativeParser private constructor(
       return KSID(e.position, (e.elements[1] as KSExpressionSymbol).value, KSParse(c.context))
     }
 
-    fun create(inlines : KSCanonInlineParserType) : KSImperativeParserType =
-      KSImperativeParser(inlines)
+    fun create(
+      inlines : KSCanonInlineParserType,
+      importers : KSImporterConstructorType) : KSImperativeParserType =
+      KSImperativeParser(inlines, importers)
   }
 
   private object CommandMatchers {
@@ -229,6 +239,9 @@ class KSImperativeParser private constructor(
     }))
     m.put("formal-item", ElementParser("formal-item", {
       e, c -> parseFormalItem(e, c)
+    }))
+    m.put("import", ElementParser("import", {
+      e, c -> parseImport(e, c)
     }))
     m.put("paragraph", ElementParser("paragraph", {
       e, c -> parsePara(e, c)
@@ -924,6 +937,119 @@ class KSImperativeParser private constructor(
       CommandMatchers.formal_item_with_type_id,
       CommandMatchers.formal_item_with_type))
   }
+
+  private fun checkInlineText(
+    e : KSExpression,
+    r : KSInline<KSParse>)
+    : KSResult<KSInlineText<KSParse>, KSParseError> {
+    return when (r) {
+      is KSInlineText  ->
+        KSResult.succeed<KSInlineText<KSParse>, KSParseError>(r)
+      is KSInlineLink,
+      is KSInlineVerbatim,
+      is KSInlineTerm,
+      is KSInlineFootnoteReference,
+      is KSInlineListOrdered,
+      is KSInlineListUnordered,
+      is KSInlineTable,
+      is KSInlineInclude,
+      is KSInlineImage -> {
+        val sb = StringBuilder()
+        sb.append("Expected text.")
+        sb.append(System.lineSeparator())
+        sb.append("  Expected: text")
+        sb.append(System.lineSeparator())
+        sb.append("  Received: ")
+        sb.append(e)
+        sb.append(System.lineSeparator())
+        parseError(r, sb.toString())
+      }
+    }
+  }
+
+  private fun loadImport(
+    e : KSExpressionList,
+    c : Context,
+    f : KSInlineText<KSParse>)
+    : KSResult<KSImperativeImport, KSParseError> {
+
+    val base_abs = c.file.toAbsolutePath()
+    val real = base_abs.resolveSibling(f.text)
+
+    val import_e = KSBlock.KSBlockImport(
+      e.position,
+      e.square,
+      KSParse(c.context),
+      Optional.empty(),
+      Optional.empty(),
+      f)
+
+    return c.context.checkImportCycle(
+      importer = base_abs,
+      import = import_e,
+      imported_path = real) flatMap {
+
+      val r : KSResult<KSBlock<KSParse>, KSParseError> =
+        try {
+          LOG.debug("import: {}", real)
+          val importer = this.importers.create(c.context, real)
+          importer.import(c.context, real)
+        } catch (x : Throwable) {
+          val sb = StringBuilder()
+          sb.append("Failed to import file.")
+          sb.append(System.lineSeparator())
+          sb.append("  File:  ")
+          sb.append(real)
+          sb.append(System.lineSeparator())
+          sb.append("  Error: ")
+          sb.append(x)
+          sb.append(System.lineSeparator())
+          KSResult.fail<KSBlock<KSParse>, KSParseError>(
+            KSParseError(e.position, sb.toString()))
+        }
+
+      r flatMap { b ->
+        c.context.addImport(
+          importer = base_abs,
+          import = import_e,
+          imported_path = real,
+          imported = b)
+
+        val re = KSImperativeImport(e.position, e.square, import_e, b)
+        KSResult.succeed<KSImperativeImport, KSParseError>(re)
+      }
+    }
+  }
+
+  private fun parseInlineText(
+    c : Context,
+    e : KSExpression)
+    : KSResult<KSInlineText<KSParse>, KSParseError> {
+    return inlines.parse(c.context, e, c.file) flatMap { r ->
+      checkInlineText(e, r)
+    }
+  }
+
+  private fun parseImport(
+    e : KSExpressionList,
+    c : Context)
+    : KSResult<KSImperativeImport, KSParseError> {
+
+    Assertive.require(e.elements.size > 0)
+    Assertive.require(e.elements[0] is KSExpressionSymbol)
+
+    when {
+      KSExpressionMatch.matches(e, CommandMatchers.import) -> {
+        Assertive.require(e.elements.size == 2)
+        return parseInlineText(c, e.elements[1]) flatMap { file ->
+          loadImport(e, c, file)
+        }
+      }
+    }
+
+    return failedToMatchResult(e, listOf(CommandMatchers.import))
+  }
+
 
   private fun makeMapDescription(m : Map<String, Any>) : String {
     val sb = StringBuilder()

@@ -18,6 +18,8 @@ package com.io7m.kstructural.parser.imperative
 
 import com.io7m.jlexing.core.LexicalPositionType
 import com.io7m.kstructural.core.KSElement
+import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSIDableType
@@ -92,6 +94,12 @@ sealed class KSImperative(
       val title : List<KSInlineText<KSParse>>)
     : KSImperativeCommand(position, square, type, id)
 
+    class KSImperativeImport(
+      position : Optional<LexicalPositionType<Path>>,
+      square : Boolean,
+      val import : KSBlockImport<KSParse>,
+      val content : KSBlock<KSParse>)
+    : KSImperativeCommand(position, square, Optional.empty(), Optional.empty())
   }
 
   class KSImperativeEOF(

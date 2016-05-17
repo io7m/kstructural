@@ -78,7 +78,33 @@ class KSImperativeParserTest : KSImperativeParserContract() {
       }
     }
 
-    val cp = KSImperativeParser.create(ip)
+    val importers = object: KSImporterConstructorType {
+      override fun create(
+        context : KSParseContextType,
+        file : Path)
+        : KSImporterType {
+
+        LOG.trace("instantiating parser for {}", file)
+        val iis = this
+        return object: KSImporterType {
+          override fun import(
+            context : KSParseContextType,
+            file : Path)
+            : KSResult<KSElement.KSBlock<KSParse>, KSParseError> {
+            val pp = KSCanonBlockParser.create(ip, iis)
+            val ep = KSExpressionParsers.create(file)
+            val eo = ep.invoke()
+            return if (eo.isPresent) {
+              pp.parse(context, eo.get(), file)
+            } else {
+              KSResult.fail(KSParseError(Optional.empty(), "Unexpected EOF"))
+            }
+          }
+        }
+      }
+    }
+
+    val cp = KSImperativeParser.create(ip, importers)
     val ep = KSExpressionParsers.createWithReader(
       defaultFile(), StringReader(text))
     return Parser(cp, { ep.invoke().get() })

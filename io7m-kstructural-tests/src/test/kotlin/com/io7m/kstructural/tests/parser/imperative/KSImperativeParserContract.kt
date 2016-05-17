@@ -16,12 +16,16 @@
 
 package com.io7m.kstructural.tests.parser.imperative
 
+import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
+import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.parser.KSExpression
+import com.io7m.kstructural.parser.imperative.KSImperative
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeImport
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeDocument
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeFormalItem
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeParagraph
@@ -35,7 +39,9 @@ import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
+import java.nio.file.Files
 
 abstract class KSImperativeParserContract {
 
@@ -200,7 +206,6 @@ abstract class KSImperativeParserContract {
     Assert.assertEquals("t", e.result.type.get())
     Assert.assertEquals("ttt", e.result.title[0].text)
   }
-
 
   @Test fun testSection() {
     val pp = newParserForString("[section [title ttt]]")
@@ -469,5 +474,33 @@ abstract class KSImperativeParserContract {
     Assert.assertFalse(e.result.id.isPresent)
     Assert.assertEquals("t", e.result.type.get())
     Assert.assertEquals("ttt", e.result.title[0].text)
+  }
+
+  @Test fun testImportErrorNonexistent() {
+    val pp = newParserForString("[import \"nonexistent.txt\"]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSFailure
+  }
+
+  @Test fun testImportErrorParse() {
+    val pp = newParserForString("[import [q]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSFailure
+  }
+
+  @Test fun testImportParagraph() {
+    Files.newOutputStream(filesystem!!.getPath("other.txt")).use { os ->
+      os.write("[paragraph p]".toByteArray(StandardCharsets.UTF_8))
+    }
+
+    val pp = newParserForString("[import \"other.txt\"]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSImperativeImport, KSParseError>
+    Assert.assertFalse(e.result.id.isPresent)
+    val p = e.result.content as KSElement.KSBlock.KSBlockParagraph<KSParse>
+    Assert.assertEquals("p", (p.content[0] as KSInlineText).text)
   }
 }

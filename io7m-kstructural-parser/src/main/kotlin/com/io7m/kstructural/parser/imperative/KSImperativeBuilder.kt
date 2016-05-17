@@ -16,25 +16,44 @@
 
 package com.io7m.kstructural.parser.imperative
 
-import com.io7m.kstructural.core.KSElement
+import com.io7m.jlexing.core.LexicalPositionType
+import com.io7m.junreachable.UnreachableCodeException
 import com.io7m.kstructural.core.KSElement.KSBlock
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.*
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.*
-import com.io7m.kstructural.core.KSElement.KSBlock.*
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockParagraph
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockPart
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithContent
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithSubsections
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
 import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
-import com.io7m.kstructural.core.KSResult.*
 import com.io7m.kstructural.core.KSSubsectionContent
-import com.io7m.kstructural.core.KSSubsectionContent.*
-import com.io7m.kstructural.parser.imperative.KSImperative.*
-import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.*
+import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFootnote
+import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFormalItem
+import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeDocument
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeFootnote
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeFormalItem
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeImport
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeParagraph
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativePart
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeSection
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeSubsection
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeEOF
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeInline
 import org.slf4j.LoggerFactory
 import org.valid4j.Assertive
-import java.util.ArrayDeque
-import java.util.Deque
+import java.nio.file.Path
 import java.util.Optional
 
 class KSImperativeBuilder private constructor()
@@ -45,32 +64,52 @@ class KSImperativeBuilder private constructor()
     private val LOG = LoggerFactory.getLogger(KSImperativeBuilder::class.java)
 
     private fun unexpectedInline(
-      command : KSImperativeInline) : KSResult<Optional<KSBlock<KSParse>>, KSParseError> {
+      command : KSImperativeInline)
+      : KSResult<Optional<KSBlock<KSParse>>, KSParseError> =
+      unexpectedElement(
+        message = "Unexpected inline content.",
+        expected = "A block command",
+        received = command,
+        position = command.position)
+
+    private fun ellipsize(
+      x : Any,
+      n : Int) : String {
+      val s = x.toString()
+      return if (s.length > n) {
+        s.substring(0, n) + "..."
+      } else {
+        s
+      }
+    }
+
+    private fun unexpectedElement(
+      message : String,
+      expected : String,
+      received : Any,
+      position : Optional<LexicalPositionType<Path>>)
+      : KSResult<Optional<KSBlock<KSParse>>, KSParseError> {
       val sb = StringBuilder()
-      sb.append("Unexpected inline content.")
+      sb.append(message)
       sb.append(System.lineSeparator())
-      sb.append("Expected: A block command")
+      sb.append("Expected: ")
+      sb.append(expected)
       sb.append(System.lineSeparator())
       sb.append("Received: ")
-      sb.append(command.value)
+      sb.append(ellipsize(received, 50))
       sb.append(System.lineSeparator())
       return KSResult.fail<Optional<KSBlock<KSParse>>, KSParseError>(
-        KSParseError(command.position, sb.toString()))
+        KSParseError(position, sb.toString()))
     }
 
     private fun expectedSubsectionContent(
-      command : KSImperativeCommand) : KSResult<Optional<KSBlock<KSParse>>, KSParseError> {
-      val sb = StringBuilder()
-      sb.append("Unexpected block command.")
-      sb.append(System.lineSeparator())
-      sb.append("Expected: Subsection content")
-      sb.append(System.lineSeparator())
-      sb.append("Received: ")
-      sb.append(command)
-      sb.append(System.lineSeparator())
-      return KSResult.fail<Optional<KSBlock<KSParse>>, KSParseError>(
-        KSParseError(command.position, sb.toString()))
-    }
+      command : KSImperativeCommand)
+      : KSResult<Optional<KSBlock<KSParse>>, KSParseError> =
+      unexpectedElement(
+        message = "Unexpected block command.",
+        expected = "Subsection content",
+        received = command,
+        position = command.position)
 
     private fun <T : KSBlock<KSParse>> succeedSomeBlock(
       x : T) : KSResult<Optional<KSBlock<KSParse>>, KSParseError> {
@@ -113,9 +152,9 @@ class KSImperativeBuilder private constructor()
       : KSResult<Optional<KSBlock<KSParse>>, KSParseError> {
       return when (command) {
         is KSImperativeCommand,
-        is KSImperativeEOF     ->
+        is KSImperativeEOF    ->
           succeedSomeBlock(finish(context))
-        is KSImperativeInline  -> {
+        is KSImperativeInline -> {
           content.add(command.value)
           succeedNothing()
         }
@@ -152,9 +191,9 @@ class KSImperativeBuilder private constructor()
       : KSResult<Optional<KSBlock<KSParse>>, KSParseError> {
       return when (command) {
         is KSImperativeCommand,
-        is KSImperativeEOF     ->
+        is KSImperativeEOF    ->
           succeedSomeBlock(finish(context))
-        is KSImperativeInline  -> {
+        is KSImperativeInline -> {
           content.add(command.value)
           succeedNothing()
         }
@@ -192,9 +231,9 @@ class KSImperativeBuilder private constructor()
       : KSResult<Optional<KSBlock<KSParse>>, KSParseError> {
       return when (command) {
         is KSImperativeCommand,
-        is KSImperativeEOF     ->
+        is KSImperativeEOF    ->
           succeedSomeBlock(finish(context))
-        is KSImperativeInline  -> {
+        is KSImperativeInline -> {
           content.add(command.value)
           succeedNothing()
         }
@@ -256,6 +295,36 @@ class KSImperativeBuilder private constructor()
               finishContentIfNecessary(context)
               this.formal_builder = FormalItemBuilder(cc)
               succeedNothing()
+            }
+            is KSImperativeImport     -> {
+              when (cc.content) {
+                is KSBlockDocument,
+                is KSBlockSection,
+                is KSBlockSubsection,
+                is KSBlockPart,
+                is KSBlockImport     -> {
+                  unexpectedElement(
+                    message = "Unexpected imported block.",
+                    expected = "Subsection content",
+                    received = "(Imported) " + cc.content,
+                    position = cc.position)
+                }
+                is KSBlockParagraph -> {
+                  finishContentIfNecessary(context)
+                  this.content.add(KSSubsectionParagraph(cc.content))
+                  succeedNothing()
+                }
+                is KSBlockFormalItem -> {
+                  finishContentIfNecessary(context)
+                  this.content.add(KSSubsectionFormalItem(cc.content))
+                  succeedNothing()
+                }
+                is KSBlockFootnote   -> {
+                  finishContentIfNecessary(context)
+                  this.content.add(KSSubsectionFootnote(cc.content))
+                  succeedNothing()
+                }
+              }
             }
           }
         }
@@ -415,19 +484,72 @@ class KSImperativeBuilder private constructor()
               finishContentIfNecessary(context)
 
               if (content.isNotEmpty()) {
-                val sb = StringBuilder()
-                sb.append("Unexpected subsection.")
-                sb.append(System.lineSeparator())
-                sb.append("Expected: Subsection content")
-                sb.append(System.lineSeparator())
-                sb.append("Received: A subsection")
-                sb.append(System.lineSeparator())
-                KSResult.fail<Optional<KSBlock<KSParse>>, KSParseError>(
-                  KSParseError(command.position, sb.toString()))
+                unexpectedElement(
+                  message = "Unexpected subsection.",
+                  expected = "Subsection content",
+                  received = command,
+                  position = command.position)
               } else {
                 finishSubsectionIfNecessary(context)
                 this.subsection_builder = SubsectionBuilder(cc)
                 succeedNothing()
+              }
+            }
+
+            is KSImperativeImport     -> {
+              when (cc.content) {
+                is KSBlockImport,
+                is KSBlockDocument,
+                is KSBlockSection,
+                is KSBlockPart       -> {
+                  unexpectedElement(
+                    message = "Unexpected imported block.",
+                    expected = "Section content",
+                    received = "(Imported) " + cc.content,
+                    position = cc.position)
+                }
+
+                is KSBlockSubsection -> {
+                  finishContentIfNecessary(context)
+
+                  if (content.isNotEmpty()) {
+                    unexpectedElement(
+                      message = "Unexpected imported subsection.",
+                      expected = "Subsection content",
+                      received = "(Imported) " + cc.content,
+                      position = cc.position)
+                  } else {
+                    subsections.add(cc.content)
+                    succeedNothing()
+                  }
+                }
+
+                is KSBlockFormalItem,
+                is KSBlockFootnote,
+                is KSBlockParagraph  -> {
+                  finishContentIfNecessary(context)
+
+                  if (subsections.isNotEmpty()) {
+                    unexpectedElement(
+                      message = "Unexpected imported subsection content.",
+                      expected = "A subsection",
+                      received = "(Imported) " + cc.content,
+                      position = cc.position)
+                  } else {
+                    content.add(when (cc.content) {
+                      is KSBlockDocument,
+                      is KSBlockSection ,
+                      is KSBlockSubsection,
+                      is KSBlockPart ,
+                      is KSBlockImport     ->
+                        throw UnreachableCodeException()
+                      is KSBlockParagraph  -> KSSubsectionParagraph(cc.content)
+                      is KSBlockFormalItem -> KSSubsectionFormalItem(cc.content)
+                      is KSBlockFootnote   -> KSSubsectionFootnote(cc.content)
+                    })
+                    succeedNothing()
+                  }
+                }
               }
             }
           }
@@ -565,36 +687,59 @@ class KSImperativeBuilder private constructor()
               if (this.section_builder != null) {
                 this.section_builder!!.add(context, command)
               } else {
-                val sb = StringBuilder()
-                sb.append("Unexpected block command.")
-                sb.append(System.lineSeparator())
-                sb.append("Expected: A section")
-                sb.append(System.lineSeparator())
-                sb.append("Received: ")
-                sb.append(command)
-                sb.append(System.lineSeparator())
-                return KSResult.fail<Optional<KSBlock<KSParse>>, KSParseError>(
-                  KSParseError(command.position, sb.toString()))
+                unexpectedElement(
+                  message = "Unexpected block command.",
+                  expected = "A section",
+                  received = command,
+                  position = command.position)
               }
             }
 
-            is KSImperativePart -> {
-              val sb = StringBuilder()
-              sb.append("Unexpected block command.")
-              sb.append(System.lineSeparator())
-              sb.append("Expected: A section or section content")
-              sb.append(System.lineSeparator())
-              sb.append("Received: ")
-              sb.append(command)
-              sb.append(System.lineSeparator())
-              return KSResult.fail<Optional<KSBlock<KSParse>>, KSParseError>(
-                KSParseError(command.position, sb.toString()))
+            is KSImperativePart       -> {
+              unexpectedElement(
+                message = "Unexpected block command.",
+                expected = "A section or section content",
+                received = command,
+                position = command.position)
             }
 
             is KSImperativeSection    -> {
               finishSectionIfNecessary(context)
               this.section_builder = SectionBuilder(cc)
               succeedNothing()
+            }
+
+            is KSImperativeImport     -> {
+              when (cc.content) {
+                is KSBlockSection  -> {
+                  finishSectionIfNecessary(context)
+                  this.sections.add(cc.content)
+                  succeedNothing()
+                }
+                is KSBlockDocument -> {
+                  unexpectedElement(
+                    message = "Unexpected imported block.",
+                    expected = "A section or section content",
+                    received = "(Imported) " + cc.content,
+                    position = command.position)
+                }
+                is KSBlockSubsection,
+                is KSBlockParagraph,
+                is KSBlockFormalItem,
+                is KSBlockFootnote,
+                is KSBlockPart,
+                is KSBlockImport   -> {
+                  if (this.section_builder != null) {
+                    this.section_builder!!.add(context, command)
+                  } else {
+                    unexpectedElement(
+                      message = "Unexpected imported block.",
+                      expected = "A section",
+                      received = "(Imported) " + cc.content,
+                      position = command.position)
+                  }
+                }
+              }
             }
           }
         }
@@ -671,58 +816,113 @@ class KSImperativeBuilder private constructor()
               } else if (this.part_builder != null) {
                 this.part_builder!!.add(context, command)
               } else {
-                val sb = StringBuilder()
-                sb.append("Unexpected block command.")
-                sb.append(System.lineSeparator())
-                sb.append("Expected: A section or part")
-                sb.append(System.lineSeparator())
-                sb.append("Received: ")
-                sb.append(command)
-                sb.append(System.lineSeparator())
-                return KSResult.fail<Optional<KSBlock<KSParse>>, KSParseError>(
-                  KSParseError(command.position, sb.toString()))
+                unexpectedElement(
+                  message = "Unexpected block command.",
+                  expected = "A section or part",
+                  received = command,
+                  position = command.position)
               }
             }
 
-            is KSImperativePart -> {
+            is KSImperativePart       -> {
               finishContentIfNecessary(context)
 
               if (sections.isNotEmpty()) {
-                val sb = StringBuilder()
-                sb.append("Unexpected section.")
-                sb.append(System.lineSeparator())
-                sb.append("Expected: A section")
-                sb.append(System.lineSeparator())
-                sb.append("Received: A part")
-                sb.append(System.lineSeparator())
-                KSResult.fail<Optional<KSBlock<KSParse>>, KSParseError>(
-                  KSParseError(command.position, sb.toString()))
+                unexpectedElement(
+                  message = "Unexpected section.",
+                  expected = "A section",
+                  received = command,
+                  position = command.position)
               } else {
                 this.part_builder = PartBuilder(cc)
                 succeedNothing()
               }
             }
-            is KSImperativeSection -> {
-              finishContentIfNecessary(context)
 
-              if (parts.isNotEmpty()) {
-                val sb = StringBuilder()
-                sb.append("Unexpected section.")
-                sb.append(System.lineSeparator())
-                sb.append("Expected: A part")
-                sb.append(System.lineSeparator())
-                sb.append("Received: A section")
-                sb.append(System.lineSeparator())
-                KSResult.fail<Optional<KSBlock<KSParse>>, KSParseError>(
-                  KSParseError(command.position, sb.toString()))
+            is KSImperativeSection    -> {
+              if (part_builder != null) {
+                this.part_builder!!.add(context, command)
               } else {
-                this.section_builder = SectionBuilder(cc)
-                succeedNothing()
+                finishContentIfNecessary(context)
+
+                if (parts.isNotEmpty()) {
+                  unexpectedElement(
+                    message = "Unexpected section.",
+                    expected = "A part",
+                    received = command,
+                    position = command.position)
+                } else {
+                  this.section_builder = SectionBuilder(cc)
+                  succeedNothing()
+                }
+              }
+            }
+
+            is KSImperativeImport     -> {
+              when (cc.content) {
+                is KSBlockDocument -> {
+                  unexpectedElement(
+                    message = "Unexpected imported block.",
+                    expected = "A part, section, or section content",
+                    received = "(Imported) " + command,
+                    position = command.position)
+                }
+
+                is KSBlockSection  -> {
+                  if (part_builder != null) {
+                    this.part_builder!!.add(context, command)
+                  } else {
+                    finishContentIfNecessary(context)
+
+                    if (parts.isNotEmpty()) {
+                      unexpectedElement(
+                        message = "Unexpected imported block.",
+                        expected = "A part",
+                        received = "(Imported) " + command,
+                        position = command.position)
+                    } else {
+                      this.sections.add(cc.content)
+                      succeedNothing()
+                    }
+                  }
+                }
+
+                is KSBlockPart     -> {
+                  finishContentIfNecessary(context)
+
+                  if (sections.isNotEmpty()) {
+                    unexpectedElement(
+                      message = "Unexpected imported block.",
+                      expected = "A section",
+                      received = "(Imported) " + command,
+                      position = command.position)
+                  } else {
+                    this.parts.add(cc.content)
+                    succeedNothing()
+                  }
+                }
+
+                is KSBlockSubsection,
+                is KSBlockParagraph,
+                is KSBlockFormalItem,
+                is KSBlockFootnote,
+                is KSBlockImport   -> {
+                  if (this.section_builder != null) {
+                    this.section_builder!!.add(context, command)
+                  } else if (this.part_builder != null) {
+                    this.part_builder!!.add(context, command)
+                  } else {
+                    unexpectedElement(
+                      message = "Unexpected imported block.",
+                      expected = "A section or part",
+                      received = "(Imported) " + command,
+                      position = command.position)
+                  }
+                }
               }
             }
           }
         }
-
 
         is KSImperativeEOF     ->
           succeedSomeBlock(finish(context))
@@ -825,18 +1025,16 @@ class KSImperativeBuilder private constructor()
             this.builder = FormalItemBuilder(ee)
             succeedNothing()
           }
+          is KSImperativeImport     ->
+            succeedSomeBlock(ee.content)
         }
       }
       is KSImperativeEOF     -> {
-        val sb = StringBuilder()
-        sb.append("Unexpected EOF.")
-        sb.append(System.lineSeparator())
-        sb.append("Expected: A block command")
-        sb.append(System.lineSeparator())
-        sb.append("Received: EOF")
-        sb.append(System.lineSeparator())
-        KSResult.fail<Optional<KSBlock<KSParse>>, KSParseError>(
-          KSParseError(command.position, sb.toString()))
+        unexpectedElement(
+          message = "Unexpected EOF.",
+          expected = "A block command",
+          received = "EOF",
+          position = command.position)
       }
       is KSImperativeInline  ->
         unexpectedInline(command)
