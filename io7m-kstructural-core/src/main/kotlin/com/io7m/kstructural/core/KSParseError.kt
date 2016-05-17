@@ -27,4 +27,22 @@ data class KSParseError(
 
   override fun toString() : String =
     "[KSParseError $position \"$message\"]"
+
+  fun show() : String {
+    val sb = StringBuilder(message.length + 32)
+    if (position.isPresent) {
+      val pos = position.get()
+      if (pos.file.isPresent) {
+        val file = pos.file.get()
+        sb.append(file)
+        sb.append(": ")
+      }
+      sb.append(pos.line)
+      sb.append(":")
+      sb.append(pos.column)
+      sb.append(": ")
+    }
+    sb.append(message)
+    return sb.toString()
+  }
 }

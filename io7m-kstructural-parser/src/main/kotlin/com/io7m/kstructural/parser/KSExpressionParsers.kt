@@ -29,28 +29,29 @@ import java.util.Optional
 
 object KSExpressionParsers {
 
-  fun create(file : Path) : () -> Optional<KSExpression> {
+  fun create(file : Path) : KSExpressionParserType {
     return createWithReader(
       file, Files.newBufferedReader(file, StandardCharsets.UTF_8))
   }
 
   fun createWithReader(
     file : Path,
-    reader : Reader) : () -> Optional<KSExpression> {
+    reader : Reader) : KSExpressionParserType {
 
-    val lcb = JSXLexerConfiguration.newBuilder();
-    lcb.setNewlinesInQuotedStrings(true);
+    val lcb = JSXLexerConfiguration.newBuilder()
+    lcb.setNewlinesInQuotedStrings(true)
     lcb.setSquareBrackets(true)
+    lcb.setFile(Optional.of(file))
     val lc = lcb.build();
 
-    val r = UnicodeCharacterReader.newReader(reader);
-    val lex = JSXLexer.newLexer(lc, r);
-    val pcb = JSXParserConfiguration.newBuilder();
-    pcb.preserveLexicalInformation(true);
-    val pc = pcb.build();
-    val p = JSXParser.newParser(pc, lex);
+    val r = UnicodeCharacterReader.newReader(reader)
+    val lex = JSXLexer.newLexer(lc, r)
+    val pcb = JSXParserConfiguration.newBuilder()
+    pcb.preserveLexicalInformation(true)
+    val pc = pcb.build()
+    val p = JSXParser.newParser(pc, lex)
 
-    return {
+    return KSExpressionParserType {
       p.parseExpressionOrEOF().map { ee -> KSExpression.of(ee) }
     }
   }

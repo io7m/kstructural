@@ -14,35 +14,22 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.core.evaluator
+package com.io7m.kstructural.core
 
-import com.io7m.jlexing.core.LexicalPositionType
-import com.io7m.kstructural.core.KSLexicalType
+import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSParse
+import com.io7m.kstructural.core.KSParseContextType
+import com.io7m.kstructural.core.KSParseError
+import com.io7m.kstructural.core.KSResult
+import java.io.IOException
 import java.nio.file.Path
-import java.util.Optional
 
-data class KSEvaluationError(
-  override val position : Optional<LexicalPositionType<Path>>,
-  val message : String) : KSLexicalType {
+interface KSParserType {
 
-  override fun toString() : String =
-    "[KSEvaluationError $position \"$message\"]"
+  @Throws(exceptionClasses = IOException::class)
+  fun parseBlock(
+    context : KSParseContextType,
+    file : Path)
+  : KSResult<KSBlock<KSParse>, KSParseError>
 
-  fun show() : String {
-    val sb = StringBuilder(message.length + 32)
-    if (position.isPresent) {
-      val pos = position.get()
-      if (pos.file.isPresent) {
-        val file = pos.file.get()
-        sb.append(file)
-        sb.append(": ")
-      }
-      sb.append(pos.line)
-      sb.append(":")
-      sb.append(pos.column)
-      sb.append(": ")
-    }
-    sb.append(message)
-    return sb.toString()
-  }
 }

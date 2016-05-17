@@ -14,20 +14,23 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.parser
+package com.io7m.kstructural.cmdline;
 
-import com.io7m.kstructural.core.KSElement.KSBlock
-import com.io7m.kstructural.core.KSParse
-import com.io7m.kstructural.core.KSParseContextType
-import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSResult
-import java.nio.file.Path
+import com.beust.jcommander.IStringConverter;
 
-interface KSImporterType {
-  
-  fun import (
-    context : KSParseContextType,
-    file : Path)
-  : KSResult<KSBlock<KSParse>, KSParseError>
+public final class KSCLLogLevelConverter implements
+  IStringConverter<KSCLLogLevel>
+{
+  @Override
+  public KSCLLogLevel convert(final String value)
+  {
+    for (final KSCLLogLevel v : KSCLLogLevel.values()) {
+      if (value.equals(v.getName())) {
+        return v;
+      }
+    }
 
+    throw new KSCLLogLevelUnrecognized(
+      "Unrecognized verbosity level: " + value);
+  }
 }

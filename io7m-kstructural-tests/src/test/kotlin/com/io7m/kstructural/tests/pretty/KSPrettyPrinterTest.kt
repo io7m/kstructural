@@ -31,8 +31,8 @@ import com.io7m.kstructural.core.evaluator.KSEvaluationError
 import com.io7m.kstructural.core.evaluator.KSEvaluator
 import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.KSExpressionParsers
-import com.io7m.kstructural.parser.KSImporterConstructorType
-import com.io7m.kstructural.parser.KSImporterType
+import com.io7m.kstructural.core.KSParserConstructorType
+import com.io7m.kstructural.core.KSParserType
 import com.io7m.kstructural.parser.canon.KSCanonInlineParser
 import com.io7m.kstructural.pretty.KSPrettyPrinter
 import com.io7m.kstructural.tests.KSTestFilesystems
@@ -54,22 +54,22 @@ class KSPrettyPrinterTest : KSPrettyPrinterContract() {
   override fun parse(file : Path) : KSBlockDocument<KSEvaluation> {
     val sp = KSExpressionParsers.create(file)
     val ip = KSCanonInlineParser.create(KSTestIO.utf8_includer)
-    val importers = object: KSImporterConstructorType {
+    val importers = object: KSParserConstructorType {
       override fun create(
         context : KSParseContextType,
         file : Path)
-        : KSImporterType {
+        : KSParserType {
 
         LOG.trace("instantiating parser for {}", file)
         val iis = this
-        return object: KSImporterType {
-          override fun import(
+        return object: KSParserType {
+          override fun parseBlock(
             context : KSParseContextType,
             file : Path)
             : KSResult<KSBlock<KSParse>, KSParseError> {
             val pp = KSCanonBlockParser.create(ip, iis)
             val ep = KSExpressionParsers.create(file)
-            val eo = ep.invoke()
+            val eo = ep.parse()
             return if (eo.isPresent) {
               pp.parse(context, eo.get(), file)
             } else {
@@ -82,7 +82,7 @@ class KSPrettyPrinterTest : KSPrettyPrinterContract() {
 
     val bp = KSCanonBlockParser.create(ip, importers)
 
-    val e = sp.invoke().get()
+    val e = sp.parse().get()
     val c = KSParseContext.empty()
     val r = bp.parse(c, e, file)
     if (r is KSFailure) {

@@ -16,8 +16,10 @@
 
   <modules>
     <module>io7m-kstructural-checkstyle</module>
+    <module>io7m-kstructural-cmdline</module>
     <module>io7m-kstructural-core</module>
     <module>io7m-kstructural-documentation</module>
+    <module>io7m-kstructural-frontend</module>
     <module>io7m-kstructural-parser</module>
     <module>io7m-kstructural-pretty</module>
     <module>io7m-kstructural-tests</module>
@@ -141,6 +143,11 @@
         <groupId>org.jgrapht</groupId>
         <artifactId>jgrapht-core</artifactId>
         <version>0.9.2</version>
+      </dependency>
+      <dependency>
+        <groupId>com.beust</groupId>
+        <artifactId>jcommander</artifactId>
+        <version>1.48</version>
       </dependency>
 
       <dependency>

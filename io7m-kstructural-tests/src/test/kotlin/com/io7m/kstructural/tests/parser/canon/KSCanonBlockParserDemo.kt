@@ -33,8 +33,8 @@ import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.parser.KSExpressionParsers
-import com.io7m.kstructural.parser.KSImporterConstructorType
-import com.io7m.kstructural.parser.KSImporterType
+import com.io7m.kstructural.core.KSParserConstructorType
+import com.io7m.kstructural.core.KSParserType
 import com.io7m.kstructural.tests.KSTestIO
 import com.io7m.kstructural.tests.core.KSEvaluatorTest
 import org.apache.commons.io.IOUtils
@@ -73,22 +73,22 @@ object KSBlockParserDemo {
     val p = JSXParser.newParser(pc, lex)
 
     val ip = KSCanonInlineParser.create(KSTestIO.utf8_includer)
-    val importers = object: KSImporterConstructorType {
+    val importers = object: KSParserConstructorType {
       override fun create(
         context : KSParseContextType,
         file : Path)
-        : KSImporterType {
+        : KSParserType {
 
         LOG.trace("instantiating parser for {}", file)
         val iis = this
-        return object: KSImporterType {
-          override fun import(
+        return object: KSParserType {
+          override fun parseBlock(
             context : KSParseContextType,
             file : Path)
             : KSResult<KSElement.KSBlock<KSParse>, KSParseError> {
             val pp = KSCanonBlockParser.create(ip, iis)
             val ep = KSExpressionParsers.create(file)
-            val eo = ep.invoke()
+            val eo = ep.parse()
             return if (eo.isPresent) {
               pp.parse(context, eo.get(), file)
             } else {
