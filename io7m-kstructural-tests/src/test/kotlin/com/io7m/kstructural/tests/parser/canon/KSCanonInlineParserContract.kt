@@ -14,7 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.tests.parser
+package com.io7m.kstructural.tests.parser.canon
 
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineImage
@@ -34,7 +34,7 @@ import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.parser.KSExpression
-import com.io7m.kstructural.parser.KSInlineParserType
+import com.io7m.kstructural.parser.canon.KSCanonInlineParserType
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSParseContext
 import org.apache.commons.io.IOUtils
@@ -50,7 +50,7 @@ import java.nio.file.Paths
 import java.util.Optional
 
 
-abstract class KSInlineParserContract {
+abstract class KSCanonInlineParserContract {
 
   protected abstract fun newParserForString(text : String) : Parser
 
@@ -69,7 +69,7 @@ abstract class KSInlineParserContract {
   private fun defaultFile() = filesystem!!.getPath("file.txt")
 
   data class Parser(
-    val p : KSInlineParserType,
+    val p : KSCanonInlineParserType,
     val s : () -> KSExpression)
 
   @Test fun testInlineText() {

@@ -14,28 +14,20 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.tests
+package com.io7m.kstructural.parser.imperative
 
+import com.io7m.kstructural.core.KSElement
+import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSParse
+import com.io7m.kstructural.core.KSParseContextType
+import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
-import com.io7m.kstructural.parser.KSIncluderType
-import org.apache.commons.io.IOUtils
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Path
+import java.util.Optional
 
-object KSTestIO {
+interface KSImperativeBuilderType {
 
-  val utf8_includer : KSIncluderType = object:KSIncluderType {
-    override fun include(path : Path) : KSResult<String, Throwable> {
-      return Files.newInputStream(path).use { s ->
-        try {
-          KSResult.succeed(IOUtils.toString(s, StandardCharsets.UTF_8))
-        } catch (x : Throwable) {
-          KSResult.fail(x)
-        }
-      }
-    }
-  }
+  fun add(
+    context : KSParseContextType,
+    command : KSImperative) : KSResult<Optional<KSBlock<KSParse>>, KSParseError>
 
 }
-

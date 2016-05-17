@@ -14,7 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.tests.parser
+package com.io7m.kstructural.tests.parser.canon
 
 import com.io7m.jeucreader.UnicodeCharacterReader
 import com.io7m.jsx.lexer.JSXLexer
@@ -24,8 +24,8 @@ import com.io7m.jsx.parser.JSXParserConfiguration
 import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.parser.KSExpression
-import com.io7m.kstructural.parser.KSInlineParser
-import com.io7m.kstructural.parser.KSInlineParserType
+import com.io7m.kstructural.parser.canon.KSCanonInlineParser
+import com.io7m.kstructural.parser.canon.KSCanonInlineParserType
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
@@ -39,14 +39,14 @@ import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
 
-class KSInlineParserTest : KSInlineParserContract() {
+class KSCanonInlineParserTest : KSCanonInlineParserContract() {
 
   override fun newFilesystem() : FileSystem {
     return KSTestFilesystems.newUnixFilesystem()
   }
 
   companion object {
-    private val LOG = LoggerFactory.getLogger(KSInlineParserTest::class.java)
+    private val LOG = LoggerFactory.getLogger(KSCanonInlineParserTest::class.java)
   }
 
   override fun newParserForString(text : String) : Parser {
@@ -62,9 +62,11 @@ class KSInlineParserTest : KSInlineParserContract() {
     val pc = pcb.build();
     val p = JSXParser.newParser(pc, lex);
 
-    val ip = KSInlineParser.get(KSTestIO.utf8_reader)
+    val ip = KSCanonInlineParser.create(KSTestIO.utf8_includer)
+    val ipp = object : KSCanonInlineParserType {
+      override fun maybe(expression : KSExpression) : Boolean =
+        ip.maybe(expression)
 
-    val ipp = object : KSInlineParserType {
       override fun parse(
         context : KSParseContextType,
         expression : KSExpression,
@@ -86,7 +88,7 @@ class KSInlineParserTest : KSInlineParserContract() {
       }
     }
 
-    return Parser(ipp, { KSExpression.of(p.parseExpression()) })
+    return Parser(ipp, { KSExpression.Companion.of(p.parseExpression()) })
   }
 
 }

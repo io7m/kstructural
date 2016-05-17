@@ -14,21 +14,25 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.parser
+package com.io7m.kstructural.parser.canon
 
-import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
+import com.io7m.kstructural.parser.KSExpression
 import java.nio.file.Path
 
-interface KSBlockParserType {
+interface KSCanonInlineParserType {
 
   fun parse(
     context : KSParseContextType,
     expression : KSExpression,
     file : Path)
-    : KSResult<KSBlock<KSParse>, KSParseError>
+    : KSResult<KSInline<KSParse>, KSParseError>
+
+  fun maybe(
+    expression : KSExpression) : Boolean
 
 }

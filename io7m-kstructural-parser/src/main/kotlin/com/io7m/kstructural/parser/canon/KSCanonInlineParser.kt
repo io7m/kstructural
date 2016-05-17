@@ -14,7 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.parser
+package com.io7m.kstructural.parser.canon
 
 import com.io7m.junreachable.UnreachableCodeException
 import com.io7m.kstructural.core.KSElement.KSInline
@@ -47,9 +47,12 @@ import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.evaluator.KSEvaluation
 import com.io7m.kstructural.core.evaluator.KSEvaluationError
 import com.io7m.kstructural.core.evaluator.KSEvaluator
+import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpression.KSExpressionList
 import com.io7m.kstructural.parser.KSExpression.KSExpressionQuoted
 import com.io7m.kstructural.parser.KSExpression.KSExpressionSymbol
+import com.io7m.kstructural.parser.KSExpressionMatch
+import com.io7m.kstructural.parser.KSIncluderType
 import org.slf4j.LoggerFactory
 import org.valid4j.Assertive
 import java.math.BigInteger
@@ -59,16 +62,16 @@ import java.nio.file.Path
 import java.util.HashMap
 import java.util.Optional
 
-class KSInlineParser private constructor(
-  private val text_reader : (Path) -> KSResult<String, Throwable>)
-: KSInlineParserType {
+class KSCanonInlineParser private constructor(
+  private val includer : KSIncluderType)
+: KSCanonInlineParserType {
 
   companion object {
 
-    private val LOG = LoggerFactory.getLogger(KSInlineParser::class.java)
+    private val LOG = LoggerFactory.getLogger(KSCanonInlineParser::class.java)
 
-    fun get(text_reader : (Path) -> KSResult<String, Throwable>) : KSInlineParserType =
-      KSInlineParser(text_reader)
+    fun create(includer : KSIncluderType) : KSCanonInlineParserType =
+      KSCanonInlineParser(includer)
 
   }
 
@@ -492,7 +495,7 @@ class KSInlineParser private constructor(
     } else {
       try {
         LOG.debug("include: {}", real)
-        this.text_reader.invoke(real)
+        this.includer.include(real)
       } catch (x : Throwable) {
         KSResult.fail<String, Throwable>(x)
       }
@@ -501,7 +504,7 @@ class KSInlineParser private constructor(
     return when (r) {
       is KSResult.KSSuccess -> {
         val parse = KSParse(c.context, Optional.of(i))
-        val re = KSInlineText(i.position, i.square, parse, false, r.result)
+        val re = KSInlineText(i.position, i.square, parse, true, r.result)
         c.context.addInclude(i, real, r.result)
         KSResult.succeed<KSInlineText<KSParse>, KSParseError>(re)
       }
@@ -545,7 +548,7 @@ class KSInlineParser private constructor(
     c : Context)
     : KSResult<KSInlineVerbatim<KSParse>, KSParseError> {
     when {
-      KSExpressionMatch.matches(e, CommandMatchers.verbatim_include) -> {
+      KSExpressionMatch.matches(e, CommandMatchers.verbatim_include)      -> {
         Assertive.require(e.elements.size == 2)
         val act_content =
           parseInlineInclude(e.elements[1] as KSExpressionList, c)
@@ -577,7 +580,7 @@ class KSInlineParser private constructor(
         }
       }
 
-      KSExpressionMatch.matches(e, CommandMatchers.verbatim_type) -> {
+      KSExpressionMatch.matches(e, CommandMatchers.verbatim_type)         -> {
         Assertive.require(e.elements.size == 3)
         val type =
           parseAttributeType(e.elements[1] as KSExpressionList)
@@ -594,7 +597,7 @@ class KSInlineParser private constructor(
         }
       }
 
-      KSExpressionMatch.matches(e, CommandMatchers.verbatim)      -> {
+      KSExpressionMatch.matches(e, CommandMatchers.verbatim)              -> {
         Assertive.require(e.elements.size == 2)
         val act_content =
           parseInlineTextOrInclude(e.elements[1], c)
@@ -1121,34 +1124,44 @@ class KSInlineParser private constructor(
   private fun makeParsers() : Map<String, ElementParser> {
     val m = HashMap<String, ElementParser>()
     m.put("term", ElementParser("term", {
-      e,c -> parseInlineTerm(e,c)
+      e, c ->
+      parseInlineTerm(e, c)
     }))
     m.put("verbatim", ElementParser("verbatim", {
-      e,c -> parseInlineVerbatim(e,c)
+      e, c ->
+      parseInlineVerbatim(e, c)
     }))
     m.put("link-ext", ElementParser("link-ext", {
-      e,c -> parseInlineLinkExternal(e,c)
+      e, c ->
+      parseInlineLinkExternal(e, c)
     }))
     m.put("link", ElementParser("link", {
-      e,c -> parseInlineLinkInternal(e,c)
+      e, c ->
+      parseInlineLinkInternal(e, c)
     }))
     m.put("footnote-ref", ElementParser("footnote-ref", {
-      e,c -> parseInlineFootnoteReference(e,c)
+      e, c ->
+      parseInlineFootnoteReference(e, c)
     }))
     m.put("image", ElementParser("image", {
-      e,c -> parseInlineImage(e,c)
+      e, c ->
+      parseInlineImage(e, c)
     }))
     m.put("include", ElementParser("include", {
-      e,c -> parseInlineInclude(e,c)
+      e, c ->
+      parseInlineInclude(e, c)
     }))
     m.put("list-ordered", ElementParser("list-ordered", {
-      e,c -> parseInlineListOrdered(e,c)
+      e, c ->
+      parseInlineListOrdered(e, c)
     }))
     m.put("list-unordered", ElementParser("list-unordered", {
-      e,c -> parseInlineListUnordered(e,c)
+      e, c ->
+      parseInlineListUnordered(e, c)
     }))
     m.put("table", ElementParser("table", {
-      e,c -> parseInlineTable(e,c)
+      e, c ->
+      parseInlineTable(e, c)
     }))
     return m
   }
@@ -1182,6 +1195,9 @@ class KSInlineParser private constructor(
       listOf(KSExpressionMatch.MatchSymbol(
         { s -> parsers.containsKey(s) },
         parserDescriptions)))
+
+  override fun maybe(expression : KSExpression) : Boolean =
+    KSExpressionMatch.matches(expression, isInlineElement)
 
   private fun parseInlineAny(
     e : KSExpression,

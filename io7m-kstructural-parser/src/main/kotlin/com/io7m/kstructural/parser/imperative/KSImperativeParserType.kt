@@ -14,21 +14,19 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.parser
+package com.io7m.kstructural.parser.imperative
 
-import com.io7m.kstructural.core.KSElement.KSInline
-import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
+import com.io7m.kstructural.parser.KSExpression
 import java.nio.file.Path
 
-interface KSInlineParserType {
+interface KSImperativeParserType {
 
   fun parse(
     context : KSParseContextType,
     expression : KSExpression,
-    file : Path)
-    : KSResult<KSInline<KSParse>, KSParseError>
+    file : Path) : KSResult<KSImperative, KSParseError>
 
 }

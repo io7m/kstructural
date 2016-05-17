@@ -5,7 +5,7 @@
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
  *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DIKSLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
  * SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
@@ -14,46 +14,70 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.tests.pretty
+package com.io7m.kstructural.tests.parser.imperative
 
-import com.io7m.junreachable.UnreachableCodeException
 import com.io7m.kstructural.core.KSElement
-import com.io7m.kstructural.core.KSElement.*
-import com.io7m.kstructural.core.KSElement.KSBlock.*
+import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSParse
-import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
-import com.io7m.kstructural.core.KSResult.*
-import com.io7m.kstructural.core.evaluator.KSEvaluation
-import com.io7m.kstructural.core.evaluator.KSEvaluationError
-import com.io7m.kstructural.core.evaluator.KSEvaluator
 import com.io7m.kstructural.parser.canon.KSCanonBlockParser
+import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpressionParsers
 import com.io7m.kstructural.parser.KSImporterConstructorType
 import com.io7m.kstructural.parser.KSImporterType
 import com.io7m.kstructural.parser.canon.KSCanonInlineParser
-import com.io7m.kstructural.pretty.KSPrettyPrinter
+import com.io7m.kstructural.parser.canon.KSCanonInlineParserType
+import com.io7m.kstructural.parser.imperative.KSImperativeParser
 import com.io7m.kstructural.tests.KSTestFilesystems
 import com.io7m.kstructural.tests.KSTestIO
-import com.io7m.kstructural.tests.parser.KSSerializerDemo
+import com.io7m.kstructural.tests.parser.canon.KSCanonBlockParserTest
 import org.slf4j.LoggerFactory
-import java.io.StringWriter
+import java.io.StringReader
 import java.nio.file.FileSystem
 import java.nio.file.Path
 import java.util.Optional
 
-class KSPrettyPrinterTest : KSPrettyPrinterContract() {
+class KSImperativeParserTest : KSImperativeParserContract() {
 
-  private val LOG = LoggerFactory.getLogger(KSPrettyPrinterTest::class.java)
+  companion object {
+    private val LOG = LoggerFactory.getLogger(KSImperativeParserTest::class.java)
+  }
 
-  override fun newFilesystem() : FileSystem =
-    KSTestFilesystems.newUnixFilesystem()
+  override fun newFilesystem() : FileSystem {
+    return KSTestFilesystems.newUnixFilesystem()
+  }
 
-  override fun parse(file : Path) : KSBlockDocument<KSEvaluation> {
-    val sp = KSExpressionParsers.create(file)
+  override fun newParserForString(text : String) : Parser {
+
     val ip = KSCanonInlineParser.create(KSTestIO.utf8_includer)
+    val ipp = object : KSCanonInlineParserType {
+
+      override fun maybe(expression : KSExpression) : Boolean =
+        ip.maybe(expression)
+
+      override fun parse(
+        context : KSParseContextType,
+        expression : KSExpression,
+        file : Path)
+        : KSResult<KSInline<KSParse>, KSParseError> {
+
+        val r = ip.parse(context, expression, file)
+        return when (r) {
+          is KSResult.KSSuccess -> {
+            LOG.debug("successfully parsed: {}", r.result)
+            r
+          }
+          is KSResult.KSFailure -> {
+            LOG.debug("failed to parse: {}", r.partial)
+            r.errors.map { k -> LOG.debug("error: {}", k.message) }
+            r
+          }
+        }
+      }
+    }
+
     val importers = object: KSImporterConstructorType {
       override fun create(
         context : KSParseContextType,
@@ -66,7 +90,7 @@ class KSPrettyPrinterTest : KSPrettyPrinterContract() {
           override fun import(
             context : KSParseContextType,
             file : Path)
-            : KSResult<KSBlock<KSParse>, KSParseError> {
+            : KSResult<KSElement.KSBlock<KSParse>, KSParseError> {
             val pp = KSCanonBlockParser.create(ip, iis)
             val ep = KSExpressionParsers.create(file)
             val eo = ep.invoke()
@@ -80,32 +104,11 @@ class KSPrettyPrinterTest : KSPrettyPrinterContract() {
       }
     }
 
-    val bp = KSCanonBlockParser.create(ip, importers)
-
-    val e = sp.invoke().get()
-    val c = KSParseContext.empty()
-    val r = bp.parse(c, e, file)
-    if (r is KSFailure) {
-      LOG.error("errors: {}", r.errors)
-      throw AssertionError()
-    }
-    val dr = (r as KSSuccess<KSBlockDocument<KSParse>, KSParseError>)
-    val eval = KSEvaluator.evaluate(dr.result, defaultFile())
-    if (eval is KSFailure) {
-      LOG.error("errors: {}", eval.errors)
-      throw AssertionError()
-    }
-    return (eval as KSSuccess<KSBlockDocument<KSEvaluation>, KSEvaluationError>).result
+    val cp = KSImperativeParser.create(ip, importers)
+    val ep = KSExpressionParsers.createWithReader(
+      defaultFile(), StringReader(text))
+    return Parser(cp, { ep.invoke().get() })
   }
 
-  override fun serialize(
-    text : KSBlockDocument<KSEvaluation>,
-    imports : Boolean) : String {
-    val w = StringWriter(4096)
-    val pp = KSPrettyPrinter.create(w, 80, 2, imports)
-    pp.pretty(text)
-    pp.finish()
-    return w.buffer.toString()
-  }
 
 }
