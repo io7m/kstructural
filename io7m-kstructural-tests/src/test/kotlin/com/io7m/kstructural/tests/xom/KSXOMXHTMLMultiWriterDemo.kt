@@ -17,6 +17,7 @@
 package com.io7m.kstructural.tests.xom
 
 import com.io7m.jeucreader.UnicodeCharacterReader
+import com.io7m.jfunctional.PartialProcedureType
 import com.io7m.jsx.lexer.JSXLexer
 import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
@@ -156,7 +157,9 @@ object KSXOMXHTMLMultiWriterDemo {
               styles = mutableListOf(
                 URI.create("kstructural-layout.css"),
                 URI.create("kstructural-colour.css"),
-                URI.create("custom.css")))
+                URI.create("custom.css")),
+              on_body_end = PartialProcedureType {  },
+              on_body_start = PartialProcedureType {  })
             val docs = KSXOMXHTMLMultiWriter.write(settings, rr.result)
             Files.createDirectories(out)
 
