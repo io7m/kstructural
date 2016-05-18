@@ -16,14 +16,26 @@
 
 package com.io7m.kstructural.xom
 
+import java.io.InputStream
 import java.net.URI
 
 class KSXOMSettings(
   val render_toc_document : Boolean = true,
   val render_toc_parts : Boolean = true,
   val render_toc_sections : Boolean = true,
-  val styles : MutableList<URI> = mutableListOf(
-    URI.create("kstructural-layout.css"),
-    URI.create("kstructural-colour.css"))) {
+  val styles : MutableList<URI> =
+  mutableListOf(CSSDefaultLayout, CSSDefaultColour)) {
 
+  companion object {
+    val CSSDefaultLayout = URI.create("kstructural-layout.css")
+    val CSSDefaultColour = URI.create("kstructural-colour.css")
+
+    fun getCSSDefaultLayoutStream() : InputStream =
+      KSXOMSettings::class.java.getResourceAsStream(
+        "/com/io7m/kstructural/xom/kstructural-layout.css")
+
+    fun getCSSDefaultColourStream() : InputStream =
+      KSXOMSettings::class.java.getResourceAsStream(
+        "/com/io7m/kstructural/xom/kstructural-colour.css")
+  }
 }

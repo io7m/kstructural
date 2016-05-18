@@ -24,14 +24,19 @@ import com.beust.jcommander.Parameters;
 import com.io7m.jfunctional.Unit;
 import com.io7m.jnull.NullCheck;
 import com.io7m.kstructural.frontend.KSOpCheck;
+import com.io7m.kstructural.frontend.KSOpCompileXHTML;
 import com.io7m.kstructural.frontend.KSOpDump;
 import com.io7m.kstructural.frontend.KSOpType;
+import com.io7m.kstructural.xom.KSXOMSettings;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -54,15 +59,18 @@ public final class KSCLMain implements Runnable
 
     final CommandRoot r = new CommandRoot();
     final CommandCheck check = new CommandCheck();
+    final CommandCompileXHTML comp_xhtml = new CommandCompileXHTML();
     final CommandDump dump = new CommandDump();
 
     this.commands = new HashMap<>(8);
     this.commands.put("check", check);
     this.commands.put("dump", dump);
+    this.commands.put("compile-xhtml", comp_xhtml);
 
     this.commander = new JCommander(r);
     this.commander.setProgramName("kstructural");
     this.commander.addCommand("check", check);
+    this.commander.addCommand("compile-xhtml", comp_xhtml);
     this.commander.addCommand("dump", dump);
   }
 
@@ -116,7 +124,7 @@ public final class KSCLMain implements Runnable
     @Parameter(
       names = "-verbose",
       converter = KSCLLogLevelConverter.class,
-      description = "Set logging verbosity level")
+      description = "Set the minimum logging verbosity level")
     protected KSCLLogLevel verbose = KSCLLogLevel.LOG_INFO;
 
     CommandRoot()
@@ -137,7 +145,7 @@ public final class KSCLMain implements Runnable
   }
 
   @Parameters(commandDescription = "Check document syntax and structure")
-  private class CommandCheck extends CommandRoot
+  private final class CommandCheck extends CommandRoot
   {
     @Parameter(
       names = "-file",
@@ -160,7 +168,7 @@ public final class KSCLMain implements Runnable
 
   @Parameters(
     commandDescription = "Dump a document in canonical format to standard out")
-  private class CommandDump extends CommandRoot
+  private final class CommandDump extends CommandRoot
   {
     @Parameter(
       names = "-file",
@@ -177,6 +185,99 @@ public final class KSCLMain implements Runnable
       final FileSystem fs = FileSystems.getDefault();
       final Path p = fs.getPath(this.file);
       final KSOpType op = KSOpDump.create(p);
+      return op.call();
+    }
+  }
+
+  @Parameters(
+    commandDescription = "Compile documents to XHTML")
+  private final class CommandCompileXHTML extends CommandRoot
+  {
+    @Parameter(
+      names = "-file",
+      description = "Input file",
+      required = true)
+    private String file;
+
+    @Parameter(
+      names = "-output-dir",
+      description = "The directory in which output files will be written",
+      required = true)
+    private String output;
+
+    @Parameter(
+      names = "-pagination",
+      description = "The type of XHTML pagination that will be used",
+      converter = KSCLXHTMLPaginationConverter.class,
+      required = false)
+    private KSOpCompileXHTML.XHTMLPagination pagination =
+      KSOpCompileXHTML.XHTMLPagination.XHTML_MULTI_PAGE;
+
+    @Parameter(
+      names = "-render-toc-document",
+      description = "Render a table of contents at the document level",
+      required = false)
+    private boolean render_toc_document = true;
+
+    @Parameter(
+      names = "-render-toc-part",
+      description = "Render a table of contents at the part level",
+      required = false)
+    private boolean render_toc_part = true;
+
+    @Parameter(
+      names = "-render-toc-section",
+      description = "Render a table of contents at the section level",
+      required = false)
+    private boolean render_toc_section = true;
+
+    @Parameter(
+      names = "-css-extra-styles",
+      description = "A list of extra CSS styles that will be used for each page",
+      required = false)
+    private List<URI> css_user = new ArrayList<>();
+
+    @Parameter(
+      names = "-css-default",
+      description = "Include the default CSS links",
+      required = false)
+    private boolean css_default = true;
+
+    @Parameter(
+      names = "-css-create-default",
+      description = "Create the default CSS files",
+      required = false)
+    private boolean css_create_default = true;
+
+    @Override
+    public Unit call()
+      throws Exception
+    {
+      super.call();
+
+      final List<URI> styles = new ArrayList<>();
+      if (this.css_default) {
+        styles.add(KSXOMSettings.Companion.getCSSDefaultLayout());
+        styles.add(KSXOMSettings.Companion.getCSSDefaultColour());
+      }
+      styles.addAll(this.css_user);
+
+      final FileSystem fs = FileSystems.getDefault();
+      final Path input_path = fs.getPath(this.file);
+      final Path output_path = fs.getPath(this.output);
+
+      final KSXOMSettings s = new KSXOMSettings(
+        this.render_toc_document,
+        this.render_toc_part,
+        this.render_toc_section,
+        styles);
+      final KSOpType op =
+        KSOpCompileXHTML.create(
+          input_path,
+          output_path,
+          s,
+          this.pagination,
+          this.css_create_default);
       return op.call();
     }
   }
