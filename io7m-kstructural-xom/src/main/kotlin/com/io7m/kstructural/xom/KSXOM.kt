@@ -501,6 +501,13 @@ internal object KSXOM {
       if (i > 0) {
         if (es[i - 1] is Text) {
           e.appendChild(" ")
+        } else {
+          if (e_now is Text) {
+            val et : Text = e_now
+            if (et.value.length > 1) {
+              e.appendChild(" ")
+            }
+          }
         }
       }
 
