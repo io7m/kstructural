@@ -18,5 +18,8 @@ package com.io7m.kstructural.frontend;
 
 public final class KSOpFailed extends Exception
 {
-
+  public KSOpFailed()
+  {
+    super("An operation failed. See error messages above.");
+  }
 }
