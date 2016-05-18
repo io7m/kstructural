@@ -16,15 +16,20 @@
 
 package com.io7m.kstructural.xom
 
+import com.io7m.jfunctional.PartialProcedureType
+import nu.xom.Element
+import java.io.IOException
 import java.io.InputStream
 import java.net.URI
+import java.util.function.Consumer
 
 class KSXOMSettings(
   val render_toc_document : Boolean = true,
   val render_toc_parts : Boolean = true,
   val render_toc_sections : Boolean = true,
-  val styles : MutableList<URI> =
-  mutableListOf(CSSDefaultLayout, CSSDefaultColour)) {
+  val styles : MutableList<URI> = mutableListOf(CSSDefaultLayout, CSSDefaultColour),
+  val on_body_start : PartialProcedureType<Element, IOException>,
+  val on_body_end : PartialProcedureType<Element, IOException>) {
 
   companion object {
     val CSSDefaultLayout = URI.create("kstructural-layout.css")

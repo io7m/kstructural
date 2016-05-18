@@ -259,9 +259,11 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     m : MutableMap<String, Document>) : Unit {
 
     val (document, body) = KSXOM.newPage(settings, d, s.data.number, s.title)
+    settings.on_body_start.call(body)
     body.appendChild(KSXOM.navigationBar(prov, s, KSXOM.NavigationBarPosition.Top))
     body.appendChild(writeSection(settings, prov, d, s))
     body.appendChild(KSXOM.navigationBar(prov, s, KSXOM.NavigationBarPosition.Bottom))
+    settings.on_body_end.call(body)
 
     val file = s.data.number.get().toAnchor() + ".xhtml"
     LOG.debug("create {}", file)
@@ -276,6 +278,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     m : MutableMap<String, Document>) : Unit {
 
     val (document, body) = KSXOM.newPage(settings, d, p.data.number, p.title)
+    settings.on_body_start.call(body)
     body.appendChild(KSXOM.navigationBar(prov, p, KSXOM.NavigationBarPosition.Top))
 
     val part_container = KSXOM.partContainer(prov, p)
@@ -283,13 +286,13 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
       part_container.appendChild(KSXOM.contentsForPart(prov, p))
     }
     body.appendChild(part_container)
-
     body.appendChild(KSXOM.navigationBar(prov, p, KSXOM.NavigationBarPosition.Bottom))
 
     val file = p.data.number.get().toAnchor() + ".xhtml"
     LOG.debug("create {}", file)
     m.put(file, document)
     p.content.forEach { s -> writeDocumentSection(settings, prov, d, s, m) }
+    settings.on_body_end.call(body)
   }
 
   private fun writeDocumentIndexPage(
@@ -297,12 +300,14 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     prov : KSXOMLinkProviderType,
     d : KSBlockDocument<KSEvaluation>) : Document {
     val (document, body) = KSXOM.newPage(settings, d, d.data.number, d.title)
+    settings.on_body_start.call(body)
     body.appendChild(KSXOM.navigationBar(prov, d, KSXOM.NavigationBarPosition.Top))
     body.appendChild(KSXOM.documentIndexTitle(d))
     if (settings.render_toc_document) {
       body.appendChild(KSXOM.contentsForDocument(prov, d))
     }
     body.appendChild(KSXOM.navigationBar(prov, d, KSXOM.NavigationBarPosition.Bottom))
+    settings.on_body_end.call(body)
     return document
   }
 

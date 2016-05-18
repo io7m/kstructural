@@ -97,10 +97,12 @@ object KSXOMXHTMLSingleWriter : KSXOMXHTMLWriterType {
     d : KSBlockDocumentWithParts<KSEvaluation>) : Document {
 
     val (document, body) = KSXOM.newPage(settings, d, d.data.number, d.title)
+    settings.on_body_start.call(body)
     body.appendChild(KSXOM.documentIndexTitle(d))
     body.appendChild(KSXOM.contentsForDocument(prov, d))
 
     d.content.forEach { p -> body.appendChild(writePart(settings, prov, d, p)) }
+    settings.on_body_end.call(body)
     return document
   }
 
@@ -110,10 +112,12 @@ object KSXOMXHTMLSingleWriter : KSXOMXHTMLWriterType {
     d : KSBlockDocumentWithSections<KSEvaluation>) : Document {
 
     val (document, body) = KSXOM.newPage(settings, d, d.data.number, d.title)
+    settings.on_body_start.call(body)
     body.appendChild(KSXOM.documentIndexTitle(d))
     body.appendChild(KSXOM.contentsForDocument(prov, d))
 
     d.content.forEach { sc -> body.appendChild(writeSection(settings, prov, d, sc)) }
+    settings.on_body_end.call(body)
     return document
   }
 

@@ -23,21 +23,30 @@ import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.io7m.jfunctional.Unit;
 import com.io7m.jnull.NullCheck;
+import com.io7m.jnull.Nullable;
 import com.io7m.kstructural.frontend.KSOpCheck;
 import com.io7m.kstructural.frontend.KSOpCompileXHTML;
 import com.io7m.kstructural.frontend.KSOpDump;
 import com.io7m.kstructural.frontend.KSOpType;
 import com.io7m.kstructural.xom.KSXOMSettings;
+import nu.xom.Builder;
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.ParsingException;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 public final class KSCLMain implements Runnable
@@ -249,6 +258,18 @@ public final class KSCLMain implements Runnable
       required = false)
     private boolean css_create_default = true;
 
+    @Parameter(
+      names = "-brand-top",
+      description = "Prepend the contents of the given XML file to each XHTML page's body element",
+      required = false)
+    private String brand_top;
+
+    @Parameter(
+      names = "-brand-bottom",
+      description = "Append the contents of the given XML file to each XHTML page's body element",
+      required = false)
+    private String brand_bottom;
+
     @Override
     public Unit call()
       throws Exception
@@ -266,11 +287,27 @@ public final class KSCLMain implements Runnable
       final Path input_path = fs.getPath(this.file);
       final Path output_path = fs.getPath(this.output);
 
+      final Optional<Element> brand_top_element =
+        this.getBrand(fs, this.brand_top);
+      final Optional<Element> brand_bottom_element =
+        this.getBrand(fs, this.brand_bottom);
+
       final KSXOMSettings s = new KSXOMSettings(
         this.render_toc_document,
         this.render_toc_part,
         this.render_toc_section,
-        styles);
+        styles,
+        (e) -> {
+          if (brand_top_element.isPresent()) {
+            e.insertChild(brand_top_element.get().copy(), 0);
+          }
+        },
+        (e) -> {
+          if (brand_bottom_element.isPresent()) {
+            e.appendChild(brand_bottom_element.get().copy());
+          }
+        });
+
       final KSOpType op =
         KSOpCompileXHTML.create(
           input_path,
@@ -279,6 +316,22 @@ public final class KSCLMain implements Runnable
           this.pagination,
           this.css_create_default);
       return op.call();
+    }
+
+    private Optional<Element> getBrand(
+      final FileSystem fs,
+      final @Nullable String brand)
+      throws IOException, ParsingException
+    {
+      if (brand != null) {
+        final Path brand_path = fs.getPath(brand);
+        try (final InputStream is = Files.newInputStream(brand_path)) {
+          final Builder b = new Builder();
+          final Document d = b.build(is);
+          return Optional.of(d.getRootElement());
+        }
+      }
+      return Optional.empty();
     }
   }
 }
