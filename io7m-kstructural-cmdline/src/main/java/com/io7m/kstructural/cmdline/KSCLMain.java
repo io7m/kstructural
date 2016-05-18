@@ -233,19 +233,19 @@ public final class KSCLMain implements Runnable
 
     @Parameter(
       names = "-css-extra-styles",
-      description = "A list of extra CSS styles that will be used for each page",
+      description = "A comma-separated list of extra CSS styles (as URIs) that will be used for each page",
       required = false)
     private List<URI> css_user = new ArrayList<>();
 
     @Parameter(
-      names = "-css-default",
-      description = "Include the default CSS links",
+      names = "-css-include-default",
+      description = "Include links to the default CSS files",
       required = false)
     private boolean css_default = true;
 
     @Parameter(
       names = "-css-create-default",
-      description = "Create the default CSS files",
+      description = "Create the default CSS files in the output directory",
       required = false)
     private boolean css_create_default = true;
 
