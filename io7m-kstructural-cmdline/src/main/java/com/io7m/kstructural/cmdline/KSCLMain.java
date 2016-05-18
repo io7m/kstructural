@@ -255,7 +255,7 @@ public final class KSCLMain implements Runnable
     {
       super.call();
 
-      final List<URI> styles = new ArrayList<>();
+      final List<URI> styles = new ArrayList<>(8);
       if (this.css_default) {
         styles.add(KSXOMSettings.Companion.getCSSDefaultLayout());
         styles.add(KSXOMSettings.Companion.getCSSDefaultColour());
