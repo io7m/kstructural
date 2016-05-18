@@ -24,6 +24,7 @@ import com.beust.jcommander.Parameters;
 import com.io7m.jfunctional.Unit;
 import com.io7m.jnull.NullCheck;
 import com.io7m.jnull.Nullable;
+import com.io7m.kstructural.frontend.KSBrandAppender;
 import com.io7m.kstructural.frontend.KSOpCheck;
 import com.io7m.kstructural.frontend.KSOpCompileXHTML;
 import com.io7m.kstructural.frontend.KSOpDump;
@@ -287,26 +288,19 @@ public final class KSCLMain implements Runnable
       final Path input_path = fs.getPath(this.file);
       final Path output_path = fs.getPath(this.output);
 
-      final Optional<Element> brand_top_element =
-        this.getBrand(fs, this.brand_top);
-      final Optional<Element> brand_bottom_element =
-        this.getBrand(fs, this.brand_bottom);
+      final KSBrandAppender appender = KSBrandAppender.newAppender(
+        Optional.ofNullable(this.brand_top).flatMap(
+          name -> Optional.of(fs.getPath(name))),
+        Optional.ofNullable(this.brand_bottom).flatMap(
+          name -> Optional.of(fs.getPath(name))));
 
       final KSXOMSettings s = new KSXOMSettings(
         this.render_toc_document,
         this.render_toc_part,
         this.render_toc_section,
         styles,
-        (e) -> {
-          if (brand_top_element.isPresent()) {
-            e.insertChild(brand_top_element.get().copy(), 0);
-          }
-        },
-        (e) -> {
-          if (brand_bottom_element.isPresent()) {
-            e.appendChild(brand_bottom_element.get().copy());
-          }
-        });
+        appender.getAppenderStart(),
+        appender.getAppenderEnd());
 
       final KSOpType op =
         KSOpCompileXHTML.create(
@@ -316,22 +310,6 @@ public final class KSCLMain implements Runnable
           this.pagination,
           this.css_create_default);
       return op.call();
-    }
-
-    private Optional<Element> getBrand(
-      final FileSystem fs,
-      final @Nullable String brand)
-      throws IOException, ParsingException
-    {
-      if (brand != null) {
-        final Path brand_path = fs.getPath(brand);
-        try (final InputStream is = Files.newInputStream(brand_path)) {
-          final Builder b = new Builder();
-          final Document d = b.build(is);
-          return Optional.of(d.getRootElement());
-        }
-      }
-      return Optional.empty();
     }
   }
 }
