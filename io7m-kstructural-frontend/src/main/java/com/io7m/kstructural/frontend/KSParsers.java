@@ -105,7 +105,7 @@ public final class KSParsers implements KSParserConstructorType
       }
     }
 
-    KSParsers.LOG.trace("assuming canonical format");
+    KSParsers.LOG.trace("assuming canon format");
     return KSParsers.createCanonical(context);
   }
 
@@ -119,7 +119,7 @@ public final class KSParsers implements KSParserConstructorType
     }
   };
 
-  private static KSParserType createCanonical(
+  public static KSParserType createCanonical(
     final KSParseContextType context)
   {
     return (c, ff_file) -> {
@@ -301,13 +301,13 @@ public final class KSParsers implements KSParserConstructorType
     }
   }
 
-  private static KSParserType createImperative(
+  public static KSParserType createImperative(
     final KSParseContextType context)
   {
     return new Imperative();
   }
 
-  private static KSParserType createXML(
+  public static KSParserType createXML(
     final KSParseContextType context)
   {
     throw new UnimplementedCodeException();

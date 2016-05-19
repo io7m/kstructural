@@ -14,10 +14,26 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/**
- * Parsers for the canon s-expression encoding.
- */
+package com.io7m.kstructural.cmdline;
 
-@com.io7m.jnull.NonNullByDefault
-package com.io7m.kstructural.parser.canon;
+import com.beust.jcommander.IStringConverter;
+import com.io7m.kstructural.frontend.KSInputFormat;
+import com.io7m.kstructural.frontend.KSOpCompileXHTML;
+import com.io7m.kstructural.frontend.KSOpConvert;
 
+public final class KSCLInputFormatConverter implements
+  IStringConverter<KSInputFormat>
+{
+  @Override
+  public KSInputFormat convert(final String value)
+  {
+    for (final KSInputFormat v : KSInputFormat.values()) {
+      if (value.equals(v.getName())) {
+        return v;
+      }
+    }
+
+    throw new KSCLXHTMLPaginationUnrecognized(
+      "Unrecognized input format: " + value);
+  }
+}

@@ -14,10 +14,20 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/**
- * Parsers for the canon s-expression encoding.
- */
+package com.io7m.kstructural.frontend;
 
-@com.io7m.jnull.NonNullByDefault
-package com.io7m.kstructural.parser.canon;
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument;
+import com.io7m.kstructural.core.evaluator.KSEvaluation;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Set;
+
+public interface KSExporterType
+{
+  Set<Path> export(
+    KSBlockDocument<KSEvaluation> document,
+    Path out,
+    boolean reconstruct_imports)
+    throws IOException;
+}

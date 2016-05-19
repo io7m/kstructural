@@ -309,7 +309,7 @@ class KSImperativeBuilder private constructor()
                     received = "(Imported) " + cc.content,
                     position = cc.position)
                 }
-                is KSBlockParagraph -> {
+                is KSBlockParagraph  -> {
                   finishContentIfNecessary(context)
                   this.content.add(KSSubsectionParagraph(cc.content))
                   succeedNothing()
@@ -527,27 +527,31 @@ class KSImperativeBuilder private constructor()
                 is KSBlockFormalItem,
                 is KSBlockFootnote,
                 is KSBlockParagraph  -> {
-                  finishContentIfNecessary(context)
-
-                  if (subsections.isNotEmpty()) {
-                    unexpectedElement(
-                      message = "Unexpected imported subsection content.",
-                      expected = "A subsection",
-                      received = "(Imported) " + cc.content,
-                      position = cc.position)
+                  if (subsection_builder != null) {
+                    this.subsection_builder!!.add(context, command)
                   } else {
-                    content.add(when (cc.content) {
-                      is KSBlockDocument,
-                      is KSBlockSection ,
-                      is KSBlockSubsection,
-                      is KSBlockPart ,
-                      is KSBlockImport     ->
-                        throw UnreachableCodeException()
-                      is KSBlockParagraph  -> KSSubsectionParagraph(cc.content)
-                      is KSBlockFormalItem -> KSSubsectionFormalItem(cc.content)
-                      is KSBlockFootnote   -> KSSubsectionFootnote(cc.content)
-                    })
-                    succeedNothing()
+                    finishContentIfNecessary(context)
+
+                    if (subsections.isNotEmpty()) {
+                      unexpectedElement(
+                        message = "Unexpected imported subsection content.",
+                        expected = "A subsection",
+                        received = "(Imported) " + cc.content,
+                        position = cc.position)
+                    } else {
+                      content.add(when (cc.content) {
+                        is KSBlockDocument,
+                        is KSBlockSection,
+                        is KSBlockSubsection,
+                        is KSBlockPart,
+                        is KSBlockImport     ->
+                          throw UnreachableCodeException()
+                        is KSBlockParagraph  -> KSSubsectionParagraph(cc.content)
+                        is KSBlockFormalItem -> KSSubsectionFormalItem(cc.content)
+                        is KSBlockFootnote   -> KSSubsectionFootnote(cc.content)
+                      })
+                      succeedNothing()
+                    }
                   }
                 }
               }

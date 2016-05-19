@@ -14,10 +14,38 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/**
- * Parsers for the canon s-expression encoding.
- */
+package com.io7m.kstructural.frontend;
 
-@com.io7m.jnull.NonNullByDefault
-package com.io7m.kstructural.parser.canon;
+import com.io7m.junreachable.UnreachableCodeException;
 
+import java.nio.file.FileSystem;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+
+final class KSFileSuffixes
+{
+  private KSFileSuffixes()
+  {
+    throw new UnreachableCodeException();
+  }
+
+  static Path replace(
+    final Path file,
+    final String sd)
+    throws NoSuchFileException
+  {
+    final Path f_name = file.getFileName();
+    if (f_name == null) {
+      return file;
+    }
+
+    final String name = f_name.toString();
+    final int i = name.lastIndexOf('.');
+    if (i >= 0) {
+      final FileSystem fs = file.getFileSystem();
+      return fs.getPath(name.substring(0, i) + sd);
+    }
+
+    return file;
+  }
+}

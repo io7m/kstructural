@@ -23,25 +23,19 @@ import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.io7m.jfunctional.Unit;
 import com.io7m.jnull.NullCheck;
-import com.io7m.jnull.Nullable;
 import com.io7m.kstructural.frontend.KSBrandAppender;
+import com.io7m.kstructural.frontend.KSInputFormat;
 import com.io7m.kstructural.frontend.KSOpCheck;
 import com.io7m.kstructural.frontend.KSOpCompileXHTML;
+import com.io7m.kstructural.frontend.KSOpConvert;
 import com.io7m.kstructural.frontend.KSOpDump;
 import com.io7m.kstructural.frontend.KSOpType;
 import com.io7m.kstructural.xom.KSXOMSettings;
-import nu.xom.Builder;
-import nu.xom.Document;
-import nu.xom.Element;
-import nu.xom.ParsingException;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,16 +65,19 @@ public final class KSCLMain implements Runnable
     final CommandCheck check = new CommandCheck();
     final CommandCompileXHTML comp_xhtml = new CommandCompileXHTML();
     final CommandDump dump = new CommandDump();
+    final CommandConvert convert = new CommandConvert();
 
     this.commands = new HashMap<>(8);
     this.commands.put("check", check);
     this.commands.put("dump", dump);
     this.commands.put("compile-xhtml", comp_xhtml);
+    this.commands.put("convert", convert);
 
     this.commander = new JCommander(r);
     this.commander.setProgramName("kstructural");
     this.commander.addCommand("check", check);
     this.commander.addCommand("compile-xhtml", comp_xhtml);
+    this.commander.addCommand("convert", convert);
     this.commander.addCommand("dump", dump);
   }
 
@@ -177,7 +174,7 @@ public final class KSCLMain implements Runnable
   }
 
   @Parameters(
-    commandDescription = "Dump a document in canonical format to standard out")
+    commandDescription = "Dump a document in canon format to standard out")
   private final class CommandDump extends CommandRoot
   {
     @Parameter(
@@ -309,6 +306,55 @@ public final class KSCLMain implements Runnable
           s,
           this.pagination,
           this.css_create_default);
+      return op.call();
+    }
+  }
+
+  @Parameters(
+    commandDescription = "Convert documents between input formats")
+  private final class CommandConvert extends CommandRoot
+  {
+    @Parameter(
+      names = "-file",
+      description = "Input file",
+      required = true)
+    private String file;
+
+    @Parameter(
+      names = "-output-dir",
+      description = "The directory in which output files will be written",
+      required = true)
+    private String output;
+
+    @Parameter(
+      names = "-format",
+      description = "The format that will be used for exported documents",
+      converter = KSCLInputFormatConverter.class,
+      required = false)
+    private KSInputFormat export_format = KSInputFormat.KS_INPUT_CANONICAL;
+
+    @Parameter(
+      names = "-no-imports",
+      description = "Export as one large document that does not contain any imports",
+      required = false)
+    private boolean no_imports = false;
+
+    @Override
+    public Unit call()
+      throws Exception
+    {
+      super.call();
+
+      final FileSystem fs = FileSystems.getDefault();
+      final Path input_path = fs.getPath(this.file);
+      final Path output_path = fs.getPath(this.output);
+
+      final KSOpType op =
+        KSOpConvert.create(
+          input_path,
+          output_path,
+          this.export_format,
+          !this.no_imports);
       return op.call();
     }
   }

@@ -16,7 +16,6 @@
 
 package com.io7m.kstructural.parser.imperative
 
-import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType

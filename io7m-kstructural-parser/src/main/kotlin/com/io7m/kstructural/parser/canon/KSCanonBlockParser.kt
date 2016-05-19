@@ -46,6 +46,7 @@ import com.io7m.kstructural.core.KSLexicalType
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
+import com.io7m.kstructural.core.KSParserConstructorType
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSSectionContent
 import com.io7m.kstructural.core.KSSectionContent.KSSectionSubsection
@@ -58,7 +59,6 @@ import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpression.KSExpressionList
 import com.io7m.kstructural.parser.KSExpression.KSExpressionSymbol
 import com.io7m.kstructural.parser.KSExpressionMatch
-import com.io7m.kstructural.core.KSParserConstructorType
 import org.slf4j.LoggerFactory
 import org.valid4j.Assertive
 import java.nio.file.Path

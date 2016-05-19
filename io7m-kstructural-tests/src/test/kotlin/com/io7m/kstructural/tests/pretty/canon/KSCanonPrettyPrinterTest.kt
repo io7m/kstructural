@@ -14,7 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.tests.pretty
+package com.io7m.kstructural.tests.pretty.canon
 
 import com.io7m.junreachable.UnreachableCodeException
 import com.io7m.kstructural.core.KSElement
@@ -34,7 +34,7 @@ import com.io7m.kstructural.parser.KSExpressionParsers
 import com.io7m.kstructural.core.KSParserConstructorType
 import com.io7m.kstructural.core.KSParserType
 import com.io7m.kstructural.parser.canon.KSCanonInlineParser
-import com.io7m.kstructural.pretty.KSPrettyPrinter
+import com.io7m.kstructural.pretty.canon.KSCanonPrettyPrinter
 import com.io7m.kstructural.tests.KSTestFilesystems
 import com.io7m.kstructural.tests.KSTestIO
 import com.io7m.kstructural.tests.parser.KSSerializerDemo
@@ -44,9 +44,9 @@ import java.nio.file.FileSystem
 import java.nio.file.Path
 import java.util.Optional
 
-class KSPrettyPrinterTest : KSPrettyPrinterContract() {
+class KSCanonPrettyPrinterTest : KSCanonPrettyPrinterContract() {
 
-  private val LOG = LoggerFactory.getLogger(KSPrettyPrinterTest::class.java)
+  private val LOG = LoggerFactory.getLogger(KSCanonPrettyPrinterTest::class.java)
 
   override fun newFilesystem() : FileSystem =
     KSTestFilesystems.newUnixFilesystem()
@@ -102,7 +102,7 @@ class KSPrettyPrinterTest : KSPrettyPrinterContract() {
     text : KSBlockDocument<KSEvaluation>,
     imports : Boolean) : String {
     val w = StringWriter(4096)
-    val pp = KSPrettyPrinter.create(w, 80, 2, imports)
+    val pp = KSCanonPrettyPrinter.create(w, 80, 2, imports)
     pp.pretty(text)
     pp.finish()
     return w.buffer.toString()

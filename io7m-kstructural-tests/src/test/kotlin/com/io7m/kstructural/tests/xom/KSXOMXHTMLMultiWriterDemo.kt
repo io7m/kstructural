@@ -39,7 +39,7 @@ import com.io7m.kstructural.core.KSParserType
 import com.io7m.kstructural.parser.canon.KSCanonInlineParser
 import com.io7m.kstructural.tests.KSTestIO
 import com.io7m.kstructural.tests.parser.KSSerializerDemo
-import com.io7m.kstructural.tests.pretty.KSPrettyPrinterTest
+import com.io7m.kstructural.tests.pretty.canon.KSCanonPrettyPrinterTest
 import com.io7m.kstructural.xom.KSXOMSettings
 import com.io7m.kstructural.xom.KSXOMXHTMLMultiWriter
 import nu.xom.Serializer

@@ -14,7 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.tests.pretty
+package com.io7m.kstructural.tests.pretty.canon
 
 import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.*
@@ -31,9 +31,9 @@ import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
 
-abstract class KSPrettyPrinterContract {
+abstract class KSCanonPrettyPrinterContract {
 
-  private val LOG = LoggerFactory.getLogger(KSPrettyPrinterContract::class.java)
+  private val LOG = LoggerFactory.getLogger(KSImperativePrettyPrinterContract::class.java)
 
   protected abstract fun newFilesystem() : FileSystem
 

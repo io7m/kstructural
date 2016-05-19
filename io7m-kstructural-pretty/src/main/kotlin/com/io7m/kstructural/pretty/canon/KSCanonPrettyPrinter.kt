@@ -14,9 +14,8 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.pretty
+package com.io7m.kstructural.pretty.canon
 
-import com.io7m.junreachable.UnimplementedCodeException
 import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
@@ -54,24 +53,34 @@ import com.io7m.kstructural.core.KSLink
 import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSSubsectionContent
 import com.io7m.kstructural.core.evaluator.KSEvaluation
+import com.io7m.kstructural.pretty.KSPrettyPrinterType
 import de.uka.ilkd.pp.Layouter
 import de.uka.ilkd.pp.WriterBackend
 import java.io.IOException
 import java.io.Writer
 import java.util.Optional
 
-class KSPrettyPrinter private constructor(
+class KSCanonPrettyPrinter private constructor(
   private val out : Writer,
   private val width : Int,
   private val indent : Int,
   private val imports : Boolean)
 : KSPrettyPrinterType {
 
+  override fun close() {
+    if (!this.layout.isFinished) {
+      this.finish()
+    }
+    this.out.flush()
+    this.out.close()
+  }
+
   private val backend = WriterBackend(out, width)
   private val layout = Layouter<IOException>(backend, indent)
 
   private fun bracketOpen(square : Boolean) : String =
     if (square) "[" else "("
+
   private fun bracketClose(square : Boolean) : String =
     if (square) "]" else ")"
 
@@ -272,8 +281,8 @@ class KSPrettyPrinter private constructor(
 
   private fun prettyLinkContent(c : KSLinkContent<KSEvaluation>) : Unit =
     when (c) {
-      is KSLinkContent.KSLinkText    -> prettyInline(c.actual)
-      is KSLinkContent.KSLinkImage   -> prettyInline(c.actual)
+      is KSLinkContent.KSLinkText  -> prettyInline(c.actual)
+      is KSLinkContent.KSLinkImage -> prettyInline(c.actual)
     }
 
   private fun prettyInlineFootnoteReference(
@@ -473,7 +482,7 @@ class KSPrettyPrinter private constructor(
   }
 
   private fun outTitle(
-    title : List<KSInline.KSInlineText<KSEvaluation>>) {
+    title : List<KSInlineText<KSEvaluation>>) {
     outStartMinor("title", true)
     title.forEachIndexed { i, text ->
       layout.print(text.text)
@@ -521,7 +530,7 @@ class KSPrettyPrinter private constructor(
       width : Int,
       indent : Int,
       imports : Boolean) : KSPrettyPrinterType {
-      return KSPrettyPrinter(out, width, indent, imports)
+      return KSCanonPrettyPrinter(out, width, indent, imports)
     }
   }
 

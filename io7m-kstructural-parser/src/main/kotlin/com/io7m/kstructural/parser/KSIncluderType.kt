@@ -16,12 +16,11 @@
 
 package com.io7m.kstructural.parser
 
-import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSResult
 import java.nio.file.Path
 
 interface KSIncluderType {
 
-  fun include (path : Path) : KSResult<String, Throwable>
+  fun include(path : Path) : KSResult<String, Throwable>
 
 }

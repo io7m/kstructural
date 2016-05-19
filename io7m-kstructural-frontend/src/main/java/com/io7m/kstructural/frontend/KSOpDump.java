@@ -33,7 +33,7 @@ import com.io7m.kstructural.core.KSResult.KSSuccess;
 import com.io7m.kstructural.core.evaluator.KSEvaluation;
 import com.io7m.kstructural.core.evaluator.KSEvaluationError;
 import com.io7m.kstructural.core.evaluator.KSEvaluator;
-import com.io7m.kstructural.pretty.KSPrettyPrinter;
+import com.io7m.kstructural.pretty.canon.KSCanonPrettyPrinter;
 import com.io7m.kstructural.pretty.KSPrettyPrinterType;
 import org.slf4j.LoggerFactory;
 
@@ -131,7 +131,7 @@ public final class KSOpDump implements KSOpType
 
           try (final OutputStreamWriter w = new OutputStreamWriter(System.out)) {
             final KSPrettyPrinterType pp =
-              KSPrettyPrinter.Companion.create(w, 80, 2, false);
+              KSCanonPrettyPrinter.Companion.create(w, 80, 2, false);
             pp.pretty(rs.getResult());
             pp.finish();
             w.write(System.lineSeparator());

@@ -14,7 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.tests.pretty
+package com.io7m.kstructural.tests.pretty.canon
 
 import com.io7m.jeucreader.UnicodeCharacterReader
 import com.io7m.jsx.lexer.JSXLexer
@@ -36,7 +36,7 @@ import com.io7m.kstructural.parser.KSExpressionParsers
 import com.io7m.kstructural.core.KSParserConstructorType
 import com.io7m.kstructural.core.KSParserType
 import com.io7m.kstructural.parser.canon.KSCanonInlineParser
-import com.io7m.kstructural.pretty.KSPrettyPrinter
+import com.io7m.kstructural.pretty.canon.KSCanonPrettyPrinter
 import com.io7m.kstructural.tests.KSTestIO
 import com.io7m.kstructural.tests.parser.KSSerializerDemo
 import org.apache.commons.io.IOUtils
@@ -171,7 +171,7 @@ object KSPrettyPrinterDemo {
           is KSSuccess -> {
             val sw = StringWriter()
             val w = LoggingWriter(sw)
-            val pp = KSPrettyPrinter.create(w, 80, 2, false)
+            val pp = KSCanonPrettyPrinter.create(w, 80, 2, false)
             pp.pretty(rr.result)
             pp.finish()
             System.out.println(sw.buffer.toString())
