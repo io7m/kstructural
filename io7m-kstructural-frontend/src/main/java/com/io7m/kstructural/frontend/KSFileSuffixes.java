@@ -34,18 +34,25 @@ final class KSFileSuffixes
     final String sd)
     throws NoSuchFileException
   {
+    final Path parent = file.getParent();
+
     final Path f_name = file.getFileName();
     if (f_name == null) {
       return file;
     }
 
-    final String name = f_name.toString();
-    final int i = name.lastIndexOf('.');
-    if (i >= 0) {
-      final FileSystem fs = file.getFileSystem();
-      return fs.getPath(name.substring(0, i) + sd);
-    }
+    final FileSystem fs = file.getFileSystem();
+    return parent.resolve(fs.getPath(
+      KSFileSuffixes.replaceSuffix(file.getFileName().toString(), sd)));
+  }
 
+  static String replaceSuffix(
+    final String file,
+    final String new_suffix) {
+    final int i = file.lastIndexOf('.');
+    if (i >= 0) {
+      return file.substring(0, i) + "." + new_suffix;
+    }
     return file;
   }
 }

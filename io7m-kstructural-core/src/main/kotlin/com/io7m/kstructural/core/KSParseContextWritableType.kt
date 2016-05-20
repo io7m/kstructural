@@ -18,12 +18,14 @@ package com.io7m.kstructural.core
 
 import java.nio.file.Path
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
 import com.io7m.kstructural.core.KSElement.KSBlock
 
 interface KSParseContextWritableType {
 
   fun addInclude(
+    t : KSInlineText<KSParse>,
     i : KSInlineInclude<KSParse>,
     p : Path,
     s : String) : Unit
@@ -36,6 +38,6 @@ interface KSParseContextWritableType {
   fun checkImportCycle(
     importer : Path,
     import : KSBlockImport<KSParse>,
-    imported_path : Path) : KSResult<Unit, KSParseError>
+    imported_path : Path) : KSResult<KSImportPathEdge, KSParseError>
 
 }

@@ -22,7 +22,6 @@ import com.io7m.junreachable.UnreachableCodeException;
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument;
 import com.io7m.kstructural.core.evaluator.KSEvaluation;
 import org.slf4j.LoggerFactory;
-import org.valid4j.Assertive;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -74,25 +73,14 @@ public final class KSOpConvert implements KSOpType
 
     Files.createDirectories(this.output_path);
 
-    final KSExporterType export = this.getImporter();
-    export.export(document, this.output_path, this.reconstruct_imports);
+    final KSExporterType export =
+      KSExporter.newExporter(this.output_format);
+
+    export.export(
+      this.path.getParent(),
+      document,
+      this.output_path,
+      this.reconstruct_imports);
     return Unit.unit();
-  }
-
-  private KSExporterType getImporter()
-  {
-    switch (this.output_format) {
-      case KS_INPUT_CANONICAL: {
-        return KSExporterCanonical.newExporter();
-      }
-      case KS_INPUT_IMPERATIVE: {
-        return KSExporterImperative.newExporter();
-      }
-      case KS_INPUT_XML: {
-        break;
-      }
-    }
-
-    throw new UnreachableCodeException();
   }
 }

@@ -168,7 +168,7 @@ class KSImperativeBuilder private constructor()
       return KSBlockParagraph(
         command_initial.position,
         command_initial.square,
-        KSParse(context, Optional.empty()),
+        KSParse(context),
         command_initial.type,
         command_initial.id,
         content)
@@ -207,7 +207,7 @@ class KSImperativeBuilder private constructor()
       return KSBlockFormalItem(
         command_initial.position,
         command_initial.square,
-        KSParse(context, Optional.empty()),
+        KSParse(context),
         command_initial.type,
         command_initial.id,
         command_initial.title,
@@ -247,7 +247,7 @@ class KSImperativeBuilder private constructor()
       return KSBlockFootnote(
         command_initial.position,
         command_initial.square,
-        KSParse(context, Optional.empty()),
+        KSParse(context),
         command_initial.type,
         command_initial.id,
         content)
@@ -398,7 +398,7 @@ class KSImperativeBuilder private constructor()
       return KSBlockSubsection(
         command_initial.position,
         command_initial.square,
-        KSParse(context, Optional.empty()),
+        KSParse(context),
         command_initial.type,
         command_initial.id,
         command_initial.title,
@@ -601,7 +601,7 @@ class KSImperativeBuilder private constructor()
         KSBlockSectionWithContent(
           command_initial.position,
           command_initial.square,
-          KSParse(context, Optional.empty()),
+          KSParse(context),
           command_initial.type,
           command_initial.id,
           command_initial.title,
@@ -611,7 +611,7 @@ class KSImperativeBuilder private constructor()
         KSBlockSectionWithSubsections(
           command_initial.position,
           command_initial.square,
-          KSParse(context, Optional.empty()),
+          KSParse(context),
           command_initial.type,
           command_initial.id,
           command_initial.title,
@@ -768,7 +768,7 @@ class KSImperativeBuilder private constructor()
       return KSBlockPart(
         command_initial.position,
         command_initial.square,
-        KSParse(context, Optional.empty()),
+        KSParse(context),
         command_initial.type,
         command_initial.id,
         command_initial.title,
@@ -973,7 +973,7 @@ class KSImperativeBuilder private constructor()
         return KSBlockDocumentWithParts(
           command_initial.position,
           command_initial.square,
-          KSParse(context, Optional.empty()),
+          KSParse(context),
           command_initial.id,
           command_initial.type,
           command_initial.title,
@@ -983,7 +983,7 @@ class KSImperativeBuilder private constructor()
         return KSBlockDocumentWithSections(
           command_initial.position,
           command_initial.square,
-          KSParse(context, Optional.empty()),
+          KSParse(context),
           command_initial.id,
           command_initial.type,
           command_initial.title,

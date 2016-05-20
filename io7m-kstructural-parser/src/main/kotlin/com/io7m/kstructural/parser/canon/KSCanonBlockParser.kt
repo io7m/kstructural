@@ -1159,10 +1159,10 @@ class KSCanonBlockParser private constructor(
     c : Context)
     : KSBlock<KSParse> {
 
-    Assertive.require(c.context.import_paths_by_element.containsKey(e))
-    val path = c.context.import_paths_by_element[e]!!
-    Assertive.require(c.context.imports_by_path.containsKey(path))
-    val imported = c.context.imports_by_path[path]!!
+    Assertive.require(c.context.importPathsByElement.containsKey(e))
+    val path = c.context.importPathsByElement[e]!!
+    Assertive.require(c.context.importsByPath.containsKey(path))
+    val imported = c.context.importsByPath[path]!!
     return when (imported) {
       is KSBlockDocument,
       is KSBlockSection,

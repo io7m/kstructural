@@ -51,6 +51,7 @@ import com.io7m.kstructural.core.KSElement.KSInline.KSTableHead
 import com.io7m.kstructural.core.KSElement.KSInline.KSTableHeadColumnName
 import com.io7m.kstructural.core.KSElement.KSInline.KSTableSummary
 import com.io7m.kstructural.core.KSID
+import com.io7m.kstructural.core.KSImportPathEdge
 import com.io7m.kstructural.core.KSLink.KSLinkExternal
 import com.io7m.kstructural.core.KSLink.KSLinkInternal
 import com.io7m.kstructural.core.KSLinkContent
@@ -96,8 +97,11 @@ object KSEvaluator : KSEvaluatorType {
 
     val includes_by_file : MutableMap<Path, String>,
     val includes_by_serial : MutableMap<KSSerial, String>,
+    override val includesByText : MutableMap<KSInlineText<KSEvaluation>, KSInlineInclude<KSEvaluation>>,
 
     override val imports : MutableMap<KSBlock<KSEvaluation>, KSBlockImport<KSEvaluation>>,
+    override val importsPaths : MutableMap<KSBlockImport<KSEvaluation>, KSImportPathEdge>,
+    override val importedBlocks : MutableMap<KSBlockImport<KSEvaluation>, KSBlock<KSEvaluation>>,
 
     var enclosing_table : Boolean = false,
     var enclosing_table_pos : Optional<LexicalPositionType<Path>> = Optional.empty())
@@ -116,7 +120,10 @@ object KSEvaluator : KSEvaluatorType {
           file_stack = ArrayDeque(),
           includes_by_file = HashMap(),
           includes_by_serial = HashMap(),
+          includesByText = IdentityHashMap(),
           imports = IdentityHashMap(),
+          importsPaths = IdentityHashMap(),
+          importedBlocks = IdentityHashMap(),
           enclosing_table = false,
           enclosing_table_pos = Optional.empty())
         c.file_stack.push(f)
@@ -579,12 +586,15 @@ object KSEvaluator : KSEvaluatorType {
       f : (Context, KSBlockImport<KSParse>, KSSerial) -> KSBlockImport<KSEvaluation>,
       b : U) : U {
 
-      if (a.data.context.imports_by_element.containsKey(a)) {
-        val bi = a.data.context.imports_by_element[a]!!
+      if (a.data.context.importsByElement.containsKey(a)) {
+        val bi = a.data.context.importsByElement[a]!!
+        val be = a.data.context.importPathsEdgesByElement[bi]!!
         val br = f.invoke(this, bi, b.data.parent)
         LOG.trace("record import {} for {}({})",
           bi, b.javaClass.simpleName, b.data.serial)
         this.imports[b] = br
+        this.importsPaths[br] = be
+        this.importedBlocks[br] = b
       }
 
       val number_opt = b.data.number
@@ -761,12 +771,13 @@ object KSEvaluator : KSEvaluatorType {
     : KSResult<KSInlineText<KSEvaluation>, KSEvaluationError> {
 
     val serial = c.freshSerial()
-    return if (e.data.include.isPresent) {
-      val ii = e.data.include.get()
+    return if (e.data.context.includesByTexts.containsKey(e)) {
+      val ii = e.data.context.includesByTexts[e]!!
       evaluateInlineInclude(c, ii, parent).flatMap { inc ->
         val eval = KSEvaluation(
           c, serial, parent, Optional.empty(), Optional.of(inc))
         val re = KSInlineText(e.position, false, eval, e.quote, e.text)
+        c.includesByText[re] = inc
         c.addElement(re)
         KSResult.succeed<KSInlineText<KSEvaluation>, KSEvaluationError>(re)
       }
@@ -858,8 +869,8 @@ object KSEvaluator : KSEvaluatorType {
     parent : KSSerial)
     : KSResult<KSInlineInclude<KSEvaluation>, KSEvaluationError> {
 
-    Assertive.require(e.data.context.include_paths.containsKey(e))
-    val p = e.data.context.include_paths[e]!!
+    Assertive.require(e.data.context.includePaths.containsKey(e))
+    val p = e.data.context.includePaths[e]!!
     Assertive.require(e.data.context.includes.containsKey(p))
     val t = e.data.context.includes[p]!!
 

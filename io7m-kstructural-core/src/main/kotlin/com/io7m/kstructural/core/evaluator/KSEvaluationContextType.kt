@@ -23,14 +23,24 @@ import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSID
+import com.io7m.kstructural.core.KSImportPathEdge
+import org.jgrapht.graph.UnmodifiableDirectedGraph
+import java.nio.file.Path
 import java.util.Optional
 
 interface KSEvaluationContextType {
 
   val document : KSBlockDocument<KSEvaluation>
 
+  val includesByText : Map<KSInlineText<KSEvaluation>, KSInlineInclude<KSEvaluation>>
+
   val imports : Map<KSBlock<KSEvaluation>, KSBlockImport<KSEvaluation>>
+
+  val importedBlocks : Map<KSBlockImport<KSEvaluation>, KSBlock<KSEvaluation>>
+
+  val importsPaths : Map<KSBlockImport<KSEvaluation>, KSImportPathEdge>
 
   fun elementForID(
     id : KSID<KSEvaluation>) : KSBlock<KSEvaluation>

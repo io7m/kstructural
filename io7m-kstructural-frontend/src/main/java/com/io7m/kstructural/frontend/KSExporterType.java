@@ -26,8 +26,9 @@ import java.util.Set;
 public interface KSExporterType
 {
   Set<Path> export(
+    Path base_directory,
     KSBlockDocument<KSEvaluation> document,
-    Path out,
+    Path out_directory,
     boolean reconstruct_imports)
     throws IOException;
 }

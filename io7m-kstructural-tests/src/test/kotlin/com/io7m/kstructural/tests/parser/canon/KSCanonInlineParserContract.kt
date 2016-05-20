@@ -670,8 +670,8 @@ abstract class KSCanonInlineParserContract {
 
     i as KSSuccess<KSInlineText<KSParse>, KSParseError>
     Assert.assertEquals("hello", i.result.text)
-    Assert.assertTrue(i.result.data.include.isPresent)
-    Assert.assertEquals("other.txt", i.result.data.include.get().file.text)
+    Assert.assertTrue(c.includesByTexts.containsKey(i.result))
+    Assert.assertEquals("other.txt", c.includesByTexts[i.result]!!.file.text)
     Assert.assertTrue(c.includes.containsKey(file))
     Assert.assertEquals("hello", c.includes[file])
   }

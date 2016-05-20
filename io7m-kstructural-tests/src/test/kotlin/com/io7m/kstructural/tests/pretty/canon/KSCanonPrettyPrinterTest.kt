@@ -16,33 +16,35 @@
 
 package com.io7m.kstructural.tests.pretty.canon
 
-import com.io7m.junreachable.UnreachableCodeException
-import com.io7m.kstructural.core.KSElement
-import com.io7m.kstructural.core.KSElement.*
-import com.io7m.kstructural.core.KSElement.KSBlock.*
+import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
+import com.io7m.kstructural.core.KSParserConstructorType
+import com.io7m.kstructural.core.KSParserType
 import com.io7m.kstructural.core.KSResult
-import com.io7m.kstructural.core.KSResult.*
+import com.io7m.kstructural.core.KSResult.KSFailure
+import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.evaluator.KSEvaluation
 import com.io7m.kstructural.core.evaluator.KSEvaluationError
 import com.io7m.kstructural.core.evaluator.KSEvaluator
-import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.KSExpressionParsers
-import com.io7m.kstructural.core.KSParserConstructorType
-import com.io7m.kstructural.core.KSParserType
+import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.canon.KSCanonInlineParser
 import com.io7m.kstructural.pretty.canon.KSCanonPrettyPrinter
 import com.io7m.kstructural.tests.KSTestFilesystems
 import com.io7m.kstructural.tests.KSTestIO
-import com.io7m.kstructural.tests.parser.KSSerializerDemo
 import org.slf4j.LoggerFactory
 import java.io.StringWriter
 import java.nio.file.FileSystem
 import java.nio.file.Path
 import java.util.Optional
+import java.util.function.Function
 
 class KSCanonPrettyPrinterTest : KSCanonPrettyPrinterContract() {
 
@@ -54,7 +56,7 @@ class KSCanonPrettyPrinterTest : KSCanonPrettyPrinterContract() {
   override fun parse(file : Path) : KSBlockDocument<KSEvaluation> {
     val sp = KSExpressionParsers.create(file)
     val ip = KSCanonInlineParser.create(KSTestIO.utf8_includer)
-    val importers = object: KSParserConstructorType {
+    val importers = object : KSParserConstructorType {
       override fun create(
         context : KSParseContextType,
         file : Path)
@@ -62,7 +64,7 @@ class KSCanonPrettyPrinterTest : KSCanonPrettyPrinterContract() {
 
         LOG.trace("instantiating parser for {}", file)
         val iis = this
-        return object: KSParserType {
+        return object : KSParserType {
           override fun parseBlock(
             context : KSParseContextType,
             file : Path)
@@ -101,8 +103,41 @@ class KSCanonPrettyPrinterTest : KSCanonPrettyPrinterContract() {
   override fun serialize(
     text : KSBlockDocument<KSEvaluation>,
     imports : Boolean) : String {
+
+    val import_map = text.data.context.imports
+    val import_fun : Function<KSBlock<KSEvaluation>, Optional<KSBlockImport<KSEvaluation>>> =
+      if (imports) {
+        Function { b ->
+          if (import_map.containsKey(b)) {
+            Optional.of(import_map[b])
+          } else {
+            Optional.empty()
+          }
+        }
+      } else {
+        Function {
+          b -> Optional.empty()
+        }
+      }
+
+    val include_map = text.data.context.includesByText
+    val include_run : Function<KSInlineText<KSEvaluation>, Optional<KSInlineInclude<KSEvaluation>>> =
+      if (imports) {
+        Function { b ->
+          if (include_map.containsKey(b)) {
+            Optional.of(include_map[b])
+          } else {
+            Optional.empty()
+          }
+        }
+      } else {
+        Function {
+          b -> Optional.empty()
+        }
+      }
+
     val w = StringWriter(4096)
-    val pp = KSCanonPrettyPrinter.create(w, 80, 2, imports)
+    val pp = KSCanonPrettyPrinter.create(w, 80, 2, import_fun, include_run)
     pp.pretty(text)
     pp.finish()
     return w.buffer.toString()

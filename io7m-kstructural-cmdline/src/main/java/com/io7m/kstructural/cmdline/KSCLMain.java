@@ -28,7 +28,6 @@ import com.io7m.kstructural.frontend.KSInputFormat;
 import com.io7m.kstructural.frontend.KSOpCheck;
 import com.io7m.kstructural.frontend.KSOpCompileXHTML;
 import com.io7m.kstructural.frontend.KSOpConvert;
-import com.io7m.kstructural.frontend.KSOpDump;
 import com.io7m.kstructural.frontend.KSOpType;
 import com.io7m.kstructural.xom.KSXOMSettings;
 import org.slf4j.LoggerFactory;
@@ -64,12 +63,10 @@ public final class KSCLMain implements Runnable
     final CommandRoot r = new CommandRoot();
     final CommandCheck check = new CommandCheck();
     final CommandCompileXHTML comp_xhtml = new CommandCompileXHTML();
-    final CommandDump dump = new CommandDump();
     final CommandConvert convert = new CommandConvert();
 
     this.commands = new HashMap<>(8);
     this.commands.put("check", check);
-    this.commands.put("dump", dump);
     this.commands.put("compile-xhtml", comp_xhtml);
     this.commands.put("convert", convert);
 
@@ -78,7 +75,6 @@ public final class KSCLMain implements Runnable
     this.commander.addCommand("check", check);
     this.commander.addCommand("compile-xhtml", comp_xhtml);
     this.commander.addCommand("convert", convert);
-    this.commander.addCommand("dump", dump);
   }
 
   public static void main(final String[] args)
@@ -169,29 +165,6 @@ public final class KSCLMain implements Runnable
       final FileSystem fs = FileSystems.getDefault();
       final Path p = fs.getPath(this.file);
       final KSOpType op = KSOpCheck.create(p);
-      return op.call();
-    }
-  }
-
-  @Parameters(
-    commandDescription = "Dump a document in canon format to standard out")
-  private final class CommandDump extends CommandRoot
-  {
-    @Parameter(
-      names = "-file",
-      description = "Input file",
-      required = true)
-    private String file;
-
-    @Override
-    public Unit call()
-      throws Exception
-    {
-      super.call();
-
-      final FileSystem fs = FileSystems.getDefault();
-      final Path p = fs.getPath(this.file);
-      final KSOpType op = KSOpDump.create(p);
       return op.call();
     }
   }
