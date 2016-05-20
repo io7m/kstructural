@@ -312,6 +312,18 @@ public final class KSCLMain implements Runnable
       required = false)
     private boolean no_imports = false;
 
+    @Parameter(
+      names = "-indent",
+      description = "The number of spaces that will be used to indent documents",
+      required = false)
+    private int indent = 2;
+
+    @Parameter(
+      names = "-width",
+      description = "The maximum width in characters that will be used when formatting documents",
+      required = false)
+    private int width = 80;
+
     @Override
     public Unit call()
       throws Exception
@@ -327,7 +339,9 @@ public final class KSCLMain implements Runnable
           input_path,
           output_path,
           this.export_format,
-          !this.no_imports);
+          !this.no_imports,
+          indent,
+          width);
       return op.call();
     }
   }

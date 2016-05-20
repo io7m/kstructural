@@ -38,30 +38,40 @@ public final class KSOpConvert implements KSOpType
   private final Path output_path;
   private final KSInputFormat output_format;
   private final boolean reconstruct_imports;
+  private final int indent;
+  private final int width;
 
   private KSOpConvert(
     final Path in_path,
     final Path in_output_path,
     final KSInputFormat in_output_format,
-    final boolean in_reconstruct_imports)
+    final boolean in_reconstruct_imports,
+    final int in_indent,
+    final int in_width)
   {
     this.path = NullCheck.notNull(in_path);
     this.output_path = NullCheck.notNull(in_output_path);
     this.output_format = NullCheck.notNull(in_output_format);
     this.reconstruct_imports = in_reconstruct_imports;
+    this.indent = in_indent;
+    this.width = in_width;
   }
 
   public static KSOpType create(
     final Path in_path,
     final Path in_output_path,
     final KSInputFormat in_output_format,
-    final boolean in_reconstruct_imports)
+    final boolean in_reconstruct_imports,
+    final int in_indent,
+    final int in_width)
   {
     return new KSOpConvert(
       in_path,
       in_output_path,
       in_output_format,
-      in_reconstruct_imports);
+      in_reconstruct_imports,
+      in_indent,
+      in_width);
   }
 
   @Override
@@ -74,7 +84,7 @@ public final class KSOpConvert implements KSOpType
     Files.createDirectories(this.output_path);
 
     final KSExporterType export =
-      KSExporter.newExporter(this.output_format);
+      KSExporter.newExporter(this.output_format, this.indent, this.width);
 
     export.export(
       this.path.getParent(),

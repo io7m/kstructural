@@ -38,7 +38,7 @@ class KSExporterTest : KSExporterContract() {
     KSTestFilesystems.newUnixFilesystem()
 
   override fun newExporter(f : KSInputFormat) : KSExporterType =
-    KSExporter.newExporter(f)
+    KSExporter.newExporter(f, 2, 80)
 
   override fun parse(file : Path) : KSBlockDocument<KSEvaluation> {
     val c = KSParseContext.empty()

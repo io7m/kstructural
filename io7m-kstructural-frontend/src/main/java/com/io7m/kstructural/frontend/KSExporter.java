@@ -56,15 +56,25 @@ public final class KSExporter implements KSExporterType
   }
 
   private final KSInputFormat format;
+  private final int indent;
+  private final int width;
 
-  private KSExporter(final KSInputFormat in_format)
+  private KSExporter(
+    final KSInputFormat in_format,
+    final int in_indent,
+    final int in_width)
   {
     this.format = NullCheck.notNull(in_format);
+    this.indent = in_indent;
+    this.width = in_width;
   }
 
-  public static KSExporterType newExporter(final KSInputFormat in_format)
+  public static KSExporterType newExporter(
+    final KSInputFormat in_format,
+    final int in_indent,
+    final int in_width)
   {
-    return new KSExporter(in_format);
+    return new KSExporter(in_format, in_indent, in_width);
   }
 
   @Override
@@ -208,7 +218,7 @@ public final class KSExporter implements KSExporterType
 
     KSExporter.LOG.debug("write: {} -> {}", out_tmp, out);
     try (final KSPrettyPrinterType<KSEvaluation> pretty =
-           KSExporter.prettyForPath(this.format, out_tmp, imports, includes)) {
+           this.prettyForPath(out_tmp, imports, includes)) {
       pretty.pretty(b);
     }
 
@@ -239,8 +249,7 @@ public final class KSExporter implements KSExporterType
       new_file);
   }
 
-  private static KSPrettyPrinterType<KSEvaluation> prettyForPath(
-    final KSInputFormat format,
+  private KSPrettyPrinterType<KSEvaluation> prettyForPath(
     final Path out,
     final Function<KSBlock<KSEvaluation>, Optional<KSBlockImport<KSEvaluation>>> imports,
     final Function<KSInlineText<KSEvaluation>, Optional<KSInlineInclude<KSEvaluation>>> includes)
@@ -252,13 +261,13 @@ public final class KSExporter implements KSExporterType
       StandardOpenOption.CREATE);
     final OutputStreamWriter w = new OutputStreamWriter(os);
 
-    switch (format) {
+    switch (this.format) {
       case KS_INPUT_CANONICAL:
         return KSCanonPrettyPrinter.Companion.create(
-          w, 80, 2, imports, includes);
+          w, this.width, this.indent, imports, includes);
       case KS_INPUT_IMPERATIVE:
         return KSImperativePrettyPrinter.Companion.create(
-          w, 80, imports, includes);
+          w, this.width, imports, includes);
       case KS_INPUT_XML:
         throw new UnimplementedCodeException();
     }
