@@ -15,7 +15,7 @@
  */
 
 /**
- * Parsers for the canonical s-expression encoding.
+ * Parsers for the canon s-expression encoding.
  */
 
 @com.io7m.jnull.NonNullByDefault

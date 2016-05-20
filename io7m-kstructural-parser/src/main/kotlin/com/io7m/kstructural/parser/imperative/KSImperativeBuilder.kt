@@ -168,7 +168,7 @@ class KSImperativeBuilder private constructor()
       return KSBlockParagraph(
         command_initial.position,
         command_initial.square,
-        KSParse(context, Optional.empty()),
+        KSParse(context),
         command_initial.type,
         command_initial.id,
         content)
@@ -207,7 +207,7 @@ class KSImperativeBuilder private constructor()
       return KSBlockFormalItem(
         command_initial.position,
         command_initial.square,
-        KSParse(context, Optional.empty()),
+        KSParse(context),
         command_initial.type,
         command_initial.id,
         command_initial.title,
@@ -247,7 +247,7 @@ class KSImperativeBuilder private constructor()
       return KSBlockFootnote(
         command_initial.position,
         command_initial.square,
-        KSParse(context, Optional.empty()),
+        KSParse(context),
         command_initial.type,
         command_initial.id,
         content)
@@ -309,7 +309,7 @@ class KSImperativeBuilder private constructor()
                     received = "(Imported) " + cc.content,
                     position = cc.position)
                 }
-                is KSBlockParagraph -> {
+                is KSBlockParagraph  -> {
                   finishContentIfNecessary(context)
                   this.content.add(KSSubsectionParagraph(cc.content))
                   succeedNothing()
@@ -398,7 +398,7 @@ class KSImperativeBuilder private constructor()
       return KSBlockSubsection(
         command_initial.position,
         command_initial.square,
-        KSParse(context, Optional.empty()),
+        KSParse(context),
         command_initial.type,
         command_initial.id,
         command_initial.title,
@@ -527,27 +527,31 @@ class KSImperativeBuilder private constructor()
                 is KSBlockFormalItem,
                 is KSBlockFootnote,
                 is KSBlockParagraph  -> {
-                  finishContentIfNecessary(context)
-
-                  if (subsections.isNotEmpty()) {
-                    unexpectedElement(
-                      message = "Unexpected imported subsection content.",
-                      expected = "A subsection",
-                      received = "(Imported) " + cc.content,
-                      position = cc.position)
+                  if (subsection_builder != null) {
+                    this.subsection_builder!!.add(context, command)
                   } else {
-                    content.add(when (cc.content) {
-                      is KSBlockDocument,
-                      is KSBlockSection ,
-                      is KSBlockSubsection,
-                      is KSBlockPart ,
-                      is KSBlockImport     ->
-                        throw UnreachableCodeException()
-                      is KSBlockParagraph  -> KSSubsectionParagraph(cc.content)
-                      is KSBlockFormalItem -> KSSubsectionFormalItem(cc.content)
-                      is KSBlockFootnote   -> KSSubsectionFootnote(cc.content)
-                    })
-                    succeedNothing()
+                    finishContentIfNecessary(context)
+
+                    if (subsections.isNotEmpty()) {
+                      unexpectedElement(
+                        message = "Unexpected imported subsection content.",
+                        expected = "A subsection",
+                        received = "(Imported) " + cc.content,
+                        position = cc.position)
+                    } else {
+                      content.add(when (cc.content) {
+                        is KSBlockDocument,
+                        is KSBlockSection,
+                        is KSBlockSubsection,
+                        is KSBlockPart,
+                        is KSBlockImport     ->
+                          throw UnreachableCodeException()
+                        is KSBlockParagraph  -> KSSubsectionParagraph(cc.content)
+                        is KSBlockFormalItem -> KSSubsectionFormalItem(cc.content)
+                        is KSBlockFootnote   -> KSSubsectionFootnote(cc.content)
+                      })
+                      succeedNothing()
+                    }
                   }
                 }
               }
@@ -597,7 +601,7 @@ class KSImperativeBuilder private constructor()
         KSBlockSectionWithContent(
           command_initial.position,
           command_initial.square,
-          KSParse(context, Optional.empty()),
+          KSParse(context),
           command_initial.type,
           command_initial.id,
           command_initial.title,
@@ -607,7 +611,7 @@ class KSImperativeBuilder private constructor()
         KSBlockSectionWithSubsections(
           command_initial.position,
           command_initial.square,
-          KSParse(context, Optional.empty()),
+          KSParse(context),
           command_initial.type,
           command_initial.id,
           command_initial.title,
@@ -764,7 +768,7 @@ class KSImperativeBuilder private constructor()
       return KSBlockPart(
         command_initial.position,
         command_initial.square,
-        KSParse(context, Optional.empty()),
+        KSParse(context),
         command_initial.type,
         command_initial.id,
         command_initial.title,
@@ -969,7 +973,7 @@ class KSImperativeBuilder private constructor()
         return KSBlockDocumentWithParts(
           command_initial.position,
           command_initial.square,
-          KSParse(context, Optional.empty()),
+          KSParse(context),
           command_initial.id,
           command_initial.type,
           command_initial.title,
@@ -979,7 +983,7 @@ class KSImperativeBuilder private constructor()
         return KSBlockDocumentWithSections(
           command_initial.position,
           command_initial.square,
-          KSParse(context, Optional.empty()),
+          KSParse(context),
           command_initial.id,
           command_initial.type,
           command_initial.title,

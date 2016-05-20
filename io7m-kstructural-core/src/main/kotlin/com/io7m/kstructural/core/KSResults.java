@@ -14,15 +14,28 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.parser
+package com.io7m.kstructural.core;
 
-import com.io7m.kstructural.core.KSParseContextType
-import java.nio.file.Path
+import java.util.ArrayDeque;
+import java.util.Optional;
 
-interface KSImporterConstructorType {
+public final class KSResults
+{
+  private static KSResults INSTANCE = new KSResults();
 
-  fun create (
-    context : KSParseContextType,
-    file : Path) : KSImporterType
+  public static KSResults getInstance()
+  {
+    return INSTANCE;
+  }
 
+  private KSResults()
+  {
+
+  }
+
+  public static <A, E> KSResult<A, E> fail(final E x) {
+    final ArrayDeque<E> ad = new ArrayDeque<E>(1);
+    ad.add(x);
+    return new KSResult.KSFailure<>(Optional.empty(), ad);
+  }
 }

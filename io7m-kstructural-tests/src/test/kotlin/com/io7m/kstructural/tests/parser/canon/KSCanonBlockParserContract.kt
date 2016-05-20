@@ -942,10 +942,10 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockImport<KSParse>, KSParseError>
     Assert.assertEquals("other.txt", e.result.file.text)
 
-    val r = c.imports_by_path.get(other_path) as KSBlockParagraph<KSParse>
+    val r = c.importsByPath.get(other_path) as KSBlockParagraph<KSParse>
     Assert.assertEquals("p", (r.content[0] as KSInlineText).text)
-    Assert.assertTrue(c.imports_by_path.containsKey(other_path))
-    Assert.assertTrue(c.imports_by_element.containsKey(r))
+    Assert.assertTrue(c.importsByPath.containsKey(other_path))
+    Assert.assertTrue(c.importsByElement.containsKey(r))
   }
 
   @Test fun testImportNonexistent() {
@@ -981,11 +981,11 @@ abstract class KSCanonBlockParserContract {
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
-    Assert.assertTrue(c.imports_by_path.containsKey(other_path))
+    Assert.assertTrue(c.importsByPath.containsKey(other_path))
     val e0 = e.result.content[0] as KSSubsectionContent.KSSubsectionParagraph
     val e1 = e.result.content[1] as KSSubsectionContent.KSSubsectionParagraph
-    Assert.assertTrue(c.imports_by_element.containsKey(e0.paragraph))
-    Assert.assertTrue(c.imports_by_element.containsKey(e1.paragraph))
+    Assert.assertTrue(c.importsByElement.containsKey(e0.paragraph))
+    Assert.assertTrue(c.importsByElement.containsKey(e1.paragraph))
   }
 
   @Test fun testImportDocumentSections() {
@@ -1001,8 +1001,8 @@ abstract class KSCanonBlockParserContract {
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithSections<KSParse>, KSParseError>
-    Assert.assertTrue(c.imports_by_path.containsKey(other_path))
-    Assert.assertTrue(c.imports_by_element.containsKey(e.result.content[0]))
+    Assert.assertTrue(c.importsByPath.containsKey(other_path))
+    Assert.assertTrue(c.importsByElement.containsKey(e.result.content[0]))
   }
 
   @Test fun testImportDocumentParts() {
@@ -1021,8 +1021,8 @@ abstract class KSCanonBlockParserContract {
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithParts<KSParse>, KSParseError>
-    Assert.assertTrue(c.imports_by_path.containsKey(other_path))
-    Assert.assertTrue(c.imports_by_element.containsKey(e.result.content[0]))
+    Assert.assertTrue(c.importsByPath.containsKey(other_path))
+    Assert.assertTrue(c.importsByElement.containsKey(e.result.content[0]))
   }
 
   @Test fun testImportSectionContent() {
@@ -1038,9 +1038,9 @@ abstract class KSCanonBlockParserContract {
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSectionWithContent<KSParse>, KSParseError>
-    Assert.assertTrue(c.imports_by_path.containsKey(other_path))
+    Assert.assertTrue(c.importsByPath.containsKey(other_path))
     val e0 = (e.result.content[0] as KSSubsectionContent.KSSubsectionParagraph<KSParse>)
-    Assert.assertTrue(c.imports_by_element.containsKey(e0.paragraph))
+    Assert.assertTrue(c.importsByElement.containsKey(e0.paragraph))
   }
 
   @Test fun testImportSectionSubsection() {
@@ -1056,8 +1056,8 @@ abstract class KSCanonBlockParserContract {
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSectionWithSubsections<KSParse>, KSParseError>
-    Assert.assertTrue(c.imports_by_path.containsKey(other_path))
-    Assert.assertTrue(c.imports_by_element.containsKey(e.result.content[0]))
+    Assert.assertTrue(c.importsByPath.containsKey(other_path))
+    Assert.assertTrue(c.importsByElement.containsKey(e.result.content[0]))
   }
 
   @Test fun testImportPartSection() {
@@ -1073,8 +1073,8 @@ abstract class KSCanonBlockParserContract {
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockPart<KSParse>, KSParseError>
-    Assert.assertTrue(c.imports_by_path.containsKey(other_path))
-    Assert.assertTrue(c.imports_by_element.containsKey(e.result.content[0]))
+    Assert.assertTrue(c.importsByPath.containsKey(other_path))
+    Assert.assertTrue(c.importsByElement.containsKey(e.result.content[0]))
   }
 
   @Test fun testImportCircular() {
@@ -1090,5 +1090,24 @@ abstract class KSCanonBlockParserContract {
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSFailure
+  }
+
+  @Test fun testImportChain() {
+    val dirs = filesystem!!.getPath("/a/b/c").toAbsolutePath()
+    Files.createDirectories(dirs)
+
+    val first_path = filesystem!!.getPath("/a/first.txt").toAbsolutePath()
+    Files.write(first_path, """[import "/a/b/second.txt"]""".toByteArray(StandardCharsets.UTF_8))
+    val second_path = filesystem!!.getPath("/a/b/second.txt").toAbsolutePath()
+    Files.write(second_path, """[import "/a/b/c/third.txt"]""".toByteArray(StandardCharsets.UTF_8))
+    val third_path = filesystem!!.getPath("/a/b/c/third.txt").toAbsolutePath()
+    Files.write(third_path, """[paragraph p]""".toByteArray(StandardCharsets.UTF_8))
+
+    val pp = newParserForString("""[import "/a/first.txt"]]""")
+    val c = KSParseContext.empty()
+    val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
+
+    e as KSSuccess<KSBlockPart<KSParse>, KSParseError>
+    Assert.assertEquals(3, c.importPathsEdgesByElement.size)
   }
 }

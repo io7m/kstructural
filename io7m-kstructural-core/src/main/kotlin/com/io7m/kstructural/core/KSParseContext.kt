@@ -19,7 +19,7 @@ package com.io7m.kstructural.core
 import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
-import org.jgrapht.EdgeFactory
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import org.jgrapht.alg.DijkstraShortestPath
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph
 import org.slf4j.LoggerFactory
@@ -30,26 +30,29 @@ import java.util.IdentityHashMap
 
 class KSParseContext private constructor(
   override val includes : MutableMap<Path, String>,
-  override val include_paths : MutableMap<KSInlineInclude<KSParse>, Path>,
-  override val imports_by_path : MutableMap<Path, KSBlock<KSParse>>,
-  override val import_paths_by_element : MutableMap<KSBlockImport<KSParse>, Path>,
-  override val imports_by_element : MutableMap<KSBlock<KSParse>, KSBlockImport<KSParse>>)
+  override val includePaths : MutableMap<KSInlineInclude<KSParse>, Path>,
+  override val includesByTexts : MutableMap<KSInlineText<KSParse>, KSInlineInclude<KSParse>>,
+  override val importsByPath : MutableMap<Path, KSBlock<KSParse>>,
+  override val importPathsByElement : MutableMap<KSBlockImport<KSParse>, Path>,
+  override val importsByElement : MutableMap<KSBlock<KSParse>, KSBlockImport<KSParse>>,
+  override val importPathsEdgesByElement : MutableMap<KSBlockImport<KSParse>, KSImportPathEdge>)
 : KSParseContextType {
 
   override fun checkImportCycle(
     importer : Path,
     import : KSBlockImport<KSParse>,
     imported_path : Path)
-    : KSResult<Unit, KSParseError> {
+    : KSResult<KSImportPathEdge, KSParseError> {
 
     LOG.trace("import: {} -> {}", importer, imported_path)
-    Assertive.require(!import_paths_by_element.containsKey(import))
+    Assertive.require(!importPathsByElement.containsKey(import))
 
     return try {
+      val edge = KSImportPathEdge(from = importer, to = imported_path)
       import_graph.addVertex(importer)
       import_graph.addVertex(imported_path)
-      import_graph.addDagEdge(importer, imported_path)
-      KSResult.succeed(Unit)
+      import_graph.addDagEdge(importer, imported_path, edge)
+      KSResult.succeed(edge)
     } catch (x : DirectedAcyclicGraph.CycleFoundException) {
 
       /**
@@ -82,14 +85,8 @@ class KSParseContext private constructor(
     }
   }
 
-  private data class Import(
-    val from : Path,
-    val to : Path)
-
-  private val import_graph : DirectedAcyclicGraph<Path, Import> =
-    DirectedAcyclicGraph(object : EdgeFactory<Path, Import> {
-      override fun createEdge(p0 : Path, p1 : Path) : Import = Import(p0, p1)
-    })
+  private val import_graph : DirectedAcyclicGraph<Path, KSImportPathEdge> =
+    DirectedAcyclicGraph(KSImportPathEdge::class.java)
 
   override fun addImport(
     importer : Path,
@@ -99,13 +96,14 @@ class KSParseContext private constructor(
     : KSResult<Unit, KSParseError> {
 
     LOG.trace("import: {}: {}", imported_path, imported.javaClass.simpleName)
-    Assertive.require(!import_paths_by_element.containsKey(import))
-    Assertive.require(!imports_by_element.containsKey(imported))
+    Assertive.require(!importPathsByElement.containsKey(import))
+    Assertive.require(!importsByElement.containsKey(imported))
 
-    return checkImportCycle(importer, import, imported_path) flatMap {
-      this.imports_by_path[imported_path] = imported
-      this.import_paths_by_element[import] = imported_path
-      this.imports_by_element[imported] = import
+    return checkImportCycle(importer, import, imported_path) flatMap { edge ->
+      importsByPath[imported_path] = imported
+      importPathsByElement[import] = imported_path
+      importsByElement[imported] = import
+      importPathsEdgesByElement[import] = edge
       KSResult.succeed<Unit, KSParseError>(Unit)
     }
   }
@@ -116,20 +114,25 @@ class KSParseContext private constructor(
     fun empty() : KSParseContextType {
       return KSParseContext(
         includes = HashMap(),
-        include_paths = IdentityHashMap(),
-        imports_by_path = HashMap(),
-        import_paths_by_element = IdentityHashMap(),
-        imports_by_element = IdentityHashMap())
+        includePaths = IdentityHashMap(),
+        includesByTexts = IdentityHashMap(),
+        importsByPath = HashMap(),
+        importPathsByElement = IdentityHashMap(),
+        importPathsEdgesByElement = IdentityHashMap(),
+        importsByElement = IdentityHashMap())
     }
   }
 
   override fun addInclude(
+    t : KSInlineText<KSParse>,
     i : KSInlineInclude<KSParse>,
     p : Path,
     s : String) {
     LOG.trace("include: {}: {}...", p, s.substring(0, Math.min(8, s.length)))
-    Assertive.require(!include_paths.containsKey(i))
-    this.includes[p] = s
-    this.include_paths[i] = p
+    Assertive.require(!includePaths.containsKey(i))
+    Assertive.require(!includesByTexts.containsKey(t))
+    includes[p] = s
+    includePaths[i] = p
+    includesByTexts[t] = i
   }
 }

@@ -15,7 +15,16 @@ import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSection
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithSubsections
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
 import com.io7m.kstructural.core.KSElement.KSInline
-import com.io7m.kstructural.core.KSElement.KSInline.*
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineImage
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineLink
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListOrdered
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListUnordered
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTable
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTerm
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineVerbatim
 import com.io7m.kstructural.core.KSElement.KSInline.KSListItem
 import com.io7m.kstructural.core.KSElement.KSInline.KSTableBody
 import com.io7m.kstructural.core.KSElement.KSInline.KSTableBodyCell
@@ -31,8 +40,8 @@ import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFormalItem
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
 import com.io7m.kstructural.core.evaluator.KSEvaluation
 import com.io7m.kstructural.parser.KSExpression.KSExpressionList
-import com.io7m.kstructural.parser.KSExpression.KSExpressionSymbol
 import com.io7m.kstructural.parser.KSExpression.KSExpressionQuoted
+import com.io7m.kstructural.parser.KSExpression.KSExpressionSymbol
 
 class KSSerializer : KSSerializerType {
 
@@ -50,18 +59,18 @@ class KSSerializer : KSSerializerType {
     }
 
   private fun serializeInline(e : KSInline<KSEvaluation>) : KSExpression =
-  when (e) {
-    is KSInlineLink              -> serializeInlineLink(e)
-    is KSInlineText              -> serializeText(e)
-    is KSInlineVerbatim          -> serializeVerbatim(e)
-    is KSInlineTerm              -> serializeTerm(e)
-    is KSInlineFootnoteReference -> TODO()
-    is KSInlineImage             -> TODO()
-    is KSInlineListOrdered       -> TODO()
-    is KSInlineListUnordered     -> TODO()
-    is KSInlineTable             -> TODO()
-    is KSInlineInclude           -> serializeInclude(e)
-  }
+    when (e) {
+      is KSInlineLink              -> serializeInlineLink(e)
+      is KSInlineText              -> serializeText(e)
+      is KSInlineVerbatim          -> serializeVerbatim(e)
+      is KSInlineTerm              -> serializeTerm(e)
+      is KSInlineFootnoteReference -> TODO()
+      is KSInlineImage             -> TODO()
+      is KSInlineListOrdered       -> TODO()
+      is KSInlineListUnordered     -> TODO()
+      is KSInlineTable             -> TODO()
+      is KSInlineInclude           -> serializeInclude(e)
+    }
 
   private fun serializeInclude(e : KSInlineInclude<KSEvaluation>) : KSExpression {
     val es = mutableListOf<KSExpression>()
@@ -88,10 +97,10 @@ class KSSerializer : KSSerializerType {
     KSExpressionSymbol(e.position, e.text)
 
   private fun serializeInlineLink(e : KSInlineLink<KSEvaluation>) : KSExpression =
-  when (e.actual) {
-    is KSLink.KSLinkExternal -> serializeLinkExternal(e.actual as KSLink.KSLinkExternal)
-    is KSLink.KSLinkInternal -> serializeLinkInternal(e.actual as KSLink.KSLinkInternal)
-  }
+    when (e.actual) {
+      is KSLink.KSLinkExternal -> serializeLinkExternal(e.actual as KSLink.KSLinkExternal)
+      is KSLink.KSLinkInternal -> serializeLinkInternal(e.actual as KSLink.KSLinkInternal)
+    }
 
   private fun serializeLinkInternal(e : KSLink.KSLinkInternal<KSEvaluation>) : KSExpression {
     val es = mutableListOf<KSExpression>()
@@ -101,10 +110,10 @@ class KSSerializer : KSSerializerType {
   }
 
   private fun serializeLinkContent(c : KSLinkContent<KSEvaluation>) : KSExpression =
-  when (c) {
-    is KSLinkContent.KSLinkText    -> serialize(c.actual)
-    is KSLinkContent.KSLinkImage   -> serialize(c.actual)
-  }
+    when (c) {
+      is KSLinkContent.KSLinkText  -> serialize(c.actual)
+      is KSLinkContent.KSLinkImage -> serialize(c.actual)
+    }
 
   private fun serializeLinkExternal(e : KSLink.KSLinkExternal<KSEvaluation>) : KSExpression {
     val es = mutableListOf<KSExpression>()

@@ -14,7 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.tests.pretty
+package com.io7m.kstructural.tests.pretty.canon
 
 import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.*
@@ -31,9 +31,9 @@ import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
 
-abstract class KSPrettyPrinterContract {
+abstract class KSImperativePrettyPrinterContract {
 
-  private val LOG = LoggerFactory.getLogger(KSPrettyPrinterContract::class.java)
+  private val LOG = LoggerFactory.getLogger(KSImperativePrettyPrinterContract::class.java)
 
   protected abstract fun newFilesystem() : FileSystem
 
@@ -65,9 +65,9 @@ abstract class KSPrettyPrinterContract {
     }
 
     val before = parse(path)
-    val serial0 = serialize(before, imports)
+    val serial0 = serialize(before, imports).trim()
     val after = parse(path)
-    val serial1 = serialize(after, imports)
+    val serial1 = serialize(after, imports).trim()
 
     LOG.trace("text        : {}", text_start)
     LOG.trace("text_expect : {}", text_expect)
@@ -89,98 +89,75 @@ abstract class KSPrettyPrinterContract {
   @Test fun testTitles()
   {
     roundTrip("""
-[document
-  [title d0 d1 d2]
-  [part
-    [title p0 p1 p2]
-    [section
-      [title s0 s1 s2]
-      [paragraph
-        p]]]
-  [part
-    [title p0 p1 p2]
-    [section
-      [title s0 s1 s2]
-      [subsection
-        [title ss0 ss1 ss2]
-        [paragraph
-          p]]]]]
+[document [title d0 d1 d2]]
+[part [title p0 p1 p2]]
+[section [title s0 s1 s2]]
+[paragraph]
+p
+
+[part [title p0 p1 p2]]
+[section [title s0 s1 s2]]
+[subsection [title ss0 ss1 ss2]]
+[paragraph]
+p
+
 """.trim(), imports = false)
   }
 
   @Test fun testTitlesIds()
   {
     roundTrip("""
-[document
-  [title d0 d1 d2]
-  [id d0]
-  [part
-    [title p0 p1 p2]
-    [id p0]
-    [section
-      [title s0 s1 s2]
-      [id p0s0]
-      [paragraph
-        p]]]
-  [part
-    [title p0 p1 p2]
-    [id p1]
-    [section
-      [title s0 s1 s2]
-      [id p1s0]
-      [subsection
-        [title ss0 ss1 ss2]
-        [id p1s0ss0]
-        [paragraph
-          p]]]]]
+[document [title d0 d1 d2] [id d0]]
+[part [title p0 p1 p2] [id p0]]
+[section [title s0 s1 s2] [id p0s0]]
+[paragraph]
+p
+
+[part [title p0 p1 p2] [id p1]]
+[section [title s0 s1 s2] [id p1s0]]
+[subsection [title ss0 ss1 ss2] [id p1s0ss0]]
+[paragraph]
+p
 """.trim(), imports = false)
   }
 
   @Test fun testText()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      p0 p1 p2]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+p0 p1 p2
 """.trim(), imports = false)
   }
 
   @Test fun testTextSpacing()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      p0 "  p1  " p2]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+p0 "  p1  " p2
 """.trim(), imports = false)
   }
 
   @Test fun testTerm()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      [term t]]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+[term t]
 """.trim(), imports = false)
   }
 
   @Test fun testTermType()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      [term [type q] t]]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+[term [type q] t]
 """.trim(), imports = false)
   }
 
@@ -191,12 +168,10 @@ abstract class KSPrettyPrinterContract {
     }
 
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      [include "other.txt"]]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+[include "other.txt"]
 """.trim(), imports = true)
   }
 
@@ -207,19 +182,15 @@ abstract class KSPrettyPrinterContract {
     }
 
     roundTripExpanded("""
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      [include "other.txt"]]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+[include "other.txt"]
 """.trim(), """
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      "Hello A B C D"]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+"Hello A B C D"
 """.trim(), imports = false)
   }
 
@@ -230,11 +201,9 @@ abstract class KSPrettyPrinterContract {
     }
 
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [import "other.txt"]]]
+[document [title d]]
+[section [title s]]
+[import "other.txt"]
 """.trim(), imports = true)
   }
 
@@ -245,116 +214,94 @@ abstract class KSPrettyPrinterContract {
     }
 
     roundTripExpanded("""
-[document
-  [title d]
-  [section
-    [title s]
-    [import "other.txt"]]]
+[document [title d]]
+[section [title s]]
+[import "other.txt"]
 """.trim(), """
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      p]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+p
 """.trim(), imports = false)
   }
 
   @Test fun testImage()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      [image [target "x"] x]]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+[image [target "x"] x]
 """.trim(), imports = false)
   }
 
   @Test fun testImageType()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      [image [target "x"] [type q] x]]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+[image [target "x"] [type q] x]
 """.trim(), imports = false)
   }
 
   @Test fun testImageSize()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      [image [target "x"] [size 23 24] x]]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+[image [target "x"] [size 23 24] x]
 """.trim(), imports = false)
   }
 
   @Test fun testImageTypeSize()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      [image [target "x"] [type z] [size 23 24] x]]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+[image [target "x"] [type z] [size 23 24] x]
 """.trim(), imports = false)
   }
 
   @Test fun testVerbatim()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      [verbatim "v"]]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+[verbatim "v"]
 """.trim(), imports = false)
   }
 
   @Test fun testVerbatimType()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      [verbatim [type t] "v"]]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+[verbatim [type t] "v"]
 """.trim(), imports = false)
   }
 
   @Test fun testLinkInternal()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [id z]
-    [paragraph
-      [link [target z] x]]]]
+[document [title d]]
+[section [title s] [id z]]
+[paragraph]
+[link [target z] x]
 """.trim(), imports = false)
   }
 
   @Test fun testLinkInternalImage()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [id z]
-    [paragraph
-      [link [target z] [image [target "z"] x]]]]]
+[document [title d]]
+[section [title s] [id z]]
+[paragraph]
+[link [target z] [image [target "z"] x]]
 """.trim(), imports = false)
   }
 
@@ -365,39 +312,30 @@ abstract class KSPrettyPrinterContract {
     }
 
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [id z]
-    [paragraph
-      [link [target z] [include "other.txt"]]]]]
+[document [title d]]
+[section [title s] [id z]]
+[paragraph]
+[link [target z] [include "other.txt"]]
 """.trim(), imports = true)
   }
 
   @Test fun testLinkExternal()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [id z]
-    [paragraph
-      [link-ext [target "z"] x]]]]
+[document [title d]]
+[section [title s] [id z]]
+[paragraph]
+[link-ext [target "z"] x]
 """.trim(), imports = false)
   }
 
   @Test fun testLinkExternalImage()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [id z]
-    [paragraph
-      [link-ext [target "z"] [image [target "z"] x]]]]]
+[document [title d]]
+[section [title s] [id z]]
+[paragraph]
+[link-ext [target "z"] [image [target "z"] x]]
 """.trim(), imports = false)
   }
 
@@ -408,202 +346,158 @@ abstract class KSPrettyPrinterContract {
     }
 
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [id z]
-    [paragraph
-      [link-ext [target "z"] [include "other.txt"]]]]]
+[document [title d]]
+[section [title s] [id z]]
+[paragraph]
+[link-ext [target "z"] [include "other.txt"]]
 """.trim(), imports = true)
   }
 
   @Test fun testListOrdered()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      [list-ordered
-        [item x0 x1 x2]
-        [item y0 y1 y2]
-        [item z0 z1 z2]]]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+[list-ordered
+  [item x0 x1 x2]
+  [item y0 y1 y2]
+  [item z0 z1 z2]]
 """.trim(), imports = false)
   }
 
   @Test fun testListUnordered()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      [list-unordered
-        [item x0 x1 x2]
-        [item y0 y1 y2]
-        [item z0 z1 z2]]]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+[list-unordered
+  [item x0 x1 x2]
+  [item y0 y1 y2]
+  [item z0 z1 z2]]
 """.trim(), imports = false)
   }
 
   @Test fun testFootnote()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [footnote
-      [id f0]
-      x y z]]]
+[document [title d]]
+[section [title s]]
+[footnote [id f0]]
+x y z
 """.trim(), imports = false)
   }
 
   @Test fun testFootnoteRef()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [footnote
-      [id f0]
-      [footnote-ref f0]]]]
+[document [title d]]
+[section [title s]]
+[footnote [id f0]]
+[footnote-ref f0]
 """.trim(), imports = false)
   }
 
   @Test fun testFootnoteType()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [footnote
-      [id f0]
-      [type t]
-      x y z]]]
+[document [title d]]
+[section [title s]]
+[footnote [id f0] [type t]]
+x y z
 """.trim(), imports = false)
   }
 
   @Test fun testFormalItemType()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [formal-item
-      [title f0]
-      [type t]
-      x y z]]]
+[document [title d]]
+[section [title s]]
+[formal-item [title f0] [type t]]
+x y z
 """.trim(), imports = false)
   }
 
   @Test fun testFormalItemID()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [formal-item
-      [title f0]
-      [id f0]
-      x y z]]]
+[document [title d]]
+[section [title s]]
+[formal-item [title f0] [id f0]]
+x y z
 """.trim(), imports = false)
   }
 
   @Test fun testFormalItemIDType()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [formal-item
-      [title f0]
-      [id f0]
-      [type t]
-      x y z]]]
+[document [title d]]
+[section [title s]]
+[formal-item [title f0] [id f0] [type t]]
+x y z
 """.trim(), imports = false)
   }
 
   @Test fun testTable()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      [table
-        [summary x y z]
-        [body
-          [row
-            [cell x]
-            [cell y]
-            [cell z]]
-          [row
-            [cell x]
-            [cell y]
-            [cell z]]]]]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+[table
+  [summary x y z]
+  [body
+  [row
+    [cell x]
+    [cell y]
+    [cell z]]
+  [row
+    [cell x]
+    [cell y]
+    [cell z]]]]
 """.trim(), imports = false)
   }
 
   @Test fun testTableHead()
   {
     roundTrip("""
-[document
-  [title d]
-  [section
-    [title s]
-    [paragraph
-      [table
-        [summary x y z]
-        [head
-          [name t]
-          [name u]
-          [name v]]
-        [body
-          [row
-            [cell x]
-            [cell y]
-            [cell z]]
-          [row
-            [cell x]
-            [cell y]
-            [cell z]]]]]]]
+[document [title d]]
+[section [title s]]
+[paragraph]
+[table
+  [summary x y z]
+  [head
+    [name t]
+    [name u]
+    [name v]]
+  [body
+  [row
+    [cell x]
+    [cell y]
+    [cell z]]
+  [row
+    [cell x]
+    [cell y]
+    [cell z]]]]
 """.trim(), imports = false)
   }
 
   @Test fun testSquareRound()
   {
     roundTrip("""
-(document
-  [title d0 d1 d2]
-  [id d0]
-  [part
-    [title p0 p1 p2]
-    [id p0]
-    (section
-      [title s0 s1 s2]
-      [id p0s0]
-      [paragraph
-        p])]
-  [part
-    [title p0 p1 p2]
-    [id p1]
-    (section
-      [title s0 s1 s2]
-      [id p1s0]
-      [subsection
-        [title ss0 ss1 ss2]
-        [id p1s0ss0]
-        (paragraph
-          p)])])
+(document [title d0 d1 d2] [id d0])
+[part [title p0 p1 p2] [id p0]]
+(section [title s0 s1 s2] [id p0s0])
+[paragraph]
+p
+
+[part [title p0 p1 p2] [id p1]]
+(section [title s0 s1 s2] [id p1s0])
+[subsection [title ss0 ss1 ss2] [id p1s0ss0]]
+(paragraph)
+p
+
 """.trim(), imports = false)
   }
 }

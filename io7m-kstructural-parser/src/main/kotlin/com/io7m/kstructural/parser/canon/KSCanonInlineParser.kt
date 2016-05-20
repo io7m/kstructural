@@ -44,9 +44,6 @@ import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
-import com.io7m.kstructural.core.evaluator.KSEvaluation
-import com.io7m.kstructural.core.evaluator.KSEvaluationError
-import com.io7m.kstructural.core.evaluator.KSEvaluator
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpression.KSExpressionList
 import com.io7m.kstructural.parser.KSExpression.KSExpressionQuoted
@@ -503,9 +500,9 @@ class KSCanonInlineParser private constructor(
 
     return when (r) {
       is KSResult.KSSuccess -> {
-        val parse = KSParse(c.context, Optional.of(i))
+        val parse = KSParse(c.context)
         val re = KSInlineText(i.position, i.square, parse, true, r.result)
-        c.context.addInclude(i, real, r.result)
+        c.context.addInclude(re, i, real, r.result)
         KSResult.succeed<KSInlineText<KSParse>, KSParseError>(re)
       }
       is KSResult.KSFailure -> {

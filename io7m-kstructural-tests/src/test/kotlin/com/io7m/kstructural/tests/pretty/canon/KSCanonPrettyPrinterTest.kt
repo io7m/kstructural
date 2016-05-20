@@ -14,39 +14,41 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.tests.pretty
+package com.io7m.kstructural.tests.pretty.canon
 
-import com.io7m.junreachable.UnreachableCodeException
-import com.io7m.kstructural.core.KSElement
-import com.io7m.kstructural.core.KSElement.*
-import com.io7m.kstructural.core.KSElement.KSBlock.*
+import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
+import com.io7m.kstructural.core.KSParserConstructorType
+import com.io7m.kstructural.core.KSParserType
 import com.io7m.kstructural.core.KSResult
-import com.io7m.kstructural.core.KSResult.*
+import com.io7m.kstructural.core.KSResult.KSFailure
+import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.evaluator.KSEvaluation
 import com.io7m.kstructural.core.evaluator.KSEvaluationError
 import com.io7m.kstructural.core.evaluator.KSEvaluator
-import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.KSExpressionParsers
-import com.io7m.kstructural.parser.KSImporterConstructorType
-import com.io7m.kstructural.parser.KSImporterType
+import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.canon.KSCanonInlineParser
-import com.io7m.kstructural.pretty.KSPrettyPrinter
+import com.io7m.kstructural.pretty.canon.KSCanonPrettyPrinter
 import com.io7m.kstructural.tests.KSTestFilesystems
 import com.io7m.kstructural.tests.KSTestIO
-import com.io7m.kstructural.tests.parser.KSSerializerDemo
 import org.slf4j.LoggerFactory
 import java.io.StringWriter
 import java.nio.file.FileSystem
 import java.nio.file.Path
 import java.util.Optional
+import java.util.function.Function
 
-class KSPrettyPrinterTest : KSPrettyPrinterContract() {
+class KSCanonPrettyPrinterTest : KSCanonPrettyPrinterContract() {
 
-  private val LOG = LoggerFactory.getLogger(KSPrettyPrinterTest::class.java)
+  private val LOG = LoggerFactory.getLogger(KSCanonPrettyPrinterTest::class.java)
 
   override fun newFilesystem() : FileSystem =
     KSTestFilesystems.newUnixFilesystem()
@@ -54,22 +56,22 @@ class KSPrettyPrinterTest : KSPrettyPrinterContract() {
   override fun parse(file : Path) : KSBlockDocument<KSEvaluation> {
     val sp = KSExpressionParsers.create(file)
     val ip = KSCanonInlineParser.create(KSTestIO.utf8_includer)
-    val importers = object: KSImporterConstructorType {
+    val importers = object : KSParserConstructorType {
       override fun create(
         context : KSParseContextType,
         file : Path)
-        : KSImporterType {
+        : KSParserType {
 
         LOG.trace("instantiating parser for {}", file)
         val iis = this
-        return object: KSImporterType {
-          override fun import(
+        return object : KSParserType {
+          override fun parseBlock(
             context : KSParseContextType,
             file : Path)
             : KSResult<KSBlock<KSParse>, KSParseError> {
             val pp = KSCanonBlockParser.create(ip, iis)
             val ep = KSExpressionParsers.create(file)
-            val eo = ep.invoke()
+            val eo = ep.parse()
             return if (eo.isPresent) {
               pp.parse(context, eo.get(), file)
             } else {
@@ -82,7 +84,7 @@ class KSPrettyPrinterTest : KSPrettyPrinterContract() {
 
     val bp = KSCanonBlockParser.create(ip, importers)
 
-    val e = sp.invoke().get()
+    val e = sp.parse().get()
     val c = KSParseContext.empty()
     val r = bp.parse(c, e, file)
     if (r is KSFailure) {
@@ -101,8 +103,41 @@ class KSPrettyPrinterTest : KSPrettyPrinterContract() {
   override fun serialize(
     text : KSBlockDocument<KSEvaluation>,
     imports : Boolean) : String {
+
+    val import_map = text.data.context.imports
+    val import_fun : Function<KSBlock<KSEvaluation>, Optional<KSBlockImport<KSEvaluation>>> =
+      if (imports) {
+        Function { b ->
+          if (import_map.containsKey(b)) {
+            Optional.of(import_map[b])
+          } else {
+            Optional.empty()
+          }
+        }
+      } else {
+        Function {
+          b -> Optional.empty()
+        }
+      }
+
+    val include_map = text.data.context.includesByText
+    val include_run : Function<KSInlineText<KSEvaluation>, Optional<KSInlineInclude<KSEvaluation>>> =
+      if (imports) {
+        Function { b ->
+          if (include_map.containsKey(b)) {
+            Optional.of(include_map[b])
+          } else {
+            Optional.empty()
+          }
+        }
+      } else {
+        Function {
+          b -> Optional.empty()
+        }
+      }
+
     val w = StringWriter(4096)
-    val pp = KSPrettyPrinter.create(w, 80, 2, imports)
+    val pp = KSCanonPrettyPrinter.create(w, 80, 2, import_fun, include_run)
     pp.pretty(text)
     pp.finish()
     return w.buffer.toString()

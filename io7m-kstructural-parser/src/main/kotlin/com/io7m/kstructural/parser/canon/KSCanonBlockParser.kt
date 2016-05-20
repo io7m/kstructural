@@ -46,6 +46,7 @@ import com.io7m.kstructural.core.KSLexicalType
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
+import com.io7m.kstructural.core.KSParserConstructorType
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSSectionContent
 import com.io7m.kstructural.core.KSSectionContent.KSSectionSubsection
@@ -58,7 +59,6 @@ import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpression.KSExpressionList
 import com.io7m.kstructural.parser.KSExpression.KSExpressionSymbol
 import com.io7m.kstructural.parser.KSExpressionMatch
-import com.io7m.kstructural.parser.KSImporterConstructorType
 import org.slf4j.LoggerFactory
 import org.valid4j.Assertive
 import java.nio.file.Path
@@ -67,7 +67,7 @@ import java.util.Optional
 
 class KSCanonBlockParser private constructor(
   private val inlines : KSCanonInlineParserType,
-  private val importers : KSImporterConstructorType)
+  private val importers : KSParserConstructorType)
 : KSCanonBlockParserType {
 
   private data class Context(
@@ -80,7 +80,7 @@ class KSCanonBlockParser private constructor(
 
     fun create(
       inlines : KSCanonInlineParserType,
-      importers : KSImporterConstructorType)
+      importers : KSParserConstructorType)
       : KSCanonBlockParserType =
       KSCanonBlockParser(inlines, importers)
 
@@ -483,7 +483,7 @@ class KSCanonBlockParser private constructor(
         try {
           LOG.debug("import: {}", real)
           val importer = this.importers.create(c.context, real)
-          importer.import(c.context, real)
+          importer.parseBlock(c.context, real)
         } catch (x : Throwable) {
           val sb = StringBuilder()
           sb.append("Failed to import file.")
@@ -1159,10 +1159,10 @@ class KSCanonBlockParser private constructor(
     c : Context)
     : KSBlock<KSParse> {
 
-    Assertive.require(c.context.import_paths_by_element.containsKey(e))
-    val path = c.context.import_paths_by_element[e]!!
-    Assertive.require(c.context.imports_by_path.containsKey(path))
-    val imported = c.context.imports_by_path[path]!!
+    Assertive.require(c.context.importPathsByElement.containsKey(e))
+    val path = c.context.importPathsByElement[e]!!
+    Assertive.require(c.context.importsByPath.containsKey(path))
+    val imported = c.context.importsByPath[path]!!
     return when (imported) {
       is KSBlockDocument,
       is KSBlockSection,

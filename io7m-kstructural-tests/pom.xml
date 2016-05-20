@@ -44,6 +44,11 @@
       <artifactId>io7m-kstructural-pretty</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>io7m-kstructural-frontend</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>com.io7m.jnull</groupId>

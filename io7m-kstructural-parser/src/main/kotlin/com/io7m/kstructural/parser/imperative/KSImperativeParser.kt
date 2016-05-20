@@ -1,6 +1,5 @@
 package com.io7m.kstructural.parser.imperative
 
-import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
@@ -18,15 +17,21 @@ import com.io7m.kstructural.core.KSLexicalType
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
+import com.io7m.kstructural.core.KSParserConstructorType
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpression.KSExpressionList
 import com.io7m.kstructural.parser.KSExpression.KSExpressionSymbol
 import com.io7m.kstructural.parser.KSExpressionMatch
-import com.io7m.kstructural.parser.KSImporterConstructorType
-import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.canon.KSCanonInlineParserType
-import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.*
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeDocument
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeFootnote
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeFormalItem
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeImport
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeParagraph
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativePart
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeSection
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeSubsection
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeInline
 import org.slf4j.LoggerFactory
 import org.valid4j.Assertive
@@ -36,7 +41,7 @@ import java.util.Optional
 
 class KSImperativeParser private constructor(
   private val inlines : KSCanonInlineParserType,
-  private val importers : KSImporterConstructorType)
+  private val importers : KSParserConstructorType)
 : KSImperativeParserType {
 
   companion object {
@@ -95,7 +100,7 @@ class KSImperativeParser private constructor(
 
     fun create(
       inlines : KSCanonInlineParserType,
-      importers : KSImporterConstructorType) : KSImperativeParserType =
+      importers : KSParserConstructorType) : KSImperativeParserType =
       KSImperativeParser(inlines, importers)
   }
 
@@ -232,28 +237,36 @@ class KSImperativeParser private constructor(
   private fun makeParsers() : Map<String, ElementParser> {
     val m = HashMap<String, ElementParser>()
     m.put("document", ElementParser("document", {
-      e, c -> parseDocument(e, c)
+      e, c ->
+      parseDocument(e, c)
     }))
     m.put("footnote", ElementParser("footnote", {
-      e, c -> parseFootnote(e, c)
+      e, c ->
+      parseFootnote(e, c)
     }))
     m.put("formal-item", ElementParser("formal-item", {
-      e, c -> parseFormalItem(e, c)
+      e, c ->
+      parseFormalItem(e, c)
     }))
     m.put("import", ElementParser("import", {
-      e, c -> parseImport(e, c)
+      e, c ->
+      parseImport(e, c)
     }))
     m.put("paragraph", ElementParser("paragraph", {
-      e, c -> parsePara(e, c)
+      e, c ->
+      parsePara(e, c)
     }))
     m.put("part", ElementParser("part", {
-      e, c -> parsePart(e, c)
+      e, c ->
+      parsePart(e, c)
     }))
     m.put("section", ElementParser("section", {
-      e, c -> parseSection(e, c)
+      e, c ->
+      parseSection(e, c)
     }))
     m.put("subsection", ElementParser("subsection", {
-      e, c -> parseSubsection(e, c)
+      e, c ->
+      parseSubsection(e, c)
     }))
     return m
   }
@@ -355,7 +368,7 @@ class KSImperativeParser private constructor(
       CommandMatchers.footnote,
       CommandMatchers.footnote_type))
   }
-  
+
   private fun parseAttributeTitle(
     e : KSExpressionList,
     c : Context)
@@ -993,7 +1006,7 @@ class KSImperativeParser private constructor(
         try {
           LOG.debug("import: {}", real)
           val importer = this.importers.create(c.context, real)
-          importer.import(c.context, real)
+          importer.parseBlock(c.context, real)
         } catch (x : Throwable) {
           val sb = StringBuilder()
           sb.append("Failed to import file.")

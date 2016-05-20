@@ -14,9 +14,8 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.pretty
+package com.io7m.kstructural.pretty.canon
 
-import com.io7m.junreachable.UnimplementedCodeException
 import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
@@ -53,29 +52,40 @@ import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSLink
 import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSSubsectionContent
-import com.io7m.kstructural.core.evaluator.KSEvaluation
+import com.io7m.kstructural.pretty.KSPrettyPrinterType
 import de.uka.ilkd.pp.Layouter
 import de.uka.ilkd.pp.WriterBackend
 import java.io.IOException
 import java.io.Writer
 import java.util.Optional
+import java.util.function.Function
 
-class KSPrettyPrinter private constructor(
+class KSCanonPrettyPrinter<T> private constructor(
   private val out : Writer,
   private val width : Int,
   private val indent : Int,
-  private val imports : Boolean)
-: KSPrettyPrinterType {
+  private val imports : Function<KSBlock<T>, Optional<KSBlockImport<T>>>,
+  private val includes : Function<KSInlineText<T>, Optional<KSInlineInclude<T>>>)
+: KSPrettyPrinterType<T> {
+
+  override fun close() {
+    if (!this.layout.isFinished) {
+      this.finish()
+    }
+    this.out.flush()
+    this.out.close()
+  }
 
   private val backend = WriterBackend(out, width)
   private val layout = Layouter<IOException>(backend, indent)
 
   private fun bracketOpen(square : Boolean) : String =
     if (square) "[" else "("
+
   private fun bracketClose(square : Boolean) : String =
     if (square) "]" else ")"
 
-  override fun pretty(e : KSElement<KSEvaluation>) : Unit =
+  override fun pretty(e : KSElement<T>) : Unit =
     when (e) {
       is KSBlock               -> prettyBlock(e)
       is KSInline              -> prettyInline(e)
@@ -88,12 +98,10 @@ class KSPrettyPrinter private constructor(
       is KSTableSummary        -> prettyInlineTableSummary(e)
     }
 
-  tailrec private fun prettyBlock(e : KSBlock<KSEvaluation>) : Unit {
-    if (imports) {
-      val by_block = e.data.context.imports
-      if (by_block.containsKey(e)) {
-        return prettyBlock(by_block[e]!!)
-      }
+  tailrec private fun prettyBlock(e : KSBlock<T>) : Unit {
+    val i = imports.apply(e)
+    if (i.isPresent) {
+      return prettyBlock(i.get())
     }
 
     when (e) {
@@ -108,7 +116,7 @@ class KSPrettyPrinter private constructor(
     }
   }
 
-  private fun prettyInline(e : KSInline<KSEvaluation>) : Unit =
+  private fun prettyInline(e : KSInline<T>) : Unit =
     when (e) {
       is KSInlineLink              -> prettyInlineLink(e)
       is KSInlineText              -> prettyInlineText(e)
@@ -122,20 +130,20 @@ class KSPrettyPrinter private constructor(
       is KSInlineInclude           -> prettyInlineInclude(e)
     }
 
-  private fun prettyImport(e : KSBlockImport<KSEvaluation>) : Unit {
+  private fun prettyImport(e : KSBlockImport<T>) : Unit {
     outStartMinor("import", e.square)
     layout.print(String.format("\"%s\"", e.file.text))
     outEnd(e.square)
   }
 
-  private fun prettyInlineVerbatim(e : KSInlineVerbatim<KSEvaluation>) : Unit {
+  private fun prettyInlineVerbatim(e : KSInlineVerbatim<T>) : Unit {
     outStartMinor("verbatim", e.square)
     outType(e.type)
     layout.print(String.format("\"%s\"", e.text))
     outEnd(e.square)
   }
 
-  private fun prettyInlineImage(e : KSInlineImage<KSEvaluation>) : Unit {
+  private fun prettyInlineImage(e : KSInlineImage<T>) : Unit {
     outStartMinor("image", e.square)
     outStartMinor("target", e.square)
     layout.print(String.format("\"%s\"", e.target))
@@ -154,25 +162,25 @@ class KSPrettyPrinter private constructor(
     outEnd(e.square)
   }
 
-  private fun prettyInlineOrdered(e : KSInlineListOrdered<KSEvaluation>) : Unit {
+  private fun prettyInlineOrdered(e : KSInlineListOrdered<T>) : Unit {
     outStartMajor("list-ordered", e.square)
     prettyContentMapMajor(e.content, { c -> prettyListItem(c) })
     outEnd(e.square)
   }
 
-  private fun prettyInlineUnordered(e : KSInlineListUnordered<KSEvaluation>) : Unit {
+  private fun prettyInlineUnordered(e : KSInlineListUnordered<T>) : Unit {
     outStartMajor("list-unordered", e.square)
     prettyContentMapMajor(e.content, { c -> prettyListItem(c) })
     outEnd(e.square)
   }
 
-  private fun prettyListItem(e : KSListItem<KSEvaluation>) : Unit {
+  private fun prettyListItem(e : KSListItem<T>) : Unit {
     outStartMinor("item", e.square)
     prettyContentMapMinor(e.content, { c -> prettyInline(c) })
     outEnd(e.square)
   }
 
-  private fun prettyInlineTable(e : KSInlineTable<KSEvaluation>) : Unit {
+  private fun prettyInlineTable(e : KSInlineTable<T>) : Unit {
     outStartMajor("table", e.square)
     outType(e.type)
 
@@ -188,7 +196,7 @@ class KSPrettyPrinter private constructor(
     outEnd(e.square)
   }
 
-  private fun prettyInlineTableBody(e : KSTableBody<KSEvaluation>) : Unit {
+  private fun prettyInlineTableBody(e : KSTableBody<T>) : Unit {
     outStartMinor("body", e.square)
     e.rows.forEachIndexed { row_index, row ->
       prettyInlineTableBodyRow(row)
@@ -199,7 +207,7 @@ class KSPrettyPrinter private constructor(
     outEnd(e.square)
   }
 
-  private fun prettyInlineTableBodyRow(e : KSTableBodyRow<KSEvaluation>) : Unit {
+  private fun prettyInlineTableBodyRow(e : KSTableBodyRow<T>) : Unit {
     outStartMajor("row", e.square)
     e.cells.forEachIndexed { cell_index, cell ->
       prettyInlineTableBodyCell(cell)
@@ -210,14 +218,14 @@ class KSPrettyPrinter private constructor(
     outEnd(e.square)
   }
 
-  private fun prettyInlineTableBodyCell(e : KSTableBodyCell<KSEvaluation>) : Unit {
+  private fun prettyInlineTableBodyCell(e : KSTableBodyCell<T>) : Unit {
     outStartMinor("cell", e.square)
     prettyContentMapMinor(e.content, { c -> prettyInline(c) })
     outEnd(e.square)
   }
 
   private fun prettyInlineTableSummary(
-    e : KSTableSummary<KSEvaluation>) : Unit {
+    e : KSTableSummary<T>) : Unit {
     outStartMinor("summary", e.square)
     e.content.forEachIndexed { i, text ->
       layout.print(text.text)
@@ -228,7 +236,7 @@ class KSPrettyPrinter private constructor(
     outEnd(e.square)
   }
 
-  private fun prettyInlineTableHead(e : KSTableHead<KSEvaluation>) : Unit {
+  private fun prettyInlineTableHead(e : KSTableHead<T>) : Unit {
     outStartMajor("head", e.square)
     e.column_names.forEachIndexed { i, name ->
       prettyInlineTableHeadColumnName(name)
@@ -240,13 +248,13 @@ class KSPrettyPrinter private constructor(
   }
 
   private fun prettyInlineTableHeadColumnName(
-    e : KSTableHeadColumnName<KSEvaluation>) : Unit {
+    e : KSTableHeadColumnName<T>) : Unit {
     outStartMinor("name", e.square)
     prettyContentMapMinor(e.content, { c -> prettyInline(c) })
     outEnd(e.square)
   }
 
-  private fun prettyInlineLink(e : KSInlineLink<KSEvaluation>) : Unit =
+  private fun prettyInlineLink(e : KSInlineLink<T>) : Unit =
     when (e.actual) {
       is KSLink.KSLinkExternal -> {
         val ee = e.actual as KSLink.KSLinkExternal
@@ -270,35 +278,36 @@ class KSPrettyPrinter private constructor(
       }
     }
 
-  private fun prettyLinkContent(c : KSLinkContent<KSEvaluation>) : Unit =
+  private fun prettyLinkContent(c : KSLinkContent<T>) : Unit =
     when (c) {
-      is KSLinkContent.KSLinkText    -> prettyInline(c.actual)
-      is KSLinkContent.KSLinkImage   -> prettyInline(c.actual)
+      is KSLinkContent.KSLinkText  -> prettyInline(c.actual)
+      is KSLinkContent.KSLinkImage -> prettyInline(c.actual)
     }
 
   private fun prettyInlineFootnoteReference(
-    e : KSInlineFootnoteReference<KSEvaluation>) : Unit {
+    e : KSInlineFootnoteReference<T>) : Unit {
     outStartMinor("footnote-ref", e.square)
     layout.print(e.target.value)
     outEnd(e.square)
   }
 
-  private fun prettyInlineInclude(e : KSInlineInclude<KSEvaluation>) : Unit {
+  private fun prettyInlineInclude(e : KSInlineInclude<T>) : Unit {
     outStartMinor("include", e.square)
     layout.print(String.format("\"%s\"", e.file.text))
     outEnd(e.square)
   }
 
-  private fun prettyInlineTerm(e : KSInlineTerm<KSEvaluation>) : Unit {
+  private fun prettyInlineTerm(e : KSInlineTerm<T>) : Unit {
     outStartMinor("term", e.square)
     outType(e.type)
     prettyContentMapMinor(e.content, { c -> prettyInline(c) })
     outEnd(e.square)
   }
 
-  private fun prettyInlineText(e : KSInlineText<KSEvaluation>) : Unit {
-    if (imports && e.data.include.isPresent) {
-      prettyInlineInclude(e.data.include.get())
+  private fun prettyInlineText(e : KSInlineText<T>) : Unit {
+    val i = includes.apply(e)
+    if (i.isPresent) {
+      prettyInlineInclude(i.get())
     } else {
       if (e.quote) {
         layout.print(String.format("\"%s\"", e.text))
@@ -308,7 +317,7 @@ class KSPrettyPrinter private constructor(
     }
   }
 
-  private fun prettyFormalItem(e : KSBlockFormalItem<KSEvaluation>) : Unit {
+  private fun prettyFormalItem(e : KSBlockFormalItem<T>) : Unit {
     outStartMajor("formal-item", e.square)
     outTitle(e.title)
     outId(e.id)
@@ -329,7 +338,7 @@ class KSPrettyPrinter private constructor(
     outEnd(e.square)
   }
 
-  private fun prettyFootnote(e : KSBlockFootnote<KSEvaluation>) : Unit {
+  private fun prettyFootnote(e : KSBlockFootnote<T>) : Unit {
     outStartMajor("footnote", e.square)
     outId(e.id)
     outType(e.type)
@@ -349,7 +358,7 @@ class KSPrettyPrinter private constructor(
     outEnd(e.square)
   }
 
-  private fun prettyParagraph(e : KSBlockParagraph<KSEvaluation>) : Unit {
+  private fun prettyParagraph(e : KSBlockParagraph<T>) : Unit {
     outStartMajor("paragraph", e.square)
     outId(e.id)
     outType(e.type)
@@ -369,7 +378,7 @@ class KSPrettyPrinter private constructor(
     outEnd(e.square)
   }
 
-  private fun prettySubsection(e : KSBlockSubsection<KSEvaluation>) : Unit {
+  private fun prettySubsection(e : KSBlockSubsection<T>) : Unit {
     outStartMajor("subsection", e.square)
     outTitle(e.title)
     outId(e.id)
@@ -379,7 +388,7 @@ class KSPrettyPrinter private constructor(
     outEnd(e.square)
   }
 
-  private fun prettySection(e : KSBlockSection<KSEvaluation>) : Unit {
+  private fun prettySection(e : KSBlockSection<T>) : Unit {
     outStartMajor("section", e.square)
     outTitle(e.title)
     outId(e.id)
@@ -396,16 +405,16 @@ class KSPrettyPrinter private constructor(
   }
 
   private fun prettySubsectionContent(
-    c : KSSubsectionContent<KSEvaluation>) : Unit =
+    c : KSSubsectionContent<T>) : Unit =
     when (c) {
       is KSSubsectionContent.KSSubsectionParagraph  -> pretty(c.paragraph)
       is KSSubsectionContent.KSSubsectionFormalItem -> pretty(c.formal)
       is KSSubsectionContent.KSSubsectionFootnote   -> pretty(c.footnote)
     }
 
-  private fun <T> prettyContentMapMinor(
-    xs : List<T>,
-    f : (T) -> Unit) : Unit {
+  private fun <A> prettyContentMapMinor(
+    xs : List<A>,
+    f : (A) -> Unit) : Unit {
 
     xs.forEachIndexed { i, t ->
       f(t)
@@ -415,9 +424,9 @@ class KSPrettyPrinter private constructor(
     }
   }
 
-  private fun <T> prettyContentMapMajor(
-    xs : List<T>,
-    f : (T) -> Unit) : Unit {
+  private fun <A> prettyContentMapMajor(
+    xs : List<A>,
+    f : (A) -> Unit) : Unit {
     xs.forEachIndexed { i, t ->
       f(t)
       if (i + 1 < xs.size) {
@@ -426,7 +435,7 @@ class KSPrettyPrinter private constructor(
     }
   }
 
-  private fun prettyPart(e : KSBlockPart<KSEvaluation>) : Unit {
+  private fun prettyPart(e : KSBlockPart<T>) : Unit {
     outStartMajor("part", e.square)
     outTitle(e.title)
     outId(e.id)
@@ -436,7 +445,7 @@ class KSPrettyPrinter private constructor(
     outEnd(e.square)
   }
 
-  private fun prettyDocument(e : KSBlockDocument<KSEvaluation>) : Unit {
+  private fun prettyDocument(e : KSBlockDocument<T>) : Unit {
     outStartMajor("document", e.square)
     outTitle(e.title)
     outId(e.id)
@@ -463,7 +472,7 @@ class KSPrettyPrinter private constructor(
     }
   }
 
-  private fun outId(id : Optional<KSID<KSEvaluation>>) {
+  private fun outId(id : Optional<KSID<T>>) {
     id.ifPresent { id ->
       outStartMinor("id", true)
       layout.print(id.value)
@@ -473,7 +482,7 @@ class KSPrettyPrinter private constructor(
   }
 
   private fun outTitle(
-    title : List<KSInline.KSInlineText<KSEvaluation>>) {
+    title : List<KSInlineText<T>>) {
     outStartMinor("title", true)
     title.forEachIndexed { i, text ->
       layout.print(text.text)
@@ -516,12 +525,14 @@ class KSPrettyPrinter private constructor(
   }
 
   companion object {
-    fun create(
+    fun <T> create(
       out : Writer,
       width : Int,
       indent : Int,
-      imports : Boolean) : KSPrettyPrinterType {
-      return KSPrettyPrinter(out, width, indent, imports)
+      imports : Function<KSBlock<T>, Optional<KSBlockImport<T>>>,
+      includes : Function<KSInlineText<T>, Optional<KSInlineInclude<T>>>)
+      : KSPrettyPrinterType<T> {
+      return KSCanonPrettyPrinter(out, width, indent, imports, includes)
     }
   }
 

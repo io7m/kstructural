@@ -18,10 +18,11 @@ package com.io7m.kstructural.pretty
 
 import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.evaluator.KSEvaluation
+import java.io.Closeable
 
-interface KSPrettyPrinterType {
+interface KSPrettyPrinterType<T> : Closeable {
 
-  fun pretty(x : KSElement<KSEvaluation>) : Unit
+  fun pretty(x : KSElement<T>) : Unit
 
   fun finish() : Unit
 

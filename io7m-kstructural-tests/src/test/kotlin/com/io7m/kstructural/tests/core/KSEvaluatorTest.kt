@@ -37,8 +37,8 @@ import com.io7m.kstructural.core.evaluator.KSEvaluatorType
 import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpressionParsers
-import com.io7m.kstructural.parser.KSImporterConstructorType
-import com.io7m.kstructural.parser.KSImporterType
+import com.io7m.kstructural.core.KSParserConstructorType
+import com.io7m.kstructural.core.KSParserType
 import com.io7m.kstructural.parser.canon.KSCanonInlineParser
 import com.io7m.kstructural.parser.canon.KSCanonInlineParserType
 import com.io7m.kstructural.tests.KSTestFilesystems
@@ -113,22 +113,22 @@ class KSEvaluatorTest : KSEvaluatorContract() {
       }
     }
 
-    val importers = object:KSImporterConstructorType {
+    val importers = object: KSParserConstructorType {
       override fun create(
         context : KSParseContextType,
         file : Path)
-        : KSImporterType {
+        : KSParserType {
 
         LOG.trace("instantiating parser for {}", file)
         val iis = this
-        return object: KSImporterType {
-          override fun import(
+        return object: KSParserType {
+          override fun parseBlock(
             context : KSParseContextType,
             file : Path)
             : KSResult<KSBlock<KSParse>, KSParseError> {
             val pp = KSCanonBlockParser.create(ip, iis)
             val ep = KSExpressionParsers.create(file)
-            val eo = ep.invoke()
+            val eo = ep.parse()
             return if (eo.isPresent) {
               pp.parse(context, eo.get(), file)
             } else {

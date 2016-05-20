@@ -18,6 +18,7 @@ package com.io7m.kstructural.core
 
 import java.nio.file.Path
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
 
@@ -25,11 +26,15 @@ interface KSParseContextReadableType {
 
   val includes : Map<Path, String>
 
-  val include_paths : Map<KSInlineInclude<KSParse>, Path>
+  val includePaths : Map<KSInlineInclude<KSParse>, Path>
 
-  val imports_by_path : Map<Path, KSBlock<KSParse>>
+  val includesByTexts : MutableMap<KSInlineText<KSParse>, KSInlineInclude<KSParse>>
 
-  val import_paths_by_element : Map<KSBlockImport<KSParse>, Path>
+  val importsByPath : Map<Path, KSBlock<KSParse>>
 
-  val imports_by_element : Map<KSBlock<KSParse>, KSBlockImport<KSParse>>
+  val importPathsByElement : Map<KSBlockImport<KSParse>, Path>
+
+  val importPathsEdgesByElement : Map<KSBlockImport<KSParse>, KSImportPathEdge>
+
+  val importsByElement : Map<KSBlock<KSParse>, KSBlockImport<KSParse>>
 }
