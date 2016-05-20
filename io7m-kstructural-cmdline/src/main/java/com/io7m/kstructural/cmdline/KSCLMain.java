@@ -340,8 +340,8 @@ public final class KSCLMain implements Runnable
           output_path,
           this.export_format,
           !this.no_imports,
-          indent,
-          width);
+          this.indent,
+          this.width);
       return op.call();
     }
   }
