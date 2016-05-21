@@ -17,8 +17,6 @@
 package com.io7m.kstructural.tests.core
 
 import com.io7m.kstructural.core.KSElement
-import com.io7m.kstructural.core.KSElement.KSBlock.*
-import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
@@ -27,8 +25,6 @@ import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSection
 import com.io7m.kstructural.core.KSLink
 import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSParse
-import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.KSSubsectionContent
@@ -49,14 +45,10 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.slf4j.LoggerFactory
-import java.io.FileNotFoundException
 import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
-import java.nio.file.FileSystemNotFoundException
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
-import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class KSEvaluatorContract {
 

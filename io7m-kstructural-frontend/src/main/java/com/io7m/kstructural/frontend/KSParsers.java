@@ -20,7 +20,6 @@ import com.io7m.jfunctional.Unit;
 import com.io7m.jlexing.core.ImmutableLexicalPosition;
 import com.io7m.jlexing.core.ImmutableLexicalPositionType;
 import com.io7m.jlexing.core.LexicalPositionType;
-import com.io7m.junreachable.UnimplementedCodeException;
 import com.io7m.junreachable.UnreachableCodeException;
 import com.io7m.kstructural.core.KSElement.KSBlock;
 import com.io7m.kstructural.core.KSParse;
@@ -47,11 +46,23 @@ import com.io7m.kstructural.parser.imperative.KSImperativeBuilderType;
 import com.io7m.kstructural.parser.imperative.KSImperativeMatch;
 import com.io7m.kstructural.parser.imperative.KSImperativeParser;
 import com.io7m.kstructural.parser.imperative.KSImperativeParserType;
+import com.io7m.kstructural.xom.KSJingValidation;
+import com.io7m.kstructural.xom.KSXOMBlockParser;
+import com.io7m.kstructural.xom.KSXOMBlockParserType;
+import com.io7m.kstructural.xom.KSXOMInlineParser;
+import com.io7m.kstructural.xom.KSXOMInlineParserType;
+import nu.xom.Builder;
+import nu.xom.Document;
+import nu.xom.ParsingException;
+import nu.xom.ValidityException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -61,21 +72,64 @@ import java.util.Optional;
 public final class KSParsers implements KSParserConstructorType
 {
   private static final org.slf4j.Logger LOG;
+  private static final KSIncluderType INCLUDER = path -> {
+    try {
+      final byte[] ba = Files.readAllBytes(path);
+      final String s = new String(ba, StandardCharsets.UTF_8);
+      return new KSResult.KSSuccess<>(s);
+    } catch (final IOException e) {
+      return KSResults.fail((Throwable) e);
+    }
+  };
+  private static KSParsers INSTANCE = new KSParsers();
 
   static {
     LOG = LoggerFactory.getLogger(KSParsers.class);
   }
 
-  private static KSParsers INSTANCE = new KSParsers();
+  private KSParsers()
+  {
+
+  }
 
   public static KSParsers getInstance()
   {
     return KSParsers.INSTANCE;
   }
 
-  private KSParsers()
+  public static KSParserType createCanonical(
+    final KSParseContextType context)
   {
+    return (c, ff_file) -> {
+      final KSCanonInlineParserType inlines =
+        KSCanonInlineParser.Companion.create(KSParsers.INCLUDER);
+      final KSCanonBlockParserType bp =
+        KSCanonBlockParser.Companion.create(inlines, KSParsers.INSTANCE);
+      final KSExpressionParserType s_expressions =
+        KSExpressionParsers.INSTANCE.create(ff_file);
 
+      final Optional<KSExpression> e_opt = s_expressions.parse();
+      if (e_opt.isPresent()) {
+        return bp.parse(context, e_opt.get(), ff_file);
+      }
+
+      final ImmutableLexicalPositionType<Path> pos =
+        ImmutableLexicalPosition.newPositionWithFile(0, 0, ff_file);
+      return KSResults.fail(
+        new KSParseError(Optional.of(pos), "Unexpected EOF"));
+    };
+  }
+
+  public static KSParserType createImperative(
+    final KSParseContextType context)
+  {
+    return new Imperative();
+  }
+
+  public static KSParserType createXML(
+    final KSParseContextType context)
+  {
+    return new XMLParser();
   }
 
   @Override
@@ -107,39 +161,6 @@ public final class KSParsers implements KSParserConstructorType
 
     KSParsers.LOG.trace("assuming canon format");
     return KSParsers.createCanonical(context);
-  }
-
-  private static final KSIncluderType INCLUDER = path -> {
-    try {
-      final byte[] ba = Files.readAllBytes(path);
-      final String s = new String(ba, StandardCharsets.UTF_8);
-      return new KSResult.KSSuccess<>(s);
-    } catch (final IOException e) {
-      return KSResults.fail((Throwable) e);
-    }
-  };
-
-  public static KSParserType createCanonical(
-    final KSParseContextType context)
-  {
-    return (c, ff_file) -> {
-      final KSCanonInlineParserType inlines =
-        KSCanonInlineParser.Companion.create(KSParsers.INCLUDER);
-      final KSCanonBlockParserType bp =
-        KSCanonBlockParser.Companion.create(inlines, KSParsers.INSTANCE);
-      final KSExpressionParserType s_expressions =
-        KSExpressionParsers.INSTANCE.create(ff_file);
-
-      final Optional<KSExpression> e_opt = s_expressions.parse();
-      if (e_opt.isPresent()) {
-        return bp.parse(context, e_opt.get(), ff_file);
-      }
-
-      final ImmutableLexicalPositionType<Path> pos =
-        ImmutableLexicalPosition.newPositionWithFile(0, 0, ff_file);
-      return KSResults.fail(
-        new KSParseError(Optional.of(pos), "Unexpected EOF"));
-    };
   }
 
   private static final class Imperative implements KSParserType
@@ -301,15 +322,77 @@ public final class KSParsers implements KSParserConstructorType
     }
   }
 
-  public static KSParserType createImperative(
-    final KSParseContextType context)
-  {
-    return new Imperative();
-  }
 
-  public static KSParserType createXML(
-    final KSParseContextType context)
+  private static final class XMLParser implements KSParserType
   {
-    throw new UnimplementedCodeException();
+    @Override
+    public KSResult<KSBlock<KSParse>, KSParseError> parseBlock(
+      final KSParseContextType context,
+      final Path file)
+      throws IOException
+    {
+      final KSResult<Document, KSParseError> d = XMLParser.parseDocument(file);
+      return d.flatMap(
+        document ->
+          XMLParser.validateDocument(file).flatMap(x -> {
+            final KSXOMInlineParserType ip =
+              KSXOMInlineParser.Companion.create();
+            final KSXOMBlockParserType bp =
+              KSXOMBlockParser.Companion.create(ip);
+            return bp.parse(context, document.getRootElement());
+          }));
+    }
+
+    private static KSResult<Unit, KSParseError> validateDocument(
+      final Path file)
+    {
+      try (final InputStream is = Files.newInputStream(file)) {
+        if (!KSJingValidation.validate(file, is)) {
+          final KSParseError pe =
+            new KSParseError(Optional.empty(), "Validation failed");
+          return KSResults.fail(pe);
+        }
+        return new KSSuccess<>(Unit.unit());
+      } catch (final SAXException e) {
+        final KSParseError pe =
+          new KSParseError(Optional.empty(), e.getMessage());
+        return KSResults.fail(pe);
+      } catch (final IOException e) {
+        final KSParseError pe =
+          new KSParseError(Optional.empty(), e.getMessage());
+        return KSResults.fail(pe);
+      }
+    }
+
+    private static KSResult<Document, KSParseError> parseDocument(
+      final Path file)
+      throws IOException
+    {
+      try (final InputStream is = Files.newInputStream(file)) {
+        final Builder b = new Builder();
+        final Document e = b.build(is, file.toString());
+        return new KSSuccess<>(e);
+      } catch (final ValidityException e) {
+        final FileSystem fs = file.getFileSystem();
+        final ImmutableLexicalPositionType<Path> pos =
+          ImmutableLexicalPosition.newPositionWithFile(
+            e.getLineNumber(),
+            e.getColumnNumber(),
+            fs.getPath(e.getURI()));
+        final KSParseError pe =
+          new KSParseError(Optional.of(pos), "Validation failed");
+        return KSResults.fail(pe);
+      } catch (final ParsingException e) {
+        final FileSystem fs = file.getFileSystem();
+        final ImmutableLexicalPositionType<Path> pos =
+          ImmutableLexicalPosition.newPositionWithFile(
+            e.getLineNumber(),
+            e.getColumnNumber(),
+            fs.getPath(e.getURI()));
+        final KSParseError pe =
+          new KSParseError(Optional.of(pos), "Validation failed");
+        return KSResults.fail(pe);
+      }
+    }
   }
 }

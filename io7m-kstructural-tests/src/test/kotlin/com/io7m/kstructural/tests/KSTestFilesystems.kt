@@ -17,9 +17,7 @@
 package com.io7m.kstructural.tests
 
 import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder
-import com.github.marschall.memoryfilesystem.StringTransformers
 import java.nio.file.FileSystem
-import java.nio.file.attribute.PosixFileAttributeView
 
 object KSTestFilesystems {
 

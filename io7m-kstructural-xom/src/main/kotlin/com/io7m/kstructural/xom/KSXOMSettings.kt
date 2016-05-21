@@ -21,7 +21,6 @@ import nu.xom.Element
 import java.io.IOException
 import java.io.InputStream
 import java.net.URI
-import java.util.function.Consumer
 
 class KSXOMSettings(
   val render_toc_document : Boolean = true,

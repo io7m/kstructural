@@ -51,8 +51,8 @@ sealed class KSImperative(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       type : Optional<String>,
-      id : Optional<KSID<KSParse>>)
-    : KSImperativeCommand(position, square, type, id)
+      val id_real : KSID<KSParse>)
+    : KSImperativeCommand(position, square, type, Optional.of(id_real))
 
     class KSImperativeDocument(
       position : Optional<LexicalPositionType<Path>>,

@@ -25,18 +25,17 @@ import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTable
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTerm
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineVerbatim
-import com.io7m.kstructural.core.KSElement.KSInline.*
 import com.io7m.kstructural.core.KSElement.KSInline.KSSize
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSLink
 import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSParse
+import com.io7m.kstructural.core.KSParseContext
+import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.canon.KSCanonInlineParserType
-import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSParseContext
 import org.apache.commons.io.IOUtils
 import org.junit.After
 import org.junit.Assert
@@ -46,7 +45,6 @@ import java.math.BigInteger
 import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
 import java.nio.file.Files
-import java.nio.file.Paths
 import java.util.Optional
 
 
@@ -61,7 +59,7 @@ abstract class KSCanonInlineParserContract {
   @Before fun setupFilesystem() : Unit {
     this.filesystem = newFilesystem()
   }
-  
+
   @After fun tearDownFilesystem() : Unit {
     this.filesystem!!.close()
   }

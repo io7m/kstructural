@@ -25,7 +25,7 @@ import java.nio.file.Path
 
 object KSTestIO {
 
-  val utf8_includer : KSIncluderType = object:KSIncluderType {
+  val utf8_includer : KSIncluderType = object : KSIncluderType {
     override fun include(path : Path) : KSResult<String, Throwable> {
       return Files.newInputStream(path).use { s ->
         try {

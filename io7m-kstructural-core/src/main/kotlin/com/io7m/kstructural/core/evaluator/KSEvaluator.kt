@@ -1306,7 +1306,12 @@ object KSEvaluator : KSEvaluatorType {
       val ev = KSEvaluation(c, serial, parent, Optional.empty())
       c.recordID(c, f, serial, { f, id ->
         val f_eval = KSBlockFootnote(
-          f.position, f.square, ev, f.type, id, content)
+          f.position,
+          f.square,
+          ev,
+          id.get(),
+          f.type,
+          content)
         c.recordFootnote(f_eval)
         c.recordBlock(f, { c, i, s -> translateImport(c, i, s) }, f_eval)
       })

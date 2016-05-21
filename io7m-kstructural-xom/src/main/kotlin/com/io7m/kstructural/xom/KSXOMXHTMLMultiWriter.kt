@@ -95,11 +95,11 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
               when (r as KSBlock) {
                 is KSBlockDocument,
                 is KSBlockSection,
-                is KSBlockPart     -> Optional.of(r)
+                is KSBlockPart                     -> Optional.of(r)
                 is KSBlockSubsection,
                 is KSBlockParagraph,
                 is KSBlockFormalItem,
-                is KSBlockFootnote -> containingSegment(r)
+                is KSBlockFootnote                 -> containingSegment(r)
                 is KSElement.KSBlock.KSBlockImport -> TODO()
               }
             is KSElement.KSInline                       -> containingSegment(r)
@@ -208,13 +208,13 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
         val e = document.data.context.elementForID(id)
         val a = e.id.get()
         return when (e) {
-          is KSBlockDocument   -> "index-m.xhtml#" + a
-          is KSBlockSection    -> fileForNumber(e.data.number.get()) + "#" + a
-          is KSBlockSubsection -> fileForNumber(e.data.number.get()) + "#" + a
-          is KSBlockParagraph  -> fileForNumber(e.data.number.get()) + "#" + a
-          is KSBlockPart       -> fileForNumber(e.data.number.get()) + "#" + a
-          is KSBlockFormalItem -> fileForNumber(e.data.number.get()) + "#" + a
-          is KSBlockFootnote   -> throw UnsupportedOperationException("Cannot resolve a footnote directly!")
+          is KSBlockDocument                 -> "index-m.xhtml#" + a
+          is KSBlockSection                  -> fileForNumber(e.data.number.get()) + "#" + a
+          is KSBlockSubsection               -> fileForNumber(e.data.number.get()) + "#" + a
+          is KSBlockParagraph                -> fileForNumber(e.data.number.get()) + "#" + a
+          is KSBlockPart                     -> fileForNumber(e.data.number.get()) + "#" + a
+          is KSBlockFormalItem               -> fileForNumber(e.data.number.get()) + "#" + a
+          is KSBlockFootnote                 -> throw UnsupportedOperationException("Cannot resolve a footnote directly!")
           is KSElement.KSBlock.KSBlockImport -> TODO()
         }
       }

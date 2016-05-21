@@ -21,18 +21,17 @@ import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSResult
-import com.io7m.kstructural.parser.canon.KSCanonBlockParser
-import com.io7m.kstructural.parser.KSExpression
-import com.io7m.kstructural.parser.KSExpressionParsers
 import com.io7m.kstructural.core.KSParserConstructorType
 import com.io7m.kstructural.core.KSParserType
+import com.io7m.kstructural.core.KSResult
+import com.io7m.kstructural.parser.KSExpression
+import com.io7m.kstructural.parser.KSExpressionParsers
+import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.canon.KSCanonInlineParser
 import com.io7m.kstructural.parser.canon.KSCanonInlineParserType
 import com.io7m.kstructural.parser.imperative.KSImperativeParser
 import com.io7m.kstructural.tests.KSTestFilesystems
 import com.io7m.kstructural.tests.KSTestIO
-import com.io7m.kstructural.tests.parser.canon.KSCanonBlockParserTest
 import org.slf4j.LoggerFactory
 import java.io.StringReader
 import java.nio.file.FileSystem
@@ -78,7 +77,7 @@ class KSImperativeParserTest : KSImperativeParserContract() {
       }
     }
 
-    val importers = object: KSParserConstructorType {
+    val importers = object : KSParserConstructorType {
       override fun create(
         context : KSParseContextType,
         file : Path)
@@ -86,7 +85,7 @@ class KSImperativeParserTest : KSImperativeParserContract() {
 
         LOG.trace("instantiating parser for {}", file)
         val iis = this
-        return object: KSParserType {
+        return object : KSParserType {
           override fun parseBlock(
             context : KSParseContextType,
             file : Path)

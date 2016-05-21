@@ -351,7 +351,7 @@ class KSImperativeParser private constructor(
           e.elements[2] as KSExpressionList)
         return KSResult.succeed(
           KSImperativeFootnote(
-            e.position, e.square, Optional.of(type), Optional.of(id)))
+            e.position, e.square, Optional.of(type), id))
       }
 
       KSExpressionMatch.matches(e, CommandMatchers.footnote)      -> {
@@ -360,7 +360,7 @@ class KSImperativeParser private constructor(
           e.elements[1] as KSExpressionList, c)
         return KSResult.succeed(
           KSImperativeFootnote(
-            e.position, e.square, Optional.empty(), Optional.of(id)))
+            e.position, e.square, Optional.empty(), id))
       }
     }
 
