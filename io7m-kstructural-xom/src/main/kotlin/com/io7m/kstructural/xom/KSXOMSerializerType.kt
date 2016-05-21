@@ -17,11 +17,6 @@
 package com.io7m.kstructural.xom
 
 import com.io7m.kstructural.core.KSElement
-import com.io7m.kstructural.core.KSElement.KSInline
-import com.io7m.kstructural.core.KSParse
-import com.io7m.kstructural.core.KSParseContextType
-import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSResult
 import nu.xom.Node
 
 interface KSXOMSerializerType<T> {

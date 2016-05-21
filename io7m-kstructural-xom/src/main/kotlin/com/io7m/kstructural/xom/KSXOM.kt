@@ -411,8 +411,8 @@ internal object KSXOM {
 
   fun linkContent(c : KSLinkContent<KSEvaluation>) : Node =
     when (c) {
-      is KSLinkContent.KSLinkText    -> inlineText(c.actual)
-      is KSLinkContent.KSLinkImage   -> inlineImage(c.actual)
+      is KSLinkContent.KSLinkText  -> inlineText(c.actual)
+      is KSLinkContent.KSLinkImage -> inlineImage(c.actual)
     }
 
   private fun inlineImage(c : KSInlineImage<KSEvaluation>) : Node {

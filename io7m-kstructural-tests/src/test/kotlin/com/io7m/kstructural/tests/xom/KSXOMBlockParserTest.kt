@@ -19,10 +19,8 @@ package com.io7m.kstructural.tests.xom
 import com.io7m.kstructural.xom.KSXOMBlockParser
 import com.io7m.kstructural.xom.KSXOMBlockParserType
 import com.io7m.kstructural.xom.KSXOMInlineParser
-import com.io7m.kstructural.xom.KSXOMInlineParserType
 import nu.xom.Builder
 import nu.xom.Element
-import nu.xom.Node
 import java.io.StringReader
 
 class KSXOMBlockParserTest : KSXOMBlockParserContract() {

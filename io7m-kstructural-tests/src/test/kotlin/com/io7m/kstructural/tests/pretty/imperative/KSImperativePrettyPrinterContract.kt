@@ -16,9 +16,7 @@
 
 package com.io7m.kstructural.tests.pretty.canon
 
-import com.io7m.kstructural.core.KSElement
-import com.io7m.kstructural.core.KSElement.*
-import com.io7m.kstructural.core.KSElement.KSBlock.*
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.evaluator.KSEvaluation
 import org.apache.commons.io.IOUtils
 import org.junit.After
@@ -86,8 +84,7 @@ abstract class KSImperativePrettyPrinterContract {
 
   abstract fun parse(file : Path) : KSBlockDocument<KSEvaluation>
 
-  @Test fun testTitles()
-  {
+  @Test fun testTitles() {
     roundTrip("""
 [document [title d0 d1 d2]]
 [part [title p0 p1 p2]]
@@ -104,8 +101,7 @@ p
 """.trim(), imports = false)
   }
 
-  @Test fun testTitlesIds()
-  {
+  @Test fun testTitlesIds() {
     roundTrip("""
 [document [title d0 d1 d2] [id d0]]
 [part [title p0 p1 p2] [id p0]]
@@ -121,8 +117,7 @@ p
 """.trim(), imports = false)
   }
 
-  @Test fun testText()
-  {
+  @Test fun testText() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -131,8 +126,7 @@ p0 p1 p2
 """.trim(), imports = false)
   }
 
-  @Test fun testTextSpacing()
-  {
+  @Test fun testTextSpacing() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -141,8 +135,7 @@ p0 "  p1  " p2
 """.trim(), imports = false)
   }
 
-  @Test fun testTerm()
-  {
+  @Test fun testTerm() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -151,8 +144,7 @@ p0 "  p1  " p2
 """.trim(), imports = false)
   }
 
-  @Test fun testTermType()
-  {
+  @Test fun testTermType() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -161,8 +153,7 @@ p0 "  p1  " p2
 """.trim(), imports = false)
   }
 
-  @Test fun testInclude()
-  {
+  @Test fun testInclude() {
     Files.newOutputStream(filesystem!!.getPath("other.txt")).use { os ->
       os.write("Hello".toByteArray(StandardCharsets.UTF_8))
     }
@@ -175,8 +166,7 @@ p0 "  p1  " p2
 """.trim(), imports = true)
   }
 
-  @Test fun testIncludeExpanded()
-  {
+  @Test fun testIncludeExpanded() {
     Files.newOutputStream(filesystem!!.getPath("other.txt")).use { os ->
       os.write("Hello A B C D".toByteArray(StandardCharsets.UTF_8))
     }
@@ -194,8 +184,7 @@ p0 "  p1  " p2
 """.trim(), imports = false)
   }
 
-  @Test fun testImport()
-  {
+  @Test fun testImport() {
     Files.newOutputStream(filesystem!!.getPath("other.txt")).use { os ->
       os.write("[paragraph p]".toByteArray(StandardCharsets.UTF_8))
     }
@@ -207,8 +196,7 @@ p0 "  p1  " p2
 """.trim(), imports = true)
   }
 
-  @Test fun testImportExpanded()
-  {
+  @Test fun testImportExpanded() {
     Files.newOutputStream(filesystem!!.getPath("other.txt")).use { os ->
       os.write("[paragraph p]".toByteArray(StandardCharsets.UTF_8))
     }
@@ -225,8 +213,7 @@ p
 """.trim(), imports = false)
   }
 
-  @Test fun testImage()
-  {
+  @Test fun testImage() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -235,8 +222,7 @@ p
 """.trim(), imports = false)
   }
 
-  @Test fun testImageType()
-  {
+  @Test fun testImageType() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -245,8 +231,7 @@ p
 """.trim(), imports = false)
   }
 
-  @Test fun testImageSize()
-  {
+  @Test fun testImageSize() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -255,8 +240,7 @@ p
 """.trim(), imports = false)
   }
 
-  @Test fun testImageTypeSize()
-  {
+  @Test fun testImageTypeSize() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -265,8 +249,7 @@ p
 """.trim(), imports = false)
   }
 
-  @Test fun testVerbatim()
-  {
+  @Test fun testVerbatim() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -275,8 +258,7 @@ p
 """.trim(), imports = false)
   }
 
-  @Test fun testVerbatimType()
-  {
+  @Test fun testVerbatimType() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -285,8 +267,7 @@ p
 """.trim(), imports = false)
   }
 
-  @Test fun testLinkInternal()
-  {
+  @Test fun testLinkInternal() {
     roundTrip("""
 [document [title d]]
 [section [title s] [id z]]
@@ -295,8 +276,7 @@ p
 """.trim(), imports = false)
   }
 
-  @Test fun testLinkInternalImage()
-  {
+  @Test fun testLinkInternalImage() {
     roundTrip("""
 [document [title d]]
 [section [title s] [id z]]
@@ -305,8 +285,7 @@ p
 """.trim(), imports = false)
   }
 
-  @Test fun testLinkInternalInclude()
-  {
+  @Test fun testLinkInternalInclude() {
     Files.newOutputStream(filesystem!!.getPath("other.txt")).use { os ->
       os.write("Hello".toByteArray(StandardCharsets.UTF_8))
     }
@@ -319,8 +298,7 @@ p
 """.trim(), imports = true)
   }
 
-  @Test fun testLinkExternal()
-  {
+  @Test fun testLinkExternal() {
     roundTrip("""
 [document [title d]]
 [section [title s] [id z]]
@@ -329,8 +307,7 @@ p
 """.trim(), imports = false)
   }
 
-  @Test fun testLinkExternalImage()
-  {
+  @Test fun testLinkExternalImage() {
     roundTrip("""
 [document [title d]]
 [section [title s] [id z]]
@@ -339,8 +316,7 @@ p
 """.trim(), imports = false)
   }
 
-  @Test fun testLinkExternalInclude()
-  {
+  @Test fun testLinkExternalInclude() {
     Files.newOutputStream(filesystem!!.getPath("other.txt")).use { os ->
       os.write("Hello".toByteArray(StandardCharsets.UTF_8))
     }
@@ -353,8 +329,7 @@ p
 """.trim(), imports = true)
   }
 
-  @Test fun testListOrdered()
-  {
+  @Test fun testListOrdered() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -366,8 +341,7 @@ p
 """.trim(), imports = false)
   }
 
-  @Test fun testListUnordered()
-  {
+  @Test fun testListUnordered() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -379,8 +353,7 @@ p
 """.trim(), imports = false)
   }
 
-  @Test fun testFootnote()
-  {
+  @Test fun testFootnote() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -389,8 +362,7 @@ x y z
 """.trim(), imports = false)
   }
 
-  @Test fun testFootnoteRef()
-  {
+  @Test fun testFootnoteRef() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -399,8 +371,7 @@ x y z
 """.trim(), imports = false)
   }
 
-  @Test fun testFootnoteType()
-  {
+  @Test fun testFootnoteType() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -409,8 +380,7 @@ x y z
 """.trim(), imports = false)
   }
 
-  @Test fun testFormalItemType()
-  {
+  @Test fun testFormalItemType() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -419,8 +389,7 @@ x y z
 """.trim(), imports = false)
   }
 
-  @Test fun testFormalItemID()
-  {
+  @Test fun testFormalItemID() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -429,8 +398,7 @@ x y z
 """.trim(), imports = false)
   }
 
-  @Test fun testFormalItemIDType()
-  {
+  @Test fun testFormalItemIDType() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -439,8 +407,7 @@ x y z
 """.trim(), imports = false)
   }
 
-  @Test fun testTable()
-  {
+  @Test fun testTable() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -459,8 +426,7 @@ x y z
 """.trim(), imports = false)
   }
 
-  @Test fun testTableHead()
-  {
+  @Test fun testTableHead() {
     roundTrip("""
 [document [title d]]
 [section [title s]]
@@ -483,8 +449,7 @@ x y z
 """.trim(), imports = false)
   }
 
-  @Test fun testSquareRound()
-  {
+  @Test fun testSquareRound() {
     roundTrip("""
 (document [title d0 d1 d2] [id d0])
 [part [title p0 p1 p2] [id p0]]

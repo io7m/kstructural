@@ -48,7 +48,8 @@ final class KSFileSuffixes
 
   static String replaceSuffix(
     final String file,
-    final String new_suffix) {
+    final String new_suffix)
+  {
     final int i = file.lastIndexOf('.');
     if (i >= 0) {
       return file.substring(0, i) + "." + new_suffix;

@@ -17,9 +17,7 @@
 package com.io7m.kstructural.frontend;
 
 import com.io7m.jnull.NullCheck;
-import com.io7m.junreachable.UnimplementedCodeException;
 import com.io7m.junreachable.UnreachableCodeException;
-import com.io7m.kstructural.core.KSElement;
 import com.io7m.kstructural.core.KSElement.KSBlock;
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument;
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport;
@@ -242,8 +240,7 @@ public final class KSExporter implements KSExporterType
       StandardOpenOption.CREATE);
 
     switch (this.format) {
-      case KS_INPUT_CANONICAL:
-      {
+      case KS_INPUT_CANONICAL: {
         final OutputStreamWriter w = new OutputStreamWriter(os);
         try (final KSPrettyPrinterType<KSEvaluation> p =
                KSCanonPrettyPrinter.Companion.create(
@@ -252,8 +249,7 @@ public final class KSExporter implements KSExporterType
         }
         break;
       }
-      case KS_INPUT_IMPERATIVE:
-      {
+      case KS_INPUT_IMPERATIVE: {
         final OutputStreamWriter w = new OutputStreamWriter(os);
         try (final KSPrettyPrinterType<KSEvaluation> p =
                KSImperativePrettyPrinter.Companion.create(
@@ -262,8 +258,7 @@ public final class KSExporter implements KSExporterType
         }
         break;
       }
-      case KS_INPUT_XML:
-      {
+      case KS_INPUT_XML: {
         final KSXOMSerializerType<KSEvaluation> xs =
           KSXOMSerializer.Companion.create(imports, includes);
         final Serializer s = new Serializer(os, "UTF-8");

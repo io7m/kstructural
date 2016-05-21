@@ -29,28 +29,25 @@ import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
+import com.io7m.kstructural.core.KSParserConstructorType
+import com.io7m.kstructural.core.KSParserType
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.evaluator.KSEvaluation
 import com.io7m.kstructural.core.evaluator.KSEvaluationError
 import com.io7m.kstructural.core.evaluator.KSEvaluator
 import com.io7m.kstructural.core.evaluator.KSEvaluatorType
-import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpressionParsers
-import com.io7m.kstructural.core.KSParserConstructorType
-import com.io7m.kstructural.core.KSParserType
+import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.canon.KSCanonInlineParser
 import com.io7m.kstructural.parser.canon.KSCanonInlineParserType
 import com.io7m.kstructural.tests.KSTestFilesystems
 import com.io7m.kstructural.tests.KSTestIO
 import com.io7m.kstructural.tests.parser.canon.KSCanonBlockParserTest
-import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import java.io.InputStreamReader
 import java.io.StringReader
-import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
-import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Optional
 
@@ -113,7 +110,7 @@ class KSEvaluatorTest : KSEvaluatorContract() {
       }
     }
 
-    val importers = object: KSParserConstructorType {
+    val importers = object : KSParserConstructorType {
       override fun create(
         context : KSParseContextType,
         file : Path)
@@ -121,7 +118,7 @@ class KSEvaluatorTest : KSEvaluatorContract() {
 
         LOG.trace("instantiating parser for {}", file)
         val iis = this
-        return object: KSParserType {
+        return object : KSParserType {
           override fun parseBlock(
             context : KSParseContextType,
             file : Path)

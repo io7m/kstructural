@@ -16,31 +16,27 @@
 
 package com.io7m.kstructural.tests.xom
 
-import com.io7m.kstructural.core.KSElement
-import com.io7m.kstructural.core.KSElement.*
-import com.io7m.kstructural.core.KSElement.KSBlock.*
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.*
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.*
-import com.io7m.kstructural.core.KSElement.KSInline.*
-import com.io7m.kstructural.core.KSID
-import com.io7m.kstructural.core.KSLink
-import com.io7m.kstructural.core.KSLinkContent
-import com.io7m.kstructural.core.KSLinkContent.*
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockParagraph
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockPart
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithContent
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithSubsections
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSResult
-import com.io7m.kstructural.core.KSResult.*
+import com.io7m.kstructural.core.KSResult.KSFailure
+import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.schema.KSSchemaNamespaces
 import com.io7m.kstructural.xom.KSXOMBlockParserType
-import com.io7m.kstructural.xom.KSXOMInlineParser
-import com.io7m.kstructural.xom.KSXOMInlineParserType
 import nu.xom.Element
-import nu.xom.Node
 import org.junit.Assert
 import org.junit.Test
-import java.math.BigInteger
-import java.net.URI
 import java.util.Optional
 
 abstract class KSXOMBlockParserContract {
@@ -107,7 +103,7 @@ abstract class KSXOMBlockParserContract {
     val i = r.result
     Assert.assertEquals(1, i.content.size)
     Assert.assertEquals("x y z", (i.content[0] as KSInlineText).text)
-    Assert.assertEquals("F",i.title[0].text)
+    Assert.assertEquals("F", i.title[0].text)
     Assert.assertFalse(i.type.isPresent)
     Assert.assertFalse(i.id.isPresent)
   }
@@ -123,7 +119,7 @@ abstract class KSXOMBlockParserContract {
     val i = r.result
     Assert.assertEquals(1, i.content.size)
     Assert.assertEquals("x y z", (i.content[0] as KSInlineText).text)
-    Assert.assertEquals("F",i.title[0].text)
+    Assert.assertEquals("F", i.title[0].text)
     Assert.assertEquals(Optional.of("t"), i.type)
     Assert.assertFalse(i.id.isPresent)
   }
@@ -139,7 +135,7 @@ abstract class KSXOMBlockParserContract {
     val i = r.result
     Assert.assertEquals(1, i.content.size)
     Assert.assertEquals("x y z", (i.content[0] as KSInlineText).text)
-    Assert.assertEquals("F",i.title[0].text)
+    Assert.assertEquals("F", i.title[0].text)
     Assert.assertEquals(Optional.of("t"), i.type)
     Assert.assertEquals("x", i.id.get().value)
   }

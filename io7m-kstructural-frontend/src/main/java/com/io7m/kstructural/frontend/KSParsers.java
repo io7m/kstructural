@@ -61,21 +61,64 @@ import java.util.Optional;
 public final class KSParsers implements KSParserConstructorType
 {
   private static final org.slf4j.Logger LOG;
+  private static final KSIncluderType INCLUDER = path -> {
+    try {
+      final byte[] ba = Files.readAllBytes(path);
+      final String s = new String(ba, StandardCharsets.UTF_8);
+      return new KSResult.KSSuccess<>(s);
+    } catch (final IOException e) {
+      return KSResults.fail((Throwable) e);
+    }
+  };
+  private static KSParsers INSTANCE = new KSParsers();
 
   static {
     LOG = LoggerFactory.getLogger(KSParsers.class);
   }
 
-  private static KSParsers INSTANCE = new KSParsers();
+  private KSParsers()
+  {
+
+  }
 
   public static KSParsers getInstance()
   {
     return KSParsers.INSTANCE;
   }
 
-  private KSParsers()
+  public static KSParserType createCanonical(
+    final KSParseContextType context)
   {
+    return (c, ff_file) -> {
+      final KSCanonInlineParserType inlines =
+        KSCanonInlineParser.Companion.create(KSParsers.INCLUDER);
+      final KSCanonBlockParserType bp =
+        KSCanonBlockParser.Companion.create(inlines, KSParsers.INSTANCE);
+      final KSExpressionParserType s_expressions =
+        KSExpressionParsers.INSTANCE.create(ff_file);
 
+      final Optional<KSExpression> e_opt = s_expressions.parse();
+      if (e_opt.isPresent()) {
+        return bp.parse(context, e_opt.get(), ff_file);
+      }
+
+      final ImmutableLexicalPositionType<Path> pos =
+        ImmutableLexicalPosition.newPositionWithFile(0, 0, ff_file);
+      return KSResults.fail(
+        new KSParseError(Optional.of(pos), "Unexpected EOF"));
+    };
+  }
+
+  public static KSParserType createImperative(
+    final KSParseContextType context)
+  {
+    return new Imperative();
+  }
+
+  public static KSParserType createXML(
+    final KSParseContextType context)
+  {
+    throw new UnimplementedCodeException();
   }
 
   @Override
@@ -107,39 +150,6 @@ public final class KSParsers implements KSParserConstructorType
 
     KSParsers.LOG.trace("assuming canon format");
     return KSParsers.createCanonical(context);
-  }
-
-  private static final KSIncluderType INCLUDER = path -> {
-    try {
-      final byte[] ba = Files.readAllBytes(path);
-      final String s = new String(ba, StandardCharsets.UTF_8);
-      return new KSResult.KSSuccess<>(s);
-    } catch (final IOException e) {
-      return KSResults.fail((Throwable) e);
-    }
-  };
-
-  public static KSParserType createCanonical(
-    final KSParseContextType context)
-  {
-    return (c, ff_file) -> {
-      final KSCanonInlineParserType inlines =
-        KSCanonInlineParser.Companion.create(KSParsers.INCLUDER);
-      final KSCanonBlockParserType bp =
-        KSCanonBlockParser.Companion.create(inlines, KSParsers.INSTANCE);
-      final KSExpressionParserType s_expressions =
-        KSExpressionParsers.INSTANCE.create(ff_file);
-
-      final Optional<KSExpression> e_opt = s_expressions.parse();
-      if (e_opt.isPresent()) {
-        return bp.parse(context, e_opt.get(), ff_file);
-      }
-
-      final ImmutableLexicalPositionType<Path> pos =
-        ImmutableLexicalPosition.newPositionWithFile(0, 0, ff_file);
-      return KSResults.fail(
-        new KSParseError(Optional.of(pos), "Unexpected EOF"));
-    };
   }
 
   private static final class Imperative implements KSParserType
@@ -299,17 +309,5 @@ public final class KSParsers implements KSParserConstructorType
           });
       }
     }
-  }
-
-  public static KSParserType createImperative(
-    final KSParseContextType context)
-  {
-    return new Imperative();
-  }
-
-  public static KSParserType createXML(
-    final KSParseContextType context)
-  {
-    throw new UnimplementedCodeException();
   }
 }

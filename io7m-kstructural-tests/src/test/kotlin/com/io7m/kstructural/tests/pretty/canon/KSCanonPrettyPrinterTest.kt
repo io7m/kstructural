@@ -116,7 +116,8 @@ class KSCanonPrettyPrinterTest : KSCanonPrettyPrinterContract() {
         }
       } else {
         Function {
-          b -> Optional.empty()
+          b ->
+          Optional.empty()
         }
       }
 
@@ -132,7 +133,8 @@ class KSCanonPrettyPrinterTest : KSCanonPrettyPrinterContract() {
         }
       } else {
         Function {
-          b -> Optional.empty()
+          b ->
+          Optional.empty()
         }
       }
 

@@ -27,30 +27,25 @@ import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
+import com.io7m.kstructural.core.KSParserConstructorType
+import com.io7m.kstructural.core.KSParserType
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.evaluator.KSEvaluator
-import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpressionParsers
-import com.io7m.kstructural.core.KSParserConstructorType
-import com.io7m.kstructural.core.KSParserType
+import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.canon.KSCanonInlineParser
 import com.io7m.kstructural.tests.KSTestIO
-import com.io7m.kstructural.tests.parser.KSSerializerDemo
-import com.io7m.kstructural.tests.pretty.canon.KSCanonPrettyPrinterTest
 import com.io7m.kstructural.xom.KSXOMSettings
 import com.io7m.kstructural.xom.KSXOMXHTMLMultiWriter
 import nu.xom.Serializer
-import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import java.io.FileInputStream
-import java.io.IOException
 import java.io.InputStreamReader
 import java.io.Reader
 import java.net.URI
-import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -86,7 +81,7 @@ object KSXOMXHTMLMultiWriterDemo {
     val p = JSXParser.newParser(pc, lex)
 
     val ip = KSCanonInlineParser.create(KSTestIO.utf8_includer)
-    val importers = object: KSParserConstructorType {
+    val importers = object : KSParserConstructorType {
       override fun create(
         context : KSParseContextType,
         file : Path)
@@ -94,7 +89,7 @@ object KSXOMXHTMLMultiWriterDemo {
 
         LOG.trace("instantiating parser for {}", file)
         val iis = this
-        return object: KSParserType {
+        return object : KSParserType {
           override fun parseBlock(
             context : KSParseContextType,
             file : Path)
@@ -158,8 +153,8 @@ object KSXOMXHTMLMultiWriterDemo {
                 URI.create("kstructural-layout.css"),
                 URI.create("kstructural-colour.css"),
                 URI.create("custom.css")),
-              on_body_end = PartialProcedureType {  },
-              on_body_start = PartialProcedureType {  })
+              on_body_end = PartialProcedureType { },
+              on_body_start = PartialProcedureType { })
             val docs = KSXOMXHTMLMultiWriter.write(settings, rr.result)
             Files.createDirectories(out)
 

@@ -28,6 +28,7 @@ import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTable
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTerm
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineVerbatim
+import com.io7m.kstructural.core.KSElement.KSInline.KSListItem
 import com.io7m.kstructural.core.KSElement.KSInline.KSSize
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSLink
@@ -78,19 +79,87 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
     element : Element) : KSResult<KSInline<KSParse>, KSParseError> {
 
     return when (element.localName) {
-      "image"         -> parseElementImage(context, element)
-      "term"          -> parseElementTerm(context, element)
-      "verbatim"      -> parseElementVerbatim(context, element)
-      "link"          -> parseElementLink(context, element)
-      "link-external" -> parseElementLinkExternal(context, element)
-      else            ->
+      "image"          -> parseElementImage(context, element)
+      "term"           -> parseElementTerm(context, element)
+      "verbatim"       -> parseElementVerbatim(context, element)
+      "link"           -> parseElementLink(context, element)
+      "link-external"  -> parseElementLinkExternal(context, element)
+      "list-ordered"   -> parseElementListOrdered(context, element)
+      "list-unordered" -> parseElementListUnordered(context, element)
+      else             ->
         fail(KSParseError(no_lex, "Unrecognized element: " + element.localName))
+    }
+  }
+
+  private fun parseElementListOrdered(
+    context : KSParseContextType,
+    element : Element)
+    : KSResult<KSInlineListOrdered<KSParse>, KSParseError> {
+    Assertive.require(element.localName == "list-ordered")
+
+    val kp = KSParse(context)
+    val act_content = KSResult.listMap(
+      { e -> parseListItem(context, e) }, listOfChildren(element))
+
+    return act_content.flatMap { content ->
+      succeed(KSInlineListOrdered(no_lex, false, kp, content))
+    }
+  }
+
+  private fun parseElementListUnordered(
+    context : KSParseContextType,
+    element : Element)
+    : KSResult<KSInlineListUnordered<KSParse>, KSParseError> {
+    Assertive.require(element.localName == "list-unordered")
+
+    val kp = KSParse(context)
+    val act_content = KSResult.listMap(
+      { e -> parseListItem(context, e) }, listOfChildren(element))
+
+    return act_content.flatMap { content ->
+      succeed(KSInlineListUnordered(no_lex, false, kp, content))
+    }
+  }
+
+  private fun parseListItem(
+    context : KSParseContextType,
+    e : Node)
+    : KSResult<KSListItem<KSParse>, KSParseError> {
+
+    val fail = {
+      val sb = StringBuilder()
+      sb.append("Unexpected element.")
+      sb.append(System.lineSeparator())
+      sb.append("  Expected: A list item")
+      sb.append(System.lineSeparator())
+      sb.append("  Received: ")
+      sb.append(e)
+      sb.append(System.lineSeparator())
+      KSResult.fail<KSListItem<KSParse>, KSParseError>(
+        KSParseError(no_lex, sb.toString()))
+    }
+
+    return if (e is Element) {
+      if (e.localName == "item") {
+        val kp = KSParse(context)
+        val act_content = KSResult.listMap(
+          { e -> parse(context, e) }, listOfChildren(e))
+
+        return act_content.flatMap { content ->
+          succeed(KSListItem(no_lex, false, kp, content))
+        }
+      } else {
+        fail.invoke()
+      }
+    } else {
+      fail.invoke()
     }
   }
 
   private fun parseLink(
     context : KSParseContextType,
-    element : Element) : KSResult<KSLink.KSLinkInternal<KSParse>, KSParseError> {
+    element : Element)
+    : KSResult<KSLink.KSLinkInternal<KSParse>, KSParseError> {
     Assertive.require(element.localName == "link")
 
     val kp = KSParse(context)
@@ -106,7 +175,8 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
   private fun parseLinkExternal(
     context : KSParseContextType,
-    element : Element) : KSResult<KSLink.KSLinkExternal<KSParse>, KSParseError> {
+    element : Element)
+    : KSResult<KSLink.KSLinkExternal<KSParse>, KSParseError> {
     Assertive.require(element.localName == "link-external")
 
     val act_target = parseTargetURI(element)
@@ -122,7 +192,8 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
   private fun parseElementLink(
     context : KSParseContextType,
-    element : Element) : KSResult<KSInlineLink<KSParse>, KSParseError> {
+    element : Element)
+    : KSResult<KSInlineLink<KSParse>, KSParseError> {
     return parseLink(context, element).flatMap { link ->
       val kp = KSParse(context)
       succeed(KSInlineLink(link.position, false, kp, link))
@@ -131,7 +202,8 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
   private fun parseElementLinkExternal(
     context : KSParseContextType,
-    element : Element) : KSResult<KSInlineLink<KSParse>, KSParseError> {
+    element : Element)
+    : KSResult<KSInlineLink<KSParse>, KSParseError> {
     return parseLinkExternal(context, element).flatMap { link ->
       val kp = KSParse(context)
       succeed(KSInlineLink(link.position, false, kp, link))
@@ -140,7 +212,8 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
   private fun parseElementTerm(
     context : KSParseContextType,
-    element : Element) : KSResult<KSInline<KSParse>, KSParseError> {
+    element : Element)
+    : KSResult<KSInline<KSParse>, KSParseError> {
     Assertive.require(element.localName == "term")
 
     val type = parseType(element)
@@ -155,7 +228,8 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
   private fun parseElementVerbatim(
     context : KSParseContextType,
-    element : Element) : KSResult<KSInlineVerbatim<KSParse>, KSParseError> {
+    element : Element)
+    : KSResult<KSInlineVerbatim<KSParse>, KSParseError> {
     Assertive.require(element.localName == "verbatim")
 
     val type = parseType(element)
@@ -166,7 +240,8 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
   private fun parseElementImage(
     context : KSParseContextType,
-    element : Element) : KSResult<KSInlineImage<KSParse>, KSParseError> {
+    element : Element)
+    : KSResult<KSInlineImage<KSParse>, KSParseError> {
     Assertive.require(element.localName == "image")
 
     val type = parseType(element)
@@ -186,7 +261,8 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
   }
 
   private fun checkLinkContent(
-    e : KSInline<KSParse>) : KSResult<KSLinkContent<KSParse>, KSParseError> =
+    e : KSInline<KSParse>)
+    : KSResult<KSLinkContent<KSParse>, KSParseError> =
     when (e) {
       is KSInlineText    ->
         KSResult.succeed(KSLinkContent.KSLinkText(e.position, e.data, e))
@@ -215,13 +291,15 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
   private fun parseLinkContent(
     context : KSParseContextType,
-    e : Node) : KSResult<KSLinkContent<KSParse>, KSParseError> {
+    e : Node)
+    : KSResult<KSLinkContent<KSParse>, KSParseError> {
     return parse(context, e).flatMap { content -> checkLinkContent(content) }
   }
 
   private fun parseInlineText(
     context : KSParseContextType,
-    e : Node) : KSResult<KSInlineText<KSParse>, KSParseError> {
+    e : Node)
+    : KSResult<KSInlineText<KSParse>, KSParseError> {
     if (e is Text) {
       return succeed(
         KSInlineText(no_lex, false, KSParse(context), false, e.value))
@@ -246,8 +324,18 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
     return xs
   }
 
+  private fun listOfChildElements(element : Element) : List<Element> {
+    val xs = mutableListOf<Element>()
+    for (i in 0 .. element.childCount - 1) {
+      val ec = element.getChild(i)
+      if (ec is Element) xs.add(ec)
+    }
+    return xs
+  }
+
   private fun parseSize(
-    element : Element) : KSResult<Optional<KSSize>, KSParseError> {
+    element : Element)
+    : KSResult<Optional<KSSize>, KSParseError> {
     val tw = element.getAttribute("width", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     val th = element.getAttribute("height", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     return if (tw != null) {
@@ -262,7 +350,8 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
     }
   }
 
-  private fun parseTargetURI(element : Element) : KSResult<URI, KSParseError> {
+  private fun parseTargetURI(
+    element : Element) : KSResult<URI, KSParseError> {
     return try {
       val ta = element.getAttribute("target", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
       succeed(URI(ta.value))
@@ -272,7 +361,8 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
     }
   }
 
-  private fun parseType(element : Element) : Optional<String> {
+  private fun parseType(
+    element : Element) : Optional<String> {
     val ta = element.getAttribute("type", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     return if (ta != null) {
       Optional.of(ta.value)

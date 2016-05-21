@@ -21,24 +21,22 @@ import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocume
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockParagraph
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockPart
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithContent
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithSubsections
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
-import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSParse
+import com.io7m.kstructural.core.KSParseContext
+import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.KSSubsectionContent
-import com.io7m.kstructural.parser.canon.KSCanonBlockParserType
 import com.io7m.kstructural.parser.KSExpression
-import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSParseContext
-import com.io7m.kstructural.core.KSSectionContent
+import com.io7m.kstructural.parser.canon.KSCanonBlockParserType
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -66,7 +64,7 @@ abstract class KSCanonBlockParserContract {
   }
 
   protected fun defaultFile() = filesystem!!.getPath("file.txt")
-  
+
   data class Parser(
     val p : KSCanonBlockParserType,
     val s : () -> KSExpression)

@@ -39,30 +39,6 @@ import java.util.function.Supplier;
 
 public final class KSOpCompileXHTML implements KSOpType
 {
-  public enum XHTMLPagination
-  {
-    XHTML_SINGLE_PAGE("single"),
-    XHTML_MULTI_PAGE("multi");
-
-    private final String name;
-
-    @Override
-    public String toString()
-    {
-      return this.name;
-    }
-
-    public String getName()
-    {
-      return this.name;
-    }
-
-    XHTMLPagination(final String in_name)
-    {
-      this.name = NullCheck.notNull(in_name);
-    }
-  }
-
   private static final org.slf4j.Logger LOG;
 
   static {
@@ -74,7 +50,6 @@ public final class KSOpCompileXHTML implements KSOpType
   private final Path path;
   private final Path output_path;
   private final boolean css_create_default;
-
   private KSOpCompileXHTML(
     final Path in_path,
     final Path in_output_path,
@@ -102,6 +77,38 @@ public final class KSOpCompileXHTML implements KSOpType
       in_settings,
       in_pagination,
       in_css_create_default);
+  }
+
+  private static void writeCSS(
+    final Supplier<Path> get_path,
+    final Supplier<InputStream> get_stream)
+    throws IOException
+  {
+    final Path file = get_path.get();
+    KSOpCompileXHTML.LOG.debug("write css: {}", file);
+    try (final OutputStream os = Files.newOutputStream(
+      file,
+      StandardOpenOption.CREATE,
+      StandardOpenOption.TRUNCATE_EXISTING)) {
+      try (final InputStream is = get_stream.get()) {
+        KSOpCompileXHTML.copyStream(os, is);
+      }
+    }
+  }
+
+  private static void copyStream(
+    final OutputStream os,
+    final InputStream is)
+    throws IOException
+  {
+    final byte[] buffer = new byte[4096];
+    while (true) {
+      final int r = is.read(buffer);
+      if (r == -1) {
+        break;
+      }
+      os.write(buffer, 0, r);
+    }
   }
 
   @Override
@@ -153,35 +160,27 @@ public final class KSOpCompileXHTML implements KSOpType
     return Unit.unit();
   }
 
-  private static void writeCSS(
-    final Supplier<Path> get_path,
-    final Supplier<InputStream> get_stream)
-    throws IOException
+  public enum XHTMLPagination
   {
-    final Path file = get_path.get();
-    KSOpCompileXHTML.LOG.debug("write css: {}", file);
-    try (final OutputStream os = Files.newOutputStream(
-      file,
-      StandardOpenOption.CREATE,
-      StandardOpenOption.TRUNCATE_EXISTING)) {
-      try (final InputStream is = get_stream.get()) {
-        KSOpCompileXHTML.copyStream(os, is);
-      }
-    }
-  }
+    XHTML_SINGLE_PAGE("single"),
+    XHTML_MULTI_PAGE("multi");
 
-  private static void copyStream(
-    final OutputStream os,
-    final InputStream is)
-    throws IOException
-  {
-    final byte[] buffer = new byte[4096];
-    while (true) {
-      final int r = is.read(buffer);
-      if (r == -1) {
-        break;
-      }
-      os.write(buffer, 0, r);
+    private final String name;
+
+    XHTMLPagination(final String in_name)
+    {
+      this.name = NullCheck.notNull(in_name);
+    }
+
+    @Override
+    public String toString()
+    {
+      return this.name;
+    }
+
+    public String getName()
+    {
+      return this.name;
     }
   }
 

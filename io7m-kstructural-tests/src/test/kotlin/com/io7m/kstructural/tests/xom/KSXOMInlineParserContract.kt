@@ -16,21 +16,21 @@
 
 package com.io7m.kstructural.tests.xom
 
-import com.io7m.kstructural.core.KSElement
-import com.io7m.kstructural.core.KSElement.*
-import com.io7m.kstructural.core.KSElement.KSInline.*
-import com.io7m.kstructural.core.KSID
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineImage
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineLink
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListOrdered
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListUnordered
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTerm
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineVerbatim
+import com.io7m.kstructural.core.KSElement.KSInline.KSSize
 import com.io7m.kstructural.core.KSLink
-import com.io7m.kstructural.core.KSLinkContent
-import com.io7m.kstructural.core.KSLinkContent.*
+import com.io7m.kstructural.core.KSLinkContent.KSLinkText
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSResult
-import com.io7m.kstructural.core.KSResult.*
+import com.io7m.kstructural.core.KSResult.KSFailure
+import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.schema.KSSchemaNamespaces
-import com.io7m.kstructural.xom.KSXOMBlockParserType
-import com.io7m.kstructural.xom.KSXOMInlineParser
 import com.io7m.kstructural.xom.KSXOMInlineParserType
 import nu.xom.Node
 import org.junit.Assert
@@ -209,5 +209,49 @@ abstract class KSXOMInlineParserContract {
     val i = r.result
     Assert.assertEquals("xyz", i.text.text)
     Assert.assertEquals(Optional.of("t"), i.type)
+  }
+
+  @Test
+  fun testListOrdered() {
+    val n = parseXML("""<s:list-ordered xmlns:s="${NAMESPACE}"><s:item>x</s:item><s:item>y</s:item></s:list-ordered>""")
+    val p = parser()
+    val c = KSParseContext.empty()
+    val r = p.parse(c, n)
+
+    r as KSSuccess<KSInlineListOrdered<KSParse>, KSParseError>
+    val i = r.result
+    Assert.assertEquals(2, i.content.size)
+  }
+
+  @Test
+  fun testListOrderedError() {
+    val n = parseXML("""<s:list-ordered xmlns:s="${NAMESPACE}">x</s:list-ordered>""")
+    val p = parser()
+    val c = KSParseContext.empty()
+    val r = p.parse(c, n)
+
+    r as KSFailure
+  }
+
+  @Test
+  fun testListUnordered() {
+    val n = parseXML("""<s:list-unordered xmlns:s="${NAMESPACE}"><s:item>x</s:item><s:item>y</s:item></s:list-unordered>""")
+    val p = parser()
+    val c = KSParseContext.empty()
+    val r = p.parse(c, n)
+
+    r as KSSuccess<KSInlineListUnordered<KSParse>, KSParseError>
+    val i = r.result
+    Assert.assertEquals(2, i.content.size)
+  }
+
+  @Test
+  fun testListUnorderedError() {
+    val n = parseXML("""<s:list-unordered xmlns:s="${NAMESPACE}">x</s:list-unordered>""")
+    val p = parser()
+    val c = KSParseContext.empty()
+    val r = p.parse(c, n)
+
+    r as KSFailure
   }
 }

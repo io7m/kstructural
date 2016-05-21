@@ -23,27 +23,23 @@ import com.io7m.jsx.parser.JSXParser
 import com.io7m.jsx.parser.JSXParserConfiguration
 import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSParse
-import com.io7m.kstructural.core.KSResult
-import com.io7m.kstructural.core.KSResult.KSFailure
-import com.io7m.kstructural.core.KSResult.KSSuccess
-import com.io7m.kstructural.parser.canon.KSCanonBlockParser
-import com.io7m.kstructural.parser.KSExpression
-import com.io7m.kstructural.parser.canon.KSCanonInlineParser
 import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.parser.KSExpressionParsers
 import com.io7m.kstructural.core.KSParserConstructorType
 import com.io7m.kstructural.core.KSParserType
+import com.io7m.kstructural.core.KSResult
+import com.io7m.kstructural.core.KSResult.KSFailure
+import com.io7m.kstructural.core.KSResult.KSSuccess
+import com.io7m.kstructural.parser.KSExpression
+import com.io7m.kstructural.parser.KSExpressionParsers
+import com.io7m.kstructural.parser.canon.KSCanonBlockParser
+import com.io7m.kstructural.parser.canon.KSCanonInlineParser
 import com.io7m.kstructural.tests.KSTestIO
-import com.io7m.kstructural.tests.core.KSEvaluatorTest
-import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import java.io.FileInputStream
 import java.io.InputStreamReader
 import java.io.Reader
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Optional
@@ -73,7 +69,7 @@ object KSBlockParserDemo {
     val p = JSXParser.newParser(pc, lex)
 
     val ip = KSCanonInlineParser.create(KSTestIO.utf8_includer)
-    val importers = object: KSParserConstructorType {
+    val importers = object : KSParserConstructorType {
       override fun create(
         context : KSParseContextType,
         file : Path)
@@ -81,7 +77,7 @@ object KSBlockParserDemo {
 
         LOG.trace("instantiating parser for {}", file)
         val iis = this
-        return object: KSParserType {
+        return object : KSParserType {
           override fun parseBlock(
             context : KSParseContextType,
             file : Path)

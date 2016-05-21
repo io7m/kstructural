@@ -72,6 +72,32 @@
     </r:element>
   </r:define>
 
+  <r:define name="io7m.structural-3_0_0.list_item">
+    <r:element name="s:item">
+      <r:zeroOrMore>
+        <r:ref name="io7m.structural-3_0_0.inline_content"/>
+      </r:zeroOrMore>
+    </r:element>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.inline_list_ordered">
+    <r:element name="s:list-ordered">
+      <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+      <r:zeroOrMore>
+        <r:ref name="io7m.structural-3_0_0.list_item"/>
+      </r:zeroOrMore>
+    </r:element>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.inline_list_unordered">
+    <r:element name="s:list-unordered">
+      <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+      <r:zeroOrMore>
+        <r:ref name="io7m.structural-3_0_0.list_item"/>
+      </r:zeroOrMore>
+    </r:element>
+  </r:define>
+
   <r:define name="io7m.structural-3_0_0.link_content">
     <r:choice>
       <r:ref name="io7m.structural-3_0_0.inline_text"/>
@@ -103,6 +129,8 @@
 
   <r:define name="io7m.structural-3_0_0.inline_content">
     <r:choice>
+      <r:ref name="io7m.structural-3_0_0.inline_list_ordered"/>
+      <r:ref name="io7m.structural-3_0_0.inline_list_unordered"/>
       <r:ref name="io7m.structural-3_0_0.inline_text"/>
       <r:ref name="io7m.structural-3_0_0.inline_term"/>
       <r:ref name="io7m.structural-3_0_0.inline_image"/>

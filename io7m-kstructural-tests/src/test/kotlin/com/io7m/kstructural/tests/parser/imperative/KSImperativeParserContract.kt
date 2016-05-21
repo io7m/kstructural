@@ -24,15 +24,14 @@ import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.parser.KSExpression
-import com.io7m.kstructural.parser.imperative.KSImperative
-import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeImport
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeDocument
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeFootnote
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeFormalItem
+import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeImport
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeParagraph
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativePart
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeSection
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeSubsection
-import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeFootnote
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeInline
 import com.io7m.kstructural.parser.imperative.KSImperativeParserType
 import org.junit.After

@@ -408,9 +408,9 @@ abstract class KSImperativeBuilderContract {
     val ssc = KSBlockSubsection(pos, true, kp, type, id, title, mutableListOf())
     val pc = KSBlockParagraph(pos, true, kp, type, id, mutableListOf())
 
-    val i = KSBlockImport(pos,true,kp,type,id,text)
-    val ii0 = KSImperativeImport(pos,true,i,ssc)
-    val ii1 = KSImperativeImport(pos,true,i,pc)
+    val i = KSBlockImport(pos, true, kp, type, id, text)
+    val ii0 = KSImperativeImport(pos, true, i, ssc)
+    val ii1 = KSImperativeImport(pos, true, i, pc)
 
     successEmpty(b.add(c, sc))
     successEmpty(b.add(c, ii0))
@@ -430,9 +430,9 @@ abstract class KSImperativeBuilderContract {
     val ssc = KSBlockSubsection(pos, true, kp, type, id, title, mutableListOf())
     val pc = KSBlockParagraph(pos, true, kp, type, id, mutableListOf())
 
-    val i = KSBlockImport(pos,true,kp,type,id,text)
-    val ii0 = KSImperativeImport(pos,true,i,ssc)
-    val ii1 = KSImperativeImport(pos,true,i,pc)
+    val i = KSBlockImport(pos, true, kp, type, id, text)
+    val ii0 = KSImperativeImport(pos, true, i, ssc)
+    val ii1 = KSImperativeImport(pos, true, i, pc)
 
     successEmpty(b.add(c, sc))
     successEmpty(b.add(c, ii1))
@@ -451,8 +451,8 @@ abstract class KSImperativeBuilderContract {
     val sc = KSImperativeSection(pos, true, type, id, title)
     val pc = KSBlockDocumentWithSections(pos, true, kp, id, type, title, mutableListOf())
 
-    val i = KSBlockImport(pos,true,kp,type,id,text)
-    val ii0 = KSImperativeImport(pos,true,i,pc)
+    val i = KSBlockImport(pos, true, kp, type, id, text)
+    val ii0 = KSImperativeImport(pos, true, i, pc)
 
     successEmpty(b.add(c, sc))
 
@@ -655,10 +655,10 @@ abstract class KSImperativeBuilderContract {
     val c1 = KSBlockFootnote(pos, false, kp, id_real, type, mutableListOf())
     val c2 = KSBlockFormalItem(pos, false, kp, type, id, title, mutableListOf())
 
-    val i = KSBlockImport(pos,true,kp,type,id,text)
-    val ii0 = KSImperativeImport(pos,true,i,c0)
-    val ii1 = KSImperativeImport(pos,true,i,c1)
-    val ii2 = KSImperativeImport(pos,true,i,c2)
+    val i = KSBlockImport(pos, true, kp, type, id, text)
+    val ii0 = KSImperativeImport(pos, true, i, c0)
+    val ii1 = KSImperativeImport(pos, true, i, c1)
+    val ii2 = KSImperativeImport(pos, true, i, c2)
 
     successEmpty(b.add(c, ssc))
     successEmpty(b.add(c, ii0))
@@ -731,8 +731,8 @@ abstract class KSImperativeBuilderContract {
     val text = KSInlineText(pos, false, kp, false, "xyz")
     val pc = KSBlockDocumentWithSections(pos, true, kp, id, type, title, mutableListOf())
 
-    val i = KSBlockImport(pos,true,kp,type,id,text)
-    val ii = KSImperativeImport(pos,true,i,pc)
+    val i = KSBlockImport(pos, true, kp, type, id, text)
+    val ii = KSImperativeImport(pos, true, i, pc)
 
     successEmpty(b.add(c, ssc))
 
@@ -932,9 +932,9 @@ abstract class KSImperativeBuilderContract {
     val pc = KSImperativeDocument(pos, true, type, id, title)
     val sc = KSImperativeSection(pos, true, type, id, title)
 
-    val p = KSBlockParagraph(pos,true,kp,type,id,mutableListOf())
-    val i = KSBlockImport(pos,true,kp,type,id,text)
-    val ii = KSImperativeImport(pos,true,i,p)
+    val p = KSBlockParagraph(pos, true, kp, type, id, mutableListOf())
+    val i = KSBlockImport(pos, true, kp, type, id, text)
+    val ii = KSImperativeImport(pos, true, i, p)
 
     successEmpty(b.add(c, pc))
     successEmpty(b.add(c, sc))
@@ -955,7 +955,7 @@ abstract class KSImperativeBuilderContract {
     val title = mutableListOf(text)
     val dc = KSImperativeDocument(pos, true, type, id, title)
     val sc = KSImperativeSection(pos, true, type, id, title)
-    val p = KSImperativeParagraph(pos,true,type,id)
+    val p = KSImperativeParagraph(pos, true, type, id)
 
     successEmpty(b.add(c, dc))
     successEmpty(b.add(c, sc))
@@ -980,7 +980,7 @@ abstract class KSImperativeBuilderContract {
     val dc = KSImperativeDocument(pos, true, type, id, title)
     val pc = KSImperativePart(pos, true, type, id, title)
     val sc = KSImperativeSection(pos, true, type, id, title)
-    val p = KSImperativeParagraph(pos,true,type,id)
+    val p = KSImperativeParagraph(pos, true, type, id)
 
     successEmpty(b.add(c, dc))
     successEmpty(b.add(c, pc))
@@ -1009,9 +1009,9 @@ abstract class KSImperativeBuilderContract {
     val pc = KSImperativePart(pos, true, type, id, title)
     val sc = KSImperativeSection(pos, true, type, id, title)
 
-    val p = KSBlockParagraph(pos,true,kp,type,id,mutableListOf())
-    val i = KSBlockImport(pos,true,kp,type,id,text)
-    val ii = KSImperativeImport(pos,true,i,p)
+    val p = KSBlockParagraph(pos, true, kp, type, id, mutableListOf())
+    val i = KSBlockImport(pos, true, kp, type, id, text)
+    val ii = KSImperativeImport(pos, true, i, p)
 
     successEmpty(b.add(c, dc))
     successEmpty(b.add(c, pc))
@@ -1087,7 +1087,7 @@ abstract class KSImperativeBuilderContract {
     val i0 = KSInlineText(pos, false, kp, false, "xyz")
 
     val i = KSBlockImport(pos, false, kp, type, id, i0)
-    val p = KSBlockSubsection(pos,false,kp,type,id, title, mutableListOf())
+    val p = KSBlockSubsection(pos, false, kp, type, id, title, mutableListOf())
     val ii = KSImperativeImport(pos, false, i, p)
 
     successEmpty(b.add(c, pc))
@@ -1103,7 +1103,7 @@ abstract class KSImperativeBuilderContract {
     val kp = KSParse(c)
     val title = mutableListOf(KSInlineText(pos, false, kp, false, "abc"))
     val pc = KSImperativeDocument(pos, true, type, id, title)
-    val sc = KSImperativeSubsection(pos,true,type,id,title)
+    val sc = KSImperativeSubsection(pos, true, type, id, title)
 
     successEmpty(b.add(c, pc))
 

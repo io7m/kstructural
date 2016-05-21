@@ -17,17 +17,18 @@
 package com.io7m.kstructural.xom
 
 import com.io7m.kstructural.core.KSElement
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.*
 import com.io7m.kstructural.core.KSElement.KSBlock
-import com.io7m.kstructural.core.KSSubsectionContent.*
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.*
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockParagraph
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockPart
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithContent
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithSubsections
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
 import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
@@ -51,6 +52,9 @@ import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSLink
 import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSSubsectionContent
+import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFootnote
+import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFormalItem
+import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
 import com.io7m.kstructural.schema.KSSchemaNamespaces
 import nu.xom.Attribute
 import nu.xom.Element
@@ -68,7 +72,7 @@ class KSXOMSerializer<T> private constructor(
     return when (e) {
       is KSBlock               -> serializeBlock(e)
       is KSInline              -> serializeInline(e)
-      is KSListItem            -> TODO()
+      is KSListItem            -> serializeListItem(e)
       is KSTableHeadColumnName -> TODO()
       is KSTableHead           -> TODO()
       is KSTableBodyCell       -> TODO()
@@ -86,11 +90,29 @@ class KSXOMSerializer<T> private constructor(
       is KSInlineTerm              -> serializeInlineTerm(e)
       is KSInlineFootnoteReference -> TODO()
       is KSInlineImage             -> serializeInlineImage(e)
-      is KSInlineListOrdered       -> TODO()
-      is KSInlineListUnordered     -> TODO()
+      is KSInlineListOrdered       -> serializeListOrdered(e)
+      is KSInlineListUnordered     -> serializeListUnordered(e)
       is KSInlineTable             -> TODO()
       is KSInlineInclude           -> serializeInlineInclude(e)
     }
+  }
+
+  private fun serializeListItem(e : KSListItem<T>) : Node {
+    val xe = Element("s:item", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    KSXOM.inlinesAppend(xe, e.content, { c -> serializeInline(c) })
+    return xe
+  }
+
+  private fun serializeListUnordered(e : KSInlineListUnordered<T>) : Node {
+    val xe = Element("s:list-unordered", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    e.content.map { c -> xe.appendChild(serializeListItem(c)) }
+    return xe
+  }
+
+  private fun serializeListOrdered(e : KSInlineListOrdered<T>) : Node {
+    val xe = Element("s:list-ordered", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    e.content.map { c -> xe.appendChild(serializeListItem(c)) }
+    return xe
   }
 
   private fun serializeInlineInclude(e : KSInlineInclude<T>) : Node {

@@ -16,36 +16,26 @@
 
 package com.io7m.kstructural.tests.parser.canon
 
-import com.io7m.jeucreader.UnicodeCharacterReader
-import com.io7m.jsx.lexer.JSXLexer
-import com.io7m.jsx.lexer.JSXLexerConfiguration
-import com.io7m.jsx.parser.JSXParser
-import com.io7m.jsx.parser.JSXParserConfiguration
 import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSBlock
-import com.io7m.kstructural.core.KSResult
-import com.io7m.kstructural.parser.canon.KSCanonBlockParser
-import com.io7m.kstructural.parser.canon.KSCanonBlockParserType
-import com.io7m.kstructural.parser.KSExpression
-import com.io7m.kstructural.parser.canon.KSCanonInlineParser
-import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.parser.canon.KSCanonInlineParserType
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
-import com.io7m.kstructural.parser.KSExpressionParsers
+import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSParserConstructorType
 import com.io7m.kstructural.core.KSParserType
+import com.io7m.kstructural.core.KSResult
+import com.io7m.kstructural.parser.KSExpression
+import com.io7m.kstructural.parser.KSExpressionParsers
+import com.io7m.kstructural.parser.canon.KSCanonBlockParser
+import com.io7m.kstructural.parser.canon.KSCanonBlockParserType
+import com.io7m.kstructural.parser.canon.KSCanonInlineParser
+import com.io7m.kstructural.parser.canon.KSCanonInlineParserType
 import com.io7m.kstructural.tests.KSTestFilesystems
 import com.io7m.kstructural.tests.KSTestIO
-import com.io7m.kstructural.tests.core.KSEvaluatorTest
-import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import java.io.StringReader
-import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
-import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.util.Optional
 
 class KSCanonBlockParserTest : KSCanonBlockParserContract() {
@@ -86,7 +76,7 @@ class KSCanonBlockParserTest : KSCanonBlockParserContract() {
       }
     }
 
-    val importers = object: KSParserConstructorType {
+    val importers = object : KSParserConstructorType {
       override fun create(
         context : KSParseContextType,
         file : Path)
@@ -94,7 +84,7 @@ class KSCanonBlockParserTest : KSCanonBlockParserContract() {
 
         LOG.trace("instantiating parser for {}", file)
         val iis = this
-        return object: KSParserType {
+        return object : KSParserType {
           override fun parseBlock(
             context : KSParseContextType,
             file : Path)

@@ -18,7 +18,6 @@ package com.io7m.kstructural.frontend;
 
 import com.io7m.jfunctional.Unit;
 import com.io7m.jnull.NullCheck;
-import com.io7m.junreachable.UnreachableCodeException;
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument;
 import com.io7m.kstructural.core.evaluator.KSEvaluation;
 import org.slf4j.LoggerFactory;

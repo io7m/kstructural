@@ -26,6 +26,11 @@ public enum KSInputFormat
 
   private final String name;
 
+  KSInputFormat(final String in_name)
+  {
+    this.name = NullCheck.notNull(in_name);
+  }
+
   public String getName()
   {
     return this.name;
@@ -35,10 +40,5 @@ public enum KSInputFormat
   public String toString()
   {
     return this.name;
-  }
-
-  KSInputFormat(final String in_name)
-  {
-    this.name = NullCheck.notNull(in_name);
   }
 }

@@ -19,7 +19,8 @@ package com.io7m.kstructural.xom
 import com.io7m.jlexing.core.LexicalPositionType
 import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.*
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
@@ -53,15 +54,15 @@ class KSXOMBlockParser private constructor(
     element : Element) : KSResult<KSBlock<KSParse>, KSParseError> {
 
     return when (element.localName) {
-      "paragraph"  -> parseParagraph(context, element)
-      "formal-item"  -> parseFormalItem(context, element)
-      "footnote"  -> parseFootnote(context, element)
-      "section"    -> parseSection(context, element)
-      "subsection" -> parseSubsection(context, element)
-      "part"       -> parsePart(context, element)
-      "document" -> parseDocument(context, element)
+      "paragraph"   -> parseParagraph(context, element)
+      "formal-item" -> parseFormalItem(context, element)
+      "footnote"    -> parseFootnote(context, element)
+      "section"     -> parseSection(context, element)
+      "subsection"  -> parseSubsection(context, element)
+      "part"        -> parsePart(context, element)
+      "document"    -> parseDocument(context, element)
 
-      else         -> {
+      else          -> {
         fail(KSParseError(no_lex, "Unrecognized element: " + element.localName))
       }
     }
@@ -150,14 +151,14 @@ class KSXOMBlockParser private constructor(
   private fun toPart(
     s : KSBlock<KSParse>) : KSResult<KSBlockPart<KSParse>, KSParseError> {
     return when (s) {
-      is KSBlockPart -> KSResult.succeed(s)
+      is KSBlockPart   -> KSResult.succeed(s)
       is KSBlockParagraph,
       is KSBlockFormalItem,
       is KSBlockFootnote,
       is KSBlockSection,
       is KSBlockDocument,
       is KSBlockSubsection,
-      is KSBlockImport     -> {
+      is KSBlockImport -> {
         val sb = StringBuilder()
         sb.append("Unexpected element.")
         sb.append(System.lineSeparator())
@@ -359,14 +360,14 @@ class KSXOMBlockParser private constructor(
   private fun toSection(
     s : KSBlock<KSParse>) : KSResult<KSBlockSection<KSParse>, KSParseError> {
     return when (s) {
-      is KSBlockSection    -> KSResult.succeed(s)
+      is KSBlockSection -> KSResult.succeed(s)
       is KSBlockDocument,
       is KSBlockSubsection,
       is KSBlockParagraph,
-      is KSBlockFormalItem ,
-      is KSBlockFootnote ,
-      is KSBlockPart  ,
-      is KSBlockImport     -> {
+      is KSBlockFormalItem,
+      is KSBlockFootnote,
+      is KSBlockPart,
+      is KSBlockImport  -> {
         val sb = StringBuilder()
         sb.append("Unexpected element.")
         sb.append(System.lineSeparator())

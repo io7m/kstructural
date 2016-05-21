@@ -22,21 +22,18 @@ import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
 import com.io7m.jsx.parser.JSXParserConfiguration
 import com.io7m.kstructural.core.KSElement.KSInline
+import com.io7m.kstructural.core.KSParse
+import com.io7m.kstructural.core.KSParseContextType
+import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.canon.KSCanonInlineParser
 import com.io7m.kstructural.parser.canon.KSCanonInlineParserType
-import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSParse
-import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.tests.KSTestFilesystems
 import com.io7m.kstructural.tests.KSTestIO
-import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import java.io.StringReader
-import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
-import java.nio.file.Files
 import java.nio.file.Path
 
 class KSCanonInlineParserTest : KSCanonInlineParserContract() {
