@@ -5,9 +5,7 @@
   datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
 
   <r:start combine="choice">
-    <r:choice>
-      <r:ref name="io7m.structural-3_0_0.document"/>
-    </r:choice>
+    <r:ref name="io7m.structural-3_0_0.block_content"/>
   </r:start>
 
   <r:define name="io7m.structural-3_0_0.xml-id">
@@ -39,17 +37,21 @@
   </r:define>
 
   <r:define name="io7m.structural-3_0_0.inline_term">
-    <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
-    <r:zeroOrMore>
-      <r:ref name="io7m.structural-3_0_0.inline_text"/>
-    </r:zeroOrMore>
+    <r:element name="s:term">
+      <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+      <r:zeroOrMore>
+        <r:ref name="io7m.structural-3_0_0.inline_text"/>
+      </r:zeroOrMore>
+    </r:element>
   </r:define>
 
   <r:define name="io7m.structural-3_0_0.inline_verbatim">
-    <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
-    <r:zeroOrMore>
-      <r:ref name="io7m.structural-3_0_0.inline_text"/>
-    </r:zeroOrMore>
+    <r:element name="s:verbatim">
+      <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+      <r:zeroOrMore>
+        <r:ref name="io7m.structural-3_0_0.inline_text"/>
+      </r:zeroOrMore>
+    </r:element>
   </r:define>
 
   <r:define name="io7m.structural-3_0_0.inline_image">
@@ -158,6 +160,9 @@
   <r:define name="io7m.structural-3_0_0.document">
     <r:element name="s:document">
       <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+      <r:optional>
+        <r:ref name="io7m.structural-3_0_0.xml-id"/>
+      </r:optional>
       <r:attribute name="s:title">
         <r:text/>
       </r:attribute>
@@ -222,6 +227,18 @@
         <r:ref name="io7m.structural-3_0_0.subsection_content"/>
       </r:zeroOrMore>
     </r:element>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.block_content">
+    <r:choice>
+      <r:ref name="io7m.structural-3_0_0.document"/>
+      <r:ref name="io7m.structural-3_0_0.paragraph"/>
+      <r:ref name="io7m.structural-3_0_0.part"/>
+      <r:ref name="io7m.structural-3_0_0.subsection"/>
+      <r:ref name="io7m.structural-3_0_0.section"/>
+      <r:ref name="io7m.structural-3_0_0.footnote"/>
+      <r:ref name="io7m.structural-3_0_0.formal_item"/>
+    </r:choice>
   </r:define>
 
 </r:grammar>

@@ -51,7 +51,7 @@ import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSLink
 import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSSubsectionContent
-import com.io7m.kstructural.schema.KSXMLNamespace
+import com.io7m.kstructural.schema.KSSchemaNamespaces
 import nu.xom.Attribute
 import nu.xom.Element
 import nu.xom.Node
@@ -94,11 +94,11 @@ class KSXOMSerializer<T> private constructor(
   }
 
   private fun serializeInlineInclude(e : KSInlineInclude<T>) : Node {
-    val xe = Element("xi:xinclude", KSXMLNamespace.XINCLUDE_NAMESPACE_URI_TEXT)
+    val xe = Element("xi:xinclude", KSSchemaNamespaces.XINCLUDE_NAMESPACE_URI_TEXT)
     xe.addAttribute(Attribute(
-      "xi:href", KSXMLNamespace.XINCLUDE_NAMESPACE_URI_TEXT, e.file.text))
+      "xi:href", KSSchemaNamespaces.XINCLUDE_NAMESPACE_URI_TEXT, e.file.text))
     xe.addAttribute(Attribute(
-      "xi:parse", KSXMLNamespace.XINCLUDE_NAMESPACE_URI_TEXT, "text"))
+      "xi:parse", KSSchemaNamespaces.XINCLUDE_NAMESPACE_URI_TEXT, "text"))
     return xe
   }
 
@@ -112,9 +112,9 @@ class KSXOMSerializer<T> private constructor(
   }
 
   private fun serializeLinkExternal(e : KSLink.KSLinkExternal<T>) : Node {
-    val xe = Element("s:link-external", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val xe = Element("s:link-external", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     xe.addAttribute(Attribute(
-      "s:target", KSXMLNamespace.NAMESPACE_URI_TEXT, e.target.toString()))
+      "s:target", KSSchemaNamespaces.NAMESPACE_URI_TEXT, e.target.toString()))
     KSXOM.inlinesAppend(xe, e.content, { c -> serializeLinkContent(c) })
     return xe
   }
@@ -127,24 +127,24 @@ class KSXOMSerializer<T> private constructor(
   }
 
   private fun serializeLink(e : KSLink.KSLinkInternal<T>) : Node {
-    val xe = Element("s:link", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val xe = Element("s:link", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     xe.addAttribute(Attribute(
-      "s:target", KSXMLNamespace.NAMESPACE_URI_TEXT, e.target.value))
+      "s:target", KSSchemaNamespaces.NAMESPACE_URI_TEXT, e.target.value))
     KSXOM.inlinesAppend(xe, e.content, { c -> serializeLinkContent(c) })
     return xe
   }
 
   private fun serializeInlineImage(e : KSInlineImage<T>) : Node {
-    val xe = Element("s:image", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val xe = Element("s:image", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
 
     xe.addAttribute(Attribute(
-      "s:target", KSXMLNamespace.NAMESPACE_URI_TEXT, e.target.toString()))
+      "s:target", KSSchemaNamespaces.NAMESPACE_URI_TEXT, e.target.toString()))
 
     e.size.ifPresent { size ->
       xe.addAttribute(Attribute(
-        "s:width", KSXMLNamespace.NAMESPACE_URI_TEXT, size.width.toString()))
+        "s:width", KSSchemaNamespaces.NAMESPACE_URI_TEXT, size.width.toString()))
       xe.addAttribute(Attribute(
-        "s:height", KSXMLNamespace.NAMESPACE_URI_TEXT, size.height.toString()))
+        "s:height", KSSchemaNamespaces.NAMESPACE_URI_TEXT, size.height.toString()))
     }
 
     addType(e.type, xe)
@@ -154,7 +154,7 @@ class KSXOMSerializer<T> private constructor(
   }
 
   private fun serializeInlineTerm(e : KSInlineTerm<T>) : Node {
-    val xe = Element("s:term", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val xe = Element("s:term", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     addType(e.type, xe)
 
     KSXOM.inlinesAppend(xe, e.content, { c -> serializeInlineText(c) })
@@ -162,7 +162,7 @@ class KSXOMSerializer<T> private constructor(
   }
 
   private fun serializeInlineVerbatim(e : KSInlineVerbatim<T>) : Node {
-    val xe = Element("s:verbatim", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val xe = Element("s:verbatim", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     addType(e.type, xe)
 
     xe.appendChild(serializeInlineText(e.text))
@@ -197,11 +197,11 @@ class KSXOMSerializer<T> private constructor(
   }
 
   private fun serializeBlockImport(e : KSBlockImport<T>) : Node {
-    val xe = Element("xi:xinclude", KSXMLNamespace.XINCLUDE_NAMESPACE_URI_TEXT)
+    val xe = Element("xi:xinclude", KSSchemaNamespaces.XINCLUDE_NAMESPACE_URI_TEXT)
     xe.addAttribute(Attribute(
-      "xi:href", KSXMLNamespace.XINCLUDE_NAMESPACE_URI_TEXT, e.file.text))
+      "xi:href", KSSchemaNamespaces.XINCLUDE_NAMESPACE_URI_TEXT, e.file.text))
     xe.addAttribute(Attribute(
-      "xi:parse", KSXMLNamespace.XINCLUDE_NAMESPACE_URI_TEXT, "xml"))
+      "xi:parse", KSSchemaNamespaces.XINCLUDE_NAMESPACE_URI_TEXT, "xml"))
     return xe
   }
 
@@ -214,7 +214,7 @@ class KSXOMSerializer<T> private constructor(
 
   private fun serializeBlockDocumentWithSections(
     e : KSBlockDocumentWithSections<T>) : Node {
-    val xe = Element("s:document", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val xe = Element("s:document", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     addType(e.type, xe)
     addId(e.id, xe)
     addTitle(e.title, xe)
@@ -224,7 +224,7 @@ class KSXOMSerializer<T> private constructor(
 
   private fun serializeBlockDocumentWithParts(
     e : KSBlockDocumentWithParts<T>) : Node {
-    val xe = Element("s:document", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val xe = Element("s:document", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     addType(e.type, xe)
     addId(e.id, xe)
     addTitle(e.title, xe)
@@ -233,7 +233,7 @@ class KSXOMSerializer<T> private constructor(
   }
 
   private fun serializeBlockSubsection(e : KSBlockSubsection<T>) : Node {
-    val xe = Element("s:subsection", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val xe = Element("s:subsection", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     addType(e.type, xe)
     addId(e.id, xe)
     addTitle(e.title, xe)
@@ -242,7 +242,7 @@ class KSXOMSerializer<T> private constructor(
   }
 
   private fun serializeBlockPart(e : KSBlockPart<T>) : Node {
-    val xe = Element("s:part", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val xe = Element("s:part", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     addType(e.type, xe)
     addId(e.id, xe)
     addTitle(e.title, xe)
@@ -259,7 +259,7 @@ class KSXOMSerializer<T> private constructor(
 
   private fun serializeBlockSectionWithContent(
     e : KSBlockSectionWithContent<T>) : Node {
-    val xe = Element("s:section", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val xe = Element("s:section", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     addType(e.type, xe)
     addId(e.id, xe)
     addTitle(e.title, xe)
@@ -278,7 +278,7 @@ class KSXOMSerializer<T> private constructor(
     }
 
     xe.addAttribute(
-      Attribute("s:title", KSXMLNamespace.NAMESPACE_URI_TEXT, sb.toString()))
+      Attribute("s:title", KSSchemaNamespaces.NAMESPACE_URI_TEXT, sb.toString()))
   }
 
   private fun serializeSubsectionContent(c : KSSubsectionContent<T>) : Node {
@@ -290,7 +290,7 @@ class KSXOMSerializer<T> private constructor(
   }
 
   private fun serializeBlockFootnote(e : KSBlockFootnote<T>) : Node {
-    val xe = Element("s:footnote", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val xe = Element("s:footnote", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     addType(e.type, xe)
     addId(e.id, xe)
     KSXOM.inlinesAppend(xe, e.content, { c -> serializeInline(c) })
@@ -298,7 +298,7 @@ class KSXOMSerializer<T> private constructor(
   }
 
   private fun serializeBlockFormalItem(e : KSBlockFormalItem<T>) : Node {
-    val xe = Element("s:formal-item", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val xe = Element("s:formal-item", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     addType(e.type, xe)
     addId(e.id, xe)
     addTitle(e.title, xe)
@@ -308,7 +308,7 @@ class KSXOMSerializer<T> private constructor(
 
   private fun serializeBlockSectionWithSubsections(
     e : KSBlockSectionWithSubsections<T>) : Node {
-    val xe = Element("s:section", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val xe = Element("s:section", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     addType(e.type, xe)
     addId(e.id, xe)
     addTitle(e.title, xe)
@@ -317,7 +317,7 @@ class KSXOMSerializer<T> private constructor(
   }
 
   private fun serializeBlockParagraph(e : KSBlockParagraph<T>) : Node {
-    val xe = Element("s:paragraph", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val xe = Element("s:paragraph", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     addType(e.type, xe)
     addId(e.id, xe)
     KSXOM.inlinesAppend(xe, e.content, { c -> serializeInline(c) })
@@ -327,14 +327,14 @@ class KSXOMSerializer<T> private constructor(
   private fun addId(id_opt : Optional<KSID<T>>, xe : Element) {
     id_opt.ifPresent { id ->
       xe.addAttribute(Attribute(
-        "xml:id", KSXMLNamespace.XML_NAMESPACE_URI_TEXT, id.value))
+        "xml:id", KSSchemaNamespaces.XML_NAMESPACE_URI_TEXT, id.value))
     }
   }
 
   private fun addType(type_opt : Optional<String>, xe : Element) {
     type_opt.ifPresent { type ->
       xe.addAttribute(Attribute(
-        "s:type", KSXMLNamespace.NAMESPACE_URI_TEXT, type))
+        "s:type", KSSchemaNamespaces.NAMESPACE_URI_TEXT, type))
     }
   }
 

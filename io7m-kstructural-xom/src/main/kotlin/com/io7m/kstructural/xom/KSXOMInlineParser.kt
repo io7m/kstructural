@@ -36,7 +36,7 @@ import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
-import com.io7m.kstructural.schema.KSXMLNamespace
+import com.io7m.kstructural.schema.KSSchemaNamespaces
 import nu.xom.Element
 import nu.xom.Node
 import nu.xom.Text
@@ -94,7 +94,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
     Assertive.require(element.localName == "link")
 
     val kp = KSParse(context)
-    val ta = element.getAttribute("target", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val ta = element.getAttribute("target", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     val target = KSID<KSParse>(no_lex, ta.value, kp)
     val act_content = KSResult.listMap(
       { e -> parseLinkContent(context, e) }, listOfChildren(element))
@@ -248,8 +248,8 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
   private fun parseSize(
     element : Element) : KSResult<Optional<KSSize>, KSParseError> {
-    val tw = element.getAttribute("width", KSXMLNamespace.NAMESPACE_URI_TEXT)
-    val th = element.getAttribute("height", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val tw = element.getAttribute("width", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    val th = element.getAttribute("height", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     return if (tw != null) {
       try {
         succeed(Optional.of(KSSize(BigInteger(tw.value), BigInteger(th.value))))
@@ -264,7 +264,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
   private fun parseTargetURI(element : Element) : KSResult<URI, KSParseError> {
     return try {
-      val ta = element.getAttribute("target", KSXMLNamespace.NAMESPACE_URI_TEXT)
+      val ta = element.getAttribute("target", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
       succeed(URI(ta.value))
     } catch (x : URISyntaxException) {
       KSResult.fail<URI, KSParseError>(
@@ -273,7 +273,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
   }
 
   private fun parseType(element : Element) : Optional<String> {
-    val ta = element.getAttribute("type", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val ta = element.getAttribute("type", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     return if (ta != null) {
       Optional.of(ta.value)
     } else {

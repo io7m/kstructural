@@ -31,6 +31,7 @@ import com.io7m.kstructural.core.evaluator.KSEvaluationContextType;
 import com.io7m.kstructural.pretty.KSPrettyPrinterType;
 import com.io7m.kstructural.pretty.canon.KSCanonPrettyPrinter;
 import com.io7m.kstructural.pretty.imperative.KSImperativePrettyPrinter;
+import com.io7m.kstructural.xom.KSJingValidation;
 import com.io7m.kstructural.xom.KSXOMSerializer;
 import com.io7m.kstructural.xom.KSXOMSerializerType;
 import nu.xom.Document;
@@ -38,8 +39,10 @@ import nu.xom.Element;
 import nu.xom.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
@@ -266,6 +269,16 @@ public final class KSExporter implements KSExporterType
         final Serializer s = new Serializer(os, "UTF-8");
         s.write(new Document((Element) xs.serialize(b)));
         s.flush();
+
+        KSExporter.LOG.debug("validating output file");
+        try (final InputStream is = Files.newInputStream(out_tmp)) {
+          if (!KSJingValidation.validate(out_tmp, is)) {
+            KSExporter.LOG.error("{}: validation failed!", out_tmp);
+          }
+        } catch (final SAXException e) {
+          KSExporter.LOG.error("{}: validation failed: ", out_tmp, e);
+          throw new IOException(e);
+        }
       }
     }
   }

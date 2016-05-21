@@ -37,7 +37,7 @@ import com.io7m.kstructural.core.KSSubsectionContent
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFootnote
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFormalItem
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
-import com.io7m.kstructural.schema.KSXMLNamespace
+import com.io7m.kstructural.schema.KSSchemaNamespaces
 import nu.xom.Element
 import nu.xom.Node
 import org.slf4j.LoggerFactory
@@ -85,7 +85,7 @@ class KSXOMBlockParser private constructor(
   }
 
   private fun parseType(element : Element) : Optional<String> {
-    val ta = element.getAttribute("type", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val ta = element.getAttribute("type", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     return if (ta != null) {
       Optional.of(ta.value)
     } else {
@@ -96,7 +96,7 @@ class KSXOMBlockParser private constructor(
   private fun parseID(
     context : KSParseContextType,
     element : Element) : Optional<KSID<KSParse>> {
-    val ta = element.getAttribute("id", KSXMLNamespace.XML_NAMESPACE_URI_TEXT)
+    val ta = element.getAttribute("id", KSSchemaNamespaces.XML_NAMESPACE_URI_TEXT)
     return if (ta != null) {
       Optional.of(KSID(no_lex, ta.value, KSParse(context)))
     } else {
@@ -107,7 +107,7 @@ class KSXOMBlockParser private constructor(
   private fun parseIDNonOptional(
     context : KSParseContextType,
     element : Element) : KSID<KSParse> {
-    val ta = element.getAttribute("id", KSXMLNamespace.XML_NAMESPACE_URI_TEXT)
+    val ta = element.getAttribute("id", KSSchemaNamespaces.XML_NAMESPACE_URI_TEXT)
     return KSID(no_lex, ta.value, KSParse(context))
   }
 
@@ -231,7 +231,7 @@ class KSXOMBlockParser private constructor(
   private fun parseTitle(
     context : KSParseContextType,
     element : Element) : List<KSInlineText<KSParse>> {
-    val tt = element.getAttribute("title", KSXMLNamespace.NAMESPACE_URI_TEXT)
+    val tt = element.getAttribute("title", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     return listOf(KSInlineText(no_lex, false, KSParse(context), false, tt.value))
   }
 

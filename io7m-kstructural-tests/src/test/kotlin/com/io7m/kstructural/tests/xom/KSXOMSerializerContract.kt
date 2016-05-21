@@ -18,7 +18,7 @@ package com.io7m.kstructural.tests.xom
 
 import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSParse
-import com.io7m.kstructural.schema.KSXMLNamespace
+import com.io7m.kstructural.schema.KSSchemaNamespaces
 import com.io7m.kstructural.xom.KSXOMInlineParser
 import nu.xom.Node
 import org.junit.Assert
@@ -29,7 +29,7 @@ abstract class KSXOMSerializerContract {
 
   val LOG = LoggerFactory.getLogger(KSXOMSerializerContract::class.java)
 
-  val NAMESPACE = KSXMLNamespace.NAMESPACE_URI_TEXT
+  val NAMESPACE = KSSchemaNamespaces.NAMESPACE_URI_TEXT
 
   abstract fun parseInlineXML(text : String) : KSElement<KSParse>
 

@@ -31,7 +31,7 @@ import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSResult.*
-import com.io7m.kstructural.schema.KSXMLNamespace
+import com.io7m.kstructural.schema.KSSchemaNamespaces
 import com.io7m.kstructural.xom.KSXOMBlockParserType
 import com.io7m.kstructural.xom.KSXOMInlineParser
 import com.io7m.kstructural.xom.KSXOMInlineParserType
@@ -49,7 +49,7 @@ abstract class KSXOMBlockParserContract {
 
   abstract fun parser() : KSXOMBlockParserType
 
-  val NAMESPACE = KSXMLNamespace.NAMESPACE_URI_TEXT
+  val NAMESPACE = KSSchemaNamespaces.NAMESPACE_URI_TEXT
 
   @Test
   fun testParagraph() {

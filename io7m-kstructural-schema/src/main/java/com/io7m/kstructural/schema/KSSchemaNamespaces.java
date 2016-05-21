@@ -18,27 +18,27 @@ package com.io7m.kstructural.schema;
 
 import java.net.URI;
 
-public final class KSXMLNamespace
+public final class KSSchemaNamespaces
 {
   public static final URI NAMESPACE_URI =
     URI.create("http://schemas.io7m.com/structural/3.0.0");
 
   public static final String NAMESPACE_URI_TEXT =
-    KSXMLNamespace.NAMESPACE_URI.toString();
+    KSSchemaNamespaces.NAMESPACE_URI.toString();
 
   public static final URI XML_NAMESPACE_URI =
     URI.create("http://www.w3.org/XML/1998/namespace");
 
   public static final String XML_NAMESPACE_URI_TEXT =
-    KSXMLNamespace.XML_NAMESPACE_URI.toString();
+    KSSchemaNamespaces.XML_NAMESPACE_URI.toString();
 
   public static final URI XINCLUDE_NAMESPACE_URI =
     URI.create("http://www.w3.org/2001/XInclude");
 
   public static final String XINCLUDE_NAMESPACE_URI_TEXT =
-    KSXMLNamespace.XINCLUDE_NAMESPACE_URI.toString();
+    KSSchemaNamespaces.XINCLUDE_NAMESPACE_URI.toString();
 
-  private KSXMLNamespace()
+  private KSSchemaNamespaces()
   {
 
   }
