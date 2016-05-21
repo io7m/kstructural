@@ -40,6 +40,10 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Deque;
 
+/**
+ * The document checking operation.
+ */
+
 public final class KSOpCheck implements KSOpType
 {
   private static final org.slf4j.Logger LOG;
@@ -54,6 +58,12 @@ public final class KSOpCheck implements KSOpType
   {
     this.path = NullCheck.notNull(p);
   }
+
+  /**
+   * @param p The path to the document
+   *
+   * @return A new operation that will check the document at {@code p}
+   */
 
   public static KSOpType create(final Path p)
   {

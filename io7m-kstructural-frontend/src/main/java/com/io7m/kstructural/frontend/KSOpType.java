@@ -20,7 +20,11 @@ import com.io7m.jfunctional.Unit;
 
 import java.util.concurrent.Callable;
 
+/**
+ * The type of operations executed by the frontend.
+ */
+
 public interface KSOpType extends Callable<Unit>
 {
-
+  // No extra methods
 }

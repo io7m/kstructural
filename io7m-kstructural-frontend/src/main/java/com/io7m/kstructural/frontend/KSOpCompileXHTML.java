@@ -37,6 +37,10 @@ import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.function.Supplier;
 
+/**
+ * An operation that compiles a document to XHTML.
+ */
+
 public final class KSOpCompileXHTML implements KSOpType
 {
   private static final org.slf4j.Logger LOG;
@@ -50,6 +54,7 @@ public final class KSOpCompileXHTML implements KSOpType
   private final Path path;
   private final Path output_path;
   private final boolean css_create_default;
+
   private KSOpCompileXHTML(
     final Path in_path,
     final Path in_output_path,
@@ -63,6 +68,21 @@ public final class KSOpCompileXHTML implements KSOpType
     this.pagination = NullCheck.notNull(in_pagination);
     this.css_create_default = in_css_create_default;
   }
+
+  /**
+   * Construct a new operation.
+   *
+   * @param in_path               The input file
+   * @param in_output_path        The output directory
+   * @param in_settings           The export settings
+   * @param in_pagination         The pagination type (single or multi-page,
+   *                              etc)
+   * @param in_css_create_default {@code true} iff the default provided CSS
+   *                              files should be written to the output
+   *                              directory
+   *
+   * @return A new operation
+   */
 
   public static KSOpType create(
     final Path in_path,
@@ -160,9 +180,23 @@ public final class KSOpCompileXHTML implements KSOpType
     return Unit.unit();
   }
 
+  /**
+   * The type of XHTML pagination.
+   */
+
   public enum XHTMLPagination
   {
+    /**
+     * The output will be a single XHTML page.
+     */
+
     XHTML_SINGLE_PAGE("single"),
+
+    /**
+     * The output will be written to multiple XHTML pages, one page per {@code
+     * document}, {@code section}, and {@code part}.
+     */
+
     XHTML_MULTI_PAGE("multi");
 
     private final String name;
@@ -177,6 +211,10 @@ public final class KSOpCompileXHTML implements KSOpType
     {
       return this.name;
     }
+
+    /**
+     * @return The pagination type name
+     */
 
     public String getName()
     {

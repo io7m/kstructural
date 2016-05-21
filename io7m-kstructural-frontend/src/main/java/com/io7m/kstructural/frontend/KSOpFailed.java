@@ -16,8 +16,16 @@
 
 package com.io7m.kstructural.frontend;
 
+/**
+ * A generic exception indicating that an operation failed.
+ */
+
 public final class KSOpFailed extends Exception
 {
+  /**
+   * Construct an exception with the default message.
+   */
+
   public KSOpFailed()
   {
     super("An operation failed. See error messages above.");

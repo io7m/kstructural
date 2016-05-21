@@ -69,6 +69,10 @@ import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Optional;
 
+/**
+ * The default set of provided parsers.
+ */
+
 public final class KSParsers implements KSParserConstructorType
 {
   private static final org.slf4j.Logger LOG;
@@ -92,10 +96,22 @@ public final class KSParsers implements KSParserConstructorType
 
   }
 
+  /**
+   * @return Access to the default parsers
+   */
+
   public static KSParsers getInstance()
   {
     return KSParsers.INSTANCE;
   }
+
+  /**
+   * Create a new canonical format parser.
+   *
+   * @param context A parse context
+   *
+   * @return A new parser
+   */
 
   public static KSParserType createCanonical(
     final KSParseContextType context)
@@ -120,11 +136,27 @@ public final class KSParsers implements KSParserConstructorType
     };
   }
 
+  /**
+   * Create a new imperative format parser.
+   *
+   * @param context A parse context
+   *
+   * @return A new parser
+   */
+
   public static KSParserType createImperative(
     final KSParseContextType context)
   {
     return new Imperative();
   }
+
+  /**
+   * Create a new XML format parser.
+   *
+   * @param context A parse context
+   *
+   * @return A new parser
+   */
 
   public static KSParserType createXML(
     final KSParseContextType context)
@@ -169,7 +201,7 @@ public final class KSParsers implements KSParserConstructorType
     private Optional<LexicalPositionType<Path>> last_pos;
     private ArrayDeque<KSParseError> errors;
 
-    Imperative()
+    private Imperative()
     {
       this.last_pos = Optional.empty();
       this.errors = new ArrayDeque<>(128);
@@ -325,6 +357,11 @@ public final class KSParsers implements KSParserConstructorType
 
   private static final class XMLParser implements KSParserType
   {
+    private XMLParser()
+    {
+
+    }
+
     @Override
     public KSResult<KSBlock<KSParse>, KSParseError> parseBlock(
       final KSParseContextType context,

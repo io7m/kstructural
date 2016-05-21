@@ -23,8 +23,25 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
 
+/**
+ * The type of document exporters/converts.
+ */
+
 public interface KSExporterType
 {
+  /**
+   * Export a document.
+   *
+   * @param base_directory      The base directory of the original document
+   * @param document            The original document
+   * @param out_directory       The output directory
+   * @param reconstruct_imports {@code true} if imports should be reconstructed
+   *
+   * @return The set of filenames produced by the export
+   *
+   * @throws IOException On I/O errors
+   */
+
   Set<Path> export(
     Path base_directory,
     KSBlockDocument<KSEvaluation> document,

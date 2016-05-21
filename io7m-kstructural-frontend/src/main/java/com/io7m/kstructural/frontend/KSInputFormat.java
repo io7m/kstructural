@@ -18,10 +18,28 @@ package com.io7m.kstructural.frontend;
 
 import com.io7m.jnull.NullCheck;
 
+/**
+ * The supported input formats for documents.
+ */
+
 public enum KSInputFormat
 {
+  /**
+   * The canonical s-expression format.
+   */
+
   KS_INPUT_CANONICAL("canonical"),
+
+  /**
+   * The imperative s-expression format.
+   */
+
   KS_INPUT_IMPERATIVE("imperative"),
+
+  /**
+   * The XML format.
+   */
+
   KS_INPUT_XML("xml");
 
   private final String name;
@@ -30,6 +48,10 @@ public enum KSInputFormat
   {
     this.name = NullCheck.notNull(in_name);
   }
+
+  /**
+   * @return The name of the format
+   */
 
   public String getName()
   {

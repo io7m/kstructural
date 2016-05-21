@@ -29,6 +29,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
+/**
+ * Code for appending and/or prepending branding to XHTML documents.
+ */
+
 public final class KSBrandAppender
 {
   private final Optional<Element> brand_start;
@@ -70,6 +74,18 @@ public final class KSBrandAppender
     return Optional.empty();
   }
 
+  /**
+   * Construct a new appender.
+   *
+   * @param start The optional "top" brand file
+   * @param end   The optional "bottom" brand file
+   *
+   * @return A new appender
+   *
+   * @throws IOException      On I/O errors
+   * @throws ParsingException On brand parse errors
+   */
+
   public static KSBrandAppender newAppender(
     final Optional<Path> start,
     final Optional<Path> end)
@@ -81,10 +97,18 @@ public final class KSBrandAppender
     );
   }
 
+  /**
+   * @return A procedure that will append a brand to the start of a document
+   */
+
   public PartialProcedureType<Element, IOException> getAppenderStart()
   {
     return this.appender_start;
   }
+
+  /**
+   * @return A procedure that will append a brand to the end of a document
+   */
 
   public PartialProcedureType<Element, IOException> getAppenderEnd()
   {

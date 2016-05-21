@@ -25,6 +25,10 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * An operation that converts documents.
+ */
+
 public final class KSOpConvert implements KSOpType
 {
   private static final org.slf4j.Logger LOG;
@@ -55,6 +59,18 @@ public final class KSOpConvert implements KSOpType
     this.indent = in_indent;
     this.width = in_width;
   }
+
+  /**
+   * @param in_path                The path to the document
+   * @param in_output_path         The output directory
+   * @param in_output_format       The output format
+   * @param in_reconstruct_imports {@code true} iff imports should be
+   *                               reconstructed
+   * @param in_indent              The indent width
+   * @param in_width               The maximum document width
+   *
+   * @return A new operation that will convert the document at {@code p}
+   */
 
   public static KSOpType create(
     final Path in_path,

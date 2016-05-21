@@ -54,6 +54,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
+/**
+ * The default implementation of the {@link KSExporterType} interface.
+ */
+
 public final class KSExporter implements KSExporterType
 {
   private static final Logger LOG;
@@ -75,6 +79,16 @@ public final class KSExporter implements KSExporterType
     this.indent = in_indent;
     this.width = in_width;
   }
+
+  /**
+   * Construct a new importer
+   *
+   * @param in_format The format of the exported document
+   * @param in_indent The indent width
+   * @param in_width  The maximum page width
+   *
+   * @return A new exporter
+   */
 
   public static KSExporterType newExporter(
     final KSInputFormat in_format,
