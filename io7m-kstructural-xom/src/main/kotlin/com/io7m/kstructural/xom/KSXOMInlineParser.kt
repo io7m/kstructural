@@ -30,6 +30,12 @@ import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineVerbatim
 import com.io7m.kstructural.core.KSElement.KSInline.KSListItem
 import com.io7m.kstructural.core.KSElement.KSInline.KSSize
+import com.io7m.kstructural.core.KSElement.KSInline.KSTableBody
+import com.io7m.kstructural.core.KSElement.KSInline.KSTableBodyCell
+import com.io7m.kstructural.core.KSElement.KSInline.KSTableBodyRow
+import com.io7m.kstructural.core.KSElement.KSInline.KSTableHead
+import com.io7m.kstructural.core.KSElement.KSInline.KSTableHeadColumnName
+import com.io7m.kstructural.core.KSElement.KSInline.KSTableSummary
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSLink
 import com.io7m.kstructural.core.KSLinkContent
@@ -86,8 +92,143 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
       "link-external"  -> parseElementLinkExternal(context, element)
       "list-ordered"   -> parseElementListOrdered(context, element)
       "list-unordered" -> parseElementListUnordered(context, element)
+      "table"          -> parseElementTable(context, element)
+      "footnote-ref"   -> parseElementFootnoteReference(context, element)
       else             ->
         fail(KSParseError(no_lex, "Unrecognized element: " + element.localName))
+    }
+  }
+
+  private fun parseElementFootnoteReference(
+    context : KSParseContextType,
+    element : Element)
+    : KSResult<KSInlineFootnoteReference<KSParse>, KSParseError> {
+    Assertive.require(element.localName == "footnote-ref")
+
+    val kp = KSParse(context)
+    val ta = element.getAttribute("target", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    val target = KSID(no_lex, ta.value, kp)
+
+    return succeed(KSInlineFootnoteReference(
+      no_lex, false, KSParse(context), target))
+  }
+
+  private fun parseElementTable(
+    context : KSParseContextType,
+    element : Element)
+    : KSResult<KSInlineTable<KSParse>, KSParseError> {
+    Assertive.require(element.localName == "table")
+
+    val kp = KSParse(context)
+    val type = parseType(element)
+    val summary = parseSummary(context, element)
+
+    val eh = element.getFirstChildElement(
+      "head", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    val act_head = if (eh != null) {
+      parseElementTableHead(context, eh).flatMap { head ->
+        succeed(Optional.of(head))
+      }
+    } else {
+      succeed(Optional.empty())
+    }
+
+    val eb = element.getFirstChildElement(
+      "body", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    val act_body : KSResult<KSTableBody<KSParse>, KSParseError> =
+      if (eb != null) {
+        parseElementTableBody(context, eb)
+      } else {
+        KSResult.fail(KSParseError(no_lex, "No table body provided"))
+      }
+
+    return act_head.flatMap { head ->
+      act_body.flatMap { body ->
+        succeed(KSInlineTable(no_lex, false, kp, type, summary, head, body))
+      }
+    }
+  }
+
+  private fun parseSummary(
+    context : KSParseContextType,
+    element : Element)
+    : KSTableSummary<KSParse> {
+    val tt = element.getAttribute(
+      "summary", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    val kp = KSParse(context)
+    return KSTableSummary(
+      no_lex,
+      false,
+      kp,
+      listOf(KSInlineText(no_lex, false, kp, false, tt.value)))
+  }
+
+  private fun parseElementTableBody(
+    context : KSParseContextType,
+    element : Element)
+    : KSResult<KSTableBody<KSParse>, KSParseError> {
+    Assertive.require(element.localName == "body")
+
+    val act_rows = KSResult.listMap(
+      { c -> parseTableRow(context, c) }, listOfChildElements(element))
+
+    return act_rows.flatMap { rows ->
+      succeed(KSTableBody(no_lex, false, KSParse(context), rows))
+    }
+  }
+
+  private fun parseTableRow(
+    context : KSParseContextType,
+    element : Element)
+    : KSResult<KSTableBodyRow<KSParse>, KSParseError> {
+    Assertive.require(element.localName == "row")
+
+    val act_cells = KSResult.listMap(
+      { c -> parseTableCell(context, c) }, listOfChildElements(element))
+
+    return act_cells.flatMap { cells ->
+      succeed(KSTableBodyRow(no_lex, false, KSParse(context), cells))
+    }
+  }
+
+  private fun parseTableCell(
+    context : KSParseContextType,
+    element : Element)
+    : KSResult<KSTableBodyCell<KSParse>, KSParseError> {
+    Assertive.require(element.localName == "cell")
+
+    val act_content = KSResult.listMap(
+      { c -> parse(context, c) }, listOfChildren(element))
+
+    return act_content.flatMap { content ->
+      succeed(KSTableBodyCell(no_lex, false, KSParse(context), content))
+    }
+  }
+
+  private fun parseElementTableHead(
+    context : KSParseContextType,
+    element : Element)
+    : KSResult<KSTableHead<KSParse>, KSParseError> {
+    Assertive.require(element.localName == "head")
+
+    val act_names = KSResult.listMap(
+      { c -> parseTableColumnName(context, c) }, listOfChildElements(element))
+
+    return act_names.flatMap { names ->
+      succeed(KSTableHead(no_lex, false, KSParse(context), names))
+    }
+  }
+
+  private fun parseTableColumnName(
+    context : KSParseContextType,
+    element : Element)
+    : KSResult<KSTableHeadColumnName<KSParse>, KSParseError> {
+    Assertive.require(element.localName == "name")
+
+    val act_content = KSResult.listMap(
+      { e -> parseInlineText(context, e) }, listOfChildren(element))
+    return act_content.flatMap { content ->
+      succeed(KSTableHeadColumnName(no_lex, false, KSParse(context), content))
     }
   }
 
@@ -164,7 +305,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
     val kp = KSParse(context)
     val ta = element.getAttribute("target", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
-    val target = KSID<KSParse>(no_lex, ta.value, kp)
+    val target = KSID(no_lex, ta.value, kp)
     val act_content = KSResult.listMap(
       { e -> parseLinkContent(context, e) }, listOfChildren(element))
 
@@ -372,8 +513,6 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
   }
 
   companion object {
-
-    private val LOG = LoggerFactory.getLogger(KSXOMInlineParser::class.java)
 
     private val no_lex : Optional<LexicalPositionType<Path>> = Optional.empty()
 

@@ -16,7 +16,9 @@
 
 package com.io7m.kstructural.tests.xom
 
+import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineImage
+import com.io7m.kstructural.core.KSElement.KSInline.*
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineLink
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListOrdered
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListUnordered
@@ -253,5 +255,79 @@ abstract class KSXOMInlineParserContract {
     val r = p.parse(c, n)
 
     r as KSFailure
+  }
+
+  @Test
+  fun testTable() {
+    val n = parseXML("""
+<s:table s:summary="A B C" xmlns:s="${NAMESPACE}">
+  <s:body>
+    <s:row>
+      <s:cell>x</s:cell>
+      <s:cell>y</s:cell>
+    </s:row>
+    <s:row>
+      <s:cell>x</s:cell>
+      <s:cell>y</s:cell>
+    </s:row>
+  </s:body>
+</s:table>""")
+    val p = parser()
+    val c = KSParseContext.empty()
+    val r = p.parse(c, n)
+
+    r as KSSuccess<KSInlineTable<KSParse>, KSParseError>
+    val i = r.result
+    Assert.assertEquals("A B C", i.summary.content[0].text)
+    Assert.assertFalse(i.head.isPresent)
+    Assert.assertEquals(2, i.body.rows.size)
+    Assert.assertEquals(2, i.body.rows[0].cells.size)
+    Assert.assertEquals(2, i.body.rows[1].cells.size)
+  }
+
+  @Test
+  fun testTableHead() {
+    val n = parseXML("""
+<s:table s:summary="A B C" xmlns:s="${NAMESPACE}">
+  <s:head>
+    <s:name>A</s:name>
+    <s:name>B</s:name>
+    <s:name>C</s:name>
+  </s:head>
+  <s:body>
+    <s:row>
+      <s:cell>x</s:cell>
+      <s:cell>y</s:cell>
+    </s:row>
+    <s:row>
+      <s:cell>x</s:cell>
+      <s:cell>y</s:cell>
+    </s:row>
+  </s:body>
+</s:table>""")
+    val p = parser()
+    val c = KSParseContext.empty()
+    val r = p.parse(c, n)
+
+    r as KSSuccess<KSInlineTable<KSParse>, KSParseError>
+    val i = r.result
+    Assert.assertEquals("A B C", i.summary.content[0].text)
+    val ih = i.head.get()
+    Assert.assertEquals(3, ih.column_names.size)
+    Assert.assertEquals(2, i.body.rows.size)
+    Assert.assertEquals(2, i.body.rows[0].cells.size)
+    Assert.assertEquals(2, i.body.rows[1].cells.size)
+  }
+
+  @Test
+  fun testFootnoteReference() {
+    val n = parseXML("""<s:footnote-ref s:target="x" xmlns:s="${NAMESPACE}"/>""")
+    val p = parser()
+    val c = KSParseContext.empty()
+    val r = p.parse(c, n)
+
+    r as KSSuccess<KSInlineFootnoteReference<KSParse>, KSParseError>
+    val i = r.result
+    Assert.assertEquals("x", i.target.value)
   }
 }

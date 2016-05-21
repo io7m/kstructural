@@ -73,12 +73,12 @@ class KSXOMSerializer<T> private constructor(
       is KSBlock               -> serializeBlock(e)
       is KSInline              -> serializeInline(e)
       is KSListItem            -> serializeListItem(e)
-      is KSTableHeadColumnName -> TODO()
-      is KSTableHead           -> TODO()
-      is KSTableBodyCell       -> TODO()
-      is KSTableBodyRow        -> TODO()
-      is KSTableBody           -> TODO()
-      is KSTableSummary        -> TODO()
+      is KSTableHeadColumnName -> serializeTableHeadColumnName(e)
+      is KSTableHead           -> serializeTableHead(e)
+      is KSTableBodyCell       -> serializeTableBodyCell(e)
+      is KSTableBodyRow        -> serializeTableBodyRow(e)
+      is KSTableBody           -> serializeTableBody(e)
+      is KSTableSummary        -> serializeTableSummary(e)
     }
   }
 
@@ -88,13 +88,73 @@ class KSXOMSerializer<T> private constructor(
       is KSInlineText              -> serializeInlineText(e)
       is KSInlineVerbatim          -> serializeInlineVerbatim(e)
       is KSInlineTerm              -> serializeInlineTerm(e)
-      is KSInlineFootnoteReference -> TODO()
+      is KSInlineFootnoteReference -> serializeInlineFootnoteReference(e)
       is KSInlineImage             -> serializeInlineImage(e)
-      is KSInlineListOrdered       -> serializeListOrdered(e)
-      is KSInlineListUnordered     -> serializeListUnordered(e)
-      is KSInlineTable             -> TODO()
+      is KSInlineListOrdered       -> serializeInlineListOrdered(e)
+      is KSInlineListUnordered     -> serializeInlineListUnordered(e)
+      is KSInlineTable             -> serializeInlineTable(e)
       is KSInlineInclude           -> serializeInlineInclude(e)
     }
+  }
+
+  private fun serializeInlineFootnoteReference(
+    e : KSInlineFootnoteReference<T>) : Node {
+    val xe = Element("s:footnote-ref", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    xe.addAttribute(Attribute(
+      "s:target", KSSchemaNamespaces.NAMESPACE_URI_TEXT, e.target.toString()))
+    return xe
+  }
+
+  private fun serializeInlineTable(e : KSInlineTable<T>) : Node {
+    val xe = Element("s:table", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    xe.addAttribute(serializeTableSummary(e.summary))
+    e.head.ifPresent { head -> xe.appendChild(serializeTableHead(head)) }
+    xe.appendChild(serializeTableBody(e.body))
+    return xe
+  }
+
+  private fun serializeTableBody(e : KSTableBody<T>) : Node {
+    val xe = Element("s:body", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    e.rows.map { c -> xe.appendChild(serializeTableBodyRow(c)) }
+    return xe
+  }
+
+  private fun serializeTableBodyRow(e : KSTableBodyRow<T>) : Node {
+    val xe = Element("s:row", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    e.cells.map { c -> xe.appendChild(serializeTableBodyCell(c)) }
+    return xe
+  }
+
+  private fun serializeTableBodyCell(e : KSTableBodyCell<T>) : Node {
+    val xe = Element("s:cell", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    KSXOM.inlinesAppend(xe, e.content, { c -> serializeInline(c) })
+    return xe
+  }
+
+  private fun serializeTableHead(e : KSTableHead<T>) : Node {
+    val xe = Element("s:head", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    e.column_names.map { c -> xe.appendChild(serializeTableHeadColumnName(c)) }
+    return xe
+  }
+
+  private fun serializeTableSummary(e : KSTableSummary<T>) : Attribute {
+    val sb = StringBuilder()
+    val max = e.content.size - 1
+    for (i in 0 .. max) {
+      sb.append(e.content[i].text)
+      if (i < max) {
+        sb.append(" ")
+      }
+    }
+
+    return Attribute(
+      "s:summary", KSSchemaNamespaces.NAMESPACE_URI_TEXT, sb.toString())
+  }
+
+  private fun serializeTableHeadColumnName(e : KSTableHeadColumnName<T>) : Node {
+    val xe = Element("s:name", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    KSXOM.inlinesAppend(xe, e.content, { c -> serializeInline(c) })
+    return xe
   }
 
   private fun serializeListItem(e : KSListItem<T>) : Node {
@@ -103,13 +163,13 @@ class KSXOMSerializer<T> private constructor(
     return xe
   }
 
-  private fun serializeListUnordered(e : KSInlineListUnordered<T>) : Node {
+  private fun serializeInlineListUnordered(e : KSInlineListUnordered<T>) : Node {
     val xe = Element("s:list-unordered", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     e.content.map { c -> xe.appendChild(serializeListItem(c)) }
     return xe
   }
 
-  private fun serializeListOrdered(e : KSInlineListOrdered<T>) : Node {
+  private fun serializeInlineListOrdered(e : KSInlineListOrdered<T>) : Node {
     val xe = Element("s:list-ordered", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     e.content.map { c -> xe.appendChild(serializeListItem(c)) }
     return xe

@@ -63,6 +63,18 @@ abstract class KSXOMSerializerContract {
     Assert.assertEquals(r0, r1)
   }
 
+  @Test fun testTable() {
+    roundTripInline("""
+<?xml version="1.0" encoding="UTF-8"?>
+<s:table s:summary="A B C" xmlns:s="${NAMESPACE}"><s:body><s:row><s:cell>x</s:cell><s:cell>y</s:cell></s:row><s:row><s:cell>x</s:cell><s:cell>y</s:cell></s:row></s:body></s:table>""")
+  }
+
+  @Test fun testTableHead() {
+    roundTripInline("""
+<?xml version="1.0" encoding="UTF-8"?>
+<s:table s:summary="A B C" xmlns:s="${NAMESPACE}"><s:head><s:name>A</s:name><s:name>B</s:name><s:name>C</s:name></s:head><s:body><s:row><s:cell>x</s:cell><s:cell>y</s:cell></s:row><s:row><s:cell>x</s:cell><s:cell>y</s:cell></s:row></s:body></s:table>""")
+  }
+
   @Test fun testVerbatim() {
     roundTripInline("""
 <?xml version="1.0" encoding="UTF-8"?>
@@ -73,6 +85,12 @@ abstract class KSXOMSerializerContract {
     roundTripInline("""
 <?xml version="1.0" encoding="UTF-8"?>
 <s:verbatim s:type="t" xmlns:s="${NAMESPACE}">x y z</s:verbatim>""")
+  }
+
+  @Test fun testFootnoteReference() {
+    roundTripInline("""
+<?xml version="1.0" encoding="UTF-8"?>
+<s:footnote-ref s:target="x" xmlns:s="${NAMESPACE}"/>""")
   }
 
   @Test fun testTerm() {
