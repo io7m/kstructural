@@ -18,9 +18,22 @@ package com.io7m.kstructural.cmdline;
 
 import com.beust.jcommander.IStringConverter;
 
+/**
+ * A converter for {@link KSCLLogLevel} values.
+ */
+
 public final class KSCLLogLevelConverter implements
   IStringConverter<KSCLLogLevel>
 {
+  /**
+   * Construct a new converter.
+   */
+
+  public KSCLLogLevelConverter()
+  {
+
+  }
+
   @Override
   public KSCLLogLevel convert(final String value)
   {

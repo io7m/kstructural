@@ -18,12 +18,23 @@ package com.io7m.kstructural.cmdline;
 
 import com.beust.jcommander.IStringConverter;
 import com.io7m.kstructural.frontend.KSInputFormat;
-import com.io7m.kstructural.frontend.KSOpCompileXHTML;
-import com.io7m.kstructural.frontend.KSOpConvert;
+
+/**
+ * A converter for {@link KSInputFormat} values.
+ */
 
 public final class KSCLInputFormatConverter implements
   IStringConverter<KSInputFormat>
 {
+  /**
+   * Construct a new converter.
+   */
+
+  public KSCLInputFormatConverter()
+  {
+
+  }
+
   @Override
   public KSInputFormat convert(final String value)
   {

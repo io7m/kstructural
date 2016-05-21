@@ -18,11 +18,24 @@ package com.io7m.kstructural.cmdline;
 
 import com.beust.jcommander.IStringConverter;
 import com.io7m.kstructural.frontend.KSOpCompileXHTML;
-import com.io7m.kstructural.xom.KSXOMSettings;
+
+/**
+ * A converter for {@link KSOpCompileXHTML.XHTMLPagination} values.
+ */
+
 
 public final class KSCLXHTMLPaginationConverter implements
   IStringConverter<KSOpCompileXHTML.XHTMLPagination>
 {
+  /**
+   * Construct a new converter.
+   */
+
+  public KSCLXHTMLPaginationConverter()
+  {
+
+  }
+
   @Override
   public KSOpCompileXHTML.XHTMLPagination convert(final String value)
   {

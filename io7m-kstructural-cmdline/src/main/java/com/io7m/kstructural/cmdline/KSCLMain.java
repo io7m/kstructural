@@ -43,6 +43,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
+/**
+ * The main command line program.
+ */
+
 public final class KSCLMain implements Runnable
 {
   private static final org.slf4j.Logger LOG;
@@ -54,7 +58,7 @@ public final class KSCLMain implements Runnable
   private final Map<String, CommandType> commands;
   private final JCommander commander;
   private final String[] args;
-  private int exit_code = 0;
+  private int exit_code;
 
   private KSCLMain(final String[] in_args)
   {
@@ -77,12 +81,22 @@ public final class KSCLMain implements Runnable
     this.commander.addCommand("convert", convert);
   }
 
+  /**
+   * The main entry point.
+   *
+   * @param args Command line arguments
+   */
+
   public static void main(final String[] args)
   {
     final KSCLMain cm = new KSCLMain(args);
     cm.run();
     System.exit(cm.exitCode());
   }
+
+  /**
+   * @return The program exit code
+   */
 
   public int exitCode()
   {
@@ -128,7 +142,7 @@ public final class KSCLMain implements Runnable
       names = "-verbose",
       converter = KSCLLogLevelConverter.class,
       description = "Set the minimum logging verbosity level")
-    protected KSCLLogLevel verbose = KSCLLogLevel.LOG_INFO;
+    private KSCLLogLevel verbose = KSCLLogLevel.LOG_INFO;
 
     CommandRoot()
     {
@@ -150,6 +164,11 @@ public final class KSCLMain implements Runnable
   @Parameters(commandDescription = "Check document syntax and structure")
   private final class CommandCheck extends CommandRoot
   {
+    CommandCheck()
+    {
+
+    }
+
     @Parameter(
       names = "-file",
       description = "Input file",
@@ -173,6 +192,11 @@ public final class KSCLMain implements Runnable
     commandDescription = "Compile documents to XHTML")
   private final class CommandCompileXHTML extends CommandRoot
   {
+    CommandCompileXHTML()
+    {
+
+    }
+
     @Parameter(
       names = "-file",
       description = "Input file",
@@ -287,6 +311,11 @@ public final class KSCLMain implements Runnable
     commandDescription = "Convert documents between input formats")
   private final class CommandConvert extends CommandRoot
   {
+    CommandConvert()
+    {
+
+    }
+
     @Parameter(
       names = "-file",
       description = "Input file",
@@ -310,7 +339,7 @@ public final class KSCLMain implements Runnable
       names = "-no-imports",
       description = "Export as one large document that does not contain any imports",
       required = false)
-    private boolean no_imports = false;
+    private boolean no_imports;
 
     @Parameter(
       names = "-indent",
