@@ -244,13 +244,14 @@ class KSImperativeBuilder private constructor()
       context : KSParseContextType) : KSBlockFootnote<KSParse> {
 
       LOG.trace("finish footnote")
+
       return KSBlockFootnote(
-        command_initial.position,
-        command_initial.square,
-        KSParse(context),
-        command_initial.type,
-        command_initial.id,
-        content)
+        position = command_initial.position,
+        square = command_initial.square,
+        id_real = command_initial.id_real,
+        data = KSParse(context),
+        type = command_initial.type,
+        content = content)
     }
   }
 

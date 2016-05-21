@@ -499,12 +499,23 @@ internal object KSXOM {
       val e_now = es[i]
 
       if (i > 0) {
+
+        /**
+         * The previous element was text, so add a space.
+         */
+
         if (es[i - 1] is Text) {
           e.appendChild(" ")
         } else {
           if (e_now is Text) {
             val et : Text = e_now
             if (et.value.length > 1) {
+
+              /**
+               * The previous element was not text, and this text is more than
+               * a single character, so add a space.
+               */
+
               e.appendChild(" ")
             }
           }

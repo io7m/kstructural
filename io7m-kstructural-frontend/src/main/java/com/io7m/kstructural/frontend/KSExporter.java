@@ -19,6 +19,7 @@ package com.io7m.kstructural.frontend;
 import com.io7m.jnull.NullCheck;
 import com.io7m.junreachable.UnimplementedCodeException;
 import com.io7m.junreachable.UnreachableCodeException;
+import com.io7m.kstructural.core.KSElement;
 import com.io7m.kstructural.core.KSElement.KSBlock;
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument;
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport;
@@ -30,6 +31,11 @@ import com.io7m.kstructural.core.evaluator.KSEvaluationContextType;
 import com.io7m.kstructural.pretty.KSPrettyPrinterType;
 import com.io7m.kstructural.pretty.canon.KSCanonPrettyPrinter;
 import com.io7m.kstructural.pretty.imperative.KSImperativePrettyPrinter;
+import com.io7m.kstructural.xom.KSXOMSerializer;
+import com.io7m.kstructural.xom.KSXOMSerializerType;
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -215,14 +221,53 @@ public final class KSExporter implements KSExporterType
   {
     final String name_tmp = out.getFileName() + ".tmp";
     final Path out_tmp = out.resolveSibling(name_tmp);
-
     KSExporter.LOG.debug("write: {} -> {}", out_tmp, out);
-    try (final KSPrettyPrinterType<KSEvaluation> pretty =
-           this.prettyForPath(out_tmp, imports, includes)) {
-      pretty.pretty(b);
-    }
-
+    this.serialize(b, includes, imports, out_tmp);
     Files.move(out_tmp, out, StandardCopyOption.ATOMIC_MOVE);
+  }
+
+  private void serialize(
+    final KSBlock<KSEvaluation> b,
+    final Function<KSInlineText<KSEvaluation>, Optional<KSInlineInclude<KSEvaluation>>> includes,
+    final Function<KSBlock<KSEvaluation>, Optional<KSBlockImport<KSEvaluation>>> imports,
+    final Path out_tmp)
+    throws IOException
+  {
+    final OutputStream os = Files.newOutputStream(
+      out_tmp,
+      StandardOpenOption.TRUNCATE_EXISTING,
+      StandardOpenOption.CREATE);
+
+    switch (this.format) {
+      case KS_INPUT_CANONICAL:
+      {
+        final OutputStreamWriter w = new OutputStreamWriter(os);
+        try (final KSPrettyPrinterType<KSEvaluation> p =
+               KSCanonPrettyPrinter.Companion.create(
+                 w, this.width, this.indent, imports, includes)) {
+          p.pretty(b);
+        }
+        break;
+      }
+      case KS_INPUT_IMPERATIVE:
+      {
+        final OutputStreamWriter w = new OutputStreamWriter(os);
+        try (final KSPrettyPrinterType<KSEvaluation> p =
+               KSImperativePrettyPrinter.Companion.create(
+                 w, this.width, imports, includes)) {
+          p.pretty(b);
+        }
+        break;
+      }
+      case KS_INPUT_XML:
+      {
+        final KSXOMSerializerType<KSEvaluation> xs =
+          KSXOMSerializer.Companion.create(imports, includes);
+        final Serializer s = new Serializer(os, "UTF-8");
+        s.write(new Document((Element) xs.serialize(b)));
+        s.flush();
+      }
+    }
   }
 
   private KSBlockImport<KSEvaluation> filterImport(
@@ -247,31 +292,5 @@ public final class KSExporter implements KSExporterType
       imp.getType(),
       imp.getId(),
       new_file);
-  }
-
-  private KSPrettyPrinterType<KSEvaluation> prettyForPath(
-    final Path out,
-    final Function<KSBlock<KSEvaluation>, Optional<KSBlockImport<KSEvaluation>>> imports,
-    final Function<KSInlineText<KSEvaluation>, Optional<KSInlineInclude<KSEvaluation>>> includes)
-    throws IOException
-  {
-    final OutputStream os = Files.newOutputStream(
-      out,
-      StandardOpenOption.TRUNCATE_EXISTING,
-      StandardOpenOption.CREATE);
-    final OutputStreamWriter w = new OutputStreamWriter(os);
-
-    switch (this.format) {
-      case KS_INPUT_CANONICAL:
-        return KSCanonPrettyPrinter.Companion.create(
-          w, this.width, this.indent, imports, includes);
-      case KS_INPUT_IMPERATIVE:
-        return KSImperativePrettyPrinter.Companion.create(
-          w, this.width, imports, includes);
-      case KS_INPUT_XML:
-        throw new UnimplementedCodeException();
-    }
-
-    throw new UnreachableCodeException();
   }
 }

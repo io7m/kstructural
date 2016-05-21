@@ -336,10 +336,12 @@ sealed class KSElement<T>(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       data : T,
+      val id_real : KSID<T>,
       override val type : Optional<String>,
-      override val id : Optional<KSID<T>>,
       val content : List<KSInline<T>>)
     : KSBlock<T>(position, square, data) {
+
+      override val id : Optional<KSID<T>> = Optional.of(id_real)
 
       override fun toString() : String {
         val sb = StringBuilder()
@@ -348,7 +350,7 @@ sealed class KSElement<T>(
         sb.append(" ")
         sb.append(bracketOpen(square))
         sb.append("id ")
-        sb.append(id.get())
+        sb.append(id_real)
         sb.append(bracketClose(square))
         sb.append(" ")
         KSTextUtilities.concatenateInto(sb, this.content)

@@ -72,6 +72,9 @@ abstract class KSImperativeBuilderContract {
 
   private val id : Optional<KSID<KSParse>> = Optional.empty()
 
+  private val id_real : KSID<KSParse> = KSID(
+    pos, "x", KSParse(KSParseContext.empty()))
+
   @Test fun testEmptyEOF() {
     val c = KSParseContext.empty()
     val b = newBuilder()
@@ -131,7 +134,7 @@ abstract class KSImperativeBuilderContract {
     val b = newBuilder()
 
     val kp = KSParse(c)
-    val pc = KSImperativeFootnote(pos, true, type, id)
+    val pc = KSImperativeFootnote(pos, true, type, id_real)
     val i0 = KSInlineText(pos, false, kp, false, "xyz")
     val i1 = KSInlineText(pos, false, kp, false, "xyz")
 
@@ -315,7 +318,7 @@ abstract class KSImperativeBuilderContract {
     val kp = KSParse(c)
     val title = mutableListOf(KSInlineText(pos, false, kp, false, "abc"))
     val pc = KSImperativePart(pos, true, type, id, title)
-    val ssc = KSImperativeFootnote(pos, true, type, id)
+    val ssc = KSImperativeFootnote(pos, true, type, id_real)
 
     successEmpty(b.add(c, pc))
 
@@ -486,7 +489,7 @@ abstract class KSImperativeBuilderContract {
 
     val kp = KSParse(c)
     val title = mutableListOf(KSInlineText(pos, false, kp, false, "abc"))
-    val pc = KSImperativeFootnote(pos, true, type, id)
+    val pc = KSImperativeFootnote(pos, true, type, id_real)
     val sc = KSImperativeSection(pos, true, type, id, title)
     val i0 = KSInlineText(pos, false, kp, false, "xyz")
     val i1 = KSInlineText(pos, false, kp, false, "xyz")
@@ -526,7 +529,7 @@ abstract class KSImperativeBuilderContract {
 
     val kp = KSParse(c)
     val title = mutableListOf(KSInlineText(pos, false, kp, false, "abc"))
-    val pc = KSImperativeFootnote(pos, true, type, id)
+    val pc = KSImperativeFootnote(pos, true, type, id_real)
     val ssc = KSImperativeSubsection(pos, true, type, id, title)
     val sc = KSImperativeSection(pos, true, type, id, title)
 
@@ -649,7 +652,7 @@ abstract class KSImperativeBuilderContract {
     val ssc = KSImperativeSubsection(pos, true, type, id, title)
     val text = KSInlineText(pos, false, kp, false, "xyz")
     val c0 = KSBlockParagraph(pos, false, kp, type, id, mutableListOf())
-    val c1 = KSBlockFootnote(pos, false, kp, type, id, mutableListOf())
+    val c1 = KSBlockFootnote(pos, false, kp, id_real, type, mutableListOf())
     val c2 = KSBlockFormalItem(pos, false, kp, type, id, title, mutableListOf())
 
     val i = KSBlockImport(pos,true,kp,type,id,text)
@@ -679,7 +682,7 @@ abstract class KSImperativeBuilderContract {
     val kp = KSParse(c)
     val title = mutableListOf(KSInlineText(pos, false, kp, false, "abc"))
     val ssc = KSImperativeSubsection(pos, true, type, id, title)
-    val pc = KSImperativeFootnote(pos, true, type, id)
+    val pc = KSImperativeFootnote(pos, true, type, id_real)
     val i0 = KSInlineText(pos, false, kp, false, "xyz")
     val i1 = KSInlineText(pos, false, kp, false, "xyz")
 
@@ -842,7 +845,7 @@ abstract class KSImperativeBuilderContract {
     val title = mutableListOf(KSInlineText(pos, false, kp, false, "abc"))
     val sc = KSImperativeSection(pos, true, type, id, title)
     val ssc = KSImperativeSubsection(pos, true, type, id, title)
-    val pc = KSImperativeFootnote(pos, true, type, id)
+    val pc = KSImperativeFootnote(pos, true, type, id_real)
     val i0 = KSInlineText(pos, false, kp, false, "xyz")
     val i1 = KSInlineText(pos, false, kp, false, "xyz")
 

@@ -284,7 +284,7 @@ class KSCanonBlockParser private constructor(
               e.position,
               e.square,
               KSParse(c.context),
-              id = Optional.of(id),
+              id_real = id,
               type = Optional.of(type),
               content = content))
         }
@@ -302,7 +302,7 @@ class KSCanonBlockParser private constructor(
               e.position,
               e.square,
               KSParse(c.context),
-              id = Optional.of(id),
+              id_real = id,
               type = Optional.empty(),
               content = content))
         }

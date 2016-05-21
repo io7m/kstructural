@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<r:grammar
+  xmlns:s="http://schemas.io7m.com/structural/3.0.0"
+  xmlns:r="http://relaxng.org/ns/structure/1.0"
+  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <r:start combine="choice">
+    <r:choice>
+      <r:ref name="io7m.structural-3_0_0.document"/>
+    </r:choice>
+  </r:start>
+
+  <r:define name="io7m.structural-3_0_0.xml-id">
+    <r:attribute name="xml:id">
+      <r:data type="ID"/>
+    </r:attribute>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.standard-attributes">
+    <r:optional>
+      <r:attribute name="xml:base">
+        <r:text/>
+      </r:attribute>
+    </r:optional>
+    <r:optional>
+      <r:attribute name="xml:lang">
+        <r:text/>
+      </r:attribute>
+    </r:optional>
+    <r:optional>
+      <r:attribute name="s:type">
+        <r:data type="token"/>
+      </r:attribute>
+    </r:optional>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.inline_text">
+    <r:text/>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.inline_term">
+    <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+    <r:zeroOrMore>
+      <r:ref name="io7m.structural-3_0_0.inline_text"/>
+    </r:zeroOrMore>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.inline_verbatim">
+    <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+    <r:zeroOrMore>
+      <r:ref name="io7m.structural-3_0_0.inline_text"/>
+    </r:zeroOrMore>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.inline_image">
+    <r:element name="s:image">
+      <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+      <r:attribute name="s:source">
+        <r:data type="anyURI"/>
+      </r:attribute>
+      <r:optional>
+        <r:attribute name="s:width">
+          <r:data type="positiveInteger"/>
+        </r:attribute>
+        <r:attribute name="s:height">
+          <r:data type="positiveInteger"/>
+        </r:attribute>
+      </r:optional>
+      <r:text/>
+    </r:element>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.link_content">
+    <r:choice>
+      <r:ref name="io7m.structural-3_0_0.inline_text"/>
+      <r:ref name="io7m.structural-3_0_0.inline_image"/>
+    </r:choice>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.inline_link">
+    <r:element name="s:link">
+      <r:attribute name="s:target">
+        <r:data type="IDREF"/>
+      </r:attribute>
+      <r:zeroOrMore>
+        <r:ref name="io7m.structural-3_0_0.link_content"/>
+      </r:zeroOrMore>
+    </r:element>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.inline_link_external">
+    <r:element name="s:link-external">
+      <r:attribute name="s:target">
+        <r:data type="anyURI"/>
+      </r:attribute>
+      <r:zeroOrMore>
+        <r:ref name="io7m.structural-3_0_0.link_content"/>
+      </r:zeroOrMore>
+    </r:element>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.inline_content">
+    <r:choice>
+      <r:ref name="io7m.structural-3_0_0.inline_text"/>
+      <r:ref name="io7m.structural-3_0_0.inline_term"/>
+      <r:ref name="io7m.structural-3_0_0.inline_image"/>
+      <r:ref name="io7m.structural-3_0_0.inline_link"/>
+      <r:ref name="io7m.structural-3_0_0.inline_link_external"/>
+      <r:ref name="io7m.structural-3_0_0.inline_verbatim"/>
+    </r:choice>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.subsection_content">
+    <r:choice>
+      <r:ref name="io7m.structural-3_0_0.paragraph"/>
+      <r:ref name="io7m.structural-3_0_0.formal_item"/>
+      <r:ref name="io7m.structural-3_0_0.footnote"/>
+    </r:choice>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.paragraph">
+    <r:element name="s:paragraph">
+      <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+      <r:optional>
+        <r:ref name="io7m.structural-3_0_0.xml-id"/>
+      </r:optional>
+      <r:zeroOrMore>
+        <r:ref name="io7m.structural-3_0_0.inline_content"/>
+      </r:zeroOrMore>
+    </r:element>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.formal_item">
+    <r:element name="s:formal-item">
+      <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+      <r:optional>
+        <r:ref name="io7m.structural-3_0_0.xml-id"/>
+      </r:optional>
+      <r:attribute name="s:title">
+        <r:text/>
+      </r:attribute>
+      <r:zeroOrMore>
+        <r:ref name="io7m.structural-3_0_0.inline_content"/>
+      </r:zeroOrMore>
+    </r:element>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.footnote">
+    <r:element name="s:paragraph">
+      <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+      <r:ref name="io7m.structural-3_0_0.xml-id"/>
+      <r:zeroOrMore>
+        <r:ref name="io7m.structural-3_0_0.inline_content"/>
+      </r:zeroOrMore>
+    </r:element>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.document">
+    <r:element name="s:document">
+      <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+      <r:attribute name="s:title">
+        <r:text/>
+      </r:attribute>
+      <r:choice>
+        <r:zeroOrMore>
+          <r:ref name="io7m.structural-3_0_0.part"/>
+        </r:zeroOrMore>
+        <r:zeroOrMore>
+          <r:ref name="io7m.structural-3_0_0.section"/>
+        </r:zeroOrMore>
+      </r:choice>
+    </r:element>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.part">
+    <r:element name="s:part">
+      <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+      <r:optional>
+        <r:ref name="io7m.structural-3_0_0.xml-id"/>
+      </r:optional>
+      <r:attribute name="s:title">
+        <r:text/>
+      </r:attribute>
+      <r:choice>
+        <r:zeroOrMore>
+          <r:ref name="io7m.structural-3_0_0.section"/>
+        </r:zeroOrMore>
+      </r:choice>
+    </r:element>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.section">
+    <r:element name="s:section">
+      <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+      <r:optional>
+        <r:ref name="io7m.structural-3_0_0.xml-id"/>
+      </r:optional>
+      <r:attribute name="s:title">
+        <r:text/>
+      </r:attribute>
+      <r:choice>
+        <r:zeroOrMore>
+          <r:ref name="io7m.structural-3_0_0.subsection"/>
+        </r:zeroOrMore>
+        <r:zeroOrMore>
+          <r:ref name="io7m.structural-3_0_0.subsection_content"/>
+        </r:zeroOrMore>
+      </r:choice>
+    </r:element>
+  </r:define>
+
+  <r:define name="io7m.structural-3_0_0.subsection">
+    <r:element name="s:subsection">
+      <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+      <r:optional>
+        <r:ref name="io7m.structural-3_0_0.xml-id"/>
+      </r:optional>
+      <r:attribute name="s:title">
+        <r:text/>
+      </r:attribute>
+      <r:zeroOrMore>
+        <r:ref name="io7m.structural-3_0_0.subsection_content"/>
+      </r:zeroOrMore>
+    </r:element>
+  </r:define>
+
+</r:grammar>
