@@ -1,0 +1,13 @@
+canon_inline =
+  (#choice [
+    canon_footnote_ref
+    canon_image
+    canon_include
+    canon_link
+    canon_link_external
+    canon_list_ordered
+    canon_list_unordered
+    canon_term
+    canon_text
+    canon_verbatim
+  ])

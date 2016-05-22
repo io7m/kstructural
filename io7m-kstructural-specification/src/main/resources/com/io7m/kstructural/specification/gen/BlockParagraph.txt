@@ -1,0 +1,5 @@
+data BlockParagraph = BlockParagraph {
+  para_type    :: Maybe String,
+  para_id      :: Maybe ID.T,
+  para_content :: [I.InlineContent]
+}

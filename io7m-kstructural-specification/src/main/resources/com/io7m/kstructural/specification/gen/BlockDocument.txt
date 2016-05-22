@@ -1,0 +1,6 @@
+data BlockDocument = BlockDocument {
+  document_type    :: Maybe String,
+  document_id      :: Maybe ID.T,
+  document_title   :: [I.InlineText],
+  document_content :: Either [BlockPart] [BlockSection]
+}

@@ -1,0 +1,5 @@
+canon_import_name =
+  (#exact-symbol "import")
+
+canon_import =
+  (#exact-list [canon_import_name canon_text])

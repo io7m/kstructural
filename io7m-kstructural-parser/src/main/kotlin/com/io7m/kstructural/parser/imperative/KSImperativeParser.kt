@@ -158,15 +158,15 @@ class KSImperativeParser private constructor(
     val formal_item_name =
       KSExpressionMatch.exactSymbol("formal-item")
     val formal_item_none =
-      KSExpressionMatch.prefixOfList(listOf(formal_item_name, title))
+      KSExpressionMatch.allOfList(listOf(formal_item_name, title))
     val formal_item_with_id =
-      KSExpressionMatch.prefixOfList(listOf(formal_item_name, title, id))
+      KSExpressionMatch.allOfList(listOf(formal_item_name, title, id))
     val formal_item_with_id_type =
-      KSExpressionMatch.prefixOfList(listOf(formal_item_name, title, id, type))
+      KSExpressionMatch.allOfList(listOf(formal_item_name, title, id, type))
     val formal_item_with_type_id =
-      KSExpressionMatch.prefixOfList(listOf(formal_item_name, title, type, id))
+      KSExpressionMatch.allOfList(listOf(formal_item_name, title, type, id))
     val formal_item_with_type =
-      KSExpressionMatch.prefixOfList(listOf(formal_item_name, title, type))
+      KSExpressionMatch.allOfList(listOf(formal_item_name, title, type))
 
     val subsection_name =
       KSExpressionMatch.exactSymbol("subsection")

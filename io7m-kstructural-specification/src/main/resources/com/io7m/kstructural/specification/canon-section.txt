@@ -1,0 +1,14 @@
+canon_section_name =
+  (#exact-symbol "section")
+
+canon_section_content =
+  (#choice [canon_subsection canon_subsection_content])
+
+canon_section =
+  (#choice [
+    (#variadic [canon_section_name canon_title] canon_section_content)
+    (#variadic [canon_section_name canon_title canon_id] canon_section_content)
+    (#variadic [canon_section_name canon_title canon_id canon_type] canon_section_content)
+    (#variadic [canon_section_name canon_title canon_type canon_id] canon_section_content)
+    (#variadic [canon_section_name canon_title canon_type] canon_section_content)
+  ])

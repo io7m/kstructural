@@ -1,0 +1,4 @@
+data InlineFootnoteRef = InlineFootnoteRef {
+  footnoteTarget :: ID.T
+}
+

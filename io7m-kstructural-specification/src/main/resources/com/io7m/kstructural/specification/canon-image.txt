@@ -1,0 +1,16 @@
+canon_target =
+  (#exact-list [#exact-symbol "target"] canon_text)
+
+canon_size =
+  (#exact-list [#exact-symbol "size"] #any-symbol #any-symbol)
+
+canon_image_name =
+  (#exact-symbol "image")
+
+canon_image =
+  (#choice [
+    (#variadic [canon_image_name canon_target] canon_text_or_include)
+    (#variadic [canon_image_name canon_target canon_type] canon_text_or_include)
+    (#variadic [canon_image_name canon_target canon_size] canon_text_or_include)
+    (#variadic [canon_image_name canon_target canon_size canon_type] canon_text_or_include)
+  ])

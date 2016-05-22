@@ -1,0 +1,4 @@
+data InlineVerbatim = InlineVerbatim {
+  verbatimType    :: Maybe String,
+  verbatimContent :: InlineText
+}

@@ -1,0 +1,4 @@
+data LinkContent
+  = LCText  InlineText
+  | LCImage InlineImage
+

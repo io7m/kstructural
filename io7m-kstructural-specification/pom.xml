@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.io7m.kstructural</groupId>
+    <artifactId>io7m-kstructural</artifactId>
+    <version>0.1.0</version>
+  </parent>
+  <artifactId>io7m-kstructural-specification</artifactId>
+
+  <packaging>jar</packaging>
+  <name>io7m-kstructural-specification</name>
+  <description>Kotlin implementation of the structural document language (Language specification)</description>
+  <url>http://io7m.github.io/kstructural/</url>
+
+  <scm>
+    <url>${project.parent.scm.url}</url>
+    <connection>${project.parent.scm.connection}</connection>
+    <developerConnection>${project.parent.scm.developerConnection}</developerConnection>
+  </scm>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.io7m.jnull</groupId>
+      <artifactId>io7m-jnull-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.junreachable</groupId>
+      <artifactId>io7m-junreachable-core</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Copy specification resources into build directory -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-documentation-resources</id>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <outputDirectory>${project.build.directory}/specification/</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/main/resources/com/io7m/kstructural/specification/</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>io7m-kstructural-maven-plugin</artifactId>
+        <version>${project.version}</version>
+        <executions>
+          <execution>
+            <id>exec-multi</id>
+            <configuration>
+              <documentFile>${project.build.directory}/specification/specification.sd</documentFile>
+              <outputDirectory>${project.build.directory}/specification/</outputDirectory>
+              <pagination>XHTML_MULTI_PAGE</pagination>
+            </configuration>
+          </execution>
+          <execution>
+            <id>exec-single</id>
+            <configuration>
+              <documentFile>${project.build.directory}/specification/specification.sd</documentFile>
+              <outputDirectory>${project.build.directory}/specification/</outputDirectory>
+              <pagination>XHTML_SINGLE_PAGE</pagination>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

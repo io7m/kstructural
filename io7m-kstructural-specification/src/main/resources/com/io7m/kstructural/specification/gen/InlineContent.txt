@@ -1,0 +1,13 @@
+data InlineContent
+  = ICText          InlineText
+  | ICTerm          InlineTerm
+  | ICImage         InlineImage
+  | ICVerbatim      InlineVerbatim
+  | ICLink          InlineLinkInternal
+  | ICLinkExternal  InlineLinkExternal
+  | ICListOrdered   InlineListOrdered
+  | ICListUnordered InlineListUnordered
+  | ICFootnoteRef   InlineFootnoteRef
+  | ICTable         InlineTable
+  | ICInclude       InlineInclude
+

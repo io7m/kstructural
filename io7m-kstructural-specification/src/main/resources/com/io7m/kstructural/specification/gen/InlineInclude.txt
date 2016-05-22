@@ -1,0 +1,3 @@
+data InlineInclude = InlineInclude {
+  includeFile :: String
+}

@@ -1,0 +1,6 @@
+data InlineImage = InlineImage {
+  imageType    :: Maybe String,
+  imageTarget  :: URI.T,
+  imageSize    :: Maybe Size,
+  imageContent :: [InlineText]
+}

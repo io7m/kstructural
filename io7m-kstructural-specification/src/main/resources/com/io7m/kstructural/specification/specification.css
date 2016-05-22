@@ -1,0 +1,54 @@
+.brand
+{
+  font-size: 75%;
+  font-family: monospace;
+}
+
+.brand_left
+{
+  float: left;
+}
+
+.brand_right
+{
+  text-align: right;
+}
+
+.package
+{
+  font-family: monospace;
+  font-weight: bold;
+}
+
+.emphasis,
+.term
+{
+  font-style: italic;
+}
+
+.attribute,
+.class,
+.command,
+.constant,
+.element,
+.expression,
+.function,
+.file,
+.keyword,
+.symbol,
+.type,
+.variable
+{
+  font-family: monospace;
+}
+
+.example, .license, .terminal
+{
+  font-family:    monospace;
+  border:         1px solid #ccc;
+  padding-top:    1.0em;
+  padding-left:   1.0em;
+  padding-bottom: 1.0em;
+  margin-top:     1.2em;
+  overflow:       auto;
+}

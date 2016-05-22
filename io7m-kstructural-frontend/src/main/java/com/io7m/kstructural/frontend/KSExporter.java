@@ -184,8 +184,8 @@ public final class KSExporter implements KSExporterType
         final Path imported = edge.getTo();
         final Path imported_rel = base_directory.relativize(imported);
         final Path exported = out_directory.resolve(imported_rel);
-        final Path exported_suf = KSFileSuffixes.replace(
-          exported, this.suffix());
+        final Path exported_suf =
+          KSFileSuffixes.replace(exported, this.suffix());
 
         KSExporter.LOG.debug(
           "mapping {} -> {} -> {} -> {}",

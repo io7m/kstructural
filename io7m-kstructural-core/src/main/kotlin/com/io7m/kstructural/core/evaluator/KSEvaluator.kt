@@ -389,7 +389,10 @@ object KSEvaluator : KSEvaluatorType {
       val dp = document as KSBlockDocumentWithParts<KSEvaluation>
       val pi = n.part - 1
       val pp = dp.content[pi.toInt()]
-      return Optional.of(pp.content[0] as KSBlock<KSEvaluation>)
+      if (pp.content.size > 0) {
+        return Optional.of(pp.content[0] as KSBlock<KSEvaluation>)
+      }
+      return Optional.empty()
     }
 
     private fun <N> elementSegmentNextSection(n : N)

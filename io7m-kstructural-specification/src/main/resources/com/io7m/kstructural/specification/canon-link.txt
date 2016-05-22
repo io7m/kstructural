@@ -1,0 +1,5 @@
+canon_link_name =
+  (#exact-symbol "link")
+
+canon_link =
+  (#variadic [canon_link_name canon_target] canon_text_or_include)

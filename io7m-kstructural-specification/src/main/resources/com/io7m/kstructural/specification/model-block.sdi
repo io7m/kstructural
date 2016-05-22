@@ -1,0 +1,113 @@
+[section [title Block Content] [id model.block]]
+
+[subsection [title Overview] [id model.block.overview]]
+
+[paragraph]
+A [term [type term] block] value denotes a significant section of content
+within a document.
+
+[subsection [title ID] [id model.block.id]]
+
+[paragraph]
+All block values have an optional [term [type expression] id] parameter that,
+if present, must be unique within a document. The value of this parameter may
+be used by [link [target model.inline.link] link] elements to create
+intra-document links to content.
+
+[paragraph]
+Implementations are required to check that all [term [type expression] id]
+values are unique within a document, and that all [term [type expression] id]
+values referenced by links within a document exist.
+
+[subsection [title Paragraph] [id model.block.paragraph]]
+
+[paragraph]
+A [term [type term] paragraph] is one of the lowest level block values in
+terms of structural significance. It is simply a container for
+[link [target model.inline] inline] content.
+
+[formal-item [title Paragraph]]
+[verbatim [include "gen/BlockParagraph.txt"]]
+
+[subsection [title Formal Item] [id model.block.formal_item]]
+
+[paragraph]
+A [term [type term] formal-item] is similar to a
+[link [target model.block.paragraph] paragraph] except that it has
+an explicit [term [type term] title].
+
+[formal-item [title Formal Item]]
+[verbatim [include "gen/BlockFormalItem.txt"]]
+
+[subsection [title Footnote] [id model.block.footnote]]
+
+[paragraph]
+A [term [type term] footnote] is similar to a
+[link [target model.block.paragraph] paragraph] except that it denotes content
+that should appear as supplemental information at the bottom of a page when
+the document is processed for presentation.
+
+[paragraph]
+A footnote [term [type term] must] have an [term [type expression] id] value
+specified, and may be referenced by any number of
+[link [target model.inline.footnote_ref] footnote-ref] values.
+
+[formal-item [title Footnote]]
+[verbatim [include "gen/BlockFootnote.txt"]]
+
+[subsection [title Subsection] [id model.block.subsection]]
+
+[paragraph]
+A [term [type term] subsection] is a container for
+[term [type term] subsection content]. A subsection is required to have
+a [term [type term] title].
+
+[formal-item [title Subsection Content] [id model.block.subsection.content]]
+[verbatim [include "gen/SubsectionContent.txt"]]
+
+[formal-item [title Subsection]]
+[verbatim [include "gen/BlockSubsection.txt"]]
+
+[subsection [title Section] [id model.block.section]]
+
+[paragraph]
+A [term [type term] section] is a container for either
+[link [target model.block.subsection.content] subsection content], or
+[link [target model.block.subsection] subsections], but not both at the
+same time. A section is required to have a [term [type term] title].
+
+[formal-item [title Section]]
+[verbatim [include "gen/BlockSection.txt"]]
+
+[subsection [title Part] [id model.block.part]]
+
+[paragraph]
+A [term [type term] part] is a container for
+[link [target model.block.section] sections]. A part is required to have
+a [term [type term] title].
+
+[formal-item [title Part]]
+[verbatim [include "gen/BlockPart.txt"]]
+
+[subsection [title Document] [id model.block.document]]
+
+[paragraph]
+A [term [type term] document] is the top-level container of other content.
+It may contain a list of [link [target model.block.part] parts], or
+a list of [link [target model.block.section] sections], but not both.
+A document is required to have a [term [type term] title].
+
+[formal-item [title Document]]
+[verbatim [include "gen/BlockDocument.txt"]]
+
+[subsection [title Import] [id model.block.import]]
+
+[paragraph]
+An [term [type term] import] is somewhat analogous to the inline
+[link [target model.inline.include] include] type, except that the referenced
+file is actually parsed as a [term [type package] structural] block value
+and inserted into the current document at the location of the
+[term [type term] import] value.
+
+[formal-item [title Import]]
+[verbatim [include "gen/BlockImport.txt"]]

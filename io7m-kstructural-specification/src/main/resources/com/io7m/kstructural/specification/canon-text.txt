@@ -1,0 +1,5 @@
+canon_text =
+  (#choice [#any-symbol #any-quoted])
+
+canon_text_or_include =
+  (#choice [canon_text canon_include])

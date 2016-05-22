@@ -24,6 +24,7 @@
     <module>io7m-kstructural-parser</module>
     <module>io7m-kstructural-pretty</module>
     <module>io7m-kstructural-schema</module>
+    <module>io7m-kstructural-specification</module>
     <module>io7m-kstructural-tests</module>
     <module>io7m-kstructural-xom</module>
   </modules>

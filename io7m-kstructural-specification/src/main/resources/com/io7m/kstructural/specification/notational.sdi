@@ -1,0 +1,181 @@
+[part [title Notational Conventions] [id conventions]]
+
+[section [title Unicode] [id conventions.unicode]]
+
+[paragraph]
+The specification makes reference to the Unicode character set which, at the
+time of writing, is at version [term [type constant] 8.0.0]. The specification
+often references specific Unicode characters, and does so using the standard
+notation [term [type constant] U+NNNN], where [term [type variable] N]
+represents a hexadecimal digit. For example, [term [type constant]  U+03BB]
+corresponds to the lowercase lambda symbol [term [type constant] λ].
+
+[section [title EBNF] [id conventions.ebnf]]
+
+[paragraph]
+The specification gives grammar definitions in
+[term [type package] ISO/IEC 14977:1996] Extended Backus-Naur form.
+
+[section [title Haskell] [id conventions.haskell]]
+
+[paragraph]
+Rather than rely on untyped and ambiguous mathematical notation, this
+documentation expresses all mathematics and type definitions in strict
+[link-ext [target "http://www.haskell.org/onlinereport/haskell2010/"] Haskell 2010]
+with no extensions. All Haskell sources are included along with the
+documentation and can therefore be executed from the command line
+[link-ext [target "http://www.haskell.org/haskellwiki/GHC/GHCi"] GHCi] tool
+in order to interactively check results and experiment with functions.
+
+[paragraph]
+When used within prose, functions are referred to using fully qualified notation,
+such as [term [type expression] "(Vector3f.cross n t)"]. This is the application
+of the [term [type function] cross] function defined in the
+[term [type package] Vector3f] module, to the arguments [term [type variable] n]
+and [term [type variable] t].
+
+[section [title S-Expressions] [id conventions.sexprs]]
+
+[paragraph]
+An [term [type term] s-expression] is defined by the following grammar:
+
+[formal-item [title S-Expression Grammar]]
+[verbatim [include "s-expr.ebnf"]]
+
+[paragraph]
+The sequences [term [type constant] U+000D U+000A] and
+[term [type constant] U+000A] are recognized as line terminators for
+the purposes of tracking line and column numbers for diagnostic messages.
+Bare [term [type constant] U+000D] characters are not permitted to appear
+outside of quoted strings.
+
+[paragraph]
+The terminals of the grammar are given as:
+
+[formal-item [title S-Expression Grammar]]
+[verbatim [include "s-expr-terms.ebnf"]]
+
+[paragraph]
+Due to limitations in the
+[link-ext [target "https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_Form"] EBNF]
+format, the definitions for [term [type expression] symbol_character] and
+[term [type expression] quoted_character] cannot be expressed directly.
+Informally, the [term [type expression] symbol_character] rule should be
+understood to specify any Unicode character that is not whitespace, is not
+[term [type constant] U+0028 "("], is not [term [type constant] U+0029 ")"],
+and is not [term [type constant] U+0022 "\""].
+
+[section [title S-Expression Metasyntax] [id fmt_canon.meta]]
+
+[subsection [title Overview]]
+
+[paragraph]
+Because no formal standard exists to describe the actual structure of
+parsed s-expressions, a small language is introduced here to describe the
+forms used to describe the document elements specified later on in this
+publication. The syntax of the syntax rules are themselves given as
+s-expressions, and to avoid an infinite regression problem akin to trying to
+specify EBNF using EBNF itself, the language here is described informally with
+an executable Haskell specification
+[link-ext [target "SEMatcher.hs"] "[SEMatcher.hs]"] to make the semantics clear
+where English cannot.
+
+[subsection [title Rules]]
+
+[paragraph]
+A [term [type term] rule] may take one of the following forms:
+
+[formal-item [title Rules]]
+[verbatim [include "gen/Rule.txt"]]
+
+[paragraph]
+The s-expression syntax of each rule may be inferred from the given
+[term [type type] Show] instance:
+
+[formal-item [title Rule Syntax]]
+[verbatim [include "gen/RuleShow.txt"]]
+
+[paragraph]
+A rule is [term [type expression] r] said to [term [type term] match] an
+expression [term [type expression] e] if, given the
+[term [type function] matches] function defined below,
+[term [type expression] matches e r == True].
+
+[formal-item [title Informal Description Of Rules]]
+[list-unordered
+  [item
+    The [term [type expression] "#any-symbol"] rule matches an
+    expression [term [type expression] e] iff [term [type expression] e]
+    is a symbol.]
+  [item
+    The [term [type expression] "#any-quoted"] rule matches an
+    expression [term [type expression] e] iff [term [type expression] e]
+    is a quoted string.]
+  [item
+    The [term [type expression] "#any-list"] rule matches an
+    expression [term [type expression] e] iff [term [type expression] e]
+    is a list.]
+  [item
+    The [term [type expression] "(#exact-symbol s)"] rule matches an
+    expression [term [type expression] e] iff [term [type expression] e]
+    is a symbol with the value [term [type expression] s].]
+  [item
+    The [term [type expression] "(#exact-quoted s)"] rule matches an
+    expression [term [type expression] e] iff [term [type expression] e]
+    is a quoted string with the value [term [type expression] s].]
+  [item
+    The [term [type expression] "(#exact-list (m₀ m₁ ... mₙ))"] rule matches an
+    expression [term [type expression] e] iff [term [type expression] e]
+    is a list, the length of [term [type expression] e] is
+    [term [type expression] n + 1], and
+    [term [type expression] "∀k. 0 <= k <= n → e[k] matches mₖ"].]
+  [item
+    The [term [type expression] "(#choice (m₀ ... mₙ))"] rule matches an
+    expression [term [type expression] e] iff [term [type emphasis] exactly one]
+    rule in the given list [term [type expression] "(m₀ ... mₙ)"] matches
+    [term [type expression] e]. Accordingly, the rule
+    [term [type expression] "(#choice ())"] never matches anything.]
+  [item
+    The [term [type expression] "(#variadic (m₀ m₁ ... mₙ) r)"] rule matches an
+    expression [term [type expression] e] iff [term [type expression] e]
+    is a list, the length of [term [type expression] e] is
+    [term [type expression] >= n + 1],
+    [term [type expression] "∀k. 0 <= k <= n → e[k] matches mₖ"],
+    and the remaining elements in [term [type expression] e] match
+    [term [type expression] r]. Accordingly, the rule
+    [term [type expression] "(#variadic () r)"] will check that every
+    element of a given list matches [term [type expression] r], and will
+    always match for a given empty list.]]
+
+[paragraph]
+Matching an arbitrary s-expression against a rule is a simple matter of
+checking to see if the structure of the given expression matches the structure
+allowed by the rule against which it is being matched. A complete definition
+of a matching function that encodes the above rules is as follows:
+
+[formal-item [title Match Function]]
+[verbatim [include "gen/RuleMatches.txt"]]
+
+[subsection [title Examples]]
+
+[paragraph [type emphasis]]
+This section is informative. These results can be reproduced by evaluating
+the given terms in the [term [type type] SEMatcher] module using Haskell's
+interactive command prompt.
+
+[paragraph]
+The expression [term [type expression] x] is matched by the rule
+[term [type expression] #any-symbol], but [term [type expression] "\"x\""]
+is not:
+
+[formal-item [title Example 0]]
+[verbatim [include "rule_example0.txt"]]
+
+[paragraph]
+The expression [term [type expression] "(x y z)"] is matched by the rule
+[term [type expression] "(#exact-list (#exact-symbol \"x\") (#exact-symbol \"y\") (#exact-symbol \"z\"))"],
+but [term [type expression] "(x y y)"] and [term [type expression] "(x y)"]
+are not:
+
+[formal-item [title Example 1]]
+[verbatim [include "rule_example1.txt"]]

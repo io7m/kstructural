@@ -1,0 +1,17 @@
+canon_title_name =
+  (#exact-symbol "title")
+
+canon_title =
+  (#variadic [canon_title_name] canon_text)
+
+canon_formal_item_name =
+  (#exact-symbol "formal-item")
+
+canon_formal_item =
+  (#choice [
+    (#variadic [canon_formal_item_name canon_title] canon_inline)
+    (#variadic [canon_formal_item_name canon_title canon_id] canon_inline)
+    (#variadic [canon_formal_item_name canon_title canon_id canon_type] canon_inline)
+    (#variadic [canon_formal_item_name canon_title canon_type canon_id] canon_inline)
+    (#variadic [canon_formal_item_name canon_title canon_type] canon_inline)
+  ])
