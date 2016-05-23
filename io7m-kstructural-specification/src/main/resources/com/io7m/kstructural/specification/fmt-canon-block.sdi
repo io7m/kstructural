@@ -24,7 +24,7 @@ The concrete syntax specified here maps text to values of the
 The concrete syntax specified here maps text to values of the
 [link [target model.block.footnote] BlockFootnote] type.
 
-[formal-item [title Paragraph Syntax]]
+[formal-item [title Footnote Syntax]]
 [verbatim [include "canon-footnote.txt"]]
 
 [subsection [title Subsection] [id fmt_canon.blocks.subsection]]
@@ -33,7 +33,7 @@ The concrete syntax specified here maps text to values of the
 The concrete syntax specified here maps text to values of the
 [link [target model.block.subsection] BlockSubsection] type.
 
-[formal-item [title Paragraph Syntax]]
+[formal-item [title Subsection Syntax]]
 [verbatim [include "canon-subsection.txt"]]
 
 [subsection [title Section] [id fmt_canon.blocks.section]]
@@ -42,7 +42,7 @@ The concrete syntax specified here maps text to values of the
 The concrete syntax specified here maps text to values of the
 [link [target model.block.section] BlockSection] type.
 
-[formal-item [title Paragraph Syntax]]
+[formal-item [title Section Syntax]]
 [verbatim [include "canon-section.txt"]]
 
 [subsection [title Part] [id fmt_canon.blocks.part]]
@@ -51,7 +51,7 @@ The concrete syntax specified here maps text to values of the
 The concrete syntax specified here maps text to values of the
 [link [target model.block.part] BlockPart] type.
 
-[formal-item [title Paragraph Syntax]]
+[formal-item [title Part Syntax]]
 [verbatim [include "canon-part.txt"]]
 
 [subsection [title Document] [id fmt_canon.blocks.document]]
@@ -60,7 +60,7 @@ The concrete syntax specified here maps text to values of the
 The concrete syntax specified here maps text to values of the
 [link [target model.block.document] BlockDocument] type.
 
-[formal-item [title Paragraph Syntax]]
+[formal-item [title Document Syntax]]
 [verbatim [include "canon-document.txt"]]
 
 [subsection [title Import] [id fmt_canon.blocks.import]]
@@ -69,5 +69,5 @@ The concrete syntax specified here maps text to values of the
 The concrete syntax specified here maps text to values of the
 [link [target model.block.import] BlockImport] type.
 
-[formal-item [title Paragraph Syntax]]
+[formal-item [title Import Syntax]]
 [verbatim [include "canon-import.txt"]]
