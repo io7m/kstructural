@@ -3,4 +3,4 @@ data InlineImage = InlineImage {
   imageTarget  :: URI.T,
   imageSize    :: Maybe Size,
   imageContent :: [InlineText]
-}
+} deriving Eq

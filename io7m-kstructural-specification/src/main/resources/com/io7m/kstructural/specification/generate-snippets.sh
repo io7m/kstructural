@@ -37,6 +37,20 @@ sed -n -e '/data BlockPart/,/}/ p' ${SOURCE} > gen/BlockPart.txt
 sed -n -e '/data BlockDocument/,/}/ p' ${SOURCE} > gen/BlockDocument.txt
 sed -n -e '/data BlockImport/,/}/ p' ${SOURCE} > gen/BlockImport.txt
 
+SOURCE=ImperativeContent.hs
+
+sed -n -e '/data ImperativeParagraph/,/}/ p' ${SOURCE} > gen/ImperativeParagraph.txt
+sed -n -e '/data ImperativeFormalItem/,/}/ p' ${SOURCE} > gen/ImperativeFormalItem.txt
+sed -n -e '/data ImperativeFootnote/,/}/ p' ${SOURCE} > gen/ImperativeFootnote.txt
+sed -n -e '/data ImperativeSubsection/,/}/ p' ${SOURCE} > gen/ImperativeSubsection.txt
+sed -n -e '/data ImperativeSection/,/}/ p' ${SOURCE} > gen/ImperativeSection.txt
+sed -n -e '/data ImperativePart/,/}/ p' ${SOURCE} > gen/ImperativePart.txt
+sed -n -e '/data ImperativeDocument/,/}/ p' ${SOURCE} > gen/ImperativeDocument.txt
+sed -n -e '/data ImperativeImport/,/}/ p' ${SOURCE} > gen/ImperativeImport.txt
+sed -n -e '/data ImperativeContent/,/^$/ p' ${SOURCE} > gen/ImperativeContent.txt
+sed -n -e '/instance Ord ImperativeContent/,/^$/ p' ${SOURCE} > gen/ImperativeOrd.txt
+sed -n -e '/^importContent ::/,/^$/ p' ${SOURCE} > gen/ImperativeImportContent.txt
+
 SOURCE=SEMatcher.hs
 
 sed -n -e '/data Rule/,/^$/ p' ${SOURCE} > gen/Rule.txt

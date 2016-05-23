@@ -1,0 +1,15 @@
+[part [title XML Format] [id fmt_xml]]
+
+[section [title Overview] [id fmt_xml.overview]]
+
+[paragraph]
+The XML format is defined as a simple encoding of the
+[link [target fmt_canon] canonical] format as XML. Instead of
+[link [target model.inline.include] include] and
+[link [target model.block.import] import] elements, the user is expected to
+use [link-ext [target "https://www.w3.org/TR/xinclude/"] XInclude].
+
+[section [title RELAX-NG Schema] [id fmt_xml.schema]]
+
+[formal-item [title Schema]]
+[verbatim [include "schema.rng"]]

@@ -1,0 +1,20 @@
+[part [title Imperative Format] [id fmt_imp]]
+
+[section [title Overview] [id fmt_imp.overview]]
+
+[paragraph]
+One observation of all document languages that present a tree-like structure
+and syntax is that the writer spends a certain amount of time managing the
+tree structure itself. Although [link [target conventions.sexprs] s-expressions]
+represent about the most lightweight syntax possible for representing trees
+directly, it's possible to reduce the syntactic overhead even further by
+allowing the author to progressively define trees using a series of imperative
+commands.
+
+[paragraph]
+The so-called [term [type term] imperative] syntax combines the
+[link [target fmt_canon.inlines] inline] elements from the
+[term [type term] canonical] syntax with a set of imperative
+[term [type term] block commands].
+
+[import "fmt-imp-block.sdi"]

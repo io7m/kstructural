@@ -3,5 +3,5 @@ data InlineTable = InlineTable {
   tableSummary :: [InlineText],
   tableHead    :: Maybe TableHead,
   tableBody    :: TableBody
-}
+} deriving Eq
 

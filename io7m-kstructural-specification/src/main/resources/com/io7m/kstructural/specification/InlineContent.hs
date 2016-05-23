@@ -3,84 +3,87 @@ module InlineContent where
 import qualified URI
 import qualified ID
 
-data InlineText = InlineText String
+data InlineText =
+  InlineText String
+  deriving Eq
 
 data InlineTerm = InlineTerm {
   termType    :: Maybe String,
   termContent :: [InlineText]
-}
+} deriving Eq
 
 data Size = Size {
   sizeWidth  :: Integer,
   sizeHeight :: Integer
-}
+} deriving Eq
 
 data InlineImage = InlineImage {
   imageType    :: Maybe String,
   imageTarget  :: URI.T,
   imageSize    :: Maybe Size,
   imageContent :: [InlineText]
-}
+} deriving Eq
 
 data InlineVerbatim = InlineVerbatim {
   verbatimType    :: Maybe String,
   verbatimContent :: InlineText
-}
+} deriving Eq
 
 data LinkContent
   = LCText  InlineText
   | LCImage InlineImage
+  deriving Eq
 
 data InlineLinkInternal = InlineLinkInternal {
   linkInternalTarget  :: ID.T,
   linkInternalContent :: [LinkContent]
-}
+} deriving Eq
 
 data InlineLinkExternal = InlineLinkExternal {
   linkExternalTarget  :: URI.T,
   linkExternalContent :: [LinkContent]
-}
+} deriving Eq
 
 data ListItem = ListItem {
   listItemContent :: [InlineContent]
-}
+} deriving Eq
 
 data InlineListOrdered = InlineListOrdered {
   listOrderedItems :: [ListItem]
-}
+} deriving Eq
 
 data InlineListUnordered = InlineListUnordered {
   listUnorderedItems :: [ListItem]
-}
+} deriving Eq
 
 data InlineFootnoteRef = InlineFootnoteRef {
   footnoteTarget :: ID.T
-}
+} deriving Eq
 
 type TableColumnName = [InlineText]
 
 data TableHead = TableHead {
   tableHeadNames :: [TableColumnName]
-}
+} deriving Eq
 
 data TableCell = TableCell {
   tableCellContent :: [InlineContent]
-}
+} deriving Eq
 
 data TableRow = TableRow {
   tableRowCells :: [TableCell]
-}
+} deriving Eq
 
 data TableBody = TableBody {
   tableBodyRows :: [TableRow]
-}
+} deriving Eq
 
 data InlineTable = InlineTable {
   tableType    :: Maybe String,
   tableSummary :: [InlineText],
   tableHead    :: Maybe TableHead,
   tableBody    :: TableBody
-}
+} deriving Eq
 
 tableCheck :: InlineTable -> Bool
 tableCheck table =
@@ -93,7 +96,7 @@ tableCheck table =
 
 data InlineInclude = InlineInclude {
   includeFile :: String
-}
+} deriving Eq
 
 data InlineContent
   = ICText          InlineText
@@ -107,4 +110,4 @@ data InlineContent
   | ICFootnoteRef   InlineFootnoteRef
   | ICTable         InlineTable
   | ICInclude       InlineInclude
-
+  deriving Eq

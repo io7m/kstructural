@@ -1,0 +1,3 @@
+data ImperativeImport = ImperativeImport {
+  importFile :: String
+} deriving Eq

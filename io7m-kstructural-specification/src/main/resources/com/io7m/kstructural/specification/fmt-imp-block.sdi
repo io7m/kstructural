@@ -1,0 +1,155 @@
+[section [title Block Commands] [id fmt_imp.blocks]]
+
+[subsection [title Overview] [id fmt_imp.blocks.overview]]
+
+[paragraph]
+An [term [type term] imperative command] begins the construction of a new
+[link [target model.block] block]. Any block currently under construction
+that is of lesser than or equal to
+[link [target fmt_imp.blocks.structsig] structural significance]
+is completed on receipt of the command "(or" on "end-of-file)," prior to
+beginning the construction of a new block. [link [target model.inline] Inline]
+content is supplied to blocks that accept it by simply including the content
+between commands:
+
+[formal-item [title Imperative Example]]
+[verbatim [include "imp-example-0.txt"]]
+
+[paragraph]
+An imperative command may take one of the following forms:
+
+[formal-item [title Imperative Commands]]
+[verbatim [include "gen/ImperativeContent.txt"]]
+
+[paragraph]
+Imperative commands create values of the types specified in the
+[link [target model.block] model], and therefore the same rules apply with
+regards to where blocks can be created. For example, it is an error "(by"
+the definition of the [link [target model.block.section] section] "type)" to
+first create a [link [target model.block.subsection] subsection] inside a
+section and then attempt to follow it with the definition of a
+[link [target model.block.paragraph] paragraph].
+
+[subsection [title Structural Significance] [id fmt_imp.blocks.structsig]]
+
+[paragraph]
+In order for the receipt of a command to complete the construction of a block
+that is already under construction, it is necessary to define an ordering on
+the [term [type term] structural significance] of each of the block types.
+
+[formal-item [title Significance Ordering]]
+[verbatim [include "gen/ImperativeOrd.txt"]]
+
+[paragraph]
+The [term [type function] importContent] function is a function that maps
+[term [type expression] import] blocks to their imported content. This is
+a function of the actual language implementation and so is left undefined
+in this specification.
+
+[formal-item [title Import Content]]
+[verbatim [include "gen/ImperativeImportContent.txt"]]
+
+[subsection [title Paragraph] [id fmt_imp.blocks.paragraph]]
+
+[paragraph]
+A [term [type term] paragraph] command begins a new
+[link [target model.block.paragraph] paragraph] in the current context.
+
+[formal-item [title Paragraph]]
+[verbatim [include "gen/ImperativeParagraph.txt"]]
+
+[paragraph]
+The concrete syntax for the command is as follows:
+
+[formal-item [title Syntax]]
+[verbatim [include "imp-paragraph.txt"]]
+
+[subsection [title Formal Item] [id fmt_imp.blocks.formal_item]]
+
+[paragraph]
+A [term [type term] formal-item] command begins a new
+[link [target model.block.formal_item] formal item] in the current context.
+
+[formal-item [title Formal Item]]
+[verbatim [include "gen/ImperativeFormalItem.txt"]]
+
+[paragraph]
+The concrete syntax for the command is as follows:
+
+[formal-item [title Syntax]]
+[verbatim [include "imp-formal_item.txt"]]
+
+[subsection [title Footnote] [id fmt_imp.blocks.footnote]]
+
+[paragraph]
+A [term [type term] footnote] command begins a new
+[link [target model.block.footnote] footnote] in the current context.
+
+[formal-item [title Footnote]]
+[verbatim [include "gen/ImperativeFootnote.txt"]]
+
+[paragraph]
+The concrete syntax for the command is as follows:
+
+[formal-item [title Syntax]]
+[verbatim [include "imp-footnote.txt"]]
+
+[subsection [title Subsection] [id fmt_imp.blocks.subsection]]
+
+[paragraph]
+A [term [type term] subsection] command begins a new
+[link [target model.block.subsection] subsection] in the current context.
+
+[formal-item [title Subsection]]
+[verbatim [include "gen/ImperativeSubsection.txt"]]
+
+[paragraph]
+The concrete syntax for the command is as follows:
+
+[formal-item [title Syntax]]
+[verbatim [include "imp-subsection.txt"]]
+
+[subsection [title Section] [id fmt_imp.blocks.section]]
+
+[paragraph]
+A [term [type term] section] command begins a new
+[link [target model.block.section] section] in the current context.
+
+[formal-item [title Section]]
+[verbatim [include "gen/ImperativeSection.txt"]]
+
+[paragraph]
+The concrete syntax for the command is as follows:
+
+[formal-item [title Syntax]]
+[verbatim [include "imp-section.txt"]]
+
+[subsection [title Part] [id fmt_imp.blocks.part]]
+
+[paragraph]
+A [term [type term] part] command begins a new
+[link [target model.block.part] part] in the current context.
+
+[formal-item [title Part]]
+[verbatim [include "gen/ImperativePart.txt"]]
+
+[paragraph]
+The concrete syntax for the command is as follows:
+
+[formal-item [title Syntax]]
+[verbatim [include "imp-part.txt"]]
+
+[subsection [title Document] [id fmt_imp.blocks.document]]
+
+[paragraph]
+A [term [type term] document] command begins a new
+[link [target model.block.document] document] in the current context.
+
+[formal-item [title Document]]
+[verbatim [include "gen/ImperativeDocument.txt"]]
+
+[paragraph]
+The concrete syntax for the command is as follows:
+
+[formal-item [title Syntax]]
+[verbatim [include "imp-document.txt"]]
