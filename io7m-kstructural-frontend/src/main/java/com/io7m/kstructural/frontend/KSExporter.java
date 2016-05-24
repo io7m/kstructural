@@ -178,11 +178,14 @@ public final class KSExporter implements KSExporterType
     }
 
     {
+      final Path base_abs = base_directory.toAbsolutePath();
+
       for (final KSBlock<KSEvaluation> b : import_map.keySet()) {
         final KSBlockImport<KSEvaluation> i = import_map.get(b);
         final KSImportPathEdge edge = edges.get(i);
         final Path imported = edge.getTo();
-        final Path imported_rel = base_directory.relativize(imported);
+        final Path imported_abs = imported.toAbsolutePath();
+        final Path imported_rel = base_abs.relativize(imported_abs);
         final Path exported = out_directory.resolve(imported_rel);
         final Path exported_suf =
           KSFileSuffixes.replace(exported, this.suffix());
