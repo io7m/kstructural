@@ -60,10 +60,10 @@ sealed class KSResult<out A : Any, E : Any> {
     }
   }
 
-  infix fun <B : Any> flatMap(f : (A) -> KSResult<B, E>) : KSResult<B, E> =
-    flatMap (this, f)
+  fun <B : Any> flatMap(f : (A) -> KSResult<B, E>) : KSResult<B, E> =
+    KSResult.flatMap (this, f)
 
-  infix fun <B : Any> map(f : (A) -> B) : KSResult<B, E> =
+  fun <B : Any> map(f : (A) -> B) : KSResult<B, E> =
     map (this, f)
 
   companion object {

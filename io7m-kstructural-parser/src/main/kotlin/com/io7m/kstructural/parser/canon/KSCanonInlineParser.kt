@@ -336,9 +336,9 @@ class KSCanonInlineParser private constructor(
         val act_content =
           KSResult.listMap({ t -> parseInlineTextOrInclude(t, c) }, texts)
 
-        return act_size flatMap { size ->
-          act_content flatMap { content ->
-            act_target flatMap { target ->
+        return act_size.flatMap { size ->
+          act_content.flatMap { content ->
+            act_target.flatMap { target ->
               act_type.flatMap { type ->
                 KSResult.succeed<KSInlineImage<KSParse>, KSParseError>(
                   KSInlineImage(
@@ -369,8 +369,8 @@ class KSCanonInlineParser private constructor(
         val act_content =
           KSResult.listMap({ t -> parseInlineTextOrInclude(t, c) }, texts)
 
-        return act_content flatMap { content ->
-          act_target flatMap { target ->
+        return act_content.flatMap { content ->
+          act_target.flatMap { target ->
             act_type.flatMap { type ->
               KSResult.succeed<KSInlineImage<KSParse>, KSParseError>(
                 KSInlineImage(
@@ -398,9 +398,9 @@ class KSCanonInlineParser private constructor(
         val act_content =
           KSResult.listMap({ t -> parseInlineTextOrInclude(t, c) }, texts)
 
-        return act_size flatMap { size ->
-          act_content flatMap { content ->
-            act_target flatMap { target ->
+        return act_size.flatMap { size ->
+          act_content.flatMap { content ->
+            act_target.flatMap { target ->
               KSResult.succeed<KSInlineImage<KSParse>, KSParseError>(
                 KSInlineImage(
                   e.position,
@@ -426,8 +426,8 @@ class KSCanonInlineParser private constructor(
         val act_content =
           KSResult.listMap({ t -> parseInlineTextOrInclude(t, c) }, texts)
 
-        return act_content flatMap { content ->
-          act_target flatMap { target ->
+        return act_content.flatMap { content ->
+          act_target.flatMap { target ->
             KSResult.succeed<KSInlineImage<KSParse>, KSParseError>(
               KSInlineImage(
                 e.position,
@@ -542,7 +542,7 @@ class KSCanonInlineParser private constructor(
     when {
       KSExpressionMatch.matches(e, CommandMatchers.include) -> {
         Assertive.require(e.elements.size == 2)
-        return parseInlineText(e.elements[1], c) flatMap { file ->
+        return parseInlineText(e.elements[1], c).flatMap { file ->
           val re = KSInlineInclude(e.position, e.square, KSParse(c.context), file)
           loadInclude(re, c, file)
         }
@@ -683,7 +683,7 @@ class KSCanonInlineParser private constructor(
       try {
         val uri = URI(target)
         val content = KSResult.listMap({ t -> parseLinkContent(t, c) }, texts)
-        return content flatMap { cs ->
+        return content.flatMap { cs ->
           KSResult.succeed<KSLink.KSLinkExternal<KSParse>, KSParseError>(
             KSLink.KSLinkExternal(e.position, uri, cs))
         }
@@ -748,7 +748,7 @@ class KSCanonInlineParser private constructor(
     : KSResult<KSLinkContent<KSParse>, KSParseError> {
     return when (e) {
       is KSExpressionList   ->
-        parseInlineAny(e, c) flatMap { result ->
+        parseInlineAny(e, c).flatMap { result ->
           parseInlineToLinkContent(result, c)
         }
       is KSExpressionSymbol ->
@@ -768,7 +768,7 @@ class KSCanonInlineParser private constructor(
     e : KSExpressionList,
     c : Context)
     : KSResult<KSInlineLink<KSParse>, KSParseError> {
-    return parseLinkInternal(e, c) flatMap {
+    return parseLinkInternal(e, c).flatMap {
       link ->
       KSResult.succeed<KSInlineLink<KSParse>, KSParseError>(
         KSInlineLink(e.position, e.square, KSParse(c.context), link))
@@ -779,7 +779,7 @@ class KSCanonInlineParser private constructor(
     e : KSExpressionList,
     c : Context)
     : KSResult<KSInlineLink<KSParse>, KSParseError> {
-    return parseLinkExternal(e, c) flatMap {
+    return parseLinkExternal(e, c).flatMap {
       link ->
       KSResult.succeed<KSInlineLink<KSParse>, KSParseError>(
         KSInlineLink(e.position, e.square, KSParse(c.context), link))
@@ -800,7 +800,7 @@ class KSCanonInlineParser private constructor(
           parseAttributeType(e.elements[1] as KSExpressionList, c)
         val content =
           KSResult.listMap({ t -> parseInlineTextOrInclude(t, c) }, texts)
-        return content flatMap { cs ->
+        return content.flatMap { cs ->
           act_type.flatMap { type ->
             KSResult.succeed<KSInlineTerm<KSParse>, KSParseError>(
               KSInlineTerm(
@@ -816,7 +816,7 @@ class KSCanonInlineParser private constructor(
         Assertive.require(texts.size >= 1)
         val content =
           KSResult.listMap({ t -> parseInlineTextOrInclude(t, c) }, texts)
-        return content flatMap { cs ->
+        return content.flatMap { cs ->
           KSResult.succeed<KSInlineTerm<KSParse>, KSParseError>(
             KSInlineTerm(
               e.position, e.square, KSParse(c.context), Optional.empty(), cs))
@@ -838,7 +838,7 @@ class KSCanonInlineParser private constructor(
         Assertive.require(e.elements.size >= 1)
         val texts = e.elements.subList(1, e.elements.size)
         val content = KSResult.listMap({ t -> parseListItem(t, c) }, texts)
-        return content flatMap { cs ->
+        return content.flatMap { cs ->
           KSResult.succeed<KSInlineListOrdered<KSParse>, KSParseError>(
             KSInlineListOrdered(e.position, e.square, KSParse(c.context), cs))
         }
@@ -858,7 +858,7 @@ class KSCanonInlineParser private constructor(
         Assertive.require(e.elements.size >= 1)
         val texts = e.elements.subList(1, e.elements.size)
         val content = KSResult.listMap({ t -> parseListItem(t, c) }, texts)
-        return content flatMap { cs ->
+        return content.flatMap { cs ->
           KSResult.succeed<KSInlineListUnordered<KSParse>, KSParseError>(
             KSInlineListUnordered(e.position, e.square, KSParse(c.context), cs))
         }
@@ -880,7 +880,7 @@ class KSCanonInlineParser private constructor(
         Assertive.require(contents.size >= 1)
         val act_content =
           KSResult.listMap({ ce -> parseInlineAny(ce, c) }, contents)
-        return act_content flatMap { cs ->
+        return act_content.flatMap { cs ->
           KSResult.succeed<KSListItem<KSParse>, KSParseError>(
             KSListItem(e.position, e.square, KSParse(c.context), cs))
         }
@@ -904,9 +904,9 @@ class KSCanonInlineParser private constructor(
         val act_head = parseTableHead(e.elements[3] as KSExpressionList, c)
         val act_body = parseTableBody(e.elements[4] as KSExpressionList, c)
 
-        return act_summary flatMap { summary ->
-          act_head flatMap { head ->
-            act_body flatMap { body ->
+        return act_summary.flatMap { summary ->
+          act_head.flatMap { head ->
+            act_body.flatMap { body ->
               act_type.flatMap { type ->
                 val opt_type = Optional.of(type)
                 val opt_head = Optional.of(head)
@@ -932,9 +932,9 @@ class KSCanonInlineParser private constructor(
         val act_head = parseTableHead(e.elements[2] as KSExpressionList, c)
         val act_body = parseTableBody(e.elements[3] as KSExpressionList, c)
 
-        return act_summary flatMap { summary ->
-          act_head flatMap { head ->
-            act_body flatMap { body ->
+        return act_summary.flatMap { summary ->
+          act_head.flatMap { head ->
+            act_body.flatMap { body ->
                 val opt_type = Optional.empty<KSType<KSParse>>()
                 val opt_head = Optional.of(head)
                 KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(
@@ -958,8 +958,8 @@ class KSCanonInlineParser private constructor(
         val act_type = parseAttributeType(e.elements[2] as KSExpressionList, c)
         val act_body = parseTableBody(e.elements[3] as KSExpressionList, c)
 
-        return act_summary flatMap { summary ->
-          act_body flatMap { body ->
+        return act_summary.flatMap { summary ->
+          act_body.flatMap { body ->
             act_type.flatMap { type ->
               val opt_type = Optional.of(type)
               val opt_head = Optional.empty<KSTableHead<KSParse>>()
@@ -983,8 +983,8 @@ class KSCanonInlineParser private constructor(
         val act_summary = parseTableSummary(e.elements[1], c)
         val act_body = parseTableBody(e.elements[2] as KSExpressionList, c)
 
-        return act_summary flatMap { summary ->
-          act_body flatMap { body ->
+        return act_summary.flatMap { summary ->
+          act_body.flatMap { body ->
             val opt_type = Optional.empty<KSType<KSParse>>()
             val opt_head = Optional.empty<KSTableHead<KSParse>>()
             KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(
@@ -1018,7 +1018,7 @@ class KSCanonInlineParser private constructor(
         val contents = e.elements.subList(1, e.elements.size)
         val act_content =
           KSResult.listMap({ ce -> parseTableBodyRow(ce, c) }, contents)
-        return act_content flatMap { cs ->
+        return act_content.flatMap { cs ->
           KSResult.succeed<KSTableBody<KSParse>, KSParseError>(
             KSTableBody(e.position, e.square, KSParse(c.context), cs))
         }
@@ -1039,7 +1039,7 @@ class KSCanonInlineParser private constructor(
         val contents = e.elements.subList(1, e.elements.size)
         val act_content =
           KSResult.listMap({ ce -> parseTableBodyCell(ce, c) }, contents)
-        return act_content flatMap { cs ->
+        return act_content.flatMap { cs ->
           KSResult.succeed<KSTableBodyRow<KSParse>, KSParseError>(
             KSTableBodyRow(e.position, e.square, KSParse(c.context), cs))
         }
@@ -1060,7 +1060,7 @@ class KSCanonInlineParser private constructor(
         val contents = e.elements.subList(1, e.elements.size)
         val act_content =
           KSResult.listMap({ ce -> parseInlineAny(ce, c) }, contents)
-        return act_content flatMap { cs ->
+        return act_content.flatMap { cs ->
           KSResult.succeed<KSTableBodyCell<KSParse>, KSParseError>(
             KSTableBodyCell(e.position, e.square, KSParse(c.context), cs))
         }
@@ -1080,7 +1080,7 @@ class KSCanonInlineParser private constructor(
         val contents = e.elements.subList(1, e.elements.size)
         val act_content =
           KSResult.listMap({ ce -> parseTableColumnName(ce, c) }, contents)
-        return act_content flatMap { cs ->
+        return act_content.flatMap { cs ->
           KSResult.succeed<KSTableHead<KSParse>, KSParseError>(
             KSTableHead(e.position, e.square, KSParse(c.context), cs))
         }
@@ -1102,7 +1102,7 @@ class KSCanonInlineParser private constructor(
         Assertive.require(contents.size >= 1)
         val act_content =
           KSResult.listMap({ ce -> parseInlineTextOrInclude(ce, c) }, contents)
-        return act_content flatMap { cs ->
+        return act_content.flatMap { cs ->
           KSResult.succeed<KSTableHeadColumnName<KSParse>, KSParseError>(
             KSTableHeadColumnName(e.position, e.square, KSParse(c.context), cs))
         }
@@ -1124,7 +1124,7 @@ class KSCanonInlineParser private constructor(
         Assertive.require(contents.size >= 1)
         val act_content =
           KSResult.listMap({ ce -> parseInlineTextOrInclude(ce, c) }, contents)
-        return act_content flatMap { cs ->
+        return act_content.flatMap { cs ->
           KSResult.succeed<KSTableSummary<KSParse>, KSParseError>(
             KSTableSummary(e.position, e.square, KSParse(c.context), cs))
         }

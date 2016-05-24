@@ -303,7 +303,7 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseInlines(rest, c)
 
-        return act_content flatMap { content ->
+        return act_content.flatMap { content ->
           act_id.flatMap { id ->
             act_type.flatMap { type ->
               KSResult.succeed<KSBlockFootnote<KSParse>, KSParseError>(
@@ -325,7 +325,7 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(2, e.elements.size)
         val act_content = parseInlines(rest, c)
 
-        return act_content flatMap { content ->
+        return act_content.flatMap { content ->
           act_id.flatMap { id ->
             KSResult.succeed<KSBlockFootnote<KSParse>, KSParseError>(
               KSBlockFootnote(
@@ -362,8 +362,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseInlines(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_id.flatMap { id ->
               act_type.flatMap { type ->
                 KSResult.succeed<KSBlockFormalItem<KSParse>, KSParseError>(
@@ -389,8 +389,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseInlines(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_id.flatMap { id ->
               act_type.flatMap { type ->
                 KSResult.succeed<KSBlockFormalItem<KSParse>, KSParseError>(
@@ -415,8 +415,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseInlines(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_type.flatMap { type ->
               KSResult.succeed<KSBlockFormalItem<KSParse>, KSParseError>(
                 KSBlockFormalItem(
@@ -439,8 +439,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseInlines(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_id.flatMap { id ->
               KSResult.succeed<KSBlockFormalItem<KSParse>, KSParseError>(
                 KSBlockFormalItem(
@@ -462,8 +462,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(2, e.elements.size)
         val act_content = parseInlines(rest, c)
 
-        return act_title flatMap { title ->
-          act_content flatMap { content ->
+        return act_title.flatMap { title ->
+          act_content.flatMap { content ->
             KSResult.succeed<KSBlockFormalItem<KSParse>, KSParseError>(
               KSBlockFormalItem(
                 e.position,
@@ -497,7 +497,7 @@ class KSCanonBlockParser private constructor(
     when {
       KSExpressionMatch.matches(e, CommandMatchers.import) -> {
         Assertive.require(e.elements.size == 2)
-        return parseInlineText(c, e.elements[1]) flatMap { file ->
+        return parseInlineText(c, e.elements[1]).flatMap { file ->
           val re = KSBlockImport(
             e.position, e.square, KSParse(c.context), Optional.empty(), Optional.empty(), file)
           loadImport(re, c, file)
@@ -520,7 +520,7 @@ class KSCanonBlockParser private constructor(
     return c.context.checkImportCycle(
       importer = base_abs,
       import = e,
-      imported_path = real) flatMap {
+      imported_path = real).flatMap {
 
       val r : KSResult<KSBlock<KSParse>, KSParseError> =
         try {
@@ -541,7 +541,7 @@ class KSCanonBlockParser private constructor(
             KSParseError(e.position, sb.toString()))
         }
 
-      r flatMap { b ->
+      r.flatMap { b ->
         c.context.addImport(
           importer = base_abs,
           import = e,
@@ -569,7 +569,7 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseInlines(rest, c)
 
-        return act_content flatMap { content ->
+        return act_content.flatMap { content ->
           act_id.flatMap { id ->
             act_type.flatMap { type ->
               KSResult.succeed<KSBlockParagraph<KSParse>, KSParseError>(
@@ -588,7 +588,7 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseInlines(rest, c)
 
-        return act_content flatMap { content ->
+        return act_content.flatMap { content ->
           act_id.flatMap { id ->
             act_type.flatMap { type ->
               KSResult.succeed<KSBlockParagraph<KSParse>, KSParseError>(
@@ -604,7 +604,7 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(2, e.elements.size)
         val act_content = parseInlines(rest, c)
 
-        return act_content flatMap { content ->
+        return act_content.flatMap { content ->
           act_id.flatMap { id ->
             KSResult.succeed<KSBlockParagraph<KSParse>, KSParseError>(
               newBlockParagraph(c, content, e, Optional.of(id), Optional.empty()))
@@ -618,7 +618,7 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(2, e.elements.size)
         val act_content = parseInlines(rest, c)
 
-        return act_content flatMap { content ->
+        return act_content.flatMap { content ->
           act_type.flatMap { type ->
             KSResult.succeed<KSBlockParagraph<KSParse>, KSParseError>(
               newBlockParagraph(c, content, e, Optional.empty(), Optional.of(type)))
@@ -631,7 +631,7 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(1, e.elements.size)
         val act_content = parseInlines(rest, c)
 
-        return act_content flatMap { content ->
+        return act_content.flatMap { content ->
           KSResult.succeed<KSBlockParagraph<KSParse>, KSParseError>(
             newBlockParagraph(c, content, e, Optional.empty(), Optional.empty()))
         }
@@ -676,8 +676,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseSubsectionContents(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_id.flatMap { id ->
               act_type.flatMap { type ->
                 KSResult.succeed<KSBlockSubsection<KSParse>, KSParseError>(
@@ -706,8 +706,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseSubsectionContents(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_id.flatMap { id ->
               act_type.flatMap { type ->
                 KSResult.succeed<KSBlockSubsection<KSParse>, KSParseError>(
@@ -734,8 +734,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseSubsectionContents(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_type.flatMap { type ->
               KSResult.succeed<KSBlockSubsection<KSParse>, KSParseError>(
                 KSBlockSubsection(
@@ -760,8 +760,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseSubsectionContents(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_id.flatMap { id ->
               KSResult.succeed<KSBlockSubsection<KSParse>, KSParseError>(
                 KSBlockSubsection(
@@ -784,8 +784,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(2, e.elements.size)
         val act_content = parseSubsectionContents(rest, c)
 
-        return act_title flatMap { title ->
-          act_content flatMap { content ->
+        return act_title.flatMap { title ->
+          act_content.flatMap { content ->
             KSResult.succeed<KSBlockSubsection<KSParse>, KSParseError>(
               KSBlockSubsection(
                 e.position,
@@ -868,8 +868,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseSectionContents(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_id.flatMap { id ->
               act_type.flatMap { type ->
                 parseBlockSectionActual(
@@ -891,8 +891,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseSectionContents(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_id.flatMap { id ->
               act_type.flatMap { type ->
                 parseBlockSectionActual(
@@ -912,8 +912,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseSectionContents(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_type.flatMap { type ->
               parseBlockSectionActual(
                 c, content, e, Optional.empty(), Optional.of(type), title)
@@ -931,8 +931,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseSectionContents(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_id.flatMap { id ->
               parseBlockSectionActual(
                 c, content, e, Optional.of(id), Optional.empty(), title)
@@ -948,8 +948,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(2, e.elements.size)
         val act_content = parseSectionContents(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             parseBlockSectionActual(
               c, content, e, Optional.empty(), Optional.empty(), title)
           }
@@ -983,7 +983,7 @@ class KSCanonBlockParser private constructor(
             KSResult.listMap({ cc ->
               sectionContentToSubsectionContent(cc, c)
             }, content)
-          act_contents flatMap { contents ->
+          act_contents.flatMap { contents ->
             KSResult.succeed<KSBlockSection<KSParse>, KSParseError>(
               KSBlockSection.KSBlockSectionWithContent(
                 e.position, e.square, KSParse(c.context), type, id, title, contents))
@@ -994,7 +994,7 @@ class KSCanonBlockParser private constructor(
             KSResult.listMap({ cc ->
               sectionContentToSubsection(cc, c)
             }, content)
-          act_contents flatMap { contents ->
+          act_contents.flatMap { contents ->
             KSResult.succeed<KSBlockSection<KSParse>, KSParseError>(
               KSBlockSection.KSBlockSectionWithSubsections(
                 e.position, e.square, KSParse(c.context), type, id, title, contents))
@@ -1008,14 +1008,14 @@ class KSCanonBlockParser private constructor(
     e : KSExpression,
     c : Context)
     : KSResult<KSSubsectionContent<KSParse>, KSParseError> {
-    return parseBlockAny(e, c) flatMap { k -> anyToSubsectionContent(k, c) }
+    return parseBlockAny(e, c).flatMap { k -> anyToSubsectionContent(k, c) }
   }
 
   private fun parseSectionContent(
     e : KSExpression,
     c : Context)
     : KSResult<KSSectionContent<KSParse>, KSParseError> {
-    return parseBlockAny(e, c) flatMap { k -> anyToSectionContent(k, c) }
+    return parseBlockAny(e, c).flatMap { k -> anyToSectionContent(k, c) }
   }
 
   private fun parseBlockPart(
@@ -1038,8 +1038,8 @@ class KSCanonBlockParser private constructor(
         val act_content =
           KSResult.listMap({ s -> parseSectionAny(s, c) }, rest)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_id.flatMap { id ->
               act_type.flatMap { type ->
                 KSResult.succeed<KSBlockPart<KSParse>, KSParseError>(KSBlockPart(
@@ -1068,8 +1068,8 @@ class KSCanonBlockParser private constructor(
         val act_content =
           KSResult.listMap({ s -> parseSectionAny(s, c) }, rest)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_id.flatMap { id ->
               act_type.flatMap { type ->
                 KSResult.succeed<KSBlockPart<KSParse>, KSParseError>(KSBlockPart(
@@ -1096,8 +1096,8 @@ class KSCanonBlockParser private constructor(
         val act_content =
           KSResult.listMap({ s -> parseSectionAny(s, c) }, rest)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_type.flatMap { type ->
               KSResult.succeed<KSBlockPart<KSParse>, KSParseError>(KSBlockPart(
                 e.position,
@@ -1122,8 +1122,8 @@ class KSCanonBlockParser private constructor(
         val act_content =
           KSResult.listMap({ s -> parseSectionAny(s, c) }, rest)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_id.flatMap { id ->
               KSResult.succeed<KSBlockPart<KSParse>, KSParseError>(KSBlockPart(
                 e.position,
@@ -1146,8 +1146,8 @@ class KSCanonBlockParser private constructor(
         val act_content =
           KSResult.listMap({ s -> parseSectionAny(s, c) }, rest)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             KSResult.succeed<KSBlockPart<KSParse>, KSParseError>(KSBlockPart(
               e.position,
               e.square,
@@ -1173,7 +1173,7 @@ class KSCanonBlockParser private constructor(
     e : KSExpression,
     c : Context)
     : KSResult<KSBlockSection<KSParse>, KSParseError> {
-    return parseBlockAny(e, c) flatMap { ee -> anyToSection(ee, c) }
+    return parseBlockAny(e, c).flatMap { ee -> anyToSection(ee, c) }
   }
 
   private fun parseInlineTexts(
@@ -1187,7 +1187,7 @@ class KSCanonBlockParser private constructor(
     c : Context,
     e : KSExpression)
     : KSResult<KSInlineText<KSParse>, KSParseError> {
-    return inlines.parse(c.context, e, c.file) flatMap { r ->
+    return inlines.parse(c.context, e, c.file).flatMap { r ->
       checkInlineText(e, r)
     }
   }
@@ -1227,7 +1227,7 @@ class KSCanonBlockParser private constructor(
     : KSResult<List<KSInline<KSParse>>, KSParseError> {
     return KSResult.listMap({ k ->
       val r = this.inlines.parse(c.context, k, c.file)
-      r flatMap { z -> KSResult.succeed<KSInline<KSParse>, KSParseError>(z) }
+      r.flatMap { z -> KSResult.succeed<KSInline<KSParse>, KSParseError>(z) }
     }, e)
   }
 
@@ -1391,7 +1391,7 @@ class KSCanonBlockParser private constructor(
     e : KSExpression,
     c : Context)
     : KSResult<KSDocumentContent<KSParse>, KSParseError> {
-    return parseBlockAny(e, c) flatMap { k -> anyToDocumentContent(k, c) }
+    return parseBlockAny(e, c).flatMap { k -> anyToDocumentContent(k, c) }
   }
 
   private fun parseDocumentContents(
@@ -1420,8 +1420,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseDocumentContents(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_id.flatMap { id ->
               act_type.flatMap { type ->
                 parseBlockDocumentActual(
@@ -1443,8 +1443,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseDocumentContents(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_id.flatMap { id ->
               act_type.flatMap { type ->
                 parseBlockDocumentActual(
@@ -1464,8 +1464,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseDocumentContents(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_type.flatMap { type ->
               parseBlockDocumentActual(
                 content, e, Optional.empty(), Optional.of(type), title, c)
@@ -1483,8 +1483,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseDocumentContents(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             act_id.flatMap { id ->
               parseBlockDocumentActual(
                 content, e, Optional.of(id), Optional.empty(), title, c)
@@ -1500,8 +1500,8 @@ class KSCanonBlockParser private constructor(
         val rest = e.elements.subList(2, e.elements.size)
         val act_content = parseDocumentContents(rest, c)
 
-        return act_content flatMap { content ->
-          act_title flatMap { title ->
+        return act_content.flatMap { content ->
+          act_title.flatMap { title ->
             parseBlockDocumentActual(
               content, e, Optional.empty(), Optional.empty(), title, c)
           }
@@ -1548,7 +1548,7 @@ class KSCanonBlockParser private constructor(
     : KSResult<KSBlockDocument<KSParse>, KSParseError> {
     val act_contents =
       KSResult.listMap({ c -> documentContentToSection(c) }, content)
-    return act_contents flatMap { contents ->
+    return act_contents.flatMap { contents ->
       KSResult.succeed<KSBlockDocument<KSParse>, KSParseError>(
         KSBlockDocumentWithSections(
           e.position, e.square, KSParse(c.context), id, type, title, contents))
@@ -1565,7 +1565,7 @@ class KSCanonBlockParser private constructor(
     : KSResult<KSBlockDocument<KSParse>, KSParseError> {
     val act_contents =
       KSResult.listMap({ ec -> documentContentToPart(ec) }, content)
-    return act_contents flatMap { contents ->
+    return act_contents.flatMap { contents ->
       KSResult.succeed<KSBlockDocument<KSParse>, KSParseError>(
         KSBlockDocumentWithParts(
           e.position, e.square, KSParse(c.context), id, type, title, contents))

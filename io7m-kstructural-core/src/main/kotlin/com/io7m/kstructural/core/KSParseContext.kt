@@ -99,7 +99,7 @@ class KSParseContext private constructor(
     Assertive.require(!importPathsByElement.containsKey(import))
     Assertive.require(!importsByElement.containsKey(imported))
 
-    return checkImportCycle(importer, import, imported_path) flatMap { edge ->
+    return checkImportCycle(importer, import, imported_path).flatMap { edge ->
       importsByPath[imported_path] = imported
       importPathsByElement[import] = imported_path
       importsByElement[imported] = import

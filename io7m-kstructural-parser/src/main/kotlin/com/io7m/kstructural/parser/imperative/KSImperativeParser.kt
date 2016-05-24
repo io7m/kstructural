@@ -1101,7 +1101,7 @@ class KSImperativeParser private constructor(
     return c.context.checkImportCycle(
       importer = base_abs,
       import = import_e,
-      imported_path = real) flatMap {
+      imported_path = real).flatMap {
 
       val r : KSResult<KSBlock<KSParse>, KSParseError> =
         try {
@@ -1122,7 +1122,7 @@ class KSImperativeParser private constructor(
             KSParseError(e.position, sb.toString()))
         }
 
-      r flatMap { b ->
+      r.flatMap { b ->
         c.context.addImport(
           importer = base_abs,
           import = import_e,
@@ -1139,7 +1139,7 @@ class KSImperativeParser private constructor(
     c : Context,
     e : KSExpression)
     : KSResult<KSInlineText<KSParse>, KSParseError> {
-    return inlines.parse(c.context, e, c.file) flatMap { r ->
+    return inlines.parse(c.context, e, c.file).flatMap { r ->
       checkInlineText(e, r)
     }
   }
@@ -1155,7 +1155,7 @@ class KSImperativeParser private constructor(
     when {
       KSExpressionMatch.matches(e, CommandMatchers.import) -> {
         Assertive.require(e.elements.size == 2)
-        return parseInlineText(c, e.elements[1]) flatMap { file ->
+        return parseInlineText(c, e.elements[1]).flatMap { file ->
           loadImport(e, c, file)
         }
       }
