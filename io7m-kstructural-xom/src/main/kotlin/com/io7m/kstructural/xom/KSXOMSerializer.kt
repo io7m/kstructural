@@ -128,7 +128,7 @@ class KSXOMSerializer<T> private constructor(
 
   private fun serializeTableBodyCell(e : KSTableBodyCell<T>) : Node {
     val xe = Element("s:cell", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
-    KSXOM.inlinesAppend(xe, e.content, { c -> serializeInline(c) })
+    KSXOMSpacing.appendWithSpace(xe, e.content, { c -> serializeInline(c) })
     return xe
   }
 
@@ -154,13 +154,13 @@ class KSXOMSerializer<T> private constructor(
 
   private fun serializeTableHeadColumnName(e : KSTableHeadColumnName<T>) : Node {
     val xe = Element("s:name", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
-    KSXOM.inlinesAppend(xe, e.content, { c -> serializeInline(c) })
+    KSXOMSpacing.appendWithSpace(xe, e.content, { c -> serializeInline(c) })
     return xe
   }
 
   private fun serializeListItem(e : KSListItem<T>) : Node {
     val xe = Element("s:item", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
-    KSXOM.inlinesAppend(xe, e.content, { c -> serializeInline(c) })
+    KSXOMSpacing.appendWithSpace(xe, e.content, { c -> serializeInline(c) })
     return xe
   }
 
@@ -198,7 +198,7 @@ class KSXOMSerializer<T> private constructor(
     val xe = Element("s:link-external", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     xe.addAttribute(Attribute(
       "s:target", KSSchemaNamespaces.NAMESPACE_URI_TEXT, e.target.toString()))
-    KSXOM.inlinesAppend(xe, e.content, { c -> serializeLinkContent(c) })
+    KSXOMSpacing.appendWithSpace(xe, e.content, { c -> serializeLinkContent(c) })
     return xe
   }
 
@@ -213,7 +213,7 @@ class KSXOMSerializer<T> private constructor(
     val xe = Element("s:link", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     xe.addAttribute(Attribute(
       "s:target", KSSchemaNamespaces.NAMESPACE_URI_TEXT, e.target.value))
-    KSXOM.inlinesAppend(xe, e.content, { c -> serializeLinkContent(c) })
+    KSXOMSpacing.appendWithSpace(xe, e.content, { c -> serializeLinkContent(c) })
     return xe
   }
 
@@ -232,7 +232,7 @@ class KSXOMSerializer<T> private constructor(
 
     addType(e.type, xe)
 
-    KSXOM.inlinesAppend(xe, e.content, { c -> serializeInlineText(c) })
+    KSXOMSpacing.appendWithSpace(xe, e.content, { c -> serializeInlineText(c) })
     return xe
   }
 
@@ -240,7 +240,7 @@ class KSXOMSerializer<T> private constructor(
     val xe = Element("s:term", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     addType(e.type, xe)
 
-    KSXOM.inlinesAppend(xe, e.content, { c -> serializeInlineText(c) })
+    KSXOMSpacing.appendWithSpace(xe, e.content, { c -> serializeInlineText(c) })
     return xe
   }
 
@@ -376,7 +376,7 @@ class KSXOMSerializer<T> private constructor(
     val xe = Element("s:footnote", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     addType(e.type, xe)
     addId(e.id, xe)
-    KSXOM.inlinesAppend(xe, e.content, { c -> serializeInline(c) })
+    KSXOMSpacing.appendWithSpace(xe, e.content, { c -> serializeInline(c) })
     return xe
   }
 
@@ -385,7 +385,7 @@ class KSXOMSerializer<T> private constructor(
     addType(e.type, xe)
     addId(e.id, xe)
     addTitle(e.title, xe)
-    KSXOM.inlinesAppend(xe, e.content, { c -> serializeInline(c) })
+    KSXOMSpacing.appendWithSpace(xe, e.content, { c -> serializeInline(c) })
     return xe
   }
 
@@ -403,7 +403,7 @@ class KSXOMSerializer<T> private constructor(
     val xe = Element("s:paragraph", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     addType(e.type, xe)
     addId(e.id, xe)
-    KSXOM.inlinesAppend(xe, e.content, { c -> serializeInline(c) })
+    KSXOMSpacing.appendWithSpace(xe, e.content, { c -> serializeInline(c) })
     return xe
   }
 

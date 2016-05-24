@@ -345,7 +345,7 @@ internal object KSXOM {
       th.column_names.forEach { n ->
         val tsc_cell = Element("th", XHTML_URI_TEXT)
         tsc_cell.addAttribute(Attribute("class", null, prefixedName("table_column_name")))
-        inlinesAppend(tsc_cell, n.content, { ic -> inline(prov, ic) })
+        KSXOMSpacing.appendWithSpace(tsc_cell, n.content, { ic -> inline(prov, ic) })
         tsc_row.appendChild(tsc_cell)
       }
 
@@ -364,7 +364,7 @@ internal object KSXOM {
         val tsc_cell = Element("td", XHTML_URI_TEXT)
         tsc_cell.addAttribute(Attribute("class", null, prefixedName("table_cell")))
         tsc_row.appendChild(tsc_cell)
-        inlinesAppend(tsc_cell, cell.content, { ic -> inline(prov, ic) })
+        KSXOMSpacing.appendWithSpace(tsc_cell, cell.content, { ic -> inline(prov, ic) })
       }
     }
 
@@ -385,7 +385,7 @@ internal object KSXOM {
       val ie = Element("li", XHTML_URI_TEXT)
       ie.addAttribute(Attribute("class", null, prefixedName("list_item")))
       sc.appendChild(ie)
-      inlinesAppend(ie, i.content, { ic -> inline(prov, ic) })
+      KSXOMSpacing.appendWithSpace(ie, i.content, { ic -> inline(prov, ic) })
     }
     return sc
   }
@@ -404,7 +404,7 @@ internal object KSXOM {
       val ie = Element("li", XHTML_URI_TEXT)
       ie.addAttribute(Attribute("class", null, prefixedName("list_item")))
       sc.appendChild(ie)
-      inlinesAppend(ie, i.content, { ic -> inline(prov, ic) })
+      KSXOMSpacing.appendWithSpace(ie, i.content, { ic -> inline(prov, ic) })
     }
     return sc
   }
@@ -473,7 +473,7 @@ internal object KSXOM {
     val sc = Element("a", XHTML_URI_TEXT)
     sc.addAttribute(Attribute("class", null, prefixedName("link")))
     sc.addAttribute(Attribute("href", null, prov.idLink(link.target)))
-    inlinesAppend(sc, link.content, { c -> linkContent(c) })
+    KSXOMSpacing.appendWithSpace(sc, link.content, { c -> linkContent(c) })
     return sc
   }
 
@@ -481,52 +481,12 @@ internal object KSXOM {
     val sc = Element("a", XHTML_URI_TEXT)
     sc.addAttribute(Attribute("class", null, prefixedName("link_external")))
     sc.addAttribute(Attribute("href", null, link.target.toString()))
-    inlinesAppend(sc, link.content, { c -> linkContent(c) })
+    KSXOMSpacing.appendWithSpace(sc, link.content, { c -> linkContent(c) })
     return sc
   }
 
   fun inlineText(c : KSInlineText<KSEvaluation>) =
     Text(c.text)
-
-  fun <T> inlinesAppend(
-    e : Element,
-    q : List<T>,
-    f : (T) -> Node) : Element {
-
-    val es = q.map { k -> f(k) }
-    val max = q.size - 1
-    for (i in 0 .. max) {
-      val e_now = es[i]
-
-      if (i > 0) {
-
-        /**
-         * The previous element was text, so add a space.
-         */
-
-        if (es[i - 1] is Text) {
-          e.appendChild(" ")
-        } else {
-          if (e_now is Text) {
-            val et : Text = e_now
-            if (et.value.length > 1) {
-
-              /**
-               * The previous element was not text, and this text is more than
-               * a single character, so add a space.
-               */
-
-              e.appendChild(" ")
-            }
-          }
-        }
-      }
-
-      e.appendChild(e_now)
-    }
-
-    return e
-  }
 
   fun partContainer(
     prov : KSXOMLinkProviderType,
@@ -1088,7 +1048,7 @@ internal object KSXOM {
 
         val ec = Element("div", XHTML_URI_TEXT)
         ec.addAttribute(Attribute("class", null, prefixedName("footnote_body")))
-        inlinesAppend(ec, fn.value.content, { c -> inline(prov, c) })
+        KSXOMSpacing.appendWithSpace(ec, fn.value.content, { c -> inline(prov, c) })
 
         ee.appendChild(eid)
         ee.appendChild(ec)

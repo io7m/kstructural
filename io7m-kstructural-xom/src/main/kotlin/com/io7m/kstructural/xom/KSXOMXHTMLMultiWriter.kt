@@ -377,7 +377,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     f : KSBlockFormalItem<KSEvaluation>) : Element {
 
     val (container, content) = KSXOM.formalItemContainer(prov, f)
-    KSXOM.inlinesAppend(content, f.content, { i -> KSXOM.inline(prov, i) })
+    KSXOMSpacing.appendWithSpace(content, f.content, { i -> KSXOM.inline(prov, i) })
     return container
   }
 
@@ -387,7 +387,7 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     p : KSBlockParagraph<KSEvaluation>) : Element {
 
     val (container, content) = KSXOM.paragraphContainer(prov, p)
-    KSXOM.inlinesAppend(content, p.content, { i -> KSXOM.inline(prov, i) })
+    KSXOMSpacing.appendWithSpace(content, p.content, { i -> KSXOM.inline(prov, i) })
     return container
   }
 }

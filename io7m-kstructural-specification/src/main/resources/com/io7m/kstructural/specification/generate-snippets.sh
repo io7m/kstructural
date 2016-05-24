@@ -3,7 +3,7 @@
 SOURCE=InlineContent.hs
 
 mkdir -p gen
-grep -e '^data InlineText' ${SOURCE} > gen/InlineText.txt
+sed -n -e '/data InlineText/,/^$/ p' ${SOURCE} > gen/InlineText.txt
 sed -n -e '/data InlineContent/,/^$/ p' ${SOURCE} > gen/InlineContent.txt
 sed -n -e '/data InlineFootnoteRef/,/^$/ p' ${SOURCE} > gen/InlineFootnoteRef.txt
 sed -n -e '/data InlineImage/,/}/ p' ${SOURCE} > gen/InlineImage.txt
