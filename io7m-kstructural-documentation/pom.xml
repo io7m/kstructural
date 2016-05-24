@@ -69,7 +69,7 @@
             </goals>
             <phase>process-resources</phase>
             <configuration>
-              <documentFile>${project.build.directory}/documentation/documentation.xml</documentFile>
+              <documentFile>${project.build.directory}/documentation/documentation.sd</documentFile>
               <outputDirectory>${project.build.directory}/documentation/</outputDirectory>
               <pagination>XHTML_MULTI_PAGE</pagination>
               <cssExtraStyles>
@@ -84,7 +84,7 @@
             </goals>
             <phase>process-resources</phase>
             <configuration>
-              <documentFile>${project.build.directory}/documentation/documentation.xml</documentFile>
+              <documentFile>${project.build.directory}/documentation/documentation.sd</documentFile>
               <outputDirectory>${project.build.directory}/documentation/</outputDirectory>
               <pagination>XHTML_SINGLE_PAGE</pagination>
               <cssExtraStyles>

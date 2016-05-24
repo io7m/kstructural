@@ -1,0 +1,2 @@
+[document [title ${project.parent.name} ${project.version} Documentation]
+  [import "pkg.sdi"]]
