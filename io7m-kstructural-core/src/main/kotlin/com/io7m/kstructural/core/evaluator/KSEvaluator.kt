@@ -483,13 +483,27 @@ object KSEvaluator : KSEvaluatorType {
         } else {
           val id_eval = KSEvaluation(
             c, c.freshSerial(), parent, Optional.empty())
-          val ksid = KSID(id.position, id.value, id_eval)
-          val r = f(b, Optional.of(ksid))
-          c.blocks_by_id.put(id.value, r)
-          KSResult.succeed<U, KSEvaluationError>(r)
+
+          return createID(id.position, id.value, id_eval).flatMap { id ->
+            val r = f(b, Optional.of(id))
+            c.blocks_by_id.put(id.value, r)
+            KSResult.succeed<U, KSEvaluationError>(r)
+          }
         }
       } else {
         KSResult.succeed(f(b, Optional.empty()))
+      }
+    }
+
+    fun createID(
+      position : Optional<LexicalPositionType<Path>>,
+      value : String,
+      data : KSEvaluation)
+      : KSResult<KSID<KSEvaluation>, KSEvaluationError> {
+      return if (KSID.isValidID(value)) {
+        KSResult.succeed(KSID.create(position, value, data))
+      } else {
+        KSResult.fail(KSEvaluationError(position, "Not a valid identifier"))
       }
     }
 
@@ -895,13 +909,15 @@ object KSEvaluator : KSEvaluatorType {
 
     val serial = c.freshSerial()
     val id_eval = KSEvaluation(c, c.freshSerial(), serial, Optional.empty())
-    val ksid = KSID(e.target.position, e.target.value, id_eval)
-    val eval = KSEvaluation(c, serial, parent, Optional.empty())
-    val re = KSInlineFootnoteReference(e.position, e.square, eval, ksid)
-    c.addElement(re)
+    val act_id = c.createID(e.target.position, e.target.value, id_eval)
 
-    return c.referenceFootnote(re, ksid) flatMap { ref ->
-      KSResult.succeed<KSInlineFootnoteReference<KSEvaluation>, KSEvaluationError>(re)
+    return act_id.flatMap { id ->
+      val eval = KSEvaluation(c, serial, parent, Optional.empty())
+      val re = KSInlineFootnoteReference(e.position, e.square, eval, id)
+      c.addElement(re)
+      c.referenceFootnote(re, id) flatMap { ref ->
+        KSResult.succeed<KSInlineFootnoteReference<KSEvaluation>, KSEvaluationError>(re)
+      }
     }
   }
 
@@ -1181,19 +1197,21 @@ object KSEvaluator : KSEvaluatorType {
       }
 
       is KSLinkInternal -> {
-        val id_eval = KSEvaluation(c, serial, parent, Optional.empty())
-        val ksid = KSID(act.target.position, act.target.value, id_eval)
-        c.referenceID(ksid)
-
         val act_content = KSResult.listMap(
           { cc -> evaluateLinkContent(c, cc, serial) }, act.content)
 
-        act_content flatMap { content ->
-          val link = KSLinkInternal(act.position, ksid, content)
-          val eval = KSEvaluation(c, serial, parent, Optional.empty())
-          val re = KSInlineLink(e.position, e.square, eval, link)
-          c.addElement(re)
-          KSResult.succeed<KSInlineLink<KSEvaluation>, KSEvaluationError>(re)
+        val id_eval = KSEvaluation(c, serial, parent, Optional.empty())
+        val act_id = c.createID(act.target.position, act.target.value, id_eval)
+
+        return act_id.flatMap { id ->
+          c.referenceID(id)
+          act_content flatMap { content ->
+            val link = KSLinkInternal(act.position, id, content)
+            val eval = KSEvaluation(c, serial, parent, Optional.empty())
+            val re = KSInlineLink(e.position, e.square, eval, link)
+            c.addElement(re)
+            KSResult.succeed<KSInlineLink<KSEvaluation>, KSEvaluationError>(re)
+          }
         }
       }
     }

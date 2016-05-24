@@ -201,6 +201,13 @@ abstract class KSCanonInlineParserContract {
     Assert.assertEquals("t", i.result.type.get())
   }
 
+  @Test fun testInlineLinkInternalErrorInvalidID() {
+    val pp = newParserForString("[link [target \"-\"] y]")
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
+
+    i as KSFailure
+  }
+
   @Test fun testInlineLinkInternal() {
     val pp = newParserForString("[link [target \"x\"] y]")
     val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
@@ -209,7 +216,7 @@ abstract class KSCanonInlineParserContract {
     val l = i.result.actual as KSLink.KSLinkInternal
 
     val lt = l.content[0] as KSLinkContent.KSLinkText<*>
-    Assert.assertEquals(KSID(Optional.empty(), "x", Unit), l.target)
+    Assert.assertEquals(KSID.create(Optional.empty(), "x", Unit), l.target)
     Assert.assertEquals("y", lt.actual.text)
   }
 
@@ -221,7 +228,7 @@ abstract class KSCanonInlineParserContract {
     val l = i.result.actual as KSLink.KSLinkInternal
 
     val lt = l.content[0] as KSLinkContent.KSLinkText<*>
-    Assert.assertEquals(KSID(Optional.empty(), "x", Unit), l.target)
+    Assert.assertEquals(KSID.create(Optional.empty(), "x", Unit), l.target)
     Assert.assertEquals("y", lt.actual.text)
   }
 
@@ -233,7 +240,7 @@ abstract class KSCanonInlineParserContract {
     val l = i.result.actual as KSLink.KSLinkInternal
 
     val lt = l.content[0] as KSLinkContent.KSLinkImage<*>
-    Assert.assertEquals(KSID(Optional.empty(), "x", Unit), l.target)
+    Assert.assertEquals(KSID.create(Optional.empty(), "x", Unit), l.target)
     Assert.assertEquals("q", lt.actual.target.toString())
   }
 
@@ -644,7 +651,7 @@ abstract class KSCanonInlineParserContract {
     i as KSSuccess<KSInlineFootnoteReference<*>, KSParseError>
     val l = i.result as KSInlineFootnoteReference<Unit>
 
-    Assert.assertEquals(KSID(Optional.empty(), "x", Unit), l.target)
+    Assert.assertEquals(KSID.create(Optional.empty(), "x", Unit), l.target)
   }
 
   @Test fun testInlineFootnoteReferenceError() {

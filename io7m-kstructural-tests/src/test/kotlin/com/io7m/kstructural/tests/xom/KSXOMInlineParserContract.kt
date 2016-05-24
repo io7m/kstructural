@@ -155,6 +155,16 @@ abstract class KSXOMInlineParserContract {
   }
 
   @Test
+  fun testLinkInvalidID() {
+    val n = parseXML("""<s:link xmlns:s="${NAMESPACE}" s:target="-">xyz</s:link>""")
+    val p = parser()
+    val c = KSParseContext.empty()
+    val r = p.parse(c, n)
+
+    r as KSFailure
+  }
+
+  @Test
   fun testLinkErrorTerm() {
     val n = parseXML("""<s:link xmlns:s="${NAMESPACE}" s:target="q"><s:term>q</s:term></s:link>""")
     val p = parser()

@@ -16,6 +16,7 @@
 
 package com.io7m.kstructural.parser.canon
 
+import com.io7m.jlexing.core.LexicalPositionType
 import com.io7m.junreachable.UnreachableCodeException
 import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
@@ -614,6 +615,17 @@ class KSCanonInlineParser private constructor(
       listOf(CommandMatchers.verbatim_type, CommandMatchers.verbatim))
   }
 
+  private fun createID(
+    position : Optional<LexicalPositionType<Path>>,
+    kp : KSParse,
+    text : String) : KSResult<KSID<KSParse>, KSParseError> {
+    return if (KSID.isValidID(text)) {
+      KSResult.succeed(KSID.create(position, text, kp))
+    } else {
+      KSResult.fail(KSParseError(position, "Not a valid identifier"))
+    }
+  }
+
   private fun parseLinkInternal(
     e : KSExpressionList,
     c : Context)
@@ -626,13 +638,16 @@ class KSCanonInlineParser private constructor(
 
       val target =
         parseAttributeTarget(e.elements[1] as KSExpressionList)
-      val kid =
-        KSID(e.elements[1].position, target, KSParse(c.context))
+      val act_id =
+        createID(e.elements[1].position, KSParse(c.context), target)
       val content =
         KSResult.listMap({ t -> parseLinkContent(t, c) }, texts)
-      return content flatMap { cs ->
-        KSResult.succeed<KSLink.KSLinkInternal<KSParse>, KSParseError>(
-          KSLink.KSLinkInternal(e.position, kid, cs))
+
+      return act_id.flatMap { id ->
+        content.flatMap { cs ->
+          KSResult.succeed<KSLink.KSLinkInternal<KSParse>, KSParseError>(
+            KSLink.KSLinkInternal(e.position, id, cs))
+        }
       }
     } else {
       return failedToMatchResult(e, listOf(CommandMatchers.link))
@@ -1104,9 +1119,13 @@ class KSCanonInlineParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.footnote_ref) -> {
         Assertive.require(e.elements.size == 2)
         val target = parseAttributeTarget(e)
-        val kid = KSID(e.elements[1].position, target, KSParse(c.context))
-        return KSResult.succeed(
-          KSInlineFootnoteReference(e.position, e.square, KSParse(c.context), kid))
+        val act_id =
+          createID(e.elements[1].position, KSParse(c.context), target)
+        return act_id.flatMap { id ->
+          KSResult.succeed<KSInlineFootnoteReference<KSParse>, KSParseError>(
+            KSInlineFootnoteReference(
+              e.position, e.square, KSParse(c.context), id))
+        }
       }
     }
 

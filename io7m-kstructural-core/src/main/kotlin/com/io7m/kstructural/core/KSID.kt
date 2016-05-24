@@ -19,8 +19,9 @@ package com.io7m.kstructural.core
 import com.io7m.jlexing.core.LexicalPositionType
 import java.nio.file.Path
 import java.util.Optional
+import java.util.regex.Pattern
 
-class KSID<T>(
+class KSID<T> private constructor(
   override val position : Optional<LexicalPositionType<Path>>,
   val value : String,
   val data : T) : KSLexicalType {
@@ -35,4 +36,27 @@ class KSID<T>(
   override fun hashCode() : Int = value.hashCode()
   override fun toString() : String = value
 
+  companion object {
+
+    @Throws(IllegalArgumentException::class)
+    fun <T> create(
+      position : Optional<LexicalPositionType<Path>>,
+      value : String,
+      data : T)
+    : KSID<T> {
+      if (isValidID(value)) {
+        return KSID(position, value, data)
+      } else {
+        throw IllegalArgumentException("Not a valid identifier")
+      }
+    }
+
+    val ID_FORMAT = Pattern.compile(
+      "[\\p{IsLetter}\\p{IsDigit}_]+",
+      Pattern.UNICODE_CHARACTER_CLASS);
+
+    fun isValidID(s : String) : Boolean =
+      ID_FORMAT.matcher(s).matches()
+
+  }
 }

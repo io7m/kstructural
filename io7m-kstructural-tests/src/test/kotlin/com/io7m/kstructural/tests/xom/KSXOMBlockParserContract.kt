@@ -48,6 +48,16 @@ abstract class KSXOMBlockParserContract {
   val NAMESPACE = KSSchemaNamespaces.NAMESPACE_URI_TEXT
 
   @Test
+  fun testParagraphInvalidID() {
+    val n = parseXML("""<s:paragraph xmlns:s="${NAMESPACE}" xml:id="-">x y z</s:paragraph>""")
+    val p = parser()
+    val c = KSParseContext.empty()
+    val r = p.parse(c, n)
+
+    r as KSFailure
+  }
+
+  @Test
   fun testParagraph() {
     val n = parseXML("""<s:paragraph xmlns:s="${NAMESPACE}">x y z</s:paragraph>""")
     val p = parser()
@@ -153,6 +163,16 @@ abstract class KSXOMBlockParserContract {
     Assert.assertEquals("x y z", (i.content[0] as KSInlineText).text)
     Assert.assertFalse(i.type.isPresent)
     Assert.assertEquals("x", i.id.get().value)
+  }
+
+  @Test
+  fun testFootnoteInvalidId() {
+    val n = parseXML("""<s:footnote xml:id="-" xmlns:s="${NAMESPACE}">x y z</s:footnote>""")
+    val p = parser()
+    val c = KSParseContext.empty()
+    val r = p.parse(c, n)
+
+    r as KSFailure
   }
 
   @Test

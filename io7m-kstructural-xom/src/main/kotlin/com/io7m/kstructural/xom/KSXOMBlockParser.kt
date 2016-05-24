@@ -96,20 +96,34 @@ class KSXOMBlockParser private constructor(
 
   private fun parseID(
     context : KSParseContextType,
-    element : Element) : Optional<KSID<KSParse>> {
+    element : Element)
+    : KSResult<Optional<KSID<KSParse>>, KSParseError> {
     val ta = element.getAttribute("id", KSSchemaNamespaces.XML_NAMESPACE_URI_TEXT)
     return if (ta != null) {
-      Optional.of(KSID(no_lex, ta.value, KSParse(context)))
+      val v = ta.value
+      if (KSID.isValidID(v)) {
+        KSResult.succeed<Optional<KSID<KSParse>>, KSParseError>(
+          Optional.of(KSID.create(no_lex, ta.value, KSParse(context))))
+      } else {
+        KSResult.fail(KSParseError(no_lex, "Not a valid identifier"))
+      }
     } else {
-      Optional.empty()
+      KSResult.succeed(Optional.empty())
     }
   }
 
   private fun parseIDNonOptional(
     context : KSParseContextType,
-    element : Element) : KSID<KSParse> {
+    element : Element)
+    : KSResult<KSID<KSParse>, KSParseError> {
     val ta = element.getAttribute("id", KSSchemaNamespaces.XML_NAMESPACE_URI_TEXT)
-    return KSID(no_lex, ta.value, KSParse(context))
+    val v = ta.value
+    return if (KSID.isValidID(v)) {
+      KSResult.succeed<KSID<KSParse>, KSParseError>(
+        KSID.create(no_lex, ta.value, KSParse(context)))
+    } else {
+      KSResult.fail(KSParseError(no_lex, "Not a valid identifier"))
+    }
   }
 
   private fun parseDocument(
@@ -118,7 +132,7 @@ class KSXOMBlockParser private constructor(
     Assertive.require(element.localName == "document")
 
     val kp = KSParse(context)
-    val id = parseID(context, element)
+    val act_id = parseID(context, element)
     val type = parseType(element)
     val title = parseTitle(context, element)
 
@@ -126,24 +140,26 @@ class KSXOMBlockParser private constructor(
       KSResult.listMap({ c -> parse(context, c) },
         listOfChildElements(element))
 
-    return act_content.flatMap { content ->
-      if (content.size > 0) {
-        if (content[0] is KSBlockPart) {
-          KSResult.listMap({ s -> toPart(s) }, content).flatMap {
-            parts ->
-            succeed(KSBlockDocument.KSBlockDocumentWithParts(
-              no_lex, false, kp, id, type, title, parts))
+    return act_id.flatMap { id ->
+      act_content.flatMap { content ->
+        if (content.size > 0) {
+          if (content[0] is KSBlockPart) {
+            KSResult.listMap({ s -> toPart(s) }, content).flatMap {
+              parts ->
+              succeed(KSBlockDocument.KSBlockDocumentWithParts(
+                no_lex, false, kp, id, type, title, parts))
+            }
+          } else {
+            KSResult.listMap({ s -> toSection(s) }, content).flatMap {
+              sections ->
+              succeed(KSBlockDocumentWithSections(
+                no_lex, false, kp, id, type, title, sections))
+            }
           }
         } else {
-          KSResult.listMap({ s -> toSection(s) }, content).flatMap {
-            sections ->
-            succeed(KSBlockDocumentWithSections(
-              no_lex, false, kp, id, type, title, sections))
-          }
+          succeed(KSBlockDocumentWithParts(
+            no_lex, false, kp, id, type, title, listOf()))
         }
-      } else {
-        succeed(KSBlockDocumentWithParts(
-          no_lex, false, kp, id, type, title, listOf()))
       }
     }
   }
@@ -178,7 +194,7 @@ class KSXOMBlockParser private constructor(
     Assertive.require(element.localName == "subsection")
 
     val kp = KSParse(context)
-    val id = parseID(context, element)
+    val act_id = parseID(context, element)
     val type = parseType(element)
     val title = parseTitle(context, element)
 
@@ -186,9 +202,11 @@ class KSXOMBlockParser private constructor(
       KSResult.listMap({ c -> parse(context, c) },
         listOfChildElements(element))
 
-    return act_content.flatMap { content ->
-      KSResult.listMap({ s -> toSubsectionContent(s) }, content).flatMap { content ->
-        succeed(KSBlockSubsection(no_lex, false, kp, type, id, title, content))
+    return act_id.flatMap { id ->
+      act_content.flatMap { content ->
+        KSResult.listMap({ s -> toSubsectionContent(s) }, content).flatMap { content ->
+          succeed(KSBlockSubsection(no_lex, false, kp, type, id, title, content))
+        }
       }
     }
   }
@@ -199,7 +217,7 @@ class KSXOMBlockParser private constructor(
     Assertive.require(element.localName == "section")
 
     val kp = KSParse(context)
-    val id = parseID(context, element)
+    val act_id = parseID(context, element)
     val type = parseType(element)
     val title = parseTitle(context, element)
 
@@ -207,24 +225,26 @@ class KSXOMBlockParser private constructor(
       KSResult.listMap({ c -> parse(context, c) },
         listOfChildElements(element))
 
-    return act_content.flatMap { content ->
-      if (content.size > 0) {
-        if (content[0] is KSBlockSubsection) {
-          KSResult.listMap({ s -> checkSubsection(s) }, content).flatMap {
-            subsections ->
-            succeed(KSBlockSection.KSBlockSectionWithSubsections(
-              no_lex, false, kp, type, id, title, subsections))
+    return act_id.flatMap { id ->
+      act_content.flatMap { content ->
+        if (content.size > 0) {
+          if (content[0] is KSBlockSubsection) {
+            KSResult.listMap({ s -> checkSubsection(s) }, content).flatMap {
+              subsections ->
+              succeed(KSBlockSection.KSBlockSectionWithSubsections(
+                no_lex, false, kp, type, id, title, subsections))
+            }
+          } else {
+            KSResult.listMap({ s -> toSubsectionContent(s) }, content).flatMap {
+              content ->
+              succeed(KSBlockSection.KSBlockSectionWithContent(
+                no_lex, false, kp, type, id, title, content))
+            }
           }
         } else {
-          KSResult.listMap({ s -> toSubsectionContent(s) }, content).flatMap {
-            content ->
-            succeed(KSBlockSection.KSBlockSectionWithContent(
-              no_lex, false, kp, type, id, title, content))
-          }
+          succeed(KSBlockSection.KSBlockSectionWithSubsections(
+            no_lex, false, kp, type, id, title, listOf()))
         }
-      } else {
-        succeed(KSBlockSection.KSBlockSectionWithSubsections(
-          no_lex, false, kp, type, id, title, listOf()))
       }
     }
   }
@@ -292,14 +312,16 @@ class KSXOMBlockParser private constructor(
     Assertive.require(element.localName == "paragraph")
 
     val kp = KSParse(context)
-    val id = parseID(context, element)
+    val act_id = parseID(context, element)
     val type = parseType(element)
     val act_content =
       KSResult.listMap({ c -> inlines.parse(context, c) },
         listOfChildren(element))
 
-    return act_content.flatMap { content ->
-      succeed(KSBlockParagraph(no_lex, false, kp, type, id, content))
+    return act_id.flatMap { id ->
+      act_content.flatMap { content ->
+        succeed(KSBlockParagraph(no_lex, false, kp, type, id, content))
+      }
     }
   }
 
@@ -309,14 +331,16 @@ class KSXOMBlockParser private constructor(
     Assertive.require(element.localName == "footnote")
 
     val kp = KSParse(context)
-    val id = parseIDNonOptional(context, element)
+    val act_id = parseIDNonOptional(context, element)
     val type = parseType(element)
     val act_content =
       KSResult.listMap({ c -> inlines.parse(context, c) },
         listOfChildren(element))
 
-    return act_content.flatMap { content ->
-      succeed(KSBlockFootnote(no_lex, false, kp, id, type, content))
+    return act_id.flatMap { id ->
+      act_content.flatMap { content ->
+        succeed(KSBlockFootnote(no_lex, false, kp, id, type, content))
+      }
     }
   }
 
@@ -326,15 +350,17 @@ class KSXOMBlockParser private constructor(
     Assertive.require(element.localName == "formal-item")
 
     val kp = KSParse(context)
-    val id = parseID(context, element)
+    val act_id = parseID(context, element)
     val type = parseType(element)
     val act_content =
       KSResult.listMap({ c -> inlines.parse(context, c) },
         listOfChildren(element))
 
     val title = parseTitle(context, element)
-    return act_content.flatMap { content ->
-      succeed(KSBlockFormalItem(no_lex, false, kp, type, id, title, content))
+    return act_id.flatMap { id ->
+      act_content.flatMap { content ->
+        succeed(KSBlockFormalItem(no_lex, false, kp, type, id, title, content))
+      }
     }
   }
 
@@ -344,7 +370,7 @@ class KSXOMBlockParser private constructor(
     Assertive.require(element.localName == "part")
 
     val kp = KSParse(context)
-    val id = parseID(context, element)
+    val act_id = parseID(context, element)
     val type = parseType(element)
     val title = parseTitle(context, element)
 
@@ -352,8 +378,10 @@ class KSXOMBlockParser private constructor(
       KSResult.listMap({ c -> parse(context, c).flatMap { s -> toSection(s) } },
         listOfChildElements(element))
 
-    return act_content.flatMap { content ->
-      succeed(KSBlockPart(no_lex, false, kp, type, id, title, content))
+    return act_id.flatMap { id ->
+      act_content.flatMap { content ->
+        succeed(KSBlockPart(no_lex, false, kp, type, id, title, content))
+      }
     }
   }
 

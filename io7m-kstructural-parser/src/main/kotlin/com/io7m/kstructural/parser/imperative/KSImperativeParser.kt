@@ -23,6 +23,7 @@ import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpression.KSExpressionList
 import com.io7m.kstructural.parser.KSExpression.KSExpressionSymbol
 import com.io7m.kstructural.parser.KSExpressionMatch
+import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.canon.KSCanonInlineParserType
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeDocument
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeFootnote
@@ -91,11 +92,17 @@ class KSImperativeParser private constructor(
     private fun parseAttributeID(
       e : KSExpressionList,
       c : Context)
-      : KSID<KSParse> {
+      : KSResult<KSID<KSParse>, KSParseError> {
       Assertive.require(e.elements.size == 2)
       Assertive.require(e.elements[0] is KSExpressionSymbol)
       Assertive.require(e.elements[1] is KSExpressionSymbol)
-      return KSID(e.position, (e.elements[1] as KSExpressionSymbol).value, KSParse(c.context))
+      val text = (e.elements[1] as KSExpressionSymbol).value
+      val kp = KSParse(c.context)
+      return if (KSID.isValidID(text)) {
+        KSResult.succeed(KSID.create(e.position, text, kp))
+      } else {
+        KSResult.fail(KSParseError(e.position, "Not a valid identifier"))
+      }
     }
 
     fun create(
@@ -281,33 +288,42 @@ class KSImperativeParser private constructor(
     when {
       KSExpressionMatch.matches(e, CommandMatchers.para_with_id_type) -> {
         Assertive.require(e.elements.size >= 3)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[1] as KSExpressionList, c)
         val type = parseAttributeType(
           e.elements[2] as KSExpressionList)
-        return KSResult.succeed(
-          KSImperativeParagraph(
-            e.position, e.square, Optional.of(type), Optional.of(id)))
+
+        return act_id.flatMap { id ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeParagraph(
+              e.position, e.square, Optional.of(type), Optional.of(id)))
+        }
       }
 
       KSExpressionMatch.matches(e, CommandMatchers.para_with_type_id) -> {
         Assertive.require(e.elements.size >= 3)
         val type = parseAttributeType(
           e.elements[1] as KSExpressionList)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[2] as KSExpressionList, c)
-        return KSResult.succeed(
-          KSImperativeParagraph(
-            e.position, e.square, Optional.of(type), Optional.of(id)))
+
+        return act_id.flatMap { id ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeParagraph(
+              e.position, e.square, Optional.of(type), Optional.of(id)))
+        }
       }
 
       KSExpressionMatch.matches(e, CommandMatchers.para_with_id)      -> {
         Assertive.require(e.elements.size >= 2)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[1] as KSExpressionList, c)
-        return KSResult.succeed(
-          KSImperativeParagraph(
-            e.position, e.square, Optional.empty(), Optional.of(id)))
+
+        return act_id.flatMap { id ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeParagraph(
+              e.position, e.square, Optional.empty(), Optional.of(id)))
+        }
       }
 
       KSExpressionMatch.matches(e, CommandMatchers.para_with_type)    -> {
@@ -345,22 +361,28 @@ class KSImperativeParser private constructor(
     when {
       KSExpressionMatch.matches(e, CommandMatchers.footnote_type) -> {
         Assertive.require(e.elements.size >= 3)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[1] as KSExpressionList, c)
         val type = parseAttributeType(
           e.elements[2] as KSExpressionList)
-        return KSResult.succeed(
-          KSImperativeFootnote(
-            e.position, e.square, Optional.of(type), id))
+
+        return act_id.flatMap { id ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeFootnote(
+              e.position, e.square, Optional.of(type), id))
+        }
       }
 
       KSExpressionMatch.matches(e, CommandMatchers.footnote)      -> {
         Assertive.require(e.elements.size >= 2)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[1] as KSExpressionList, c)
-        return KSResult.succeed(
-          KSImperativeFootnote(
-            e.position, e.square, Optional.empty(), id))
+
+        return act_id.flatMap { id ->
+          KSResult.succeed<KSImperative, KSParseError>(
+            KSImperativeFootnote(
+              e.position, e.square, Optional.empty(), id))
+        }
       }
     }
 
@@ -418,19 +440,21 @@ class KSImperativeParser private constructor(
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[2] as KSExpressionList, c)
         val type = parseAttributeType(
           e.elements[3] as KSExpressionList)
 
-        return act_title.flatMap { title ->
-          KSResult.succeed<KSImperative, KSParseError>(
-            KSImperativePart(
-              e.position,
-              e.square,
-              Optional.of(type),
-              Optional.of(id),
-              title))
+        return act_id.flatMap { id ->
+          act_title.flatMap { title ->
+            KSResult.succeed<KSImperative, KSParseError>(
+              KSImperativePart(
+                e.position,
+                e.square,
+                Optional.of(type),
+                Optional.of(id),
+                title))
+          }
         }
       }
 
@@ -440,17 +464,19 @@ class KSImperativeParser private constructor(
           e.elements[1] as KSExpressionList, c)
         val type = parseAttributeType(
           e.elements[2] as KSExpressionList)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[3] as KSExpressionList, c)
 
-        return act_title.flatMap { title ->
-          KSResult.succeed<KSImperative, KSParseError>(
-            KSImperativePart(
-              e.position,
-              e.square,
-              Optional.of(type),
-              Optional.of(id),
-              title))
+        return act_id.flatMap { id ->
+          act_title.flatMap { title ->
+            KSResult.succeed<KSImperative, KSParseError>(
+              KSImperativePart(
+                e.position,
+                e.square,
+                Optional.of(type),
+                Optional.of(id),
+                title))
+          }
         }
       }
 
@@ -458,17 +484,19 @@ class KSImperativeParser private constructor(
         Assertive.require(e.elements.size >= 2)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[2] as KSExpressionList, c)
 
-        return act_title.flatMap { title ->
-          KSResult.succeed<KSImperative, KSParseError>(
-            KSImperativePart(
-              e.position,
-              e.square,
-              Optional.empty(),
-              Optional.of(id),
-              title))
+        return act_id.flatMap { id ->
+          act_title.flatMap { title ->
+            KSResult.succeed<KSImperative, KSParseError>(
+              KSImperativePart(
+                e.position,
+                e.square,
+                Optional.empty(),
+                Optional.of(id),
+                title))
+          }
         }
       }
 
@@ -527,19 +555,21 @@ class KSImperativeParser private constructor(
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[2] as KSExpressionList, c)
         val type = parseAttributeType(
           e.elements[3] as KSExpressionList)
 
-        return act_title.flatMap { title ->
-          KSResult.succeed<KSImperative, KSParseError>(
-            KSImperativeDocument(
-              e.position,
-              e.square,
-              Optional.of(type),
-              Optional.of(id),
-              title))
+        return act_id.flatMap { id ->
+          act_title.flatMap { title ->
+            KSResult.succeed<KSImperative, KSParseError>(
+              KSImperativeDocument(
+                e.position,
+                e.square,
+                Optional.of(type),
+                Optional.of(id),
+                title))
+          }
         }
       }
 
@@ -549,17 +579,19 @@ class KSImperativeParser private constructor(
           e.elements[1] as KSExpressionList, c)
         val type = parseAttributeType(
           e.elements[2] as KSExpressionList)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[3] as KSExpressionList, c)
 
-        return act_title.flatMap { title ->
-          KSResult.succeed<KSImperative, KSParseError>(
-            KSImperativeDocument(
-              e.position,
-              e.square,
-              Optional.of(type),
-              Optional.of(id),
-              title))
+        return act_id.flatMap { id ->
+          act_title.flatMap { title ->
+            KSResult.succeed<KSImperative, KSParseError>(
+              KSImperativeDocument(
+                e.position,
+                e.square,
+                Optional.of(type),
+                Optional.of(id),
+                title))
+          }
         }
       }
 
@@ -567,17 +599,19 @@ class KSImperativeParser private constructor(
         Assertive.require(e.elements.size >= 2)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[2] as KSExpressionList, c)
 
-        return act_title.flatMap { title ->
-          KSResult.succeed<KSImperative, KSParseError>(
-            KSImperativeDocument(
-              e.position,
-              e.square,
-              Optional.empty(),
-              Optional.of(id),
-              title))
+        return act_id.flatMap { id ->
+          act_title.flatMap { title ->
+            KSResult.succeed<KSImperative, KSParseError>(
+              KSImperativeDocument(
+                e.position,
+                e.square,
+                Optional.empty(),
+                Optional.of(id),
+                title))
+          }
         }
       }
 
@@ -636,19 +670,21 @@ class KSImperativeParser private constructor(
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[2] as KSExpressionList, c)
         val type = parseAttributeType(
           e.elements[3] as KSExpressionList)
 
-        return act_title.flatMap { title ->
-          KSResult.succeed<KSImperative, KSParseError>(
-            KSImperativeSection(
-              e.position,
-              e.square,
-              Optional.of(type),
-              Optional.of(id),
-              title))
+        return act_id.flatMap { id ->
+          act_title.flatMap { title ->
+            KSResult.succeed<KSImperative, KSParseError>(
+              KSImperativeSection(
+                e.position,
+                e.square,
+                Optional.of(type),
+                Optional.of(id),
+                title))
+          }
         }
       }
 
@@ -658,17 +694,19 @@ class KSImperativeParser private constructor(
           e.elements[1] as KSExpressionList, c)
         val type = parseAttributeType(
           e.elements[2] as KSExpressionList)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[3] as KSExpressionList, c)
 
-        return act_title.flatMap { title ->
-          KSResult.succeed<KSImperative, KSParseError>(
-            KSImperativeSection(
-              e.position,
-              e.square,
-              Optional.of(type),
-              Optional.of(id),
-              title))
+        return act_id.flatMap { id ->
+          act_title.flatMap { title ->
+            KSResult.succeed<KSImperative, KSParseError>(
+              KSImperativeSection(
+                e.position,
+                e.square,
+                Optional.of(type),
+                Optional.of(id),
+                title))
+          }
         }
       }
 
@@ -676,17 +714,19 @@ class KSImperativeParser private constructor(
         Assertive.require(e.elements.size >= 2)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[2] as KSExpressionList, c)
 
-        return act_title.flatMap { title ->
-          KSResult.succeed<KSImperative, KSParseError>(
-            KSImperativeSection(
-              e.position,
-              e.square,
-              Optional.empty(),
-              Optional.of(id),
-              title))
+        return act_id.flatMap { id ->
+          act_title.flatMap { title ->
+            KSResult.succeed<KSImperative, KSParseError>(
+              KSImperativeSection(
+                e.position,
+                e.square,
+                Optional.empty(),
+                Optional.of(id),
+                title))
+          }
         }
       }
 
@@ -745,19 +785,21 @@ class KSImperativeParser private constructor(
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[2] as KSExpressionList, c)
         val type = parseAttributeType(
           e.elements[3] as KSExpressionList)
 
-        return act_title.flatMap { title ->
-          KSResult.succeed<KSImperative, KSParseError>(
-            KSImperativeSubsection(
-              e.position,
-              e.square,
-              Optional.of(type),
-              Optional.of(id),
-              title))
+        return act_id.flatMap { id ->
+          act_title.flatMap { title ->
+            KSResult.succeed<KSImperative, KSParseError>(
+              KSImperativeSubsection(
+                e.position,
+                e.square,
+                Optional.of(type),
+                Optional.of(id),
+                title))
+          }
         }
       }
 
@@ -767,17 +809,19 @@ class KSImperativeParser private constructor(
           e.elements[1] as KSExpressionList, c)
         val type = parseAttributeType(
           e.elements[2] as KSExpressionList)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[3] as KSExpressionList, c)
 
-        return act_title.flatMap { title ->
-          KSResult.succeed<KSImperative, KSParseError>(
-            KSImperativeSubsection(
-              e.position,
-              e.square,
-              Optional.of(type),
-              Optional.of(id),
-              title))
+        return act_id.flatMap { id ->
+          act_title.flatMap { title ->
+            KSResult.succeed<KSImperative, KSParseError>(
+              KSImperativeSubsection(
+                e.position,
+                e.square,
+                Optional.of(type),
+                Optional.of(id),
+                title))
+          }
         }
       }
 
@@ -785,17 +829,19 @@ class KSImperativeParser private constructor(
         Assertive.require(e.elements.size >= 2)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[2] as KSExpressionList, c)
 
-        return act_title.flatMap { title ->
-          KSResult.succeed<KSImperative, KSParseError>(
-            KSImperativeSubsection(
-              e.position,
-              e.square,
-              Optional.empty(),
-              Optional.of(id),
-              title))
+        return act_id.flatMap { id ->
+          act_title.flatMap { title ->
+            KSResult.succeed<KSImperative, KSParseError>(
+              KSImperativeSubsection(
+                e.position,
+                e.square,
+                Optional.empty(),
+                Optional.of(id),
+                title))
+          }
         }
       }
 
@@ -854,19 +900,21 @@ class KSImperativeParser private constructor(
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[2] as KSExpressionList, c)
         val type = parseAttributeType(
           e.elements[3] as KSExpressionList)
 
-        return act_title.flatMap { title ->
-          KSResult.succeed<KSImperative, KSParseError>(
-            KSImperativeFormalItem(
-              e.position,
-              e.square,
-              Optional.of(type),
-              Optional.of(id),
-              title))
+        return act_id.flatMap { id ->
+          act_title.flatMap { title ->
+            KSResult.succeed<KSImperative, KSParseError>(
+              KSImperativeFormalItem(
+                e.position,
+                e.square,
+                Optional.of(type),
+                Optional.of(id),
+                title))
+          }
         }
       }
 
@@ -876,17 +924,19 @@ class KSImperativeParser private constructor(
           e.elements[1] as KSExpressionList, c)
         val type = parseAttributeType(
           e.elements[2] as KSExpressionList)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[3] as KSExpressionList, c)
 
-        return act_title.flatMap { title ->
-          KSResult.succeed<KSImperative, KSParseError>(
-            KSImperativeFormalItem(
-              e.position,
-              e.square,
-              Optional.of(type),
-              Optional.of(id),
-              title))
+        return act_id.flatMap { id ->
+          act_title.flatMap { title ->
+            KSResult.succeed<KSImperative, KSParseError>(
+              KSImperativeFormalItem(
+                e.position,
+                e.square,
+                Optional.of(type),
+                Optional.of(id),
+                title))
+          }
         }
       }
 
@@ -894,17 +944,19 @@ class KSImperativeParser private constructor(
         Assertive.require(e.elements.size >= 2)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val id = parseAttributeID(
+        val act_id = parseAttributeID(
           e.elements[2] as KSExpressionList, c)
 
-        return act_title.flatMap { title ->
-          KSResult.succeed<KSImperative, KSParseError>(
-            KSImperativeFormalItem(
-              e.position,
-              e.square,
-              Optional.empty(),
-              Optional.of(id),
-              title))
+        return act_id.flatMap { id ->
+          act_title.flatMap { title ->
+            KSResult.succeed<KSImperative, KSParseError>(
+              KSImperativeFormalItem(
+                e.position,
+                e.square,
+                Optional.empty(),
+                Optional.of(id),
+                title))
+          }
         }
       }
 

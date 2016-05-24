@@ -105,12 +105,10 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
     : KSResult<KSInlineFootnoteReference<KSParse>, KSParseError> {
     Assertive.require(element.localName == "footnote-ref")
 
-    val kp = KSParse(context)
     val ta = element.getAttribute("target", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
-    val target = KSID(no_lex, ta.value, kp)
-
-    return succeed(KSInlineFootnoteReference(
-      no_lex, false, KSParse(context), target))
+    return parseID(context, ta.value).flatMap { id ->
+      succeed(KSInlineFootnoteReference(no_lex, false, KSParse(context), id))
+    }
   }
 
   private fun parseElementTable(
@@ -297,6 +295,18 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
     }
   }
 
+  private fun parseID(
+    context : KSParseContextType,
+    text : String)
+    : KSResult<KSID<KSParse>, KSParseError> {
+    return if (KSID.isValidID(text)) {
+      KSResult.succeed<KSID<KSParse>, KSParseError>(
+        KSID.create(no_lex, text, KSParse(context)))
+    } else {
+      KSResult.fail(KSParseError(no_lex, "Not a valid identifier"))
+    }
+  }
+
   private fun parseLink(
     context : KSParseContextType,
     element : Element)
@@ -305,12 +315,14 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
     val kp = KSParse(context)
     val ta = element.getAttribute("target", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
-    val target = KSID(no_lex, ta.value, kp)
+    val act_target = parseID(context, ta.value)
     val act_content = KSResult.listMap(
       { e -> parseLinkContent(context, e) }, listOfChildren(element))
 
-    return act_content.flatMap { content ->
-      succeed(KSLink.KSLinkInternal(no_lex, target, content))
+    return act_target.flatMap { id ->
+      act_content.flatMap { content ->
+        succeed(KSLink.KSLinkInternal(no_lex, id, content))
+      }
     }
   }
 

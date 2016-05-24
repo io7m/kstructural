@@ -502,4 +502,11 @@ abstract class KSImperativeParserContract {
     val p = e.result.content as KSElement.KSBlock.KSBlockParagraph<KSParse>
     Assert.assertEquals("p", (p.content[0] as KSInlineText).text)
   }
+
+  @Test fun testInvalidIDError() {
+    val pp = newParserForString("[paragraph [id -]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSFailure
+  }
 }

@@ -72,7 +72,7 @@ abstract class KSImperativeBuilderContract {
 
   private val id : Optional<KSID<KSParse>> = Optional.empty()
 
-  private val id_real : KSID<KSParse> = KSID(
+  private val id_real : KSID<KSParse> = KSID.create(
     pos, "x", KSParse(KSParseContext.empty()))
 
   @Test fun testEmptyEOF() {
