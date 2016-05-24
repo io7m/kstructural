@@ -154,7 +154,7 @@ public final class KSOpCompileXHTML implements KSOpType
 
     final Map<String, Document> pages = w.write(this.settings, document);
     for (final String name : pages.keySet()) {
-      final Document doc = pages.put(name, pages.get(name));
+      final Document doc = pages.get(name);
       final Path file = this.output_path.resolve(name);
 
       KSOpCompileXHTML.LOG.debug("write {}", file);

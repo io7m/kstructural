@@ -45,7 +45,7 @@ object KSXOMXHTMLSingleWriter : KSXOMXHTMLWriterType {
       }
 
       override fun idLink(id : KSID<KSEvaluation>) : String {
-        throw UnsupportedOperationException()
+        return "#" + id.value
       }
 
       override fun footnoteAnchor(
