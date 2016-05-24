@@ -43,6 +43,7 @@ import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
+import com.io7m.kstructural.core.KSType
 import com.io7m.kstructural.schema.KSSchemaNamespaces
 import nu.xom.Element
 import nu.xom.Node
@@ -118,7 +119,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
     Assertive.require(element.localName == "table")
 
     val kp = KSParse(context)
-    val type = parseType(element)
+    val act_type = parseType(context, element)
     val summary = parseSummary(context, element)
 
     val eh = element.getFirstChildElement(
@@ -142,7 +143,9 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
     return act_head.flatMap { head ->
       act_body.flatMap { body ->
-        succeed(KSInlineTable(no_lex, false, kp, type, summary, head, body))
+        act_type.flatMap { type ->
+          succeed(KSInlineTable(no_lex, false, kp, type, summary, head, body))
+        }
       }
     }
   }
@@ -369,13 +372,14 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
     : KSResult<KSInline<KSParse>, KSParseError> {
     Assertive.require(element.localName == "term")
 
-    val type = parseType(element)
+    val act_type = parseType(context, element)
     val act_content = KSResult.listMap(
       { e -> parseInlineText(context, e) }, listOfChildren(element))
 
     return act_content.flatMap { content ->
-      succeed(KSInlineTerm(
-        no_lex, false, KSParse(context), type, content))
+      act_type.flatMap { type ->
+        succeed(KSInlineTerm(no_lex, false, KSParse(context), type, content))
+      }
     }
   }
 
@@ -385,10 +389,12 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
     : KSResult<KSInlineVerbatim<KSParse>, KSParseError> {
     Assertive.require(element.localName == "verbatim")
 
-    val type = parseType(element)
+    val act_type = parseType(context, element)
     val kp = KSParse(context)
     val content = KSInlineText(no_lex, false, kp, true, element.value)
-    return succeed(KSInlineVerbatim(no_lex, false, kp, type, content))
+    return act_type.flatMap { type ->
+      succeed(KSInlineVerbatim(no_lex, false, kp, type, content))
+    }
   }
 
   private fun parseElementImage(
@@ -397,7 +403,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
     : KSResult<KSInlineImage<KSParse>, KSParseError> {
     Assertive.require(element.localName == "image")
 
-    val type = parseType(element)
+    val act_type = parseType(context, element)
     val act_target = parseTargetURI(element)
     val act_size = parseSize(element)
     val act_content = KSResult.listMap(
@@ -406,8 +412,10 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
     return act_target.flatMap { target ->
       act_size.flatMap { size ->
         act_content.flatMap { content ->
-          succeed(KSInlineImage(
-            no_lex, false, KSParse(context), type, target, size, content))
+          act_type.flatMap { type ->
+            succeed(KSInlineImage(
+              no_lex, false, KSParse(context), type, target, size, content))
+          }
         }
       }
     }
@@ -515,12 +523,19 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
   }
 
   private fun parseType(
-    element : Element) : Optional<String> {
+    context : KSParseContextType,
+    element : Element)
+    : KSResult<Optional<KSType<KSParse>>, KSParseError> {
     val ta = element.getAttribute("type", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     return if (ta != null) {
-      Optional.of(ta.value)
+      if (KSType.isValidType(ta.value)) {
+        KSResult.succeed(Optional.of(
+          KSType.create(no_lex, ta.value, KSParse(context))))
+      } else {
+        KSResult.fail(KSParseError(no_lex, "Not a valid identifier"))
+      }
     } else {
-      Optional.empty()
+      KSResult.succeed(Optional.empty())
     }
   }
 

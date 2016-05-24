@@ -52,6 +52,7 @@ import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSLink
 import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSSubsectionContent
+import com.io7m.kstructural.core.KSType
 import com.io7m.kstructural.core.evaluator.KSEvaluation
 import com.io7m.kstructural.pretty.KSPrettyPrinterType
 import de.uka.ilkd.pp.Layouter
@@ -480,7 +481,7 @@ class KSImperativePrettyPrinter<T> private constructor(
   private fun prettyTitleIdType(
     id : Optional<KSID<T>>,
     title : List<KSInlineText<T>>,
-    type : Optional<String>) {
+    type : Optional<KSType<T>>) {
     outTitle(title)
     id.ifPresent { layout.brk(1, 0) }
     outId(id)
@@ -490,16 +491,16 @@ class KSImperativePrettyPrinter<T> private constructor(
 
   private fun prettyIdType(
     id : Optional<KSID<T>>,
-    type : Optional<String>) {
+    type : Optional<KSType<T>>) {
     outId(id)
     type.ifPresent { layout.brk(1, 0) }
     outType(type)
   }
 
-  private fun outType(type : Optional<String>) {
+  private fun outType(type : Optional<KSType<T>>) {
     type.ifPresent { type ->
       outStart("type", true, space = true)
-      layout.print(type)
+      layout.print(type.value)
       outEnd(true, newline = false)
     }
   }

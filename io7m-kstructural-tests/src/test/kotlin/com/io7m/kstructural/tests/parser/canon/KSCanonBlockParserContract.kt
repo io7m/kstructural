@@ -104,7 +104,7 @@ abstract class KSCanonBlockParserContract {
     val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
-    Assert.assertEquals("x", e.result.type.get())
+    Assert.assertEquals("x", e.result.type.get().value)
     Assert.assertEquals(1, e.result.content.size)
     val t0 = e.result.content[0] as KSInlineText<KSParse>
     Assert.assertEquals("Hello.", t0.text)
@@ -115,7 +115,7 @@ abstract class KSCanonBlockParserContract {
     val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
-    Assert.assertEquals("x", e.result.type.get())
+    Assert.assertEquals("x", e.result.type.get().value)
     Assert.assertEquals("y", e.result.id.get().value)
     Assert.assertEquals(1, e.result.content.size)
     val t0 = e.result.content[0] as KSInlineText<KSParse>
@@ -127,7 +127,7 @@ abstract class KSCanonBlockParserContract {
     val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
-    Assert.assertEquals("x", e.result.type.get())
+    Assert.assertEquals("x", e.result.type.get().value)
     Assert.assertEquals("y", e.result.id.get().value)
     Assert.assertEquals(1, e.result.content.size)
     val t0 = e.result.content[0] as KSInlineText<KSParse>
@@ -191,7 +191,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals("k", e.result.type.get().value)
     Assert.assertEquals(0, e.result.content.size)
   }
 
@@ -202,7 +202,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals("k", e.result.type.get().value)
     Assert.assertEquals(0, e.result.content.size)
   }
 
@@ -213,7 +213,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals(Optional.empty<KSID<KSParse>>(), e.result.id)
-    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals("k", e.result.type.get().value)
     Assert.assertEquals(0, e.result.content.size)
   }
 
@@ -265,7 +265,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockSectionWithContent<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals(Optional.of(KSID.create(Optional.empty(), "x", Unit)), e.result.id)
-    Assert.assertEquals(Optional.of("t"), e.result.type)
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals(1, e.result.content.size)
     val sp = e.result.content[0] as KSSubsectionContent.KSSubsectionParagraph
     val pc = sp.paragraph.content[0] as KSInlineText<KSParse>
@@ -279,7 +279,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockSectionWithContent<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals(Optional.of(KSID.create(Optional.empty(), "x", Unit)), e.result.id)
-    Assert.assertEquals(Optional.of("t"), e.result.type)
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals(1, e.result.content.size)
     val sp = e.result.content[0] as KSSubsectionContent.KSSubsectionParagraph
     val pc = sp.paragraph.content[0] as KSInlineText<KSParse>
@@ -293,7 +293,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockSectionWithContent<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals(Optional.empty<KSID<KSParse>>(), e.result.id)
-    Assert.assertEquals(Optional.of("t"), e.result.type)
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals(1, e.result.content.size)
     val sp = e.result.content[0] as KSSubsectionContent.KSSubsectionParagraph
     val pc = sp.paragraph.content[0] as KSInlineText<KSParse>
@@ -309,7 +309,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockSectionWithSubsections<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals(Optional.of(KSID.create(Optional.empty(), "x", Unit)), e.result.id)
-    Assert.assertEquals(Optional.of("t"), e.result.type)
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals(1, e.result.content.size)
     val ss = e.result.content[0]
     val sp = ss.content[0] as KSSubsectionContent.KSSubsectionParagraph<KSParse>
@@ -326,7 +326,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockSectionWithSubsections<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals(Optional.of(KSID.create(Optional.empty(), "x", Unit)), e.result.id)
-    Assert.assertEquals(Optional.of("t"), e.result.type)
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals(1, e.result.content.size)
     val ss = e.result.content[0]
     val sp = ss.content[0] as KSSubsectionContent.KSSubsectionParagraph<KSParse>
@@ -360,7 +360,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockSectionWithSubsections<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals(Optional.empty<KSID<KSParse>>(), e.result.id)
-    Assert.assertEquals(Optional.of("t"), e.result.type)
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals(1, e.result.content.size)
     val ss = e.result.content[0]
     val sp = ss.content[0] as KSSubsectionContent.KSSubsectionParagraph<KSParse>
@@ -490,7 +490,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockPart<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals("k", e.result.type.get().value)
     Assert.assertEquals(1, e.result.content.size)
 
     val s = e.result.content[0] as KSBlockSectionWithContent
@@ -505,7 +505,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockPart<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals("k", e.result.type.get().value)
     Assert.assertEquals(1, e.result.content.size)
 
     val s = e.result.content[0] as KSBlockSectionWithContent
@@ -520,7 +520,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockPart<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals(Optional.empty<KSID<KSParse>>(), e.result.id)
-    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals("k", e.result.type.get().value)
     Assert.assertEquals(1, e.result.content.size)
 
     val s = e.result.content[0] as KSBlockSectionWithContent
@@ -609,7 +609,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockDocumentWithSections<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals("k", e.result.type.get().value)
     Assert.assertEquals(1, e.result.content.size)
 
     val s = e.result.content[0] as KSBlockSectionWithContent
@@ -625,7 +625,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockDocumentWithSections<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals("k", e.result.type.get().value)
     Assert.assertEquals(1, e.result.content.size)
 
     val s = e.result.content[0] as KSBlockSectionWithContent
@@ -641,7 +641,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockDocumentWithSections<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals(Optional.empty<KSID<KSParse>>(), e.result.id)
-    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals("k", e.result.type.get().value)
     Assert.assertEquals(1, e.result.content.size)
 
     val s = e.result.content[0] as KSBlockSectionWithContent
@@ -711,7 +711,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockDocumentWithParts<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals("k", e.result.type.get().value)
     Assert.assertEquals(1, e.result.content.size)
 
     val s = e.result.content[0]
@@ -727,7 +727,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockDocumentWithParts<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals("k", e.result.type.get().value)
     Assert.assertEquals(1, e.result.content.size)
 
     val s = e.result.content[0]
@@ -743,7 +743,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockDocumentWithParts<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals(Optional.empty<KSID<KSParse>>(), e.result.id)
-    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals("k", e.result.type.get().value)
     Assert.assertEquals(1, e.result.content.size)
 
     val s = e.result.content[0]
@@ -850,7 +850,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockFormalItem<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals("k", e.result.type.get().value)
     Assert.assertEquals(0, e.result.content.size)
   }
 
@@ -861,7 +861,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockFormalItem<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals("k", e.result.type.get().value)
     Assert.assertEquals(0, e.result.content.size)
   }
 
@@ -872,7 +872,7 @@ abstract class KSCanonBlockParserContract {
     e as KSSuccess<KSBlockFormalItem<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
     Assert.assertEquals(Optional.empty<KSID<KSParse>>(), e.result.id)
-    Assert.assertEquals("k", e.result.type.get())
+    Assert.assertEquals("k", e.result.type.get().value)
     Assert.assertEquals(0, e.result.content.size)
   }
 
@@ -924,7 +924,7 @@ abstract class KSCanonBlockParserContract {
 
     e as KSSuccess<KSBlockFootnote<KSParse>, KSParseError>
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals(1, e.result.content.size)
     Assert.assertEquals("z", (e.result.content[0] as KSInlineText).text)
   }
@@ -1111,6 +1111,13 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testIDInvalid() {
     val pp = newParserForString("[paragraph [id -] Hello.]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSFailure
+  }
+
+  @Test fun testTypeInvalid() {
+    val pp = newParserForString("[paragraph [type -] Hello.]")
     val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
 
     e as KSFailure

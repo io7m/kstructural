@@ -124,7 +124,7 @@ abstract class KSImperativeParserContract {
     e as KSSuccess<KSImperativeParagraph, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
   }
 
   @Test fun testParaTypeID() {
@@ -134,7 +134,7 @@ abstract class KSImperativeParserContract {
     e as KSSuccess<KSImperativeParagraph, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
   }
 
   @Test fun testParaType() {
@@ -143,7 +143,7 @@ abstract class KSImperativeParserContract {
 
     e as KSSuccess<KSImperativeParagraph, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
   }
 
   @Test fun testPart() {
@@ -181,7 +181,7 @@ abstract class KSImperativeParserContract {
     e as KSSuccess<KSImperativePart, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals("ttt", e.result.title[0].text)
   }
 
@@ -192,7 +192,7 @@ abstract class KSImperativeParserContract {
     e as KSSuccess<KSImperativePart, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals("ttt", e.result.title[0].text)
   }
 
@@ -202,7 +202,7 @@ abstract class KSImperativeParserContract {
 
     e as KSSuccess<KSImperativePart, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals("ttt", e.result.title[0].text)
   }
 
@@ -241,7 +241,7 @@ abstract class KSImperativeParserContract {
     e as KSSuccess<KSImperativeSection, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals("ttt", e.result.title[0].text)
   }
 
@@ -252,7 +252,7 @@ abstract class KSImperativeParserContract {
     e as KSSuccess<KSImperativeSection, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals("ttt", e.result.title[0].text)
   }
 
@@ -262,7 +262,7 @@ abstract class KSImperativeParserContract {
 
     e as KSSuccess<KSImperativeSection, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals("ttt", e.result.title[0].text)
   }
 
@@ -302,7 +302,7 @@ abstract class KSImperativeParserContract {
     e as KSSuccess<KSImperativeFormalItem, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals("ttt", e.result.title[0].text)
   }
 
@@ -313,7 +313,7 @@ abstract class KSImperativeParserContract {
     e as KSSuccess<KSImperativeFormalItem, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals("ttt", e.result.title[0].text)
   }
 
@@ -323,7 +323,7 @@ abstract class KSImperativeParserContract {
 
     e as KSSuccess<KSImperativeFormalItem, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals("ttt", e.result.title[0].text)
   }
 
@@ -363,7 +363,7 @@ abstract class KSImperativeParserContract {
     e as KSSuccess<KSImperativeSubsection, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals("ttt", e.result.title[0].text)
   }
 
@@ -374,7 +374,7 @@ abstract class KSImperativeParserContract {
     e as KSSuccess<KSImperativeSubsection, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals("ttt", e.result.title[0].text)
   }
 
@@ -384,7 +384,7 @@ abstract class KSImperativeParserContract {
 
     e as KSSuccess<KSImperativeSubsection, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals("ttt", e.result.title[0].text)
   }
 
@@ -412,7 +412,7 @@ abstract class KSImperativeParserContract {
     e as KSSuccess<KSImperativeFootnote, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
   }
 
   @Test fun testDocument() {
@@ -450,7 +450,7 @@ abstract class KSImperativeParserContract {
     e as KSSuccess<KSImperativeDocument, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals("ttt", e.result.title[0].text)
   }
 
@@ -461,7 +461,7 @@ abstract class KSImperativeParserContract {
     e as KSSuccess<KSImperativeDocument, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
     Assert.assertEquals("x", e.result.id.get().value)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals("ttt", e.result.title[0].text)
   }
 
@@ -471,7 +471,7 @@ abstract class KSImperativeParserContract {
 
     e as KSSuccess<KSImperativeDocument, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
-    Assert.assertEquals("t", e.result.type.get())
+    Assert.assertEquals("t", e.result.type.get().value)
     Assert.assertEquals("ttt", e.result.title[0].text)
   }
 
@@ -505,6 +505,13 @@ abstract class KSImperativeParserContract {
 
   @Test fun testInvalidIDError() {
     val pp = newParserForString("[paragraph [id -]]")
+    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+
+    e as KSFailure
+  }
+
+  @Test fun testInvalidTypeError() {
+    val pp = newParserForString("[paragraph [type -]]")
     val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
 
     e as KSFailure

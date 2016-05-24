@@ -52,6 +52,7 @@ import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSLink
 import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSSubsectionContent
+import com.io7m.kstructural.core.KSType
 import com.io7m.kstructural.pretty.KSPrettyPrinterType
 import de.uka.ilkd.pp.Layouter
 import de.uka.ilkd.pp.WriterBackend
@@ -469,10 +470,10 @@ class KSCanonPrettyPrinter<T> private constructor(
     outEnd(e.square)
   }
 
-  private fun outType(type : Optional<String>) {
+  private fun outType(type : Optional<KSType<T>>) {
     type.ifPresent { type ->
       outStartMinor("type", true)
-      layout.print(type)
+      layout.print(type.value)
       outEnd(true)
       layout.brk(1, 0)
     }

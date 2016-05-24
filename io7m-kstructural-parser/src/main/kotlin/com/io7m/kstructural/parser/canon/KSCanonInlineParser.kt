@@ -45,6 +45,7 @@ import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
+import com.io7m.kstructural.core.KSType
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpression.KSExpressionList
 import com.io7m.kstructural.parser.KSExpression.KSExpressionQuoted
@@ -253,11 +254,21 @@ class KSCanonInlineParser private constructor(
     return KSParseError(e.position, sb.toString())
   }
 
-  private fun parseAttributeType(e : KSExpressionList) : String {
+  private fun parseAttributeType(
+    e : KSExpressionList,
+    c : Context)
+    : KSResult<KSType<KSParse>, KSParseError> {
     Assertive.require(e.elements.size == 2)
     Assertive.require(e.elements[0] is KSExpressionSymbol)
     Assertive.require(e.elements[1] is KSExpressionSymbol)
-    return (e.elements[1] as KSExpressionSymbol).value
+    val text = (e.elements[1] as KSExpressionSymbol).value
+    val kp = KSParse(c.context)
+    val position = e.position
+    return if (KSType.isValidType(text)) {
+      KSResult.succeed(KSType.create(position, text, kp))
+    } else {
+      KSResult.fail(KSParseError(position, "Not a valid type identifier"))
+    }
   }
 
   private fun parseAttributeTarget(e : KSExpressionList) : String {
@@ -316,8 +327,8 @@ class KSCanonInlineParser private constructor(
 
         val act_target = parseAttributeTargetAsURI(
           e.elements[1] as KSExpressionList)
-        val type = Optional.of(
-          parseAttributeType(e.elements[2] as KSExpressionList))
+        val act_type =
+          parseAttributeType(e.elements[2] as KSExpressionList, c)
         val act_size = parseAttributeSize(
           e.elements[3] as KSExpressionList)
         val texts =
@@ -328,15 +339,17 @@ class KSCanonInlineParser private constructor(
         return act_size flatMap { size ->
           act_content flatMap { content ->
             act_target flatMap { target ->
-              KSResult.succeed<KSInlineImage<KSParse>, KSParseError>(
-                KSInlineImage(
-                  e.position,
-                  e.square,
-                  KSParse(c.context),
-                  type,
-                  target,
-                  Optional.of(size),
-                  content))
+              act_type.flatMap { type ->
+                KSResult.succeed<KSInlineImage<KSParse>, KSParseError>(
+                  KSInlineImage(
+                    e.position,
+                    e.square,
+                    KSParse(c.context),
+                    Optional.of(type),
+                    target,
+                    Optional.of(size),
+                    content))
+              }
             }
           }
         }
@@ -347,8 +360,8 @@ class KSCanonInlineParser private constructor(
 
         val act_target = parseAttributeTargetAsURI(
           e.elements[1] as KSExpressionList)
-        val type = Optional.of(
-          parseAttributeType(e.elements[2] as KSExpressionList))
+        val act_type =
+          parseAttributeType(e.elements[2] as KSExpressionList, c)
         val size =
           Optional.empty<KSSize>()
         val texts =
@@ -358,15 +371,17 @@ class KSCanonInlineParser private constructor(
 
         return act_content flatMap { content ->
           act_target flatMap { target ->
-            KSResult.succeed<KSInlineImage<KSParse>, KSParseError>(
-              KSInlineImage(
-                e.position,
-                e.square,
-                KSParse(c.context),
-                type,
-                target,
-                size,
-                content))
+            act_type.flatMap { type ->
+              KSResult.succeed<KSInlineImage<KSParse>, KSParseError>(
+                KSInlineImage(
+                  e.position,
+                  e.square,
+                  KSParse(c.context),
+                  Optional.of(type),
+                  target,
+                  size,
+                  content))
+            }
           }
         }
       }
@@ -376,8 +391,6 @@ class KSCanonInlineParser private constructor(
 
         val act_target =
           parseAttributeTargetAsURI(e.elements[1] as KSExpressionList)
-        val type =
-          Optional.empty<String>()
         val act_size = parseAttributeSize(
           e.elements[2] as KSExpressionList)
         val texts =
@@ -393,7 +406,7 @@ class KSCanonInlineParser private constructor(
                   e.position,
                   e.square,
                   KSParse(c.context),
-                  type,
+                  Optional.empty(),
                   target,
                   Optional.of(size),
                   content))
@@ -406,8 +419,6 @@ class KSCanonInlineParser private constructor(
         Assertive.require(e.elements.size >= 3)
         val act_target =
           parseAttributeTargetAsURI(e.elements[1] as KSExpressionList)
-        val type =
-          Optional.empty<String>()
         val size =
           Optional.empty<KSSize>()
         val texts =
@@ -422,7 +433,7 @@ class KSCanonInlineParser private constructor(
                 e.position,
                 e.square,
                 KSParse(c.context),
-                type,
+                Optional.empty(),
                 target,
                 size,
                 content))
@@ -489,7 +500,7 @@ class KSCanonInlineParser private constructor(
     val real = base_abs.resolveSibling(f.text)
 
     val r = if (c.context.includes.containsKey(real)) {
-      KSResult.succeed(c.context.includes.get(real)!!)
+      KSResult.succeed(c.context.includes[real]!!)
     } else {
       try {
         LOG.debug("include: {}", real)
@@ -563,35 +574,39 @@ class KSCanonInlineParser private constructor(
 
       KSExpressionMatch.matches(e, CommandMatchers.verbatim_type_include) -> {
         Assertive.require(e.elements.size == 3)
-        val type =
-          parseAttributeType(e.elements[1] as KSExpressionList)
+        val act_type =
+          parseAttributeType(e.elements[1] as KSExpressionList, c)
         val act_content =
           parseInlineInclude(e.elements[2] as KSExpressionList, c)
         return act_content.flatMap { text ->
-          KSResult.succeed<KSInlineVerbatim<KSParse>, KSParseError>(
-            KSInlineVerbatim(
-              e.position,
-              e.square,
-              KSParse(c.context),
-              Optional.of(type),
-              text))
+          act_type.flatMap { type ->
+            KSResult.succeed<KSInlineVerbatim<KSParse>, KSParseError>(
+              KSInlineVerbatim(
+                e.position,
+                e.square,
+                KSParse(c.context),
+                Optional.of(type),
+                text))
+          }
         }
       }
 
       KSExpressionMatch.matches(e, CommandMatchers.verbatim_type)         -> {
         Assertive.require(e.elements.size == 3)
-        val type =
-          parseAttributeType(e.elements[1] as KSExpressionList)
+        val act_type =
+          parseAttributeType(e.elements[1] as KSExpressionList, c)
         val act_content =
           parseInlineTextOrInclude(e.elements[2], c)
         return act_content.flatMap { text ->
-          KSResult.succeed<KSInlineVerbatim<KSParse>, KSParseError>(
-            KSInlineVerbatim(
-              e.position,
-              e.square,
-              KSParse(c.context),
-              Optional.of(type),
-              text))
+          act_type.flatMap { type ->
+            KSResult.succeed<KSInlineVerbatim<KSParse>, KSParseError>(
+              KSInlineVerbatim(
+                e.position,
+                e.square,
+                KSParse(c.context),
+                Optional.of(type),
+                text))
+          }
         }
       }
 
@@ -777,18 +792,20 @@ class KSCanonInlineParser private constructor(
     : KSResult<KSInlineTerm<KSParse>, KSParseError> {
     when {
       KSExpressionMatch.matches(e, CommandMatchers.term_type) -> {
-        Assertive.require(e.elements.size >= 3)
+        Assertive.require(e.elements.size >= 2)
         val texts =
           e.elements.subList(2, e.elements.size)
-        Assertive.require(texts.size >= 1)
-        val type =
-          parseAttributeType(e.elements[1] as KSExpressionList)
+        Assertive.require(texts.size >= 0)
+        val act_type =
+          parseAttributeType(e.elements[1] as KSExpressionList, c)
         val content =
           KSResult.listMap({ t -> parseInlineTextOrInclude(t, c) }, texts)
         return content flatMap { cs ->
-          KSResult.succeed<KSInlineTerm<KSParse>, KSParseError>(
-            KSInlineTerm(
-              e.position, e.square, KSParse(c.context), Optional.of(type), cs))
+          act_type.flatMap { type ->
+            KSResult.succeed<KSInlineTerm<KSParse>, KSParseError>(
+              KSInlineTerm(
+                e.position, e.square, KSParse(c.context), Optional.of(type), cs))
+          }
         }
       }
 
@@ -883,24 +900,26 @@ class KSCanonInlineParser private constructor(
         Assertive.require(e.elements.size == 5)
 
         val act_summary = parseTableSummary(e.elements[1], c)
-        val type = parseAttributeType(e.elements[2] as KSExpressionList)
+        val act_type = parseAttributeType(e.elements[2] as KSExpressionList, c)
         val act_head = parseTableHead(e.elements[3] as KSExpressionList, c)
         val act_body = parseTableBody(e.elements[4] as KSExpressionList, c)
 
         return act_summary flatMap { summary ->
           act_head flatMap { head ->
             act_body flatMap { body ->
-              val opt_type = Optional.of(type)
-              val opt_head = Optional.of(head)
-              KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(
-                KSInlineTable(
-                  e.position,
-                  e.square,
-                  KSParse(c.context),
-                  opt_type,
-                  summary,
-                  opt_head,
-                  body))
+              act_type.flatMap { type ->
+                val opt_type = Optional.of(type)
+                val opt_head = Optional.of(head)
+                KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(
+                  KSInlineTable(
+                    e.position,
+                    e.square,
+                    KSParse(c.context),
+                    opt_type,
+                    summary,
+                    opt_head,
+                    body))
+              }
             }
           }
         }
@@ -916,9 +935,36 @@ class KSCanonInlineParser private constructor(
         return act_summary flatMap { summary ->
           act_head flatMap { head ->
             act_body flatMap { body ->
-              val opt_type = Optional.empty<String>()
-              val opt_head = Optional.of(head)
-              KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(KSInlineTable(
+                val opt_type = Optional.empty<KSType<KSParse>>()
+                val opt_head = Optional.of(head)
+                KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(
+                  KSInlineTable(
+                  e.position,
+                  e.square,
+                  KSParse(c.context),
+                  opt_type,
+                  summary,
+                  opt_head,
+                  body))
+            }
+          }
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.table_type)      -> {
+        Assertive.require(e.elements.size == 4)
+
+        val act_summary = parseTableSummary(e.elements[1], c)
+        val act_type = parseAttributeType(e.elements[2] as KSExpressionList, c)
+        val act_body = parseTableBody(e.elements[3] as KSExpressionList, c)
+
+        return act_summary flatMap { summary ->
+          act_body flatMap { body ->
+            act_type.flatMap { type ->
+              val opt_type = Optional.of(type)
+              val opt_head = Optional.empty<KSTableHead<KSParse>>()
+              KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(
+                KSInlineTable(
                 e.position,
                 e.square,
                 KSParse(c.context),
@@ -931,29 +977,6 @@ class KSCanonInlineParser private constructor(
         }
       }
 
-      KSExpressionMatch.matches(e, CommandMatchers.table_type)      -> {
-        Assertive.require(e.elements.size == 4)
-
-        val act_summary = parseTableSummary(e.elements[1], c)
-        val type = parseAttributeType(e.elements[2] as KSExpressionList)
-        val act_body = parseTableBody(e.elements[3] as KSExpressionList, c)
-
-        return act_summary flatMap { summary ->
-          act_body flatMap { body ->
-            val opt_type = Optional.of(type)
-            val opt_head = Optional.empty<KSTableHead<KSParse>>()
-            KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(KSInlineTable(
-              e.position,
-              e.square,
-              KSParse(c.context),
-              opt_type,
-              summary,
-              opt_head,
-              body))
-          }
-        }
-      }
-
       KSExpressionMatch.matches(e, CommandMatchers.table)           -> {
         Assertive.require(e.elements.size == 3)
 
@@ -962,9 +985,10 @@ class KSCanonInlineParser private constructor(
 
         return act_summary flatMap { summary ->
           act_body flatMap { body ->
-            val opt_type = Optional.empty<String>()
+            val opt_type = Optional.empty<KSType<KSParse>>()
             val opt_head = Optional.empty<KSTableHead<KSParse>>()
-            KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(KSInlineTable(
+            KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(
+              KSInlineTable(
               e.position,
               e.square,
               KSParse(c.context),

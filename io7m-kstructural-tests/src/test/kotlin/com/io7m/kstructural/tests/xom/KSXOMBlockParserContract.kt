@@ -58,6 +58,16 @@ abstract class KSXOMBlockParserContract {
   }
 
   @Test
+  fun testParagraphInvalidType() {
+    val n = parseXML("""<s:paragraph xmlns:s="${NAMESPACE}" s:type="-" xml:id="-">x y z</s:paragraph>""")
+    val p = parser()
+    val c = KSParseContext.empty()
+    val r = p.parse(c, n)
+
+    r as KSFailure
+  }
+
+  @Test
   fun testParagraph() {
     val n = parseXML("""<s:paragraph xmlns:s="${NAMESPACE}">x y z</s:paragraph>""")
     val p = parser()
@@ -83,7 +93,7 @@ abstract class KSXOMBlockParserContract {
     val i = r.result
     Assert.assertEquals(1, i.content.size)
     Assert.assertEquals("x y z", (i.content[0] as KSInlineText).text)
-    Assert.assertEquals(Optional.of("t"), i.type)
+    Assert.assertEquals("t", i.type.get().value)
     Assert.assertFalse(i.id.isPresent)
   }
 
@@ -98,7 +108,7 @@ abstract class KSXOMBlockParserContract {
     val i = r.result
     Assert.assertEquals(1, i.content.size)
     Assert.assertEquals("x y z", (i.content[0] as KSInlineText).text)
-    Assert.assertEquals(Optional.of("t"), i.type)
+    Assert.assertEquals("t", i.type.get().value)
     Assert.assertEquals("x", i.id.get().value)
   }
 
@@ -130,7 +140,7 @@ abstract class KSXOMBlockParserContract {
     Assert.assertEquals(1, i.content.size)
     Assert.assertEquals("x y z", (i.content[0] as KSInlineText).text)
     Assert.assertEquals("F", i.title[0].text)
-    Assert.assertEquals(Optional.of("t"), i.type)
+    Assert.assertEquals("t", i.type.get().value)
     Assert.assertFalse(i.id.isPresent)
   }
 
@@ -146,7 +156,7 @@ abstract class KSXOMBlockParserContract {
     Assert.assertEquals(1, i.content.size)
     Assert.assertEquals("x y z", (i.content[0] as KSInlineText).text)
     Assert.assertEquals("F", i.title[0].text)
-    Assert.assertEquals(Optional.of("t"), i.type)
+    Assert.assertEquals("t", i.type.get().value)
     Assert.assertEquals("x", i.id.get().value)
   }
 
@@ -186,7 +196,7 @@ abstract class KSXOMBlockParserContract {
     val i = r.result
     Assert.assertEquals(1, i.content.size)
     Assert.assertEquals("x y z", (i.content[0] as KSInlineText).text)
-    Assert.assertEquals(Optional.of("t"), i.type)
+    Assert.assertEquals("t", i.type.get().value)
     Assert.assertEquals("x", i.id.get().value)
   }
 
@@ -264,7 +274,7 @@ abstract class KSXOMBlockParserContract {
     r as KSSuccess<KSBlockSection<KSParse>, KSParseError>
     val i = r.result
     Assert.assertEquals("S", i.title[0].text)
-    Assert.assertEquals(Optional.of("t"), i.type)
+    Assert.assertEquals("t", i.type.get().value)
     Assert.assertFalse(i.id.isPresent)
   }
 
@@ -278,7 +288,7 @@ abstract class KSXOMBlockParserContract {
     r as KSSuccess<KSBlockSection<KSParse>, KSParseError>
     val i = r.result
     Assert.assertEquals("S", i.title[0].text)
-    Assert.assertEquals(Optional.of("t"), i.type)
+    Assert.assertEquals("t", i.type.get().value)
     Assert.assertEquals("x", i.id.get().value)
   }
 
@@ -306,7 +316,7 @@ abstract class KSXOMBlockParserContract {
     r as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
     val i = r.result
     Assert.assertEquals("S", i.title[0].text)
-    Assert.assertEquals(Optional.of("t"), i.type)
+    Assert.assertEquals("t", i.type.get().value)
     Assert.assertFalse(i.id.isPresent)
   }
 
@@ -320,7 +330,7 @@ abstract class KSXOMBlockParserContract {
     r as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
     val i = r.result
     Assert.assertEquals("S", i.title[0].text)
-    Assert.assertEquals(Optional.of("t"), i.type)
+    Assert.assertEquals("t", i.type.get().value)
     Assert.assertEquals("x", i.id.get().value)
   }
 

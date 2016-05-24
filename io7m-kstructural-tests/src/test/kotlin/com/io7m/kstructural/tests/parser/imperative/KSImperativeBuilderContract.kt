@@ -40,6 +40,7 @@ import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFootnote
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFormalItem
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
+import com.io7m.kstructural.core.KSType
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeDocument
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeFootnote
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeFormalItem
@@ -68,7 +69,7 @@ abstract class KSImperativeBuilderContract {
 
   private val pos : Optional<LexicalPositionType<Path>> = Optional.empty()
 
-  private val type : Optional<String> = Optional.empty()
+  private val type : Optional<KSType<KSParse>> = Optional.empty()
 
   private val id : Optional<KSID<KSParse>> = Optional.empty()
 

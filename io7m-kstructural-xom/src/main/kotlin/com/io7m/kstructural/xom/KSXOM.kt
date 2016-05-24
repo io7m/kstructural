@@ -326,7 +326,7 @@ internal object KSXOM {
 
     val classes = mutableListOf<String>()
     classes.add(prefixedName("table"))
-    t.type.ifPresent { ty -> classes.add(ty) }
+    t.type.ifPresent { ty -> classes.add(ty.value) }
     val classes_text = KSTextUtilities.concatenate(classes)
 
     val sc = Element("table", XHTML_URI_TEXT)
@@ -418,7 +418,7 @@ internal object KSXOM {
   private fun inlineImage(c : KSInlineImage<KSEvaluation>) : Node {
     val classes = mutableListOf<String>()
     classes.add(prefixedName("image"))
-    c.type.ifPresent { type -> classes.add(type) }
+    c.type.ifPresent { type -> classes.add(type.value) }
     val classes_text = KSTextUtilities.concatenate(classes)
 
     val sc = Element("img", XHTML_URI_TEXT)
@@ -436,7 +436,7 @@ internal object KSXOM {
 
     val classes = mutableListOf<String>()
     classes.add(prefixedName("term"))
-    c.type.ifPresent { type -> classes.add(type) }
+    c.type.ifPresent { type -> classes.add(type.value) }
     val classes_text = KSTextUtilities.concatenate(classes)
 
     val sc = Element("span", XHTML_URI_TEXT)
@@ -448,7 +448,7 @@ internal object KSXOM {
   private fun inlineVerbatim(c : KSInlineVerbatim<KSEvaluation>) : Node {
     val classes = mutableListOf<String>()
     classes.add(prefixedName("verbatim"))
-    c.type.ifPresent { type -> classes.add(type) }
+    c.type.ifPresent { type -> classes.add(type.value) }
     val classes_text = KSTextUtilities.concatenate(classes)
 
     val sc = Element("pre", XHTML_URI_TEXT)

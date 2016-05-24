@@ -38,14 +38,14 @@ sealed class KSElement<T>(
     position : Optional<LexicalPositionType<Path>>,
     square : Boolean,
     data : T)
-  : KSElement<T>(position, square, data), KSTypeableType, KSIDableType<T> {
+  : KSElement<T>(position, square, data), KSTypeableType<T>, KSIDableType<T> {
 
     sealed class KSBlockDocument<T>(
       override val position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       data : T,
       override val id : Optional<KSID<T>>,
-      override val type : Optional<String>,
+      override val type : Optional<KSType<T>>,
       val title : List<KSInline.KSInlineText<T>>)
     : KSBlock<T>(position, square, data), KSLexicalType, KSIDableType<T> {
 
@@ -54,7 +54,7 @@ sealed class KSElement<T>(
         square : Boolean,
         data : T,
         id : Optional<KSID<T>>,
-        type : Optional<String>,
+        type : Optional<KSType<T>>,
         title : List<KSInline.KSInlineText<T>>,
         val content : List<KSBlockPart<T>>)
       : KSBlockDocument<T>(position, square, data, id, type, title) {
@@ -89,7 +89,7 @@ sealed class KSElement<T>(
         square : Boolean,
         data : T,
         id : Optional<KSID<T>>,
-        type : Optional<String>,
+        type : Optional<KSType<T>>,
         title : List<KSInline.KSInlineText<T>>,
         val content : List<KSBlockSection<T>>)
       : KSBlockDocument<T>(position, square, data, id, type, title) {
@@ -124,7 +124,7 @@ sealed class KSElement<T>(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       data : T,
-      override val type : Optional<String>,
+      override val type : Optional<KSType<T>>,
       override val id : Optional<KSID<T>>,
       val title : List<KSInline.KSInlineText<T>>) : KSBlock<T>(position, square, data) {
 
@@ -132,7 +132,7 @@ sealed class KSElement<T>(
         position : Optional<LexicalPositionType<Path>>,
         square : Boolean,
         data : T,
-        type : Optional<String>,
+        type : Optional<KSType<T>>,
         id : Optional<KSID<T>>,
         title : List<KSInline.KSInlineText<T>>,
         val content : List<KSBlockSubsection<T>>)
@@ -174,7 +174,7 @@ sealed class KSElement<T>(
         position : Optional<LexicalPositionType<Path>>,
         square : Boolean,
         data : T,
-        type : Optional<String>,
+        type : Optional<KSType<T>>,
         id : Optional<KSID<T>>,
         title : List<KSInline.KSInlineText<T>>,
         val content : List<KSSubsectionContent<T>>)
@@ -217,7 +217,7 @@ sealed class KSElement<T>(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       data : T,
-      override val type : Optional<String>,
+      override val type : Optional<KSType<T>>,
       override val id : Optional<KSID<T>>,
       val title : List<KSInline.KSInlineText<T>>,
       val content : List<KSSubsectionContent<T>>)
@@ -259,7 +259,7 @@ sealed class KSElement<T>(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       data : T,
-      override val type : Optional<String>,
+      override val type : Optional<KSType<T>>,
       override val id : Optional<KSID<T>>,
       val content : List<KSInline<T>>)
     : KSBlock<T>(position, square, data) {
@@ -294,7 +294,7 @@ sealed class KSElement<T>(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       data : T,
-      override val type : Optional<String>,
+      override val type : Optional<KSType<T>>,
       override val id : Optional<KSID<T>>,
       val title : List<KSInline.KSInlineText<T>>,
       val content : List<KSInline<T>>)
@@ -337,7 +337,7 @@ sealed class KSElement<T>(
       square : Boolean,
       data : T,
       val id_real : KSID<T>,
-      override val type : Optional<String>,
+      override val type : Optional<KSType<T>>,
       val content : List<KSInline<T>>)
     : KSBlock<T>(position, square, data) {
 
@@ -363,7 +363,7 @@ sealed class KSElement<T>(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       data : T,
-      override val type : Optional<String>,
+      override val type : Optional<KSType<T>>,
       override val id : Optional<KSID<T>>,
       val title : List<KSInline.KSInlineText<T>>,
       val content : List<KSBlockSection<T>>)
@@ -405,7 +405,7 @@ sealed class KSElement<T>(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       data : T,
-      override val type : Optional<String>,
+      override val type : Optional<KSType<T>>,
       override val id : Optional<KSID<T>>,
       val file : KSInline.KSInlineText<T>)
     : KSBlock<T>(position, square, data) {
@@ -449,9 +449,9 @@ sealed class KSElement<T>(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       data : T,
-      override val type : Optional<String>,
+      override val type : Optional<KSType<T>>,
       val text : KSInlineText<T>)
-    : KSInline<T>(position, square, data), KSTypeableType {
+    : KSInline<T>(position, square, data), KSTypeableType<T> {
 
       override fun toString() : String {
         val sb = StringBuilder()
@@ -487,9 +487,9 @@ sealed class KSElement<T>(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       data : T,
-      override val type : Optional<String>,
+      override val type : Optional<KSType<T>>,
       val content : List<KSInlineText<T>>)
-    : KSInline<T>(position, square, data), KSTypeableType {
+    : KSInline<T>(position, square, data), KSTypeableType<T> {
 
       override fun toString() : String {
         val sb = StringBuilder()
@@ -535,11 +535,11 @@ sealed class KSElement<T>(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       data : T,
-      override val type : Optional<String>,
+      override val type : Optional<KSType<T>>,
       val target : URI,
       val size : Optional<KSSize>,
       val content : List<KSInlineText<T>>)
-    : KSInline<T>(position, square, data), KSTypeableType {
+    : KSInline<T>(position, square, data), KSTypeableType<T> {
 
       override fun toString() : String {
         val sb = StringBuilder()
@@ -716,11 +716,11 @@ sealed class KSElement<T>(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       data : T,
-      override val type : Optional<String>,
+      override val type : Optional<KSType<T>>,
       val summary : KSTableSummary<T>,
       val head : Optional<KSTableHead<T>>,
       val body : KSTableBody<T>)
-    : KSInline<T>(position, square, data), KSTypeableType {
+    : KSInline<T>(position, square, data), KSTypeableType<T> {
 
       override fun toString() : String {
         val sb = StringBuilder()

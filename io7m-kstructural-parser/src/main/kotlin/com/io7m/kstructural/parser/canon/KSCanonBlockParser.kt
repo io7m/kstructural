@@ -56,6 +56,7 @@ import com.io7m.kstructural.core.KSSubsectionContent
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFootnote
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFormalItem
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
+import com.io7m.kstructural.core.KSType
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpression.KSExpressionList
 import com.io7m.kstructural.parser.KSExpression.KSExpressionSymbol
@@ -118,11 +119,21 @@ class KSCanonBlockParser private constructor(
       e : KSLexicalType, m : String) : KSResult<A, KSParseError> =
       KSResult.fail<A, KSParseError>(KSParseError(e.position, m))
 
-    private fun parseAttributeType(e : KSExpressionList) : String {
+    private fun parseAttributeType(
+      e : KSExpressionList,
+      c : Context)
+    : KSResult<KSType<KSParse>, KSParseError> {
       Assertive.require(e.elements.size == 2)
       Assertive.require(e.elements[0] is KSExpressionSymbol)
       Assertive.require(e.elements[1] is KSExpressionSymbol)
-      return (e.elements[1] as KSExpressionSymbol).value
+      val text = (e.elements[1] as KSExpressionSymbol).value
+      val kp = KSParse(c.context)
+      val position = e.position
+      return if (KSType.isValidType(text)) {
+        KSResult.succeed(KSType.create(position, text, kp))
+      } else {
+        KSResult.fail(KSParseError(position, "Not a valid type identifier"))
+      }
     }
 
     private fun parseAttributeID(
@@ -288,20 +299,22 @@ class KSCanonBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.footnote_type) -> {
         Assertive.require(e.elements.size >= 3)
         val act_id = parseAttributeID(e.elements[1] as KSExpressionList, c)
-        val type = parseAttributeType(e.elements[2] as KSExpressionList)
+        val act_type = parseAttributeType(e.elements[2] as KSExpressionList, c)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseInlines(rest, c)
 
         return act_content flatMap { content ->
           act_id.flatMap { id ->
-            KSResult.succeed<KSBlockFootnote<KSParse>, KSParseError>(
-              KSBlockFootnote(
-                e.position,
-                e.square,
-                KSParse(c.context),
-                id_real = id,
-                type = Optional.of(type),
-                content = content))
+            act_type.flatMap { type ->
+              KSResult.succeed<KSBlockFootnote<KSParse>, KSParseError>(
+                KSBlockFootnote(
+                  e.position,
+                  e.square,
+                  KSParse(c.context),
+                  id_real = id,
+                  type = Optional.of(type),
+                  content = content))
+            }
           }
         }
       }
@@ -344,7 +357,7 @@ class KSCanonBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.formal_item_with_type_id) -> {
         Assertive.require(e.elements.size >= 4)
         val act_title = parseAttributeTitle(e.elements[1] as KSExpressionList, c)
-        val type = parseAttributeType(e.elements[2] as KSExpressionList)
+        val act_type = parseAttributeType(e.elements[2] as KSExpressionList, c)
         val act_id = parseAttributeID(e.elements[3] as KSExpressionList, c)
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseInlines(rest, c)
@@ -352,15 +365,17 @@ class KSCanonBlockParser private constructor(
         return act_content flatMap { content ->
           act_title flatMap { title ->
             act_id.flatMap { id ->
-              KSResult.succeed<KSBlockFormalItem<KSParse>, KSParseError>(
-                KSBlockFormalItem(
-                  e.position,
-                  e.square,
-                  KSParse(c.context),
-                  title = title,
-                  id = Optional.of(id),
-                  type = Optional.of(type),
-                  content = content))
+              act_type.flatMap { type ->
+                KSResult.succeed<KSBlockFormalItem<KSParse>, KSParseError>(
+                  KSBlockFormalItem(
+                    e.position,
+                    e.square,
+                    KSParse(c.context),
+                    title = title,
+                    id = Optional.of(id),
+                    type = Optional.of(type),
+                    content = content))
+              }
             }
           }
         }
@@ -370,22 +385,24 @@ class KSCanonBlockParser private constructor(
         Assertive.require(e.elements.size >= 4)
         val act_title = parseAttributeTitle(e.elements[1] as KSExpressionList, c)
         val act_id = parseAttributeID(e.elements[2] as KSExpressionList, c)
-        val type = parseAttributeType(e.elements[3] as KSExpressionList)
+        val act_type = parseAttributeType(e.elements[3] as KSExpressionList, c)
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseInlines(rest, c)
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
             act_id.flatMap { id ->
-              KSResult.succeed<KSBlockFormalItem<KSParse>, KSParseError>(
-                KSBlockFormalItem(
-                  e.position,
-                  e.square,
-                  KSParse(c.context),
-                  title = title,
-                  id = Optional.of(id),
-                  type = Optional.of(type),
-                  content = content))
+              act_type.flatMap { type ->
+                KSResult.succeed<KSBlockFormalItem<KSParse>, KSParseError>(
+                  KSBlockFormalItem(
+                    e.position,
+                    e.square,
+                    KSParse(c.context),
+                    title = title,
+                    id = Optional.of(id),
+                    type = Optional.of(type),
+                    content = content))
+              }
             }
           }
         }
@@ -394,21 +411,23 @@ class KSCanonBlockParser private constructor(
       KSExpressionMatch.matches(e, CommandMatchers.formal_item_with_type)    -> {
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(e.elements[1] as KSExpressionList, c)
-        val type = parseAttributeType(e.elements[2] as KSExpressionList)
+        val act_type = parseAttributeType(e.elements[2] as KSExpressionList, c)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseInlines(rest, c)
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
-            KSResult.succeed<KSBlockFormalItem<KSParse>, KSParseError>(
-              KSBlockFormalItem(
-                e.position,
-                e.square,
-                KSParse(c.context),
-                title = title,
-                id = Optional.empty(),
-                type = Optional.of(type),
-                content = content))
+            act_type.flatMap { type ->
+              KSResult.succeed<KSBlockFormalItem<KSParse>, KSParseError>(
+                KSBlockFormalItem(
+                  e.position,
+                  e.square,
+                  KSParse(c.context),
+                  title = title,
+                  id = Optional.empty(),
+                  type = Optional.of(type),
+                  content = content))
+            }
           }
         }
       }
@@ -545,23 +564,25 @@ class KSCanonBlockParser private constructor(
         Assertive.require(e.elements.size >= 3)
         val act_id = parseAttributeID(
           e.elements[1] as KSExpressionList, c)
-        val type = parseAttributeType(
-          e.elements[2] as KSExpressionList)
+        val act_type = parseAttributeType(
+          e.elements[2] as KSExpressionList, c)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseInlines(rest, c)
 
         return act_content flatMap { content ->
           act_id.flatMap { id ->
-            KSResult.succeed<KSBlockParagraph<KSParse>, KSParseError>(
-              newBlockParagraph(c, content, e, Optional.of(id), Optional.of(type)))
+            act_type.flatMap { type ->
+              KSResult.succeed<KSBlockParagraph<KSParse>, KSParseError>(
+                newBlockParagraph(c, content, e, Optional.of(id), Optional.of(type)))
+            }
           }
         }
       }
 
       KSExpressionMatch.matches(e, CommandMatchers.para_with_type_id) -> {
         Assertive.require(e.elements.size >= 3)
-        val type = parseAttributeType(
-          e.elements[1] as KSExpressionList)
+        val act_type = parseAttributeType(
+          e.elements[1] as KSExpressionList, c)
         val act_id = parseAttributeID(
           e.elements[2] as KSExpressionList, c)
         val rest = e.elements.subList(3, e.elements.size)
@@ -569,8 +590,10 @@ class KSCanonBlockParser private constructor(
 
         return act_content flatMap { content ->
           act_id.flatMap { id ->
-            KSResult.succeed<KSBlockParagraph<KSParse>, KSParseError>(
-              newBlockParagraph(c, content, e, Optional.of(id), Optional.of(type)))
+            act_type.flatMap { type ->
+              KSResult.succeed<KSBlockParagraph<KSParse>, KSParseError>(
+                newBlockParagraph(c, content, e, Optional.of(id), Optional.of(type)))
+            }
           }
         }
       }
@@ -591,13 +614,15 @@ class KSCanonBlockParser private constructor(
 
       KSExpressionMatch.matches(e, CommandMatchers.para_with_type)    -> {
         Assertive.require(e.elements.size >= 2)
-        val type = parseAttributeType(e.elements[1] as KSExpressionList)
+        val act_type = parseAttributeType(e.elements[1] as KSExpressionList, c)
         val rest = e.elements.subList(2, e.elements.size)
         val act_content = parseInlines(rest, c)
 
         return act_content flatMap { content ->
-          KSResult.succeed<KSBlockParagraph<KSParse>, KSParseError>(
-            newBlockParagraph(c, content, e, Optional.empty(), Optional.of(type)))
+          act_type.flatMap { type ->
+            KSResult.succeed<KSBlockParagraph<KSParse>, KSParseError>(
+              newBlockParagraph(c, content, e, Optional.empty(), Optional.of(type)))
+          }
         }
       }
 
@@ -626,7 +651,7 @@ class KSCanonBlockParser private constructor(
     content : List<KSInline<KSParse>>,
     e : KSExpressionList,
     id : Optional<KSID<KSParse>>,
-    type : Optional<String>)
+    type : Optional<KSType<KSParse>>)
     : KSBlockParagraph<KSParse> {
     return KSBlockParagraph(
       e.position, e.square, KSParse(c.context), type, id, content)
@@ -644,8 +669,8 @@ class KSCanonBlockParser private constructor(
         Assertive.require(e.elements.size >= 4)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val type = parseAttributeType(
-          e.elements[2] as KSExpressionList)
+        val act_type = parseAttributeType(
+          e.elements[2] as KSExpressionList, c)
         val act_id = parseAttributeID(
           e.elements[3] as KSExpressionList, c)
         val rest = e.elements.subList(4, e.elements.size)
@@ -654,15 +679,17 @@ class KSCanonBlockParser private constructor(
         return act_content flatMap { content ->
           act_title flatMap { title ->
             act_id.flatMap { id ->
-              KSResult.succeed<KSBlockSubsection<KSParse>, KSParseError>(
-                KSBlockSubsection(
-                  e.position,
-                  e.square,
-                  KSParse(c.context),
-                  title = title,
-                  id = Optional.of(id),
-                  type = Optional.of(type),
-                  content = content))
+              act_type.flatMap { type ->
+                KSResult.succeed<KSBlockSubsection<KSParse>, KSParseError>(
+                  KSBlockSubsection(
+                    e.position,
+                    e.square,
+                    KSParse(c.context),
+                    title = title,
+                    id = Optional.of(id),
+                    type = Optional.of(type),
+                    content = content))
+              }
             }
           }
         }
@@ -674,23 +701,25 @@ class KSCanonBlockParser private constructor(
           e.elements[1] as KSExpressionList, c)
         val act_id = parseAttributeID(
           e.elements[2] as KSExpressionList, c)
-        val type = parseAttributeType(
-          e.elements[3] as KSExpressionList)
+        val act_type = parseAttributeType(
+          e.elements[3] as KSExpressionList, c)
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseSubsectionContents(rest, c)
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
             act_id.flatMap { id ->
-              KSResult.succeed<KSBlockSubsection<KSParse>, KSParseError>(
-                KSBlockSubsection(
-                  e.position,
-                  e.square,
-                  KSParse(c.context),
-                  title = title,
-                  id = Optional.of(id),
-                  type = Optional.of(type),
-                  content = content))
+              act_type.flatMap { type ->
+                KSResult.succeed<KSBlockSubsection<KSParse>, KSParseError>(
+                  KSBlockSubsection(
+                    e.position,
+                    e.square,
+                    KSParse(c.context),
+                    title = title,
+                    id = Optional.of(id),
+                    type = Optional.of(type),
+                    content = content))
+              }
             }
           }
         }
@@ -700,22 +729,24 @@ class KSCanonBlockParser private constructor(
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val type = parseAttributeType(
-          e.elements[2] as KSExpressionList)
+        val act_type = parseAttributeType(
+          e.elements[2] as KSExpressionList, c)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseSubsectionContents(rest, c)
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
-            KSResult.succeed<KSBlockSubsection<KSParse>, KSParseError>(
-              KSBlockSubsection(
-                e.position,
-                e.square,
-                KSParse(c.context),
-                title = title,
-                id = Optional.empty(),
-                type = Optional.of(type),
-                content = content))
+            act_type.flatMap { type ->
+              KSResult.succeed<KSBlockSubsection<KSParse>, KSParseError>(
+                KSBlockSubsection(
+                  e.position,
+                  e.square,
+                  KSParse(c.context),
+                  title = title,
+                  id = Optional.empty(),
+                  type = Optional.of(type),
+                  content = content))
+            }
           }
         }
       }
@@ -830,8 +861,8 @@ class KSCanonBlockParser private constructor(
         Assertive.require(e.elements.size >= 4)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val type = parseAttributeType(
-          e.elements[2] as KSExpressionList)
+        val act_type = parseAttributeType(
+          e.elements[2] as KSExpressionList, c)
         val act_id = parseAttributeID(
           e.elements[3] as KSExpressionList, c)
         val rest = e.elements.subList(4, e.elements.size)
@@ -840,8 +871,10 @@ class KSCanonBlockParser private constructor(
         return act_content flatMap { content ->
           act_title flatMap { title ->
             act_id.flatMap { id ->
-              parseBlockSectionActual(
-                c, content, e, Optional.of(id), Optional.of(type), title)
+              act_type.flatMap { type ->
+                parseBlockSectionActual(
+                  c, content, e, Optional.of(id), Optional.of(type), title)
+              }
             }
           }
         }
@@ -853,16 +886,18 @@ class KSCanonBlockParser private constructor(
           e.elements[1] as KSExpressionList, c)
         val act_id = parseAttributeID(
           e.elements[2] as KSExpressionList, c)
-        val type = parseAttributeType(
-          e.elements[3] as KSExpressionList)
+        val act_type = parseAttributeType(
+          e.elements[3] as KSExpressionList, c)
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseSectionContents(rest, c)
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
             act_id.flatMap { id ->
-              parseBlockSectionActual(
-                c, content, e, Optional.of(id), Optional.of(type), title)
+              act_type.flatMap { type ->
+                parseBlockSectionActual(
+                  c, content, e, Optional.of(id), Optional.of(type), title)
+              }
             }
           }
         }
@@ -872,15 +907,17 @@ class KSCanonBlockParser private constructor(
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val type = parseAttributeType(
-          e.elements[2] as KSExpressionList)
+        val act_type = parseAttributeType(
+          e.elements[2] as KSExpressionList, c)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseSectionContents(rest, c)
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
-            parseBlockSectionActual(
-              c, content, e, Optional.empty(), Optional.of(type), title)
+            act_type.flatMap { type ->
+              parseBlockSectionActual(
+                c, content, e, Optional.empty(), Optional.of(type), title)
+            }
           }
         }
       }
@@ -933,7 +970,7 @@ class KSCanonBlockParser private constructor(
     content : List<KSSectionContent<KSParse>>,
     e : KSExpressionList,
     id : Optional<KSID<KSParse>>,
-    type : Optional<String>,
+    type : Optional<KSType<KSParse>>,
     title : List<KSInlineText<KSParse>>)
     : KSResult<KSBlockSection<KSParse>, KSParseError> {
     return if (content.isEmpty()) {
@@ -993,8 +1030,8 @@ class KSCanonBlockParser private constructor(
         Assertive.require(e.elements.size >= 4)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val type = parseAttributeType(
-          e.elements[2] as KSExpressionList)
+        val act_type = parseAttributeType(
+          e.elements[2] as KSExpressionList, c)
         val act_id = parseAttributeID(
           e.elements[3] as KSExpressionList, c)
         val rest = e.elements.subList(4, e.elements.size)
@@ -1004,14 +1041,16 @@ class KSCanonBlockParser private constructor(
         return act_content flatMap { content ->
           act_title flatMap { title ->
             act_id.flatMap { id ->
-              KSResult.succeed<KSBlockPart<KSParse>, KSParseError>(KSBlockPart(
-                e.position,
-                e.square,
-                KSParse(c.context),
-                Optional.of(type),
-                Optional.of(id),
-                title,
-                content))
+              act_type.flatMap { type ->
+                KSResult.succeed<KSBlockPart<KSParse>, KSParseError>(KSBlockPart(
+                  e.position,
+                  e.square,
+                  KSParse(c.context),
+                  Optional.of(type),
+                  Optional.of(id),
+                  title,
+                  content))
+              }
             }
           }
         }
@@ -1023,8 +1062,8 @@ class KSCanonBlockParser private constructor(
           e.elements[1] as KSExpressionList, c)
         val act_id = parseAttributeID(
           e.elements[2] as KSExpressionList, c)
-        val type = parseAttributeType(
-          e.elements[3] as KSExpressionList)
+        val act_type = parseAttributeType(
+          e.elements[3] as KSExpressionList, c)
         val rest = e.elements.subList(4, e.elements.size)
         val act_content =
           KSResult.listMap({ s -> parseSectionAny(s, c) }, rest)
@@ -1032,14 +1071,16 @@ class KSCanonBlockParser private constructor(
         return act_content flatMap { content ->
           act_title flatMap { title ->
             act_id.flatMap { id ->
-              KSResult.succeed<KSBlockPart<KSParse>, KSParseError>(KSBlockPart(
-                e.position,
-                e.square,
-                KSParse(c.context),
-                Optional.of(type),
-                Optional.of(id),
-                title,
-                content))
+              act_type.flatMap { type ->
+                KSResult.succeed<KSBlockPart<KSParse>, KSParseError>(KSBlockPart(
+                  e.position,
+                  e.square,
+                  KSParse(c.context),
+                  Optional.of(type),
+                  Optional.of(id),
+                  title,
+                  content))
+              }
             }
           }
         }
@@ -1049,22 +1090,24 @@ class KSCanonBlockParser private constructor(
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val type = parseAttributeType(
-          e.elements[2] as KSExpressionList)
+        val act_type = parseAttributeType(
+          e.elements[2] as KSExpressionList, c)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content =
           KSResult.listMap({ s -> parseSectionAny(s, c) }, rest)
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
-            KSResult.succeed<KSBlockPart<KSParse>, KSParseError>(KSBlockPart(
-              e.position,
-              e.square,
-              KSParse(c.context),
-              Optional.of(type),
-              Optional.empty(),
-              title,
-              content))
+            act_type.flatMap { type ->
+              KSResult.succeed<KSBlockPart<KSParse>, KSParseError>(KSBlockPart(
+                e.position,
+                e.square,
+                KSParse(c.context),
+                Optional.of(type),
+                Optional.empty(),
+                title,
+                content))
+            }
           }
         }
       }
@@ -1370,8 +1413,8 @@ class KSCanonBlockParser private constructor(
         Assertive.require(e.elements.size >= 4)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val type = parseAttributeType(
-          e.elements[2] as KSExpressionList)
+        val act_type = parseAttributeType(
+          e.elements[2] as KSExpressionList, c)
         val act_id = parseAttributeID(
           e.elements[3] as KSExpressionList, c)
         val rest = e.elements.subList(4, e.elements.size)
@@ -1380,8 +1423,10 @@ class KSCanonBlockParser private constructor(
         return act_content flatMap { content ->
           act_title flatMap { title ->
             act_id.flatMap { id ->
-              parseBlockDocumentActual(
-                content, e, Optional.of(id), Optional.of(type), title, c)
+              act_type.flatMap { type ->
+                parseBlockDocumentActual(
+                  content, e, Optional.of(id), Optional.of(type), title, c)
+              }
             }
           }
         }
@@ -1393,16 +1438,18 @@ class KSCanonBlockParser private constructor(
           e.elements[1] as KSExpressionList, c)
         val act_id = parseAttributeID(
           e.elements[2] as KSExpressionList, c)
-        val type = parseAttributeType(
-          e.elements[3] as KSExpressionList)
+        val act_type = parseAttributeType(
+          e.elements[3] as KSExpressionList, c)
         val rest = e.elements.subList(4, e.elements.size)
         val act_content = parseDocumentContents(rest, c)
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
             act_id.flatMap { id ->
-              parseBlockDocumentActual(
-                content, e, Optional.of(id), Optional.of(type), title, c)
+              act_type.flatMap { type ->
+                parseBlockDocumentActual(
+                  content, e, Optional.of(id), Optional.of(type), title, c)
+              }
             }
           }
         }
@@ -1412,15 +1459,17 @@ class KSCanonBlockParser private constructor(
         Assertive.require(e.elements.size >= 3)
         val act_title = parseAttributeTitle(
           e.elements[1] as KSExpressionList, c)
-        val type = parseAttributeType(
-          e.elements[2] as KSExpressionList)
+        val act_type = parseAttributeType(
+          e.elements[2] as KSExpressionList, c)
         val rest = e.elements.subList(3, e.elements.size)
         val act_content = parseDocumentContents(rest, c)
 
         return act_content flatMap { content ->
           act_title flatMap { title ->
-            parseBlockDocumentActual(
-              content, e, Optional.empty(), Optional.of(type), title, c)
+            act_type.flatMap { type ->
+              parseBlockDocumentActual(
+                content, e, Optional.empty(), Optional.of(type), title, c)
+            }
           }
         }
       }
@@ -1472,7 +1521,7 @@ class KSCanonBlockParser private constructor(
     content : List<KSDocumentContent<KSParse>>,
     e : KSExpressionList,
     id : Optional<KSID<KSParse>>,
-    type : Optional<String>,
+    type : Optional<KSType<KSParse>>,
     title : List<KSInlineText<KSParse>>,
     c : Context)
     : KSResult<KSBlockDocument<KSParse>, KSParseError> {
@@ -1495,7 +1544,7 @@ class KSCanonBlockParser private constructor(
     e : KSExpressionList,
     id : Optional<KSID<KSParse>>,
     title : List<KSInlineText<KSParse>>,
-    type : Optional<String>)
+    type : Optional<KSType<KSParse>>)
     : KSResult<KSBlockDocument<KSParse>, KSParseError> {
     val act_contents =
       KSResult.listMap({ c -> documentContentToSection(c) }, content)
@@ -1512,7 +1561,7 @@ class KSCanonBlockParser private constructor(
     e : KSExpressionList,
     id : Optional<KSID<KSParse>>,
     title : List<KSInlineText<KSParse>>,
-    type : Optional<String>)
+    type : Optional<KSType<KSParse>>)
     : KSResult<KSBlockDocument<KSParse>, KSParseError> {
     val act_contents =
       KSResult.listMap({ ec -> documentContentToPart(ec) }, content)

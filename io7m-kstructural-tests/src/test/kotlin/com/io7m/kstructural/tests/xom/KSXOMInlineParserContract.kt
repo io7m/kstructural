@@ -72,7 +72,17 @@ abstract class KSXOMInlineParserContract {
     r as KSSuccess<KSInlineTerm<KSParse>, KSParseError>
     val i = r.result
     Assert.assertEquals("xyz", i.content[0].text)
-    Assert.assertEquals(Optional.of("t"), i.type)
+    Assert.assertEquals("t", i.type.get().value)
+  }
+
+  @Test
+  fun testTermTypeInvalid() {
+    val n = parseXML("""<s:term xmlns:s="${NAMESPACE}" s:type="-">xyz</s:term>""")
+    val p = parser()
+    val c = KSParseContext.empty()
+    val r = p.parse(c, n)
+
+    r as KSFailure
   }
 
   @Test
@@ -138,7 +148,7 @@ abstract class KSXOMInlineParserContract {
     Assert.assertEquals("xyz", i.content[0].text)
     Assert.assertFalse(i.size.isPresent)
     Assert.assertEquals(URI.create("http://example.com"), i.target)
-    Assert.assertEquals(Optional.of("t"), i.type)
+    Assert.assertEquals("t", i.type.get().value)
   }
 
   @Test
@@ -220,7 +230,7 @@ abstract class KSXOMInlineParserContract {
     r as KSSuccess<KSInlineVerbatim<KSParse>, KSParseError>
     val i = r.result
     Assert.assertEquals("xyz", i.text.text)
-    Assert.assertEquals(Optional.of("t"), i.type)
+    Assert.assertEquals("t", i.type.get().value)
   }
 
   @Test

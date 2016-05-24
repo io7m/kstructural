@@ -55,6 +55,7 @@ import com.io7m.kstructural.core.KSSubsectionContent
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFootnote
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFormalItem
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
+import com.io7m.kstructural.core.KSType
 import com.io7m.kstructural.schema.KSSchemaNamespaces
 import nu.xom.Attribute
 import nu.xom.Element
@@ -413,10 +414,10 @@ class KSXOMSerializer<T> private constructor(
     }
   }
 
-  private fun addType(type_opt : Optional<String>, xe : Element) {
+  private fun addType(type_opt : Optional<KSType<T>>, xe : Element) {
     type_opt.ifPresent { type ->
       xe.addAttribute(Attribute(
-        "s:type", KSSchemaNamespaces.NAMESPACE_URI_TEXT, type))
+        "s:type", KSSchemaNamespaces.NAMESPACE_URI_TEXT, type.value))
     }
   }
 

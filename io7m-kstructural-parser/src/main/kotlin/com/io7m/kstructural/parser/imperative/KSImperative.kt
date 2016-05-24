@@ -25,6 +25,7 @@ import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSIDableType
 import com.io7m.kstructural.core.KSLexicalType
 import com.io7m.kstructural.core.KSParse
+import com.io7m.kstructural.core.KSType
 import com.io7m.kstructural.core.KSTypeableType
 import java.nio.file.Path
 import java.util.Optional
@@ -36,28 +37,28 @@ sealed class KSImperative(
   sealed class KSImperativeCommand(
     position : Optional<LexicalPositionType<Path>>,
     val square : Boolean,
-    override val type : Optional<String>,
+    override val type : Optional<KSType<KSParse>>,
     override val id : Optional<KSID<KSParse>>)
-  : KSImperative(position), KSTypeableType, KSIDableType<KSParse> {
+  : KSImperative(position), KSTypeableType<KSParse>, KSIDableType<KSParse> {
 
     class KSImperativeParagraph(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
-      type : Optional<String>,
+      type : Optional<KSType<KSParse>>,
       id : Optional<KSID<KSParse>>)
     : KSImperativeCommand(position, square, type, id)
 
     class KSImperativeFootnote(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
-      type : Optional<String>,
+      type : Optional<KSType<KSParse>>,
       val id_real : KSID<KSParse>)
     : KSImperativeCommand(position, square, type, Optional.of(id_real))
 
     class KSImperativeDocument(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
-      type : Optional<String>,
+      type : Optional<KSType<KSParse>>,
       id : Optional<KSID<KSParse>>,
       val title : List<KSInlineText<KSParse>>)
     : KSImperativeCommand(position, square, type, id)
@@ -65,7 +66,7 @@ sealed class KSImperative(
     class KSImperativePart(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
-      type : Optional<String>,
+      type : Optional<KSType<KSParse>>,
       id : Optional<KSID<KSParse>>,
       val title : List<KSInlineText<KSParse>>)
     : KSImperativeCommand(position, square, type, id)
@@ -73,7 +74,7 @@ sealed class KSImperative(
     class KSImperativeSection(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
-      type : Optional<String>,
+      type : Optional<KSType<KSParse>>,
       id : Optional<KSID<KSParse>>,
       val title : List<KSInlineText<KSParse>>)
     : KSImperativeCommand(position, square, type, id)
@@ -81,7 +82,7 @@ sealed class KSImperative(
     class KSImperativeSubsection(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
-      type : Optional<String>,
+      type : Optional<KSType<KSParse>>,
       id : Optional<KSID<KSParse>>,
       val title : List<KSInlineText<KSParse>>)
     : KSImperativeCommand(position, square, type, id)
@@ -89,7 +90,7 @@ sealed class KSImperative(
     class KSImperativeFormalItem(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
-      type : Optional<String>,
+      type : Optional<KSType<KSParse>>,
       id : Optional<KSID<KSParse>>,
       val title : List<KSInlineText<KSParse>>)
     : KSImperativeCommand(position, square, type, id)

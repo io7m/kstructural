@@ -92,6 +92,12 @@ abstract class KSCanonInlineParserContract {
     r as KSFailure
   }
 
+  @Test fun testInlineTermTypeErrorInvalud() {
+    val pp = newParserForString("[term [type -]]")
+    val r = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
+    r as KSFailure
+  }
+
   @Test fun testInlineTermNestedError() {
     val pp = newParserForString("[term x [term y]]")
     val r = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
@@ -113,7 +119,7 @@ abstract class KSCanonInlineParserContract {
 
     i as KSSuccess<KSInlineTerm<*>, KSParseError>
     Assert.assertEquals("x", i.result.content[0].text)
-    Assert.assertEquals(Optional.of("y"), i.result.type)
+    Assert.assertEquals("y", i.result.type.get().value)
   }
 
   @Test fun testInlineTermQuoted() {
@@ -131,7 +137,7 @@ abstract class KSCanonInlineParserContract {
 
     i as KSSuccess<KSInlineTerm<*>, KSParseError>
     Assert.assertEquals("x", i.result.content[0].text)
-    Assert.assertEquals(Optional.of("y"), i.result.type)
+    Assert.assertEquals("y", i.result.type.get().value)
   }
 
   @Test fun testInlineTermInclude() {
@@ -163,7 +169,7 @@ abstract class KSCanonInlineParserContract {
 
     i as KSSuccess<KSInlineVerbatim<*>, KSParseError>
     Assert.assertEquals("x", i.result.text.text)
-    Assert.assertEquals("y", i.result.type.get())
+    Assert.assertEquals("y", i.result.type.get().value)
   }
 
   @Test fun testInlineVerbatimInclude() {
@@ -198,7 +204,7 @@ abstract class KSCanonInlineParserContract {
 
     i as KSSuccess<KSInlineVerbatim<*>, KSParseError>
     Assert.assertEquals("hello", i.result.text.text)
-    Assert.assertEquals("t", i.result.type.get())
+    Assert.assertEquals("t", i.result.type.get().value)
   }
 
   @Test fun testInlineLinkInternalErrorInvalidID() {
@@ -357,7 +363,7 @@ abstract class KSCanonInlineParserContract {
 
     i as KSSuccess<KSInlineImage<*>, KSParseError>
     Assert.assertEquals("x", i.result.target.toString())
-    Assert.assertEquals("y", i.result.type.get())
+    Assert.assertEquals("y", i.result.type.get().value)
     Assert.assertEquals(Optional.empty<KSSize>(), i.result.size)
     Assert.assertEquals("z", i.result.content[0].text)
   }
@@ -368,7 +374,7 @@ abstract class KSCanonInlineParserContract {
 
     i as KSSuccess<KSInlineImage<*>, KSParseError>
     Assert.assertEquals("x", i.result.target.toString())
-    Assert.assertEquals("y", i.result.type.get())
+    Assert.assertEquals("y", i.result.type.get().value)
     Assert.assertEquals(Optional.of(
       KSSize(
         BigInteger.valueOf(100L),
@@ -593,7 +599,7 @@ abstract class KSCanonInlineParserContract {
     val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTable<*>, KSParseError>
-    Assert.assertEquals(Optional.of("t"), i.result.type)
+    Assert.assertEquals("t", i.result.type.get().value)
     Assert.assertEquals("s", i.result.summary.content[0].text)
     Assert.assertEquals(0, i.result.body.rows.size)
   }
@@ -603,7 +609,7 @@ abstract class KSCanonInlineParserContract {
     val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTable<*>, KSParseError>
-    Assert.assertEquals(Optional.of("t"), i.result.type)
+    Assert.assertEquals("t", i.result.type.get().value)
     Assert.assertEquals("s", i.result.summary.content[0].text)
     Assert.assertEquals(1, i.result.body.rows.size)
     Assert.assertEquals(0, i.result.body.rows[0].cells.size)
@@ -614,7 +620,7 @@ abstract class KSCanonInlineParserContract {
     val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTable<*>, KSParseError>
-    Assert.assertEquals(Optional.of("t"), i.result.type)
+    Assert.assertEquals("t", i.result.type.get().value)
     Assert.assertEquals("s", i.result.summary.content[0].text)
     Assert.assertEquals(1, i.result.body.rows.size)
     Assert.assertEquals(1, i.result.body.rows[0].cells.size)
@@ -626,7 +632,7 @@ abstract class KSCanonInlineParserContract {
     val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTable<*>, KSParseError>
-    Assert.assertEquals(Optional.of("t"), i.result.type)
+    Assert.assertEquals("t", i.result.type.get().value)
     Assert.assertEquals("s", i.result.summary.content[0].text)
     Assert.assertEquals(0, i.result.body.rows.size)
     Assert.assertEquals(0, i.result.head.get().column_names.size)
@@ -637,7 +643,7 @@ abstract class KSCanonInlineParserContract {
     val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
 
     i as KSSuccess<KSInlineTable<*>, KSParseError>
-    Assert.assertEquals(Optional.of("t"), i.result.type)
+    Assert.assertEquals("t", i.result.type.get().value)
     Assert.assertEquals("s", i.result.summary.content[0].text)
     Assert.assertEquals(0, i.result.body.rows.size)
     Assert.assertEquals(1, i.result.head.get().column_names.size)

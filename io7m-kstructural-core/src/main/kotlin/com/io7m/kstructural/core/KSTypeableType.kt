@@ -18,6 +18,6 @@ package com.io7m.kstructural.core
 
 import java.util.Optional
 
-interface KSTypeableType {
-  val type : Optional<String>
+interface KSTypeableType<T> {
+  val type : Optional<KSType<T>>
 }
