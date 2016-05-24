@@ -31,6 +31,8 @@ import com.io7m.kstructural.core.evaluator.KSFootnoteReference
 import com.io7m.kstructural.core.evaluator.KSNumber
 import nu.xom.Document
 import nu.xom.Element
+import nu.xom.Node
+import nu.xom.Text
 
 object KSXOMXHTMLSingleWriter : KSXOMXHTMLWriterType {
 
@@ -162,14 +164,15 @@ object KSXOMXHTMLSingleWriter : KSXOMXHTMLWriterType {
   private fun writeSubsectionContent(
     prov : KSXOMLinkProviderType,
     d : KSBlockDocument<KSEvaluation>,
-    sc : KSSubsectionContent<KSEvaluation>) : Element {
+    sc : KSSubsectionContent<KSEvaluation>) : Node {
 
     return when (sc) {
       is KSSubsectionContent.KSSubsectionParagraph  ->
         writeParagraph(prov, d, sc.paragraph)
       is KSSubsectionContent.KSSubsectionFormalItem ->
         writeFormalItem(prov, d, sc.formal)
-      is KSSubsectionContent.KSSubsectionFootnote   -> TODO()
+      is KSSubsectionContent.KSSubsectionFootnote   ->
+        Text("")
     }
   }
 
