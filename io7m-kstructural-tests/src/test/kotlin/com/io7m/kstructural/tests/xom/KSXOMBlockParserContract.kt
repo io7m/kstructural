@@ -75,8 +75,10 @@ abstract class KSXOMBlockParserContract {
 
     r as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
     val i = r.result
-    Assert.assertEquals(1, i.content.size)
-    Assert.assertEquals("x y z", (i.content[0] as KSInlineText).text)
+    Assert.assertEquals(3, i.content.size)
+    Assert.assertEquals("x", (i.content[0] as KSInlineText).text)
+    Assert.assertEquals("y", (i.content[1] as KSInlineText).text)
+    Assert.assertEquals("z", (i.content[2] as KSInlineText).text)
     Assert.assertFalse(i.type.isPresent)
     Assert.assertFalse(i.id.isPresent)
   }
@@ -90,8 +92,10 @@ abstract class KSXOMBlockParserContract {
 
     r as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
     val i = r.result
-    Assert.assertEquals(1, i.content.size)
-    Assert.assertEquals("x y z", (i.content[0] as KSInlineText).text)
+    Assert.assertEquals(3, i.content.size)
+    Assert.assertEquals("x", (i.content[0] as KSInlineText).text)
+    Assert.assertEquals("y", (i.content[1] as KSInlineText).text)
+    Assert.assertEquals("z", (i.content[2] as KSInlineText).text)
     Assert.assertEquals("t", i.type.get().value)
     Assert.assertFalse(i.id.isPresent)
   }
@@ -105,8 +109,10 @@ abstract class KSXOMBlockParserContract {
 
     r as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
     val i = r.result
-    Assert.assertEquals(1, i.content.size)
-    Assert.assertEquals("x y z", (i.content[0] as KSInlineText).text)
+    Assert.assertEquals(3, i.content.size)
+    Assert.assertEquals("x", (i.content[0] as KSInlineText).text)
+    Assert.assertEquals("y", (i.content[1] as KSInlineText).text)
+    Assert.assertEquals("z", (i.content[2] as KSInlineText).text)
     Assert.assertEquals("t", i.type.get().value)
     Assert.assertEquals("x", i.id.get().value)
   }
@@ -120,8 +126,10 @@ abstract class KSXOMBlockParserContract {
 
     r as KSSuccess<KSBlockFormalItem<KSParse>, KSParseError>
     val i = r.result
-    Assert.assertEquals(1, i.content.size)
-    Assert.assertEquals("x y z", (i.content[0] as KSInlineText).text)
+    Assert.assertEquals(3, i.content.size)
+    Assert.assertEquals("x", (i.content[0] as KSInlineText).text)
+    Assert.assertEquals("y", (i.content[1] as KSInlineText).text)
+    Assert.assertEquals("z", (i.content[2] as KSInlineText).text)
     Assert.assertEquals("F", i.title[0].text)
     Assert.assertFalse(i.type.isPresent)
     Assert.assertFalse(i.id.isPresent)
@@ -136,8 +144,10 @@ abstract class KSXOMBlockParserContract {
 
     r as KSSuccess<KSBlockFormalItem<KSParse>, KSParseError>
     val i = r.result
-    Assert.assertEquals(1, i.content.size)
-    Assert.assertEquals("x y z", (i.content[0] as KSInlineText).text)
+    Assert.assertEquals(3, i.content.size)
+    Assert.assertEquals("x", (i.content[0] as KSInlineText).text)
+    Assert.assertEquals("y", (i.content[1] as KSInlineText).text)
+    Assert.assertEquals("z", (i.content[2] as KSInlineText).text)
     Assert.assertEquals("F", i.title[0].text)
     Assert.assertEquals("t", i.type.get().value)
     Assert.assertFalse(i.id.isPresent)
@@ -152,8 +162,10 @@ abstract class KSXOMBlockParserContract {
 
     r as KSSuccess<KSBlockFormalItem<KSParse>, KSParseError>
     val i = r.result
-    Assert.assertEquals(1, i.content.size)
-    Assert.assertEquals("x y z", (i.content[0] as KSInlineText).text)
+    Assert.assertEquals(3, i.content.size)
+    Assert.assertEquals("x", (i.content[0] as KSInlineText).text)
+    Assert.assertEquals("y", (i.content[1] as KSInlineText).text)
+    Assert.assertEquals("z", (i.content[2] as KSInlineText).text)
     Assert.assertEquals("F", i.title[0].text)
     Assert.assertEquals("t", i.type.get().value)
     Assert.assertEquals("x", i.id.get().value)
@@ -168,8 +180,10 @@ abstract class KSXOMBlockParserContract {
 
     r as KSSuccess<KSBlockFootnote<KSParse>, KSParseError>
     val i = r.result
-    Assert.assertEquals(1, i.content.size)
-    Assert.assertEquals("x y z", (i.content[0] as KSInlineText).text)
+    Assert.assertEquals(3, i.content.size)
+    Assert.assertEquals("x", (i.content[0] as KSInlineText).text)
+    Assert.assertEquals("y", (i.content[1] as KSInlineText).text)
+    Assert.assertEquals("z", (i.content[2] as KSInlineText).text)
     Assert.assertFalse(i.type.isPresent)
     Assert.assertEquals("x", i.id.get().value)
   }
@@ -193,8 +207,10 @@ abstract class KSXOMBlockParserContract {
 
     r as KSSuccess<KSBlockFootnote<KSParse>, KSParseError>
     val i = r.result
-    Assert.assertEquals(1, i.content.size)
-    Assert.assertEquals("x y z", (i.content[0] as KSInlineText).text)
+    Assert.assertEquals(3, i.content.size)
+    Assert.assertEquals("x", (i.content[0] as KSInlineText).text)
+    Assert.assertEquals("y", (i.content[1] as KSInlineText).text)
+    Assert.assertEquals("z", (i.content[2] as KSInlineText).text)
     Assert.assertEquals("t", i.type.get().value)
     Assert.assertEquals("x", i.id.get().value)
   }

@@ -330,7 +330,7 @@ class KSXOMBlockParser private constructor(
     val act_type = parseType(context, element)
     val act_content =
       KSResult.listMap({ c -> inlines.parse(context, c) },
-        listOfChildren(element))
+        KSXOMTokenizer.tokenizeNodes(listOfChildren(element)))
 
     return act_id.flatMap { id ->
       act_content.flatMap { content ->
@@ -351,7 +351,7 @@ class KSXOMBlockParser private constructor(
     val act_type = parseType(context, element)
     val act_content =
       KSResult.listMap({ c -> inlines.parse(context, c) },
-        listOfChildren(element))
+        KSXOMTokenizer.tokenizeNodes(listOfChildren(element)))
 
     return act_id.flatMap { id ->
       act_content.flatMap { content ->
@@ -372,7 +372,7 @@ class KSXOMBlockParser private constructor(
     val act_type = parseType(context, element)
     val act_content =
       KSResult.listMap({ c -> inlines.parse(context, c) },
-        listOfChildren(element))
+        KSXOMTokenizer.tokenizeNodes(listOfChildren(element)))
 
     val title = parseTitle(context, element)
     return act_id.flatMap { id ->

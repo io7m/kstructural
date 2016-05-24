@@ -198,7 +198,8 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
     Assertive.require(element.localName == "cell")
 
     val act_content = KSResult.listMap(
-      { c -> parse(context, c) }, listOfChildren(element))
+      { c -> parse(context, c) },
+      KSXOMTokenizer.tokenizeNodes(listOfChildren(element)))
 
     return act_content.flatMap { content ->
       succeed(KSTableBodyCell(no_lex, false, KSParse(context), content))
@@ -284,7 +285,8 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
       if (e.localName == "item") {
         val kp = KSParse(context)
         val act_content = KSResult.listMap(
-          { e -> parse(context, e) }, listOfChildren(e))
+          { e -> parse(context, e) },
+          KSXOMTokenizer.tokenizeNodes(listOfChildren(e)))
 
         return act_content.flatMap { content ->
           succeed(KSListItem(no_lex, false, kp, content))
