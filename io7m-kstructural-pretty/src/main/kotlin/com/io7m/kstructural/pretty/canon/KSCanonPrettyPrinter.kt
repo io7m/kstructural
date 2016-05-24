@@ -55,6 +55,7 @@ import com.io7m.kstructural.core.KSSubsectionContent
 import com.io7m.kstructural.pretty.KSPrettyPrinterType
 import de.uka.ilkd.pp.Layouter
 import de.uka.ilkd.pp.WriterBackend
+import org.apache.commons.lang3.StringEscapeUtils
 import java.io.IOException
 import java.io.Writer
 import java.util.Optional
@@ -130,6 +131,15 @@ class KSCanonPrettyPrinter<T> private constructor(
       is KSInlineInclude           -> prettyInlineInclude(e)
     }
 
+  private fun prettyEscapedText(e : KSInlineText<T>) : Unit {
+    if (e.quote) {
+      val et = StringEscapeUtils.escapeJava(e.text)
+      layout.print(String.format("\"%s\"", et))
+    } else {
+      layout.print(e.text)
+    }
+  }
+
   private fun prettyImport(e : KSBlockImport<T>) : Unit {
     outStartMinor("import", e.square)
     layout.print(String.format("\"%s\"", e.file.text))
@@ -139,7 +149,7 @@ class KSCanonPrettyPrinter<T> private constructor(
   private fun prettyInlineVerbatim(e : KSInlineVerbatim<T>) : Unit {
     outStartMinor("verbatim", e.square)
     outType(e.type)
-    layout.print(String.format("\"%s\"", e.text))
+    prettyEscapedText(e.text)
     outEnd(e.square)
   }
 
@@ -228,7 +238,7 @@ class KSCanonPrettyPrinter<T> private constructor(
     e : KSTableSummary<T>) : Unit {
     outStartMinor("summary", e.square)
     e.content.forEachIndexed { i, text ->
-      layout.print(text.text)
+      prettyEscapedText(text)
       if (i + 1 < e.content.size) {
         layout.print(" ")
       }
@@ -309,11 +319,7 @@ class KSCanonPrettyPrinter<T> private constructor(
     if (i.isPresent) {
       prettyInlineInclude(i.get())
     } else {
-      if (e.quote) {
-        layout.print(String.format("\"%s\"", e.text))
-      } else {
-        layout.print(e.text)
-      }
+      prettyEscapedText(e)
     }
   }
 
@@ -485,7 +491,7 @@ class KSCanonPrettyPrinter<T> private constructor(
     title : List<KSInlineText<T>>) {
     outStartMinor("title", true)
     title.forEachIndexed { i, text ->
-      layout.print(text.text)
+      prettyEscapedText(text)
       if (i + 1 < title.size) {
         layout.print(" ")
       }

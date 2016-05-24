@@ -56,6 +56,7 @@ import com.io7m.kstructural.core.evaluator.KSEvaluation
 import com.io7m.kstructural.pretty.KSPrettyPrinterType
 import de.uka.ilkd.pp.Layouter
 import de.uka.ilkd.pp.WriterBackend
+import org.apache.commons.lang3.StringEscapeUtils
 import java.io.IOException
 import java.io.Writer
 import java.util.Optional
@@ -112,6 +113,15 @@ class KSImperativePrettyPrinter<T> private constructor(
       is KSInlineInclude           -> prettyInlineInclude(e)
     }
 
+  private fun prettyEscapedText(e : KSInlineText<T>) : Unit {
+    if (e.quote) {
+      val et = StringEscapeUtils.escapeJava(e.text)
+      layout.print(String.format("\"%s\"", et))
+    } else {
+      layout.print(e.text)
+    }
+  }
+
   private fun prettyInlineTable(e : KSInlineTable<T>) : Unit {
     outStartMajor("table", e.square)
     outType(e.type)
@@ -160,7 +170,7 @@ class KSImperativePrettyPrinter<T> private constructor(
     e : KSTableSummary<T>) : Unit {
     outStart("summary", e.square, space = e.content.isNotEmpty())
     e.content.forEachIndexed { i, text ->
-      layout.print(text.text)
+      prettyEscapedText(text)
       if (i + 1 < e.content.size) {
         layout.print(" ")
       }
@@ -258,7 +268,7 @@ class KSImperativePrettyPrinter<T> private constructor(
     outStart("verbatim", e.square, space = e.type.isPresent)
     outType(e.type)
     layout.brk(1, 0)
-    layout.print(String.format("\"%s\"", e.text))
+    prettyEscapedText(e.text)
     outEnd(e.square, newline = false)
   }
 
@@ -297,11 +307,7 @@ class KSImperativePrettyPrinter<T> private constructor(
     if (i.isPresent) {
       prettyInlineInclude(i.get())
     } else {
-      if (e.quote) {
-        layout.print(String.format("\"%s\"", e.text))
-      } else {
-        layout.print(e.text)
-      }
+      prettyEscapedText(e)
     }
   }
 
@@ -510,7 +516,7 @@ class KSImperativePrettyPrinter<T> private constructor(
     title : List<KSInlineText<T>>) {
     outStart("title", true, space = title.isNotEmpty())
     title.forEachIndexed { i, text ->
-      layout.print(text.text)
+      prettyEscapedText(text)
       if (i + 1 < title.size) {
         layout.print(" ")
       }

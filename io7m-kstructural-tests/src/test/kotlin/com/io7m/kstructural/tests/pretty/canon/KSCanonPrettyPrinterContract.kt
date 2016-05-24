@@ -571,4 +571,24 @@ abstract class KSCanonPrettyPrinterContract {
           p)])])
 """.trim(), imports = false)
   }
+
+  @Test fun testQuote() {
+    roundTripExpanded("""
+[document
+  [title d]
+  [section
+    [title s]
+    [paragraph
+      [term "\"t\""]]]]
+""".trim(),
+      """
+[document
+  [title d]
+  [section
+    [title s]
+    [paragraph
+      [term "\"t\""]]]]
+""".trim(),
+      imports = false)
+  }
 }

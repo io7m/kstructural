@@ -193,6 +193,11 @@
         <artifactId>jing</artifactId>
         <version>20091111</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.4</version>
+      </dependency>
 
       <dependency>
         <groupId>org.apache.maven</groupId>
