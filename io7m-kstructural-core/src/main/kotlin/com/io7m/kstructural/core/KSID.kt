@@ -52,7 +52,7 @@ class KSID<T> private constructor(
     }
 
     val ID_FORMAT = Pattern.compile(
-      "[\\p{IsLetter}\\p{IsDigit}_]+",
+      "[\\p{IsLetter}\\p{IsDigit}_\\.]+",
       Pattern.UNICODE_CHARACTER_CLASS);
 
     fun isValidID(s : String) : Boolean =

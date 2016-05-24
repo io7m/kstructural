@@ -15,6 +15,14 @@ be used by [link [target model.inline.link] link] elements to create
 intra-document links to content.
 
 [paragraph]
+Identifiers are restricted to combinations of letters, numbers,
+[term [type constant] "U+005F \"_\""],  and
+[term [type constant] "U+002E \".\""].
+
+[formal-item [title Identifier Syntax]]
+[verbatim [include "id.ebnf"]]
+
+[paragraph]
 Implementations are required to check that all [term [type expression] id]
 values are unique within a document, and that all [term [type expression] id]
 values referenced by links within a document exist.
