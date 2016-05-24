@@ -288,7 +288,19 @@ class KSCanonInlineParser private constructor(
     return try {
       KSResult.succeed(URI(text))
     } catch (x : URISyntaxException) {
-      parseError(e, "Invalid URI: " + x.message)
+      val sb = StringBuilder()
+      sb.append("Invalid URI.")
+      sb.append(System.lineSeparator())
+      sb.append("  Received: ")
+      sb.append(text)
+      sb.append(System.lineSeparator())
+      sb.append("  Error:    ")
+      sb.append(x.message)
+      sb.append(System.lineSeparator())
+      sb.append("  Reason:   ")
+      sb.append(x.reason)
+      sb.append(System.lineSeparator())
+      parseError(e, sb.toString())
     }
   }
 
@@ -688,7 +700,19 @@ class KSCanonInlineParser private constructor(
             KSLink.KSLinkExternal(e.position, uri, cs))
         }
       } catch (x : URISyntaxException) {
-        return parseError(e, "Invalid URI: " + x.message)
+        val sb = StringBuilder()
+        sb.append("Invalid URI.")
+        sb.append(System.lineSeparator())
+        sb.append("  Received: ")
+        sb.append(target)
+        sb.append(System.lineSeparator())
+        sb.append("  Error:    ")
+        sb.append(x.message)
+        sb.append(System.lineSeparator())
+        sb.append("  Reason:   ")
+        sb.append(x.reason)
+        sb.append(System.lineSeparator())
+        return parseError(e, sb.toString())
       }
 
     } else {

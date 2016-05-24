@@ -512,12 +512,23 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
   private fun parseTargetURI(
     element : Element) : KSResult<URI, KSParseError> {
+    val ta = element.getAttribute("target", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     return try {
-      val ta = element.getAttribute("target", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
       succeed(URI(ta.value))
     } catch (x : URISyntaxException) {
-      KSResult.fail<URI, KSParseError>(
-        KSParseError(no_lex, "Invalid URI: " + x.reason))
+      val sb = StringBuilder()
+      sb.append("Invalid URI.")
+      sb.append(System.lineSeparator())
+      sb.append("  Received: ")
+      sb.append(ta.value)
+      sb.append(System.lineSeparator())
+      sb.append("  Error:    ")
+      sb.append(x.message)
+      sb.append(System.lineSeparator())
+      sb.append("  Reason:   ")
+      sb.append(x.reason)
+      sb.append(System.lineSeparator())
+      KSResult.fail<URI, KSParseError>(KSParseError(no_lex, sb.toString()))
     }
   }
 
