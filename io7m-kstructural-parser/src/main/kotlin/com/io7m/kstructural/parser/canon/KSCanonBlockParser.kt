@@ -122,7 +122,7 @@ class KSCanonBlockParser private constructor(
     private fun parseAttributeType(
       e : KSExpressionList,
       c : Context)
-    : KSResult<KSType<KSParse>, KSParseError> {
+      : KSResult<KSType<KSParse>, KSParseError> {
       Assertive.require(e.elements.size == 2)
       Assertive.require(e.elements[0] is KSExpressionSymbol)
       Assertive.require(e.elements[1] is KSExpressionSymbol)

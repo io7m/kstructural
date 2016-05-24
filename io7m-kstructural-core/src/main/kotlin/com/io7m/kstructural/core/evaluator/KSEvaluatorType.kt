@@ -16,11 +16,8 @@
 
 package com.io7m.kstructural.core.evaluator
 
-import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
-import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSParse
-import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSResult
 import java.nio.file.Path
 

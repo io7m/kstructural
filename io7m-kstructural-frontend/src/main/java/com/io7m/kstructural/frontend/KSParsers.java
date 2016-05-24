@@ -362,24 +362,6 @@ public final class KSParsers implements KSParserConstructorType
 
     }
 
-    @Override
-    public KSResult<KSBlock<KSParse>, KSParseError> parseBlock(
-      final KSParseContextType context,
-      final Path file)
-      throws IOException
-    {
-      final KSResult<Document, KSParseError> d = XMLParser.parseDocument(file);
-      return d.flatMap(
-        document ->
-          XMLParser.validateDocument(file).flatMap(x -> {
-            final KSXOMInlineParserType ip =
-              KSXOMInlineParser.Companion.create();
-            final KSXOMBlockParserType bp =
-              KSXOMBlockParser.Companion.create(ip);
-            return bp.parse(context, document.getRootElement());
-          }));
-    }
-
     private static KSResult<Unit, KSParseError> validateDocument(
       final Path file)
     {
@@ -430,6 +412,24 @@ public final class KSParsers implements KSParserConstructorType
           new KSParseError(Optional.of(pos), "Validation failed");
         return KSResults.fail(pe);
       }
+    }
+
+    @Override
+    public KSResult<KSBlock<KSParse>, KSParseError> parseBlock(
+      final KSParseContextType context,
+      final Path file)
+      throws IOException
+    {
+      final KSResult<Document, KSParseError> d = XMLParser.parseDocument(file);
+      return d.flatMap(
+        document ->
+          XMLParser.validateDocument(file).flatMap(x -> {
+            final KSXOMInlineParserType ip =
+              KSXOMInlineParser.Companion.create();
+            final KSXOMBlockParserType bp =
+              KSXOMBlockParser.Companion.create(ip);
+            return bp.parse(context, document.getRootElement());
+          }));
     }
   }
 }

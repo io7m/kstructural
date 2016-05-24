@@ -18,16 +18,14 @@ package com.io7m.kstructural.core.evaluator
 
 import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSBlock
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSImportPathEdge
-import org.jgrapht.graph.UnmodifiableDirectedGraph
-import java.nio.file.Path
 import java.util.Optional
 
 interface KSEvaluationContextType {

@@ -53,7 +53,6 @@ import com.io7m.kstructural.core.KSLink
 import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSSubsectionContent
 import com.io7m.kstructural.core.KSType
-import com.io7m.kstructural.core.evaluator.KSEvaluation
 import com.io7m.kstructural.pretty.KSPrettyPrinterType
 import de.uka.ilkd.pp.Layouter
 import de.uka.ilkd.pp.WriterBackend

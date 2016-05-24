@@ -20,7 +20,6 @@ import com.io7m.jlexing.core.LexicalPositionType
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockParagraph
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
 import java.nio.file.Path
 import java.util.Optional
 

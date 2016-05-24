@@ -1,7 +1,14 @@
 package com.io7m.kstructural.core
 
-import com.io7m.kstructural.core.KSElement.KSBlock.*
 import com.io7m.kstructural.core.KSElement.KSBlock
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockParagraph
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockPart
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
 
 object KSBlockMatch {
 
@@ -13,8 +20,8 @@ object KSBlockMatch {
     onSubsection : KSMatcherType<C, KSBlockSubsection<T>, R, E>,
     onParagraph : KSMatcherType<C, KSBlockParagraph<T>, R, E>,
     onFormalItem : KSMatcherType<C, KSBlockFormalItem<T>, R, E>,
-    onFootnote: KSMatcherType<C, KSBlockFootnote<T>, R, E>,
-    onPart: KSMatcherType<C, KSBlockPart<T>, R, E>,
+    onFootnote : KSMatcherType<C, KSBlockFootnote<T>, R, E>,
+    onPart : KSMatcherType<C, KSBlockPart<T>, R, E>,
     onImport : KSMatcherType<C, KSBlockImport<T>, R, E>) : R =
     when (e) {
       is KSBlockDocument   -> onDocument.apply(c, e)

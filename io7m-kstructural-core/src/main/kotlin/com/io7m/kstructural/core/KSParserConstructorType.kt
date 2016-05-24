@@ -16,14 +16,13 @@
 
 package com.io7m.kstructural.core
 
-import com.io7m.kstructural.core.KSParseContextType
 import java.io.IOException
 import java.nio.file.Path
 
 interface KSParserConstructorType {
 
   @Throws(exceptionClasses = IOException::class)
-  fun create (
+  fun create(
     context : KSParseContextType,
     file : Path) : KSParserType
 

@@ -17,10 +17,6 @@
 package com.io7m.kstructural.core
 
 import com.io7m.kstructural.core.KSElement.KSBlock
-import com.io7m.kstructural.core.KSParse
-import com.io7m.kstructural.core.KSParseContextType
-import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSResult
 import java.io.IOException
 import java.nio.file.Path
 
@@ -30,6 +26,6 @@ interface KSParserType {
   fun parseBlock(
     context : KSParseContextType,
     file : Path)
-  : KSResult<KSBlock<KSParse>, KSParseError>
+    : KSResult<KSBlock<KSParse>, KSParseError>
 
 }

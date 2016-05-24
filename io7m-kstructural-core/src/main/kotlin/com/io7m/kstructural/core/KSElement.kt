@@ -30,6 +30,7 @@ sealed class KSElement<T>(
   companion object {
     private fun bracketOpen(square : Boolean) : String =
       if (square) "[" else "("
+
     private fun bracketClose(square : Boolean) : String =
       if (square) "]" else ")"
   }

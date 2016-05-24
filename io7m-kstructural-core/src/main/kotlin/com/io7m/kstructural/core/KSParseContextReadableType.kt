@@ -16,11 +16,11 @@
 
 package com.io7m.kstructural.core
 
-import java.nio.file.Path
-import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
-import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
+import java.nio.file.Path
 
 interface KSParseContextReadableType {
 

@@ -18,5 +18,8 @@ package com.io7m.kstructural.core;
 
 public interface KSMatcherType<C, A, B, E extends Throwable>
 {
-  B apply(C context, A x) throws E;
+  B apply(
+    C context,
+    A x)
+    throws E;
 }

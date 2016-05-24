@@ -935,10 +935,10 @@ class KSCanonInlineParser private constructor(
         return act_summary.flatMap { summary ->
           act_head.flatMap { head ->
             act_body.flatMap { body ->
-                val opt_type = Optional.empty<KSType<KSParse>>()
-                val opt_head = Optional.of(head)
-                KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(
-                  KSInlineTable(
+              val opt_type = Optional.empty<KSType<KSParse>>()
+              val opt_head = Optional.of(head)
+              KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(
+                KSInlineTable(
                   e.position,
                   e.square,
                   KSParse(c.context),
@@ -965,13 +965,13 @@ class KSCanonInlineParser private constructor(
               val opt_head = Optional.empty<KSTableHead<KSParse>>()
               KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(
                 KSInlineTable(
-                e.position,
-                e.square,
-                KSParse(c.context),
-                opt_type,
-                summary,
-                opt_head,
-                body))
+                  e.position,
+                  e.square,
+                  KSParse(c.context),
+                  opt_type,
+                  summary,
+                  opt_head,
+                  body))
             }
           }
         }
@@ -989,13 +989,13 @@ class KSCanonInlineParser private constructor(
             val opt_head = Optional.empty<KSTableHead<KSParse>>()
             KSResult.succeed<KSInlineTable<KSParse>, KSParseError>(
               KSInlineTable(
-              e.position,
-              e.square,
-              KSParse(c.context),
-              opt_type,
-              summary,
-              opt_head,
-              body))
+                e.position,
+                e.square,
+                KSParse(c.context),
+                opt_type,
+                summary,
+                opt_head,
+                body))
           }
         }
       }

@@ -19,7 +19,6 @@ package com.io7m.kstructural.core
 import com.io7m.jlexing.core.LexicalPositionType
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockPart
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
 import java.nio.file.Path
 import java.util.Optional
 

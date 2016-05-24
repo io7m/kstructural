@@ -164,16 +164,16 @@ public final class KSCLMain implements Runnable
   @Parameters(commandDescription = "Check document syntax and structure")
   private final class CommandCheck extends CommandRoot
   {
-    CommandCheck()
-    {
-
-    }
-
     @Parameter(
       names = "-file",
       description = "Input file",
       required = true)
     private String file;
+
+    CommandCheck()
+    {
+
+    }
 
     @Override
     public Unit call()
@@ -192,23 +192,16 @@ public final class KSCLMain implements Runnable
     commandDescription = "Compile documents to XHTML")
   private final class CommandCompileXHTML extends CommandRoot
   {
-    CommandCompileXHTML()
-    {
-
-    }
-
     @Parameter(
       names = "-file",
       description = "Input file",
       required = true)
     private String file;
-
     @Parameter(
       names = "-output-dir",
       description = "The directory in which output files will be written",
       required = true)
     private String output;
-
     @Parameter(
       names = "-pagination",
       description = "The type of XHTML pagination that will be used",
@@ -216,54 +209,51 @@ public final class KSCLMain implements Runnable
       required = false)
     private KSOpCompileXHTML.XHTMLPagination pagination =
       KSOpCompileXHTML.XHTMLPagination.XHTML_MULTI_PAGE;
-
     @Parameter(
       names = "-render-toc-document",
       description = "Render a table of contents at the document level",
       required = false)
     private boolean render_toc_document = true;
-
     @Parameter(
       names = "-render-toc-part",
       description = "Render a table of contents at the part level",
       required = false)
     private boolean render_toc_part = true;
-
     @Parameter(
       names = "-render-toc-section",
       description = "Render a table of contents at the section level",
       required = false)
     private boolean render_toc_section = true;
-
     @Parameter(
       names = "-css-extra-styles",
       description = "A comma-separated list of extra CSS styles (as URIs) that will be used for each page",
       required = false)
     private List<URI> css_user = new ArrayList<>();
-
     @Parameter(
       names = "-css-include-default",
       description = "Include links to the default CSS files",
       required = false)
     private boolean css_default = true;
-
     @Parameter(
       names = "-css-create-default",
       description = "Create the default CSS files in the output directory",
       required = false)
     private boolean css_create_default = true;
-
     @Parameter(
       names = "-brand-top",
       description = "Prepend the contents of the given XML file to each XHTML page's body element",
       required = false)
     private String brand_top;
-
     @Parameter(
       names = "-brand-bottom",
       description = "Append the contents of the given XML file to each XHTML page's body element",
       required = false)
     private String brand_bottom;
+
+    CommandCompileXHTML()
+    {
+
+    }
 
     @Override
     public Unit call()
@@ -311,47 +301,42 @@ public final class KSCLMain implements Runnable
     commandDescription = "Convert documents between input formats")
   private final class CommandConvert extends CommandRoot
   {
-    CommandConvert()
-    {
-
-    }
-
     @Parameter(
       names = "-file",
       description = "Input file",
       required = true)
     private String file;
-
     @Parameter(
       names = "-output-dir",
       description = "The directory in which output files will be written",
       required = true)
     private String output;
-
     @Parameter(
       names = "-format",
       description = "The format that will be used for exported documents",
       converter = KSCLInputFormatConverter.class,
       required = false)
     private KSInputFormat export_format = KSInputFormat.KS_INPUT_CANONICAL;
-
     @Parameter(
       names = "-no-imports",
       description = "Export as one large document that does not contain any imports",
       required = false)
     private boolean no_imports;
-
     @Parameter(
       names = "-indent",
       description = "The number of spaces that will be used to indent documents",
       required = false)
     private int indent = 2;
-
     @Parameter(
       names = "-width",
       description = "The maximum width in characters that will be used when formatting documents",
       required = false)
     private int width = 80;
+
+    CommandConvert()
+    {
+
+    }
 
     @Override
     public Unit call()

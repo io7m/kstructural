@@ -42,7 +42,6 @@ import com.io7m.kstructural.core.KSType
 import com.io7m.kstructural.schema.KSSchemaNamespaces
 import nu.xom.Element
 import nu.xom.Node
-import org.slf4j.LoggerFactory
 import org.valid4j.Assertive
 import java.nio.file.Path
 import java.util.Optional

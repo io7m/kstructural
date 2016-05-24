@@ -37,7 +37,6 @@ import com.io7m.kstructural.xom.KSXOMBlockParserType
 import nu.xom.Element
 import org.junit.Assert
 import org.junit.Test
-import java.util.Optional
 
 abstract class KSXOMBlockParserContract {
 

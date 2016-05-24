@@ -24,7 +24,6 @@ import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpression.KSExpressionList
 import com.io7m.kstructural.parser.KSExpression.KSExpressionSymbol
 import com.io7m.kstructural.parser.KSExpressionMatch
-import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.canon.KSCanonInlineParserType
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeDocument
 import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeFootnote
@@ -346,7 +345,7 @@ class KSImperativeParser private constructor(
         val act_type = parseAttributeType(
           e.elements[1] as KSExpressionList, c)
         return act_type.flatMap { type ->
-           KSResult.succeed<KSImperative, KSParseError>(
+          KSResult.succeed<KSImperative, KSParseError>(
             KSImperativeParagraph(
               e.position, e.square, Optional.of(type), Optional.empty()))
         }

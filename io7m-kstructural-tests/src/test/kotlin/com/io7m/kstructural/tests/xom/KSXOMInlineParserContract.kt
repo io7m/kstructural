@@ -16,12 +16,12 @@
 
 package com.io7m.kstructural.tests.xom
 
-import com.io7m.kstructural.core.KSElement
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineImage
-import com.io7m.kstructural.core.KSElement.KSInline.*
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineLink
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListOrdered
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineListUnordered
+import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTable
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTerm
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineVerbatim
 import com.io7m.kstructural.core.KSElement.KSInline.KSSize

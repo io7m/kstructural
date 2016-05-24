@@ -43,7 +43,7 @@ class KSID<T> private constructor(
       position : Optional<LexicalPositionType<Path>>,
       value : String,
       data : T)
-    : KSID<T> {
+      : KSID<T> {
       if (isValidID(value)) {
         return KSID(position, value, data)
       } else {

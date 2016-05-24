@@ -23,17 +23,18 @@ public final class KSResults
 {
   private static KSResults INSTANCE = new KSResults();
 
-  public static KSResults getInstance()
-  {
-    return INSTANCE;
-  }
-
   private KSResults()
   {
 
   }
 
-  public static <A, E> KSResult<A, E> fail(final E x) {
+  public static KSResults getInstance()
+  {
+    return INSTANCE;
+  }
+
+  public static <A, E> KSResult<A, E> fail(final E x)
+  {
     final ArrayDeque<E> ad = new ArrayDeque<E>(1);
     ad.add(x);
     return new KSResult.KSFailure<>(Optional.empty(), ad);

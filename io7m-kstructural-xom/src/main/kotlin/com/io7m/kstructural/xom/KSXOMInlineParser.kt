@@ -48,7 +48,6 @@ import com.io7m.kstructural.schema.KSSchemaNamespaces
 import nu.xom.Element
 import nu.xom.Node
 import nu.xom.Text
-import org.slf4j.LoggerFactory
 import org.valid4j.Assertive
 import java.math.BigInteger
 import java.net.URI

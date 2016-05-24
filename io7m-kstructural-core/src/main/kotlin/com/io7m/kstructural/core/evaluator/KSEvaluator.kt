@@ -712,8 +712,7 @@ object KSEvaluator : KSEvaluatorType {
     c : Context,
     t : KSType<KSParse>,
     parent : KSSerial)
-    : KSResult<KSType<KSEvaluation>, KSEvaluationError>
-  {
+    : KSResult<KSType<KSEvaluation>, KSEvaluationError> {
     val serial = c.freshSerial()
     val eval = KSEvaluation(c, serial, parent, Optional.empty())
     return KSResult.succeed<KSType<KSEvaluation>, KSEvaluationError>(
@@ -724,8 +723,7 @@ object KSEvaluator : KSEvaluatorType {
     c : Context,
     t : Optional<KSType<KSParse>>,
     parent : KSSerial)
-    : KSResult<Optional<KSType<KSEvaluation>>, KSEvaluationError>
-  {
+    : KSResult<Optional<KSType<KSEvaluation>>, KSEvaluationError> {
     if (t.isPresent) {
       return evaluateType(c, t.get(), parent).flatMap { type ->
         KSResult.succeed<Optional<KSType<KSEvaluation>>, KSEvaluationError>(

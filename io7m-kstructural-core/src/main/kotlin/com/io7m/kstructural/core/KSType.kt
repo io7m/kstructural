@@ -43,7 +43,7 @@ class KSType<T> private constructor(
       position : Optional<LexicalPositionType<Path>>,
       value : String,
       data : T)
-    : KSType<T> {
+      : KSType<T> {
       if (isValidType(value)) {
         return KSType(position, value, data)
       } else {
