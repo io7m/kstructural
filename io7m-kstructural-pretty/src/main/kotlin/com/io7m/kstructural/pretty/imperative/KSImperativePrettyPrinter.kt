@@ -54,6 +54,7 @@ import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSSubsectionContent
 import com.io7m.kstructural.core.KSType
 import com.io7m.kstructural.pretty.KSPrettyPrinterType
+import com.io7m.kstructural.pretty.KSSExprEscape
 import de.uka.ilkd.pp.Layouter
 import de.uka.ilkd.pp.WriterBackend
 import org.apache.commons.lang3.StringEscapeUtils
@@ -115,7 +116,7 @@ class KSImperativePrettyPrinter<T> private constructor(
 
   private fun prettyEscapedText(e : KSInlineText<T>) : Unit {
     if (e.quote) {
-      val et = StringEscapeUtils.escapeJava(e.text)
+      val et = KSSExprEscape.SEXPR_ESCAPE.translate(e.text)
       layout.print(String.format("\"%s\"", et))
     } else {
       layout.print(e.text)
