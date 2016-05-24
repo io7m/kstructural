@@ -67,18 +67,79 @@
         <executions>
           <execution>
             <id>exec-multi</id>
+            <goals>
+              <goal>compileXHTML</goal>
+            </goals>
+            <phase>process-resources</phase>
             <configuration>
               <documentFile>${project.build.directory}/specification/specification.sd</documentFile>
               <outputDirectory>${project.build.directory}/specification/</outputDirectory>
               <pagination>XHTML_MULTI_PAGE</pagination>
+              <cssExtraStyles>
+                <param>specification.css</param>
+              </cssExtraStyles>
             </configuration>
           </execution>
           <execution>
             <id>exec-single</id>
+            <goals>
+              <goal>compileXHTML</goal>
+            </goals>
+            <phase>process-resources</phase>
             <configuration>
               <documentFile>${project.build.directory}/specification/specification.sd</documentFile>
               <outputDirectory>${project.build.directory}/specification/</outputDirectory>
               <pagination>XHTML_SINGLE_PAGE</pagination>
+              <cssExtraStyles>
+                <param>specification.css</param>
+              </cssExtraStyles>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Produce specification archive -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptors>
+            <descriptor>src/main/assembly/specification.xml</descriptor>
+          </descriptors>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <appendAssemblyId>false</appendAssemblyId>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Unpack the specification archive to the parent's generated site staging directory. -->
+      <!-- This is arguably abusive, but there appears to be no other way to achieve it. -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>truezip-maven-plugin</artifactId>
+        <inherited>false</inherited>
+        <executions>
+          <execution>
+            <id>copy-site-specification</id>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <phase>site</phase>
+            <configuration>
+              <verbose>true</verbose>
+              <fileset>
+                <directory>${project.build.directory}/${project.name}-${project.version}.zip/${project.name}-${project.version}/</directory>
+                <outputDirectory>${project.parent.build.directory}/staging/specification/</outputDirectory>
+              </fileset>
             </configuration>
           </execution>
         </executions>

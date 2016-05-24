@@ -27,6 +27,15 @@
         <a href="https://repo1.maven.org/maven2/${siteDocumentationDirectory}">repository</a>.
       </p>
     </section>
+    <section name="Specification">
+      <p>
+        The specification for the language is available for reading online.
+      </p>
+      <ul>
+        <li><a href="specification/index-m.xhtml">XHTML - one page per section</a></li>
+        <li><a href="specification/index.xhtml">XHTML - single page</a></li>
+      </ul>
+    </section>
   </body>
 </document>
 
