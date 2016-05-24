@@ -76,4 +76,16 @@ public final class KSCompileXHTMLMojoTest
     assertFilesPresent(basedir, "target/out/kstructural-layout.css");
     assertFilesPresent(basedir, "target/out/kstructural-colour.css");
   }
+
+  @Test
+  public void testStyles()
+    throws Exception
+  {
+    final File basedir = this.resources.getBasedir("styles");
+    this.maven.executeMojo(basedir, "compileXHTML");
+    assertFilesPresent(basedir, "target/out/index-m.xhtml");
+    assertFilesPresent(basedir, "target/out/s1.xhtml");
+    assertFilesPresent(basedir, "target/out/kstructural-layout.css");
+    assertFilesPresent(basedir, "target/out/kstructural-colour.css");
+  }
 }

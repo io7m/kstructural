@@ -80,42 +80,42 @@ public final class KSCompileXHTMLMojo extends AbstractMojo
    */
 
   @Parameter(name = "renderTOCDocument", required = false)
-  private boolean render_toc_document = true;
+  private boolean renderTOCDocument = true;
 
   /**
    * Render a table of contents at the part level?
    */
 
   @Parameter(name = "renderTOCPart", required = false)
-  private boolean render_toc_part = true;
+  private boolean renderTOCPart = true;
 
   /**
    * Render a table of contents at the section level?
    */
 
   @Parameter(name = "renderTOCSection", required = false)
-  private boolean render_toc_section = true;
+  private boolean renderTOCSection = true;
 
   /**
    * A list of extra CSS styles (as URIs) that will be used for each page.
    */
 
   @Parameter(name = "cssExtraStyles", required = false)
-  private List<URI> css_extra_styles = new ArrayList<>();
+  private List<URI> cssExtraStyles = new ArrayList<>();
 
   /**
    * Include links to the default CSS files?
    */
 
   @Parameter(name = "cssIncludeDefault", required = false)
-  private boolean css_default = true;
+  private boolean cssIncludeDefault = true;
 
   /**
    * Create the default CSS files in the output directory?
    */
 
   @Parameter(name = "cssCreateDefault", required = false)
-  private boolean css_create_default = true;
+  private boolean cssCreateDefault = true;
 
   public KSCompileXHTMLMojo()
   {
@@ -143,19 +143,19 @@ public final class KSCompileXHTMLMojo extends AbstractMojo
       log.info("brandTopFile               : " + this.brandTopFile);
       log.info("brandBottomFile            : " + this.brandBottomFile);
       log.info("pagination                 : " + this.pagination);
-      log.info("renderTOCDocument          : " + this.render_toc_document);
-      log.info("renderTOCSection           : " + this.render_toc_section);
-      log.info("renderTOCPart              : " + this.render_toc_part);
-      log.info("cssExtraStyles             : " + this.css_extra_styles);
-      log.info("cssIncludeDefault          : " + this.css_default);
-      log.info("cssCreateDefault           : " + this.css_create_default);
+      log.info("renderTOCDocument          : " + this.renderTOCDocument);
+      log.info("renderTOCSection           : " + this.renderTOCSection);
+      log.info("renderTOCPart              : " + this.renderTOCPart);
+      log.info("cssExtraStyles             : " + this.cssExtraStyles);
+      log.info("cssIncludeDefault          : " + this.cssIncludeDefault);
+      log.info("cssCreateDefault           : " + this.cssCreateDefault);
 
       final List<URI> styles = new ArrayList<>(8);
-      if (this.css_default) {
+      if (this.cssIncludeDefault) {
         styles.add(KSXOMSettings.Companion.getCSSDefaultLayout());
         styles.add(KSXOMSettings.Companion.getCSSDefaultColour());
       }
-      styles.addAll(this.css_extra_styles);
+      styles.addAll(this.cssExtraStyles);
 
       final FileSystem fs = FileSystems.getDefault();
       final Path input_path =
@@ -173,9 +173,9 @@ public final class KSCompileXHTMLMojo extends AbstractMojo
           name -> Optional.of(fs.getPath(name).toAbsolutePath())));
 
       final KSXOMSettings s = new KSXOMSettings(
-        this.render_toc_document,
-        this.render_toc_part,
-        this.render_toc_section,
+        this.renderTOCDocument,
+        this.renderTOCPart,
+        this.renderTOCSection,
         styles,
         appender.getAppenderStart(),
         appender.getAppenderEnd());
@@ -186,7 +186,7 @@ public final class KSCompileXHTMLMojo extends AbstractMojo
           output_path,
           s,
           this.pagination,
-          this.css_create_default);
+          this.cssCreateDefault);
       op.call();
 
     } catch (final Throwable e) {
