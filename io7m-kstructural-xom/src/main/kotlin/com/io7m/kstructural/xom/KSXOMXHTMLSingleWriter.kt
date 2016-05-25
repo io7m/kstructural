@@ -102,8 +102,8 @@ object KSXOMXHTMLSingleWriter : KSXOMXHTMLWriterType {
     settings.on_body_start.call(body)
     body.appendChild(KSXOM.documentIndexTitle(d))
     body.appendChild(KSXOM.contentsForDocument(prov, d))
-
     d.content.forEach { p -> body.appendChild(writePart(settings, prov, d, p)) }
+    body.appendChild(KSXOM.footnotes(prov, d.data.context.footnotesAll))
     settings.on_body_end.call(body)
     return document
   }
@@ -119,6 +119,7 @@ object KSXOMXHTMLSingleWriter : KSXOMXHTMLWriterType {
     body.appendChild(KSXOM.contentsForDocument(prov, d))
 
     d.content.forEach { sc -> body.appendChild(writeSection(settings, prov, d, sc)) }
+    body.appendChild(KSXOM.footnotes(prov, d.data.context.footnotesAll))
     settings.on_body_end.call(body)
     return document
   }
@@ -146,6 +147,7 @@ object KSXOMXHTMLSingleWriter : KSXOMXHTMLWriterType {
         }
       }
     }
+
     return e
   }
 

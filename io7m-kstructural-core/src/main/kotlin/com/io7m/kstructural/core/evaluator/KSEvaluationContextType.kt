@@ -61,6 +61,8 @@ interface KSEvaluationContextType {
   fun footnotesForSection(
     n : KSNumber.HasSectionType) : Map<KSID<KSEvaluation>, KSBlockFootnote<KSEvaluation>>
 
+  val footnotesAll : Map<KSID<KSEvaluation>, KSBlockFootnote<KSEvaluation>>
+
   fun footnoteReferenceForInline(
     f : KSInlineFootnoteReference<KSEvaluation>) : KSFootnoteReference<KSEvaluation>
 

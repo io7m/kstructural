@@ -107,7 +107,9 @@ object KSEvaluator : KSEvaluatorType {
     val count_by_class : MutableMap<Class<*>, Long>,
 
     var enclosing_table : Boolean = false,
-    var enclosing_table_pos : Optional<LexicalPositionType<Path>> = Optional.empty())
+    var enclosing_table_pos : Optional<LexicalPositionType<Path>> = Optional.empty(),
+
+    override val footnotesAll : MutableMap<KSID<KSEvaluation>, KSBlockFootnote<KSEvaluation>>)
   : KSEvaluationContextType {
 
     companion object {
@@ -129,7 +131,8 @@ object KSEvaluator : KSEvaluatorType {
           importedBlocks = IdentityHashMap(),
           count_by_class = HashMap(),
           enclosing_table = false,
-          enclosing_table_pos = Optional.empty())
+          enclosing_table_pos = Optional.empty(),
+          footnotesAll = mutableMapOf())
         c.file_stack.push(f)
         return c
       }
@@ -661,6 +664,9 @@ object KSEvaluator : KSEvaluatorType {
       LOG.trace("save footnote {} → {}", n, i)
       notes[i] = b
       section_footnotes[n] = notes
+
+      Assertive.require(footnotesAll.containsKey(i) == false)
+      footnotesAll[i] = b
     }
 
     fun referenceFootnote(

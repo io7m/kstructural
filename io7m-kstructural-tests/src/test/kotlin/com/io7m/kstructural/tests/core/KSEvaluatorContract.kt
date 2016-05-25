@@ -1194,6 +1194,8 @@ abstract class KSEvaluatorContract {
     r as KSSuccess<KSBlockDocumentWithSections<KSEvaluation>, KSEvaluationError>
 
     val rr = r.result
+    Assert.assertEquals(3, rr.data.context.footnotesAll.size)
+
     val fn0 = rr.data.context.footnotesForSection(KSNumberSection(1L))
     Assert.assertEquals(1, fn0.size)
     Assert.assertTrue(fn0.containsKey(KSID.create(Optional.empty(), "f0", rr.data)))
@@ -1231,6 +1233,8 @@ abstract class KSEvaluatorContract {
     r as KSSuccess<KSBlockDocumentWithParts<KSEvaluation>, KSEvaluationError>
 
     val rr = r.result
+    Assert.assertEquals(6, rr.data.context.footnotesAll.size)
+
     val fn0 = rr.data.context.footnotesForSection(KSNumberPartSection(1L, 1L))
     Assert.assertEquals(1, fn0.size)
     Assert.assertTrue(fn0.containsKey(KSID.create(Optional.empty(), "f0", rr.data)))
