@@ -310,7 +310,7 @@ internal object KSXOM {
     a.addAttribute(Attribute("href", null, prov.footnoteLink(fn, ref.index)))
     a.addAttribute(Attribute("id", null, prov.footnoteReferenceAnchor(ref)))
     a.addAttribute(Attribute("title", null, title.toString()))
-    a.appendChild(c.target.value)
+    a.appendChild(fn.data.index.toString())
 
     val e = Element("span", XHTML_URI_TEXT)
     e.addAttribute(Attribute("class", null, prefixedName("footnote_reference")))
@@ -1042,7 +1042,7 @@ internal object KSXOM {
         title.append(fn.key.value)
         eaa.addAttribute(Attribute("title", null, title.toString()))
 
-        eaa.appendChild(fn.key.value)
+        eaa.appendChild(fn.value.data.index.toString())
         eid.appendChild(eaa)
         eid.appendChild("]")
 
