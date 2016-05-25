@@ -172,12 +172,13 @@ object KSEvaluator : KSEvaluatorType {
       mutableMapOf()
 
     private val section_footnotes : MutableMap<
-      Long,
+      KSNumber.HasSectionType,
       MutableMap<KSID<KSEvaluation>, KSBlockFootnote<KSEvaluation>>> =
       mutableMapOf()
 
     override fun footnotesForSection(
-      n : Long) : Map<KSID<KSEvaluation>, KSBlockFootnote<KSEvaluation>> {
+      n : KSNumber.HasSectionType)
+      : Map<KSID<KSEvaluation>, KSBlockFootnote<KSEvaluation>> {
       return section_footnotes.getOrElse(n, {
         mapOf<KSID<KSEvaluation>, KSBlockFootnote<KSEvaluation>>()
       })
@@ -630,16 +631,22 @@ object KSEvaluator : KSEvaluatorType {
     }
 
     fun recordFootnote(b : KSBlockFootnote<KSEvaluation>) : Unit {
-      val notes = if (this.section_footnotes.containsKey(this.section_number)) {
-        this.section_footnotes[this.section_number]!!
+      val n : KSNumber.HasSectionType = if (this.part_number.isPresent) {
+        KSNumberPartSection(this.part_number.asLong, this.section_number)
+      } else {
+        KSNumberSection(this.section_number)
+      }
+
+      val notes = if (this.section_footnotes.containsKey(n)) {
+        this.section_footnotes[n]!!
       } else {
         mutableMapOf()
       }
 
       val i = b.id.get()
-      LOG.trace("save footnote {} → {}", section_number, i)
+      LOG.trace("save footnote {} → {}", n, i)
       notes[i] = b
-      section_footnotes[this.section_number] = notes
+      section_footnotes[n] = notes
     }
 
     fun referenceFootnote(

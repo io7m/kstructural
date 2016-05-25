@@ -22,6 +22,7 @@ import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocume
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithContent
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithSubsections
+import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSLink
 import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSParse
@@ -30,6 +31,7 @@ import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.KSSubsectionContent
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
 import com.io7m.kstructural.core.evaluator.KSEvaluation
+import com.io7m.kstructural.core.evaluator.KSEvaluationError
 import com.io7m.kstructural.core.evaluator.KSEvaluatorType
 import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberPart
 import com.io7m.kstructural.core.evaluator.KSNumber.KSNumberPartSection
@@ -49,6 +51,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.Optional
 
 abstract class KSEvaluatorContract {
 
@@ -1173,6 +1176,84 @@ abstract class KSEvaluatorContract {
     val r = ee.e.evaluate(i, defaultFile())
     r as KSFailure
     Assert.assertEquals(1, r.errors.size)
+  }
+
+  @Test fun testFootnotesSections() {
+    val ee = newEvaluatorForString("""
+[document (title dt) (id d0)
+  (section [title st]
+    [footnote (id f0)])
+  (section [title st]
+    [footnote (id f1)])
+  (section [title st]
+    [footnote (id f2)])]
+""")
+
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
+    r as KSSuccess<KSBlockDocumentWithSections<KSEvaluation>, KSEvaluationError>
+
+    val rr = r.result
+    val fn0 = rr.data.context.footnotesForSection(KSNumberSection(1L))
+    Assert.assertEquals(1, fn0.size)
+    Assert.assertTrue(fn0.containsKey(KSID.create(Optional.empty(), "f0", rr.data)))
+
+    val fn1 = rr.data.context.footnotesForSection(KSNumberSection(2L))
+    Assert.assertEquals(1, fn1.size)
+    Assert.assertTrue(fn1.containsKey(KSID.create(Optional.empty(), "f1", rr.data)))
+
+    val fn2 = rr.data.context.footnotesForSection(KSNumberSection(3L))
+    Assert.assertEquals(1, fn2.size)
+    Assert.assertTrue(fn2.containsKey(KSID.create(Optional.empty(), "f2", rr.data)))
+  }
+
+  @Test fun testFootnotesPartSections() {
+    val ee = newEvaluatorForString("""
+[document (title dt) (id d0)
+  [part [title p]
+    (section [title st]
+      [footnote (id f0)])
+    (section [title st]
+      [footnote (id f1)])
+    (section [title st]
+      [footnote (id f2)])]
+  [part [title p]
+    (section [title st]
+      [footnote (id f3)])
+    (section [title st]
+      [footnote (id f4)])
+    (section [title st]
+      [footnote (id f5)])]]
+""")
+
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
+    r as KSSuccess<KSBlockDocumentWithParts<KSEvaluation>, KSEvaluationError>
+
+    val rr = r.result
+    val fn0 = rr.data.context.footnotesForSection(KSNumberPartSection(1L, 1L))
+    Assert.assertEquals(1, fn0.size)
+    Assert.assertTrue(fn0.containsKey(KSID.create(Optional.empty(), "f0", rr.data)))
+
+    val fn1 = rr.data.context.footnotesForSection(KSNumberPartSection(1L, 2L))
+    Assert.assertEquals(1, fn1.size)
+    Assert.assertTrue(fn1.containsKey(KSID.create(Optional.empty(), "f1", rr.data)))
+
+    val fn2 = rr.data.context.footnotesForSection(KSNumberPartSection(1L, 3L))
+    Assert.assertEquals(1, fn2.size)
+    Assert.assertTrue(fn2.containsKey(KSID.create(Optional.empty(), "f2", rr.data)))
+
+    val fn3 = rr.data.context.footnotesForSection(KSNumberPartSection(2L, 1L))
+    Assert.assertEquals(1, fn3.size)
+    Assert.assertTrue(fn3.containsKey(KSID.create(Optional.empty(), "f3", rr.data)))
+
+    val fn4 = rr.data.context.footnotesForSection(KSNumberPartSection(2L, 2L))
+    Assert.assertEquals(1, fn4.size)
+    Assert.assertTrue(fn4.containsKey(KSID.create(Optional.empty(), "f4", rr.data)))
+
+    val fn5 = rr.data.context.footnotesForSection(KSNumberPartSection(2L, 3L))
+    Assert.assertEquals(1, fn5.size)
+    Assert.assertTrue(fn5.containsKey(KSID.create(Optional.empty(), "f5", rr.data)))
   }
 
   @Test fun testSimpleDocument() {
