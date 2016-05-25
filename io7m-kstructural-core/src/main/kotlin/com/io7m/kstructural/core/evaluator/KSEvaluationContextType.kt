@@ -59,7 +59,7 @@ interface KSEvaluationContextType {
     b : KSBlock<KSEvaluation>) : Optional<KSBlock<KSEvaluation>>
 
   fun footnotesForSection(
-    n : Long) : Map<KSID<KSEvaluation>, KSBlockFootnote<KSEvaluation>>
+    n : KSNumber.HasSectionType) : Map<KSID<KSEvaluation>, KSBlockFootnote<KSEvaluation>>
 
   fun footnoteReferenceForInline(
     f : KSInlineFootnoteReference<KSEvaluation>) : KSFootnoteReference<KSEvaluation>

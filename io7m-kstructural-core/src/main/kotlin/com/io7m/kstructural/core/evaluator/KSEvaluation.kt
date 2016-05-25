@@ -23,5 +23,5 @@ data class KSEvaluation(
   val context : KSEvaluationContextType,
   val serial : KSSerial,
   val parent : KSSerial,
-  val number : Optional<KSNumber>,
-  val include : Optional<KSInlineInclude<KSEvaluation>> = Optional.empty())
+  val index : Long,
+  val number : Optional<KSNumber>)

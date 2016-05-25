@@ -336,8 +336,16 @@ object KSXOMXHTMLMultiWriter : KSXOMXHTMLWriterType {
     }
 
     val n = s.data.number.get() as KSNumber.HasSectionType
-    val footnotes = s.data.context.footnotesForSection(n.section)
+    val footnotes = s.data.context.footnotesForSection(n)
     if (footnotes.isNotEmpty()) {
+      if (LOG.isTraceEnabled) {
+        val iter = footnotes.iterator()
+        while (iter.hasNext()) {
+          val fn_e = iter.next()
+          LOG.trace("footnote {} for section {}", fn_e.key, n)
+        }
+      }
+
       e.appendChild(KSXOM.footnotes(prov, footnotes))
     }
 
