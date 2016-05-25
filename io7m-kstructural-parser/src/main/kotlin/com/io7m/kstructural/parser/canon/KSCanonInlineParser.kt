@@ -1123,7 +1123,6 @@ class KSCanonInlineParser private constructor(
         e as KSExpressionList
         Assertive.require(e.elements.size >= 1)
         val contents = e.elements.subList(1, e.elements.size)
-        Assertive.require(contents.size >= 1)
         val act_content =
           KSResult.listMap({ ce -> parseInlineTextOrInclude(ce, c) }, contents)
         return act_content.flatMap { cs ->

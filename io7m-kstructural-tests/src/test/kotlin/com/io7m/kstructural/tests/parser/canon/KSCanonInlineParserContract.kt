@@ -548,6 +548,23 @@ abstract class KSCanonInlineParserContract {
     Assert.assertEquals(0, i.result.body.rows.size)
   }
 
+  @Test fun testInlineTableBug() {
+    val pp = newParserForString("""
+[table
+  [summary s]
+  [head
+    [name ]]
+  [body]]
+""")
+    val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())
+
+    i as KSSuccess<KSInlineTable<*>, KSParseError>
+    Assert.assertFalse(i.result.type.isPresent)
+    Assert.assertEquals("s", i.result.summary.content[0].text)
+    Assert.assertTrue(i.result.head.isPresent)
+    Assert.assertEquals(0, i.result.body.rows.size)
+  }
+
   @Test fun testInlineTableSummaryBodyRow() {
     val pp = newParserForString("[table [summary s] [body [row]]]")
     val i = pp.p.parse(KSParseContext.empty(), pp.s(), defaultFile())

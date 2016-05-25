@@ -1,0 +1,5 @@
+[part [title Tutorial] [id tutorial]]
+[section [title Overview]]
+[paragraph]
+The [term [type package] structural] language is intended to be syntactically
+lightweight language for writing technical documentation.

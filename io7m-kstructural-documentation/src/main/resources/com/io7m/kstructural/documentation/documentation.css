@@ -53,6 +53,28 @@
   overflow:       auto;
 }
 
+.comparison_yes
+{
+  background-color: #ccffcc;
+}
+
+.comparison_maybe
+{
+  background-color: #ffffcc;
+}
+
+.comparison_no
+{
+  background-color: #ffcccc;
+}
+
+.comparison td, .comparison th
+{
+  padding-right: 3.0em;
+  font-family:   monospace;
+  font-size:     9pt;
+}
+
 .dependencies table td
 {
   padding-right: 3.0em;

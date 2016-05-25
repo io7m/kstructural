@@ -1,0 +1,17 @@
+[section [title Maven Plugin Usage]]
+[subsection [title Synopsis]]
+[paragraph]
+The [term [type command] kstructural] Maven plugin processes documents during
+a Maven build.
+
+[paragraph]
+The plugin currently exposes the command line's
+[link [target tools.cmdline.compile_xhtml] compile-xhtml]
+command via a [term [type command] compileXHTML] Maven goal to produce XHTML
+documentation during the build. The goal has the exact same behaviour as
+the command-line subcommand, so the command line documentation should be
+consulted for information on the behaviour of the parameters.
+
+[subsection [title Example]]
+[paragraph]
+[verbatim [type terminal] [include "maven-example.xml"]]
