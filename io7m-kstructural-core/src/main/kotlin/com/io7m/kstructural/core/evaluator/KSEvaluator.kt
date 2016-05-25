@@ -831,8 +831,7 @@ object KSEvaluator : KSEvaluatorType {
     return if (e.data.context.includesByTexts.containsKey(e)) {
       val ii = e.data.context.includesByTexts[e]!!
       evaluateInlineInclude(c, ii, parent).flatMap { inc ->
-        val eval = KSEvaluation(
-          c, serial, parent, Optional.empty(), Optional.of(inc))
+        val eval = KSEvaluation(c, serial, parent, Optional.empty())
         val re = KSInlineText(e.position, false, eval, e.quote, e.text)
         c.includesByText[re] = inc
         c.addElement(re)
