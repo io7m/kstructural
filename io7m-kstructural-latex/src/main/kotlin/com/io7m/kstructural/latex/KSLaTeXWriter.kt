@@ -384,6 +384,8 @@ object KSLaTeXWriter : KSLaTeXWriterType {
     output : Writer,
     settings : KSLaTeXSettings) {
 
+    output.write("\n")
+    output.write("\\vspace{0.5cm}\n")
     output.write("\\begin{tabular}{")
 
     val columns : Int = if (e_curr.head.isPresent) {
@@ -400,11 +402,27 @@ object KSLaTeXWriter : KSLaTeXWriterType {
     for (i in 0 .. max) {
       output.write("l")
       if (i < max) {
-        output.write(" ")
+        output.write(" | ")
       }
     }
 
     output.write("}\n")
+    e_curr.head.ifPresent { head ->
+      val head_names_count = head.column_names.size
+      head.column_names.forEachIndexed { name_index, name ->
+        inlineContent(name.content, settings, output)
+        if (name_index < head_names_count - 1) {
+          output.write(" & ")
+        }
+      }
+      if (e_curr.body.rows.isEmpty()) {
+        output.write("\n")
+      } else {
+        output.write(" \\\\\n")
+      }
+      output.write("\\hline\n")
+    }
+
     val rows_count = e_curr.body.rows.size
     e_curr.body.rows.forEachIndexed { row_index, row ->
       val row_cells_count = row.cells.size
