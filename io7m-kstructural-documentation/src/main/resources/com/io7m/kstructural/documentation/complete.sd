@@ -1,0 +1,171 @@
+[part
+  [title Exhaustive Example]
+  [id exhaustive]
+  [section
+    [title Exhaustive Example]
+
+    [subsection
+      [title Overview]
+      [paragraph
+        This section represents an exhaustive example of every element available
+        in the [term [type package] structural] language. See the source code
+        listing [link-ext [target "complete.sd"] "[complete.sd]"].]]
+
+    [subsection
+      [title Footnotes]
+      [paragraph
+        This is a reference to a footnote [footnote-ref exhaustive.footnote].]
+      [footnote [id exhaustive.footnote]
+        This is the footnote content.]]
+
+    [subsection
+      [title Images]
+      [paragraph
+        This paragraph contains an image:
+        [image [target "strawberry.png"] A strawberry.]]]
+
+    [subsection
+      [title Links]
+      [paragraph
+        This is an [link [target exhaustive.target] internal link].
+        This is an [link-ext [target "http://io7m.com"] external link].]]
+
+    [subsection
+      [title Lists]
+      [paragraph
+        An unordered list contained within this paragraph as inline content:
+        [list-unordered
+          [item One]
+          [item Two]
+          [item Three]]]
+      [paragraph
+        An ordered list contained within this paragraph as inline content:
+        [list-ordered
+          [item One]
+          [item Two]
+          [item Three]]]]
+
+    [subsection
+      [title Nested Lists]
+      [paragraph
+        A nested unordered list contained within this paragraph as inline content:
+        [list-unordered
+          [item
+            [list-unordered
+              [item One]
+              [item Two]
+              [item Three]]]
+          [item
+            [list-unordered
+              [item One]
+              [item Two]
+              [item Three]]]
+          [item
+            [list-unordered
+              [item One]
+              [item Two]
+              [item Three]]]]]
+      [paragraph
+        A nested ordered list contained within this paragraph as inline content:
+        [list-ordered
+          [item
+            [list-ordered
+              [item One]
+              [item Two]
+              [item Three]]]
+          [item
+            [list-ordered
+              [item One]
+              [item Two]
+              [item Three]]]
+          [item
+            [list-ordered
+              [item One]
+              [item Two]
+              [item Three]]]]]]
+
+    [subsection
+      [title Table]
+      [paragraph
+        The paragraph contains a simple 3x3 table with a head:
+        [table
+          [summary A 3x3 table]
+          [type example_3x3]
+          [head
+            [name One]
+            [name Two]
+            [name Three]]
+          [body
+            [row
+              [cell Top Left]
+              [cell Top Middle]
+              [cell Top Right]]
+            [row
+              [cell Middle Left]
+              [cell Middle Middle]
+              [cell Middle Right]]
+            [row
+              [cell Bottom Left]
+              [cell Bottom Middle]
+              [cell Bottom Right]]]]]]
+
+    [subsection
+      [title Table "(Headless)"]
+      [paragraph
+        The paragraph contains a simple 3x3 table without a head:
+        [table
+          [summary A 3x3 table]
+          [type example_3x3]
+          [body
+            [row
+              [cell Top Left]
+              [cell Top Middle]
+              [cell Top Right]]
+            [row
+              [cell Middle Left]
+              [cell Middle Middle]
+              [cell Middle Right]]
+            [row
+              [cell Bottom Left]
+              [cell Bottom Middle]
+              [cell Bottom Right]]]]]]
+
+    [subsection
+      [title Table "(Mixed)"]
+      [paragraph
+        The paragraph contains a table with differently sized rows:
+        [table
+          [summary A 3x3 table]
+          [type example_3x3]
+          [body
+            [row
+              [cell Top One]
+              [cell Top Two]]
+            [row
+              [cell Middle One]
+              [cell Middle Two]
+              [cell Middle Three]]
+            [row
+              [cell Bottom One]]]]]]
+
+    [subsection
+      [title Term]
+      [paragraph
+        This paragraph contains a selection of terms:
+        [term [type monospace] mono], [term [type bold] bold],
+        [term [type italic] italic].]]
+
+    [subsection
+      [title Verbatim]
+      [paragraph
+        This paragraph contains verbatim text: [verbatim "This is verbatim text."]]]
+
+    [subsection
+      [title Target]
+      [id exhaustive.target]
+      [paragraph
+        This subsection is the target of an earlier link.]]]
+
+    ]
+  ]
+]

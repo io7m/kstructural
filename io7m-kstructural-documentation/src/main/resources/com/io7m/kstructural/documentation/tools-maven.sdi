@@ -12,6 +12,5 @@ documentation during the build. The goal has the exact same behaviour as
 the command-line subcommand, so the command line documentation should be
 consulted for information on the behaviour of the parameters.
 
-[subsection [title Example]]
-[paragraph]
-[verbatim [type terminal] [include "maven-example.xml"]]
+[formal-item [title Maven Plugin Example]]
+[verbatim [include "maven-example.xml"]]

@@ -53,6 +53,27 @@
   overflow:       auto;
 }
 
+.monospace
+{
+  font-family: monospace;
+}
+.italic
+{
+  font-style: italic;
+}
+.bold
+{
+  font-weight: bold;
+}
+
+.example_3x3 td,
+.example_3x3 th
+{
+  padding-right: 3.0em;
+  font-family:   monospace;
+  font-size:     9pt;
+}
+
 .comparison_yes
 {
   background-color: #ccffcc;

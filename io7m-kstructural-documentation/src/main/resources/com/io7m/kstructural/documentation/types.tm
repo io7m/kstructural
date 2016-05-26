@@ -1,0 +1,10 @@
+bold       : bold
+command    : mono
+expression : mono
+file       : mono
+function   : mono
+italic     : italic
+monospace  : mono
+package    : mono
+term       : italic
+type       : mono

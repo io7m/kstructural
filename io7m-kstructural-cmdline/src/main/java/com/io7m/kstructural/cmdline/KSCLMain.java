@@ -26,17 +26,25 @@ import com.io7m.jnull.NullCheck;
 import com.io7m.kstructural.frontend.KSBrandAppender;
 import com.io7m.kstructural.frontend.KSInputFormat;
 import com.io7m.kstructural.frontend.KSOpCheck;
+import com.io7m.kstructural.frontend.KSOpCompileLaTeX;
 import com.io7m.kstructural.frontend.KSOpCompileXHTML;
 import com.io7m.kstructural.frontend.KSOpConvert;
 import com.io7m.kstructural.frontend.KSOpType;
+import com.io7m.kstructural.latex.KSLaTeXEmphasis;
+import com.io7m.kstructural.latex.KSLaTeXSettings;
+import com.io7m.kstructural.latex.KSLaTeXTypeMap;
 import com.io7m.kstructural.xom.KSXOMSettings;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,17 +75,20 @@ public final class KSCLMain implements Runnable
     final CommandRoot r = new CommandRoot();
     final CommandCheck check = new CommandCheck();
     final CommandCompileXHTML comp_xhtml = new CommandCompileXHTML();
+    final CommandCompileLaTeX comp_latex = new CommandCompileLaTeX();
     final CommandConvert convert = new CommandConvert();
 
     this.commands = new HashMap<>(8);
     this.commands.put("check", check);
     this.commands.put("compile-xhtml", comp_xhtml);
+    this.commands.put("compile-latex", comp_latex);
     this.commands.put("convert", convert);
 
     this.commander = new JCommander(r);
     this.commander.setProgramName("kstructural");
     this.commander.addCommand("check", check);
     this.commander.addCommand("compile-xhtml", comp_xhtml);
+    this.commander.addCommand("compile-latex", comp_latex);
     this.commander.addCommand("convert", convert);
   }
 
@@ -293,6 +304,60 @@ public final class KSCLMain implements Runnable
           s,
           this.pagination,
           this.css_create_default);
+      return op.call();
+    }
+  }
+
+  @Parameters(
+    commandDescription = "Compile documents to LaTeX")
+  private final class CommandCompileLaTeX extends CommandRoot
+  {
+    @Parameter(
+      names = "-file",
+      description = "Input file",
+      required = true)
+    private String file;
+
+    @Parameter(
+      names = "-output-dir",
+      description = "The directory in which output files will be written",
+      required = true)
+    private String output;
+
+    @Parameter(
+      names = "-type-map",
+      description = "A file containing type name to LaTeX emphasis mappings",
+      required = false)
+    private String type_map;
+
+    CommandCompileLaTeX()
+    {
+
+    }
+
+    @Override
+    public Unit call()
+      throws Exception
+    {
+      super.call();
+
+      final FileSystem fs = FileSystems.getDefault();
+      final Path input_path = fs.getPath(this.file);
+      final Path output_path = fs.getPath(this.output);
+
+      final Map<String, KSLaTeXEmphasis> types;
+      if (this.type_map != null) {
+        final Path type_map_path = Paths.get(this.type_map);
+        try (final InputStream is = Files.newInputStream(type_map_path)) {
+          types = KSLaTeXTypeMap.fromStream(type_map_path, is);
+        }
+      } else {
+        types = Collections.emptyMap();
+      }
+
+      final KSLaTeXSettings settings = new KSLaTeXSettings(types);
+      final KSOpType op =
+        KSOpCompileLaTeX.create(input_path, output_path, settings);
       return op.call();
     }
   }
