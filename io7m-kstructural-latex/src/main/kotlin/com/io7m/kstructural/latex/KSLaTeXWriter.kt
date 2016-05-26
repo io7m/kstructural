@@ -59,6 +59,7 @@ object KSLaTeXWriter : KSLaTeXWriterType {
 
     output.write("\\documentclass[twoside,11pt]{book}\n")
     output.write("\n")
+    output.write("\\usepackage{graphicx}\n")
     output.write("\\usepackage[utf8]{inputenc}\n")
     output.write("\\usepackage[margin=1in]{geometry}\n")
     output.write("\\usepackage{hyperref}\n")
@@ -271,12 +272,13 @@ object KSLaTeXWriter : KSLaTeXWriterType {
         }
 
         is KSInlineImage             -> {
-          throw UnimplementedCodeException()
+          output.write("\\includegraphics{")
+          output.write(e_curr.target.toString())
+          output.write("}")
         }
 
         is KSInlineTable             -> {
           output.write("\\textbf{TABLE OMITTED}\n")
-          output.flush()
         }
 
         is KSInlineFootnoteReference -> {

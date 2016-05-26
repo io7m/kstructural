@@ -1,4 +1,5 @@
 [document [title ${project.parent.name} ${project.version} Documentation]
   [import "pkg.sdi"]
   [import "tutorial.sdi"]
+  [import "complete.sd"]
   [import "tools.sdi"]]
