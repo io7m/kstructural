@@ -10,11 +10,11 @@
     <artifactId>io7m-kstructural</artifactId>
     <version>0.1.0</version>
   </parent>
-  <artifactId>io7m-kstructural-frontend</artifactId>
+  <artifactId>io7m-kstructural-latex</artifactId>
 
   <packaging>jar</packaging>
-  <name>io7m-kstructural-frontend</name>
-  <description>Kotlin implementation of the structural document language (Frontend)</description>
+  <name>io7m-kstructural-latex</name>
+  <description>Kotlin implementation of the structural document language (LaTeX backend)</description>
   <url>http://io7m.github.io/kstructural/</url>
 
   <scm>
@@ -29,34 +29,18 @@
       <artifactId>io7m-kstructural-core</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>io7m-kstructural-latex</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>io7m-kstructural-xom</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>io7m-kstructural-parser</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>io7m-kstructural-pretty</artifactId>
-      <version>${project.version}</version>
-    </dependency>
 
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-stdlib</artifactId>
     </dependency>
     <dependency>
       <groupId>org.valid4j</groupId>
       <artifactId>valid4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
 
     <dependency>
@@ -69,17 +53,26 @@
       <artifactId>quickcheck</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>io7m-kstructural-parser</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
+    <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+
     <plugins>
-      <!-- Check style -->
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <configuration>
-          <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
-        </configuration>
+        <artifactId>kotlin-maven-plugin</artifactId>
+        <groupId>org.jetbrains.kotlin</groupId>
       </plugin>
     </plugins>
   </build>

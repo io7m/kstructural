@@ -9,7 +9,7 @@ The [term [type command] kstructural] command processes
 The command line tool is distributed as part of the executable
 [term [type file] "${project.parent.name}-cmdline-${project.version}-main.jar"]
 file "(referred" to as [term [type command] "kstructural.jar"] in usage examples,
-for "brevity)":
+for "brevity):"
 
 [paragraph]
 [verbatim [type terminal] "$ java -jar ${project.parent.name}-cmdline-${project.version}-main.jar"]
@@ -18,14 +18,15 @@ for "brevity)":
 [paragraph]
 The [term [type command] check] subcommand parses and validates the given
 document.
-[paragraph]
-[verbatim [type terminal] [include "gen/cmdline-usage-check.txt"]]
+
+[formal-item [title Check Subcommand]]
+[verbatim [include "gen/cmdline-usage-check.txt"]]
 
 [paragraph]
 The command exits with code [term [type constant] 0] if no errors occurred,
 and a positive exit code otherwise.
 
-[formal-item [title Example]]
+[formal-item [title Checking Example]]
 [verbatim "
 $ java -jar kstructural.jar check -file valid.sd
 $ echo $?
@@ -43,7 +44,7 @@ $ echo $?
 The [term [type command] compile-xhtml] subcommand parses and validates the given
 document, and then generates XHTML pages based on the content.
 
-[paragraph]
+[formal-item [title XHTML Compilation Subcommand]]
 [verbatim [type terminal] [include "gen/cmdline-usage-compile-xhtml.txt"]]
 
 [paragraph [id tools.cmdline.compile_xhtml.brand_bottom]]
@@ -106,7 +107,7 @@ desired.
 The command exits with code [term [type constant] 0] if no errors occurred,
 and a positive exit code otherwise.
 
-[formal-item [title Example]]
+[formal-item [title XHTML Compilation Example]]
 [verbatim "
 $ java -jar kstructural.jar compile-xhtml -file valid.sd -output-dir /tmp
 $ echo $?
@@ -127,14 +128,14 @@ The [term [type command] convert] subcommand parses and validates the given
 document, and then converts it to one of the supported
 [term [type package] structural] formats.
 
-[paragraph]
-[verbatim [type terminal] [include "gen/cmdline-usage-convert.txt"]]
+[formal-item [title Convert Subcommand]]
+[verbatim [include "gen/cmdline-usage-convert.txt"]]
 
 [paragraph]
 The command exits with code [term [type constant] 0] if no errors occurred,
 and a positive exit code otherwise.
 
-[formal-item [title Example]]
+[formal-item [title Conversion Example]]
 [verbatim "
 $ cat valid.sd
 [document
@@ -160,3 +161,4 @@ $ cat /tmp/main.sdi
 [paragraph]
 A paragraph
 "]
+

@@ -20,6 +20,7 @@
     <module>io7m-kstructural-core</module>
     <module>io7m-kstructural-documentation</module>
     <module>io7m-kstructural-frontend</module>
+    <module>io7m-kstructural-latex</module>
     <module>io7m-kstructural-maven-plugin</module>
     <module>io7m-kstructural-parser</module>
     <module>io7m-kstructural-pretty</module>
