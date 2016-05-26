@@ -16,7 +16,6 @@
 
 package com.io7m.kstructural.latex
 
-import com.io7m.junreachable.UnimplementedCodeException
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
@@ -278,7 +277,7 @@ object KSLaTeXWriter : KSLaTeXWriterType {
         }
 
         is KSInlineTable             -> {
-          output.write("\\textbf{TABLE OMITTED}\n")
+          inlineTable(e_curr, output, settings)
         }
 
         is KSInlineFootnoteReference -> {
@@ -378,6 +377,50 @@ object KSLaTeXWriter : KSLaTeXWriterType {
     }
 
     output.flush()
+  }
+
+  private fun inlineTable(
+    e_curr : KSInlineTable<KSEvaluation>,
+    output : Writer,
+    settings : KSLaTeXSettings) {
+
+    output.write("\\begin{tabular}{")
+
+    val columns : Int = if (e_curr.head.isPresent) {
+      e_curr.head.get().column_names.size
+    } else {
+      var count = 0
+      e_curr.body.rows.forEach { row ->
+        count = Math.max(row.cells.size, count)
+      }
+      count
+    }
+
+    val max = columns - 1
+    for (i in 0 .. max) {
+      output.write("l")
+      if (i < max) {
+        output.write(" ")
+      }
+    }
+
+    output.write("}\n")
+    val rows_count = e_curr.body.rows.size
+    e_curr.body.rows.forEachIndexed { row_index, row ->
+      val row_cells_count = row.cells.size
+      row.cells.forEachIndexed { cell_index, cell ->
+        inlineContent(cell.content, settings, output)
+        if (cell_index < row_cells_count - 1) {
+          output.write(" & ")
+        }
+      }
+      if (row_index < rows_count - 1) {
+        output.write(" \\\\\n")
+      } else {
+        output.write("\n")
+      }
+    }
+    output.write("\\end{tabular}\n")
   }
 
   private fun writeParagraph(

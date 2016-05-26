@@ -45,7 +45,7 @@ The [term [type command] compile-xhtml] subcommand parses and validates the give
 document, and then generates XHTML pages based on the content.
 
 [formal-item [title XHTML Compilation Subcommand]]
-[verbatim [type terminal] [include "gen/cmdline-usage-compile-xhtml.txt"]]
+[verbatim [include "gen/cmdline-usage-compile-xhtml.txt"]]
 
 [paragraph [id tools.cmdline.compile_xhtml.brand_bottom]]
 The [term [type command] -brand-bottom] option specifies an XML file that will

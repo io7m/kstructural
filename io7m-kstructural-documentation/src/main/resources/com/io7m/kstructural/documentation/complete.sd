@@ -87,7 +87,7 @@
     [subsection
       [title Table]
       [paragraph
-        The paragraph contains a simple 3x3 table:
+        The paragraph contains a simple 3x3 table with a head:
         [table
           [summary A 3x3 table]
           [type example_3x3]
@@ -108,6 +108,45 @@
               [cell Bottom Left]
               [cell Bottom Middle]
               [cell Bottom Right]]]]]]
+
+    [subsection
+      [title Table "(Headless)"]
+      [paragraph
+        The paragraph contains a simple 3x3 table without a head:
+        [table
+          [summary A 3x3 table]
+          [type example_3x3]
+          [body
+            [row
+              [cell Top Left]
+              [cell Top Middle]
+              [cell Top Right]]
+            [row
+              [cell Middle Left]
+              [cell Middle Middle]
+              [cell Middle Right]]
+            [row
+              [cell Bottom Left]
+              [cell Bottom Middle]
+              [cell Bottom Right]]]]]]
+
+    [subsection
+      [title Table "(Mixed)"]
+      [paragraph
+        The paragraph contains a table with differently sized rows:
+        [table
+          [summary A 3x3 table]
+          [type example_3x3]
+          [body
+            [row
+              [cell Top One]
+              [cell Top Two]]
+            [row
+              [cell Middle One]
+              [cell Middle Two]
+              [cell Middle Three]]
+            [row
+              [cell Bottom One]]]]]]
 
     [subsection
       [title Term]
