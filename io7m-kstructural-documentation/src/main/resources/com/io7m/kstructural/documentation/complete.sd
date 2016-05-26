@@ -25,6 +25,12 @@
         [image [target "strawberry.png"] A strawberry.]]]
 
     [subsection
+      [title Links]
+      [paragraph
+        This is an [link [target exhaustive.target] internal link].
+        This is an [link-ext [target "http://io7m.com"] external link].]]
+
+    [subsection
       [title Lists]
       [paragraph
         An unordered list contained within this paragraph as inline content:
@@ -104,8 +110,23 @@
               [cell Bottom Right]]]]]]
 
     [subsection
+      [title Term]
+      [paragraph
+        This paragraph contains a selection of terms:
+        [term [type monospace] mono], [term [type bold] bold],
+        [term [type italic] italic].]]
+
+    [subsection
       [title Verbatim]
       [paragraph
-        This paragraph contains verbatim text: [verbatim "This is verbatim text."]]]]
+        This paragraph contains verbatim text: [verbatim "This is verbatim text."]]]
+
+    [subsection
+      [title Target]
+      [id exhaustive.target]
+      [paragraph
+        This subsection is the target of an earlier link.]]]
+
+    ]
   ]
 ]
