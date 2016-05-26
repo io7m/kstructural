@@ -74,26 +74,27 @@
   font-size:     9pt;
 }
 
-.comparison_yes
+.comparison_good
 {
   background-color: #ccffcc;
 }
 
-.comparison_maybe
+.comparison_neutral
 {
   background-color: #ffffcc;
 }
 
-.comparison_no
+.comparison_bad
 {
   background-color: #ffcccc;
 }
 
 .comparison td, .comparison th
 {
-  padding-right: 3.0em;
-  font-family:   monospace;
-  font-size:     9pt;
+  padding-right:  1.0em;
+  font-family:    monospace;
+  font-size:      9pt;
+  vertical-align: top;
 }
 
 .dependencies table td

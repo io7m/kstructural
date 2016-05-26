@@ -62,6 +62,122 @@ exist.
 
 [subsection [title Comparison With Other Systems]]
 [paragraph]
+In the table below, [term [type term] Metadata] should be taken to mean that
+the language allows for expressing the semantic meaning of the contents of
+the documents, as opposed to just being a series of formatting commands.
+[term [type term] Semantic Simplicity] is a somewhat subjective "(but" somewhat
+"measurable)" judgement of how simple the conceptual model is of each language.
+[term [type term] Lightweight Syntax] is an indication of the ratio between
+markup and actual document content. For example, XML is notoriously verbose
+and the text of some documents can often consist more of XML elements than
+actual content. The term [term [type term] Specification] should be taken to
+mean that both the language has a complete formal specification of the syntax
+and the underlying semantic model, and that documents can be machine-checked
+against this specification. The important point is: For a given document, can
+a machine determine unambiguously whether or not a document is valid?
+This is critical for both for ensuring that documents remain accessible decades
+into the future, and for ensuring that different implementations of languages
+assign the same meaning to documents: If a language does not have a
+machine-checkable specification, then users of that language are
+locked into that implementation of the language perpetually. The term
+[term [type term] Portability] should be taken to mean that the language either
+has a platform-independent implementation, or implementations exist for multiple
+platforms [footnote-ref pkg.orientation.portability_note]. The term
+[term [type term] Modular Documents] should be taken to mean that a language
+provides a way to break documents into multiple files. Languages are assigned
+a value of [term [type term] Import] if they have a language-supported
+system that actually parses external files and performs substitutions into
+an abstract syntax tree. Languages are assigned a value of
+[term [type term] Include] if they only implement a simple-minded system akin
+to macro expansions or the C preprocessor "(where" the contents of external
+files are simply dumped verbatim into the current file and the whole mess is
+parsed as one "unit)."
+
+[formal-item [title Feature Comparison]]
+[table
+  [summary Comparison with other systems]
+  [type comparison]
+  [head
+    [name ]
+    [name structural]
+    [name DocBook]
+    [name Markdown]
+    [name Texinfo]
+    [name troff]
+    [name AsciiDoc]
+    [name reStructuredText]
+    [name LaTeX]
+  ]
+  [body
+    [row
+      [cell Metadata]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+    ]
+    [row
+      [cell Semantic Simplicity]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+    ]
+    [row
+      [cell Lightweight Syntax]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_neutral] Questionable]]
+    ]
+    [row
+      [cell Specification]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_neutral] Informal]]
+      [cell [term [type comparison_bad] No]]
+    ]
+    [row
+      [cell Portability]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_neutral] Maybe] [footnote-ref pkg.orientation.markdown_port]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_neutral] Maybe] [footnote-ref pkg.orientation.troff_unix]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+    ]
+    [row
+      [cell Modular Documents]
+      [cell [term [type comparison_good] Import]]
+      [cell [term [type comparison_good] Import]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_neutral] Include]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_neutral] Include]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_neutral] Include]]
+    ]
+]]
+
+[paragraph]
 The [link-ext [target "http://docbook.org"] DocBook] system is similar
 to [term [type package] structural] in that it allows for metadata within a
 document. DocBook, however, takes a different approach in that it defines
@@ -104,46 +220,9 @@ after two years, the compatible subset is still rather poorly specified and
 contains almost none of the features of any existing implementation such as
 footnotes and intra-document links [footnote-ref pkg.orientation.markdown_foot].
 
-[formal-item [title Feature Comparison]]
-[table
-  [summary Comparison with other systems]
-  [type comparison]
-  [head
-    [name ]
-    [name structural]
-    [name DocBook]
-    [name Markdown]]
-  [body
-    [row
-      [cell Metadata]
-      [cell [term [type comparison_yes] Yes]]
-      [cell [term [type comparison_yes] Yes]]
-      [cell [term [type comparison_no] No]]]
-    [row
-      [cell Semantic Simplicity]
-      [cell [term [type comparison_yes] Yes]]
-      [cell [term [type comparison_no] No]]
-      [cell [term [type comparison_yes] Yes]]]
-    [row
-      [cell Lightweight Syntax]
-      [cell [term [type comparison_yes] Yes]]
-      [cell [term [type comparison_no] No]]
-      [cell [term [type comparison_yes] Yes]]]
-    [row
-      [cell Well-Specified]
-      [cell [term [type comparison_yes] Yes]]
-      [cell [term [type comparison_yes] Yes]]
-      [cell [term [type comparison_no] No]]]
-    [row
-      [cell Portability]
-      [cell [term [type comparison_yes] Yes]]
-      [cell [term [type comparison_yes] Yes]]
-      [cell [term [type comparison_maybe] Maybe] [footnote-ref pkg.orientation.markdown_port]]]
-    [row
-      [cell Modular Documents]
-      [cell [term [type comparison_yes] Yes]]
-      [cell [term [type comparison_yes] Yes]]
-      [cell [term [type comparison_no] No]]]]]
+[footnote [id pkg.orientation.portability_note]]
+This again assumes the existence of an unambiguous formal specifications so that
+multiple interoperable implementations can actually exist!
 
 [footnote [id pkg.orientation.markdown_foot]]
 Users of Markdown are resigned to the fact that they are writing documents in
@@ -153,6 +232,10 @@ alternative. This is an incredibly poor long-term strategy.
 [footnote [id pkg.orientation.markdown_port]]
 There are Markdown implementations for most languages. However, there may not
 be an implementation that supports the specific dialect the author has used.
+
+[footnote [id pkg.orientation.troff_unix]]
+Being a traditional UNIX tool, the [term [type command] troff] is unlikely to be
+pleasant to use outside of UNIX.
 
 [footnote [id pkg.orientation.import_xml]]
 Although elements written in the XML format cannot import non-XML elements due
