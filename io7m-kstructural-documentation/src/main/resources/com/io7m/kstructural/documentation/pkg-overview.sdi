@@ -67,6 +67,10 @@ the language allows for expressing the semantic meaning of the contents of
 the documents, as opposed to just being a series of formatting commands.
 [term [type term] Semantic Simplicity] is a somewhat subjective "(but" somewhat
 "measurable)" judgement of how simple the conceptual model is of each language.
+An excellent way to measure this aspect of a language is to attempt to come
+up with a definition of an algebraic type that is able to represent a parsed
+and validated document in the given language
+[footnote-ref pkg.orientation.semantic_latex_note].
 [term [type term] Lightweight Syntax] is an indication of the ratio between
 markup and actual document content. For example, XML is notoriously verbose
 and the text of some documents can often consist more of XML elements than
@@ -79,7 +83,10 @@ This is critical for both for ensuring that documents remain accessible decades
 into the future, and for ensuring that different implementations of languages
 assign the same meaning to documents: If a language does not have a
 machine-checkable specification, then users of that language are
-locked into that implementation of the language perpetually. The term
+locked into that implementation of the language perpetually. Languages are
+assigned a value of [term [type term] Informal] if they have at least made an
+attempt at a complete specification even if the specification is ambiguous,
+unimplementable, and/or does not provide any means to check documents. The term
 [term [type term] Portability] should be taken to mean that the language either
 has a platform-independent implementation, or implementations exist for multiple
 platforms [footnote-ref pkg.orientation.portability_note]. The term
@@ -124,7 +131,7 @@ parsed as one "unit)."
       [cell Semantic Simplicity]
       [cell [term [type comparison_good] Yes]]
       [cell [term [type comparison_bad] No]]
-      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_neutral] Maybe] [footnote-ref pkg.orientation.markdown_semantic]]
       [cell [term [type comparison_bad] No]]
       [cell [term [type comparison_bad] No]]
       [cell [term [type comparison_bad] No]]
@@ -146,7 +153,7 @@ parsed as one "unit)."
       [cell Specification]
       [cell [term [type comparison_good] Yes]]
       [cell [term [type comparison_good] Yes]]
-      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_neutral] Informal]]
       [cell [term [type comparison_bad] No]]
       [cell [term [type comparison_bad] No]]
       [cell [term [type comparison_bad] No]]
@@ -177,7 +184,7 @@ parsed as one "unit)."
     ]
 ]]
 
-[paragraph]
+[paragraph [id pkg.orientation.docbook]]
 The [link-ext [target "http://docbook.org"] DocBook] system is similar
 to [term [type package] structural] in that it allows for metadata within a
 document. DocBook, however, takes a different approach in that it defines
@@ -201,7 +208,7 @@ can be an exercise in physical stamina. XML is notorious for being syntactically
 heavyweight and really requires editor support to avoid causing repetitive
 strain injury.
 
-[paragraph]
+[paragraph [id pkg.orientation.markdown]]
 [link-ext [target "http://daringfireball.net/projects/markdown/"] Markdown] was
 originally designed as a trivial text format intended for quick conversion to
 HTML. Additionally, Markdown is intended to be readable without processing.
@@ -220,6 +227,58 @@ after two years, the compatible subset is still rather poorly specified and
 contains almost none of the features of any existing implementation such as
 footnotes and intra-document links [footnote-ref pkg.orientation.markdown_foot].
 
+[paragraph [id pkg.orientation.texinfo]]
+[link-ext [target "https://www.gnu.org/software/texinfo/texinfo.html"] GNU Texinfo]
+is a typesetting system similar to [link [target pkg.orientation.latex] LaTeX]
+and has all of the same advantages and flaws as that system.
+
+[paragraph [id pkg.orientation.troff]]
+[link-ext [target "https://www.gnu.org/software/groff/"] troff] is a somewhat
+archaic UNIX typesetting tool primarily used to construct manual pages. Due
+to being a macro-based typesetting system "(albeit" a drastically simpler
+"one)," it suffers from most of the same disadvantages as
+[link [target pkg.orientation.latex] LaTeX]. The syntax, however, is extremely
+lightweight and easy to parse.
+
+[paragraph [id pkg.orientation.latex]]
+[link-ext [target "https://latex-project.org/"] LaTeX] is a set of macros for
+the [link-ext [target "http://tug.org/"] TeX] typesetting system. While it
+produces very aesthetically pleasing output and has moderately lightweight
+syntax, it suffers from an excruciatingly error-prone document authoring
+workflow due to its macro-based nature. The user is forced to manage the state
+of an enormous imperative typesetting engine, error messages are
+incomprehensible at best and typically contain layers of elements that have
+appeared from inside expanded macros. Users are forced to use external packages
+of macros to get support for basic features such as images, and due to the
+complete lack of a type system or indeed any kind of module system at all,
+packages can and do break when combined in unexpected ways. The language has
+no specification, and an [term [type term] include]-based system for modular
+documents "(made" extremely dangerous by the presence of the global state
+"machine)." The [term [type package] kstructural] implementation of the
+[term [type package] structural] language currently contains support for
+producing LaTeX code. This protects users from having to have anything to do
+with the LaTeX or TeX system directly.
+
+[paragraph [id pkg.orientation.asciidoc]]
+[link-ext [target "http://www.methods.co.nz/asciidoc/"] AsciiDoc] is a
+Python-based text document format. It has all of the advantages and disadvantages
+of a [link [target pkg.orientation.markdown] Markdown] based system but supports
+a drastically larger feature set than most Markdown implementations. It also
+contains an [link-ext [target "http://www.methods.co.nz/asciidoc/chunked/apc.html"] insecure-by-default]
+mode of operation that makes evaluating arbitrary documents a risky proposition.
+It has no specification.
+
+[paragraph [id pkg.orientation.restructuredtext]]
+[link-ext [target "http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html"] reStructuredText] is a
+text document format in the style of [link [target pkg.orientation.asciidoc] AsciiDoc].
+It has the same advantages and disadvantages as both AsciiDoc and Markdown. It
+has what appears to be a fairly complete informal specification, but does not
+have any way to determine if a given document is valid or not.
+
+[footnote [id pkg.orientation.semantic_latex_note]]
+Doing this for an imperative state machine such as LaTeX could easily become
+a research-level project.
+
 [footnote [id pkg.orientation.portability_note]]
 This again assumes the existence of an unambiguous formal specifications so that
 multiple interoperable implementations can actually exist!
@@ -228,6 +287,10 @@ multiple interoperable implementations can actually exist!
 Users of Markdown are resigned to the fact that they are writing documents in
 an implementation-specific dialect of Markdown because there is no other
 alternative. This is an incredibly poor long-term strategy.
+
+[footnote [id pkg.orientation.markdown_semantic]]
+The [term [type package] CommonMark] specification has a simple semantic model
+due to including almost nothing.
 
 [footnote [id pkg.orientation.markdown_port]]
 There are Markdown implementations for most languages. However, there may not
