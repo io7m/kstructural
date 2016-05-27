@@ -41,6 +41,7 @@ import org.junit.Test
 import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
 import java.nio.file.Files
+import java.nio.file.Paths
 
 abstract class KSImperativeParserContract {
 
@@ -60,20 +61,22 @@ abstract class KSImperativeParserContract {
 
   protected fun defaultFile() = filesystem!!.getPath("file.txt")
 
+  private fun defaultContext() = KSParseContext.empty(Paths.get(""))
+
   data class Parser(
     val p : KSImperativeParserType,
     val s : () -> KSExpression)
 
   @Test fun testInlineError() {
     val pp = newParserForString("[nonexistent]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSFailure
   }
 
   @Test fun testInlineSymbol() {
     val pp = newParserForString("x")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeInline, KSParseError>
     val er = e.result.value as KSInlineText
@@ -83,7 +86,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testInlineQuoted() {
     val pp = newParserForString("\"x\"")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeInline, KSParseError>
     val er = e.result.value as KSInlineText
@@ -93,7 +96,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testPara() {
     val pp = newParserForString("[paragraph]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeParagraph, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
@@ -102,14 +105,14 @@ abstract class KSImperativeParserContract {
 
   @Test fun testParaError() {
     val pp = newParserForString("[paragraph x]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSFailure
   }
 
   @Test fun testParaID() {
     val pp = newParserForString("[paragraph [id x]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeParagraph, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -119,7 +122,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testParaIDType() {
     val pp = newParserForString("[paragraph [id x] [type t]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeParagraph, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -129,7 +132,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testParaTypeID() {
     val pp = newParserForString("[paragraph [type t] [id x]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeParagraph, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -139,7 +142,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testParaType() {
     val pp = newParserForString("[paragraph [type t]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeParagraph, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
@@ -148,7 +151,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testPart() {
     val pp = newParserForString("[part [title ttt]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativePart, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
@@ -158,14 +161,14 @@ abstract class KSImperativeParserContract {
 
   @Test fun testPartError() {
     val pp = newParserForString("[part x]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSFailure
   }
 
   @Test fun testPartID() {
     val pp = newParserForString("[part [title ttt] [id x]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativePart, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -176,7 +179,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testPartIDType() {
     val pp = newParserForString("[part [title ttt] [id x] [type t]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativePart, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -187,7 +190,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testPartTypeID() {
     val pp = newParserForString("[part [title ttt] [type t] [id x]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativePart, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -198,7 +201,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testPartType() {
     val pp = newParserForString("[part [title ttt] [type t]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativePart, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
@@ -208,7 +211,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testSection() {
     val pp = newParserForString("[section [title ttt]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeSection, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
@@ -218,14 +221,14 @@ abstract class KSImperativeParserContract {
 
   @Test fun testSectionError() {
     val pp = newParserForString("[section x]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSFailure
   }
 
   @Test fun testSectionID() {
     val pp = newParserForString("[section [title ttt] [id x]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeSection, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -236,7 +239,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testSectionIDType() {
     val pp = newParserForString("[section [title ttt] [id x] [type t]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeSection, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -247,7 +250,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testSectionTypeID() {
     val pp = newParserForString("[section [title ttt] [type t] [id x]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeSection, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -258,7 +261,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testSectionType() {
     val pp = newParserForString("[section [title ttt] [type t]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeSection, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
@@ -269,7 +272,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testFormalItem() {
     val pp = newParserForString("[formal-item [title ttt]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeFormalItem, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
@@ -279,14 +282,14 @@ abstract class KSImperativeParserContract {
 
   @Test fun testFormalItemError() {
     val pp = newParserForString("[formal-item x]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSFailure
   }
 
   @Test fun testFormalItemID() {
     val pp = newParserForString("[formal-item [title ttt] [id x]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeFormalItem, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -297,7 +300,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testFormalItemIDType() {
     val pp = newParserForString("[formal-item [title ttt] [id x] [type t]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeFormalItem, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -308,7 +311,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testFormalItemTypeID() {
     val pp = newParserForString("[formal-item [title ttt] [type t] [id x]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeFormalItem, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -319,7 +322,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testFormalItemType() {
     val pp = newParserForString("[formal-item [title ttt] [type t]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeFormalItem, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
@@ -330,7 +333,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testSubsection() {
     val pp = newParserForString("[subsection [title ttt]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeSubsection, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
@@ -340,14 +343,14 @@ abstract class KSImperativeParserContract {
 
   @Test fun testSubsectionError() {
     val pp = newParserForString("[subsection x]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSFailure
   }
 
   @Test fun testSubsectionID() {
     val pp = newParserForString("[subsection [title ttt] [id x]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeSubsection, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -358,7 +361,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testSubsectionIDType() {
     val pp = newParserForString("[subsection [title ttt] [id x] [type t]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeSubsection, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -369,7 +372,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testSubsectionTypeID() {
     val pp = newParserForString("[subsection [title ttt] [type t] [id x]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeSubsection, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -380,7 +383,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testSubsectionType() {
     val pp = newParserForString("[subsection [title ttt] [type t]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeSubsection, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
@@ -390,14 +393,14 @@ abstract class KSImperativeParserContract {
 
   @Test fun testFootnoteError() {
     val pp = newParserForString("[footnote x]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSFailure
   }
 
   @Test fun testFootnoteID() {
     val pp = newParserForString("[footnote [id x]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeFootnote, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -407,7 +410,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testFootnoteIDType() {
     val pp = newParserForString("[footnote [id x] [type t]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeFootnote, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -417,7 +420,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testDocument() {
     val pp = newParserForString("[document [title ttt]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeDocument, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
@@ -427,14 +430,14 @@ abstract class KSImperativeParserContract {
 
   @Test fun testDocumentError() {
     val pp = newParserForString("[document x]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSFailure
   }
 
   @Test fun testDocumentID() {
     val pp = newParserForString("[document [title ttt] [id x]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeDocument, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -445,7 +448,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testDocumentIDType() {
     val pp = newParserForString("[document [title ttt] [id x] [type t]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeDocument, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -456,7 +459,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testDocumentTypeID() {
     val pp = newParserForString("[document [title ttt] [type t] [id x]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeDocument, KSParseError>
     Assert.assertTrue(e.result.id.isPresent)
@@ -467,7 +470,7 @@ abstract class KSImperativeParserContract {
 
   @Test fun testDocumentType() {
     val pp = newParserForString("[document [title ttt] [type t]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeDocument, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
@@ -477,14 +480,14 @@ abstract class KSImperativeParserContract {
 
   @Test fun testImportErrorNonexistent() {
     val pp = newParserForString("[import \"nonexistent.txt\"]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSFailure
   }
 
   @Test fun testImportErrorParse() {
     val pp = newParserForString("[import [q]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSFailure
   }
@@ -495,7 +498,7 @@ abstract class KSImperativeParserContract {
     }
 
     val pp = newParserForString("[import \"other.txt\"]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSImperativeImport, KSParseError>
     Assert.assertFalse(e.result.id.isPresent)
@@ -505,14 +508,14 @@ abstract class KSImperativeParserContract {
 
   @Test fun testInvalidIDError() {
     val pp = newParserForString("[paragraph [id -]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSFailure
   }
 
   @Test fun testInvalidTypeError() {
     val pp = newParserForString("[paragraph [type -]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSFailure
   }

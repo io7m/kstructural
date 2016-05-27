@@ -27,17 +27,17 @@ import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSParserConstructorType
-import com.io7m.kstructural.core.KSParserType
+import com.io7m.kstructural.core.KSParserDriverConstructorType
+import com.io7m.kstructural.core.KSParserDriverType
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
 import com.io7m.kstructural.core.evaluator.KSEvaluator
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpressionParsers
+import com.io7m.kstructural.parser.KSIncluder
 import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.canon.KSCanonInlineParser
-import com.io7m.kstructural.tests.KSTestIO
 import com.io7m.kstructural.xom.KSXOMSettings
 import com.io7m.kstructural.xom.KSXOMXHTMLMultiWriter
 import nu.xom.Serializer
@@ -80,16 +80,16 @@ object KSXOMXHTMLMultiWriterDemo {
     val pc = pcb.build()
     val p = JSXParser.newParser(pc, lex)
 
-    val ip = KSCanonInlineParser.create(KSTestIO.utf8_includer)
-    val importers = object : KSParserConstructorType {
+    val ip = KSCanonInlineParser.create(KSIncluder.create(path.parent))
+    val importers = object : KSParserDriverConstructorType {
       override fun create(
         context : KSParseContextType,
         file : Path)
-        : KSParserType {
+        : KSParserDriverType {
 
         LOG.trace("instantiating parser for {}", file)
         val iis = this
-        return object : KSParserType {
+        return object : KSParserDriverType {
           override fun parseBlock(
             context : KSParseContextType,
             file : Path)
@@ -110,7 +110,7 @@ object KSXOMXHTMLMultiWriterDemo {
     val bp = KSCanonBlockParser.create(ip, importers)
     val e_opt = p.parseExpressionOrEOF()
     if (e_opt.isPresent) {
-      val pcontext = KSParseContext.empty()
+      val pcontext = KSParseContext.empty(path.parent)
       val ee = KSExpression.of(e_opt.get())
       val r = bp.parse(pcontext, ee, path)
       when (r) {

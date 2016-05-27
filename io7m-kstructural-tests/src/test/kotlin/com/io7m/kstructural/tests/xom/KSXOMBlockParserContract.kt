@@ -37,6 +37,7 @@ import com.io7m.kstructural.xom.KSXOMBlockParserType
 import nu.xom.Element
 import org.junit.Assert
 import org.junit.Test
+import java.nio.file.Paths
 
 abstract class KSXOMBlockParserContract {
 
@@ -46,11 +47,14 @@ abstract class KSXOMBlockParserContract {
 
   val NAMESPACE = KSSchemaNamespaces.NAMESPACE_URI_TEXT
 
+  private fun defaultContext() =
+    KSParseContext.empty(Paths.get(""))
+
   @Test
   fun testParagraphInvalidID() {
     val n = parseXML("""<s:paragraph xmlns:s="${NAMESPACE}" xml:id="-">x y z</s:paragraph>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSFailure
@@ -60,7 +64,7 @@ abstract class KSXOMBlockParserContract {
   fun testParagraphInvalidType() {
     val n = parseXML("""<s:paragraph xmlns:s="${NAMESPACE}" s:type="-" xml:id="-">x y z</s:paragraph>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSFailure
@@ -70,7 +74,7 @@ abstract class KSXOMBlockParserContract {
   fun testParagraph() {
     val n = parseXML("""<s:paragraph xmlns:s="${NAMESPACE}">x y z</s:paragraph>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
@@ -87,7 +91,7 @@ abstract class KSXOMBlockParserContract {
   fun testParagraphType() {
     val n = parseXML("""<s:paragraph s:type="t" xmlns:s="${NAMESPACE}">x y z</s:paragraph>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
@@ -104,7 +108,7 @@ abstract class KSXOMBlockParserContract {
   fun testParagraphTypeID() {
     val n = parseXML("""<s:paragraph xml:id="x" s:type="t" xmlns:s="${NAMESPACE}">x y z</s:paragraph>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
@@ -121,7 +125,7 @@ abstract class KSXOMBlockParserContract {
   fun testFormalItem() {
     val n = parseXML("""<s:formal-item s:title="F" xmlns:s="${NAMESPACE}">x y z</s:formal-item>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockFormalItem<KSParse>, KSParseError>
@@ -139,7 +143,7 @@ abstract class KSXOMBlockParserContract {
   fun testFormalItemType() {
     val n = parseXML("""<s:formal-item s:title="F" s:type="t" xmlns:s="${NAMESPACE}">x y z</s:formal-item>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockFormalItem<KSParse>, KSParseError>
@@ -157,7 +161,7 @@ abstract class KSXOMBlockParserContract {
   fun testFormalItemTypeID() {
     val n = parseXML("""<s:formal-item s:title="F" xml:id="x" s:type="t" xmlns:s="${NAMESPACE}">x y z</s:formal-item>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockFormalItem<KSParse>, KSParseError>
@@ -175,7 +179,7 @@ abstract class KSXOMBlockParserContract {
   fun testFootnote() {
     val n = parseXML("""<s:footnote xml:id="x" xmlns:s="${NAMESPACE}">x y z</s:footnote>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockFootnote<KSParse>, KSParseError>
@@ -192,7 +196,7 @@ abstract class KSXOMBlockParserContract {
   fun testFootnoteInvalidId() {
     val n = parseXML("""<s:footnote xml:id="-" xmlns:s="${NAMESPACE}">x y z</s:footnote>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSFailure
@@ -202,7 +206,7 @@ abstract class KSXOMBlockParserContract {
   fun testFootnoteTypeID() {
     val n = parseXML("""<s:footnote xml:id="x" s:type="t" xmlns:s="${NAMESPACE}">x y z</s:footnote>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockFootnote<KSParse>, KSParseError>
@@ -219,7 +223,7 @@ abstract class KSXOMBlockParserContract {
   fun testSection() {
     val n = parseXML("""<s:section s:title="S" xmlns:s="${NAMESPACE}"></s:section>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockSection<KSParse>, KSParseError>
@@ -233,7 +237,7 @@ abstract class KSXOMBlockParserContract {
   fun testSectionErrorContent() {
     val n = parseXML("""<s:section s:title="S" xmlns:s="${NAMESPACE}"><s:term/></s:section>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSFailure
@@ -243,7 +247,7 @@ abstract class KSXOMBlockParserContract {
   fun testSectionErrorContentMixed() {
     val n = parseXML("""<s:section s:title="S" xmlns:s="${NAMESPACE}"><s:subsection s:title="SS"/><s:paragraph/></s:section>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSFailure
@@ -253,7 +257,7 @@ abstract class KSXOMBlockParserContract {
   fun testSectionSubsections() {
     val n = parseXML("""<s:section s:title="S" xmlns:s="${NAMESPACE}"><s:subsection s:title="SS"/></s:section>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockSectionWithSubsections<KSParse>, KSParseError>
@@ -268,7 +272,7 @@ abstract class KSXOMBlockParserContract {
   fun testSectionContent() {
     val n = parseXML("""<s:section s:title="S" xmlns:s="${NAMESPACE}"><s:paragraph/></s:section>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockSectionWithContent<KSParse>, KSParseError>
@@ -283,7 +287,7 @@ abstract class KSXOMBlockParserContract {
   fun testSectionType() {
     val n = parseXML("""<s:section s:type="t" s:title="S" xmlns:s="${NAMESPACE}"></s:section>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockSection<KSParse>, KSParseError>
@@ -297,7 +301,7 @@ abstract class KSXOMBlockParserContract {
   fun testSectionTypeID() {
     val n = parseXML("""<s:section xml:id="x" s:type="t" s:title="S" xmlns:s="${NAMESPACE}"></s:section>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockSection<KSParse>, KSParseError>
@@ -311,7 +315,7 @@ abstract class KSXOMBlockParserContract {
   fun testSubsection() {
     val n = parseXML("""<s:subsection s:title="S" xmlns:s="${NAMESPACE}"></s:subsection>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
@@ -325,7 +329,7 @@ abstract class KSXOMBlockParserContract {
   fun testSubsectionType() {
     val n = parseXML("""<s:subsection s:type="t" s:title="S" xmlns:s="${NAMESPACE}"></s:subsection>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
@@ -339,7 +343,7 @@ abstract class KSXOMBlockParserContract {
   fun testSubsectionTypeID() {
     val n = parseXML("""<s:subsection xml:id="x" s:type="t" s:title="S" xmlns:s="${NAMESPACE}"></s:subsection>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
@@ -353,7 +357,7 @@ abstract class KSXOMBlockParserContract {
   fun testSubsectionErrorContent() {
     val n = parseXML("""<s:subsection s:title="S" xmlns:s="${NAMESPACE}"><s:section s:title="S"/></s:subsection>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSFailure
@@ -363,7 +367,7 @@ abstract class KSXOMBlockParserContract {
   fun testPart() {
     val n = parseXML("""<s:part s:title="S" xmlns:s="${NAMESPACE}"></s:part>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockPart<KSParse>, KSParseError>
@@ -377,7 +381,7 @@ abstract class KSXOMBlockParserContract {
   fun testPartErrorSubsection() {
     val n = parseXML("""<s:part s:title="S" xmlns:s="${NAMESPACE}"><s:subsection s:title="SS"/></s:part>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSFailure
@@ -387,7 +391,7 @@ abstract class KSXOMBlockParserContract {
   fun testDocument() {
     val n = parseXML("""<s:document s:title="S" xmlns:s="${NAMESPACE}"></s:document>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockDocumentWithParts<KSParse>, KSParseError>
@@ -401,7 +405,7 @@ abstract class KSXOMBlockParserContract {
   fun testDocumentParts() {
     val n = parseXML("""<s:document s:title="S" xmlns:s="${NAMESPACE}"><s:part s:title="P"/></s:document>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockDocumentWithParts<KSParse>, KSParseError>
@@ -416,7 +420,7 @@ abstract class KSXOMBlockParserContract {
   fun testDocumentSections() {
     val n = parseXML("""<s:document s:title="S" xmlns:s="${NAMESPACE}"><s:section s:title="P"/></s:document>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSBlockDocumentWithSections<KSParse>, KSParseError>
@@ -431,7 +435,7 @@ abstract class KSXOMBlockParserContract {
   fun testDocumentErrorMixedPart() {
     val n = parseXML("""<s:document s:title="S" xmlns:s="${NAMESPACE}"><s:part s:title="P"/><s:section s:title="K"/></s:document>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSFailure
@@ -441,7 +445,7 @@ abstract class KSXOMBlockParserContract {
   fun testDocumentErrorMixedSection() {
     val n = parseXML("""<s:document s:title="S" xmlns:s="${NAMESPACE}"><s:section s:title="K"/><s:part s:title="P"/></s:document>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSFailure

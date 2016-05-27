@@ -41,7 +41,7 @@ class KSExporterTest : KSExporterContract() {
     KSExporter.newExporter(f, 2, 80)
 
   override fun parse(file : Path) : KSBlockDocument<KSEvaluation> {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(file.parent)
     val p = KSParsers.createCanonical(c);
     val rp = p.parseBlock(c, file) as
       KSSuccess<KSBlock<KSParse>, KSParseError>

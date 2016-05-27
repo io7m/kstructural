@@ -29,8 +29,8 @@ import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSParserConstructorType
-import com.io7m.kstructural.core.KSParserType
+import com.io7m.kstructural.core.KSParserDriverConstructorType
+import com.io7m.kstructural.core.KSParserDriverType
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.evaluator.KSEvaluation
 import com.io7m.kstructural.core.evaluator.KSEvaluationError
@@ -38,17 +38,18 @@ import com.io7m.kstructural.core.evaluator.KSEvaluator
 import com.io7m.kstructural.core.evaluator.KSEvaluatorType
 import com.io7m.kstructural.parser.KSExpression
 import com.io7m.kstructural.parser.KSExpressionParsers
+import com.io7m.kstructural.parser.KSIncluder
 import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.canon.KSCanonInlineParser
 import com.io7m.kstructural.parser.canon.KSCanonInlineParserType
 import com.io7m.kstructural.tests.KSTestFilesystems
-import com.io7m.kstructural.tests.KSTestIO
 import com.io7m.kstructural.tests.parser.canon.KSCanonBlockParserTest
 import org.slf4j.LoggerFactory
 import java.io.InputStreamReader
 import java.io.StringReader
 import java.nio.file.FileSystem
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.Optional
 
 class KSEvaluatorTest : KSEvaluatorContract() {
@@ -83,7 +84,7 @@ class KSEvaluatorTest : KSEvaluatorContract() {
     pcb.preserveLexicalInformation(true)
     val pc = pcb.build()
     val p = JSXParser.newParser(pc, lex)
-    val ip = KSCanonInlineParser.create(KSTestIO.utf8_includer)
+    val ip = KSCanonInlineParser.create(KSIncluder.create(Paths.get("")))
 
     val ipp = object : KSCanonInlineParserType {
       override fun maybe(expression : KSExpression) : Boolean =
@@ -110,15 +111,15 @@ class KSEvaluatorTest : KSEvaluatorContract() {
       }
     }
 
-    val importers = object : KSParserConstructorType {
+    val importers = object : KSParserDriverConstructorType {
       override fun create(
         context : KSParseContextType,
         file : Path)
-        : KSParserType {
+        : KSParserDriverType {
 
         LOG.trace("instantiating parser for {}", file)
         val iis = this
-        return object : KSParserType {
+        return object : KSParserDriverType {
           override fun parseBlock(
             context : KSParseContextType,
             file : Path)
@@ -162,7 +163,7 @@ class KSEvaluatorTest : KSEvaluatorContract() {
 
     return Evaluator(eval, { path ->
       val se = KSExpression.of(p.parseExpression())
-      val c = KSParseContext.empty()
+      val c = KSParseContext.empty(Paths.get(""))
       val d = bp.parse(c, se, path)
       when (d) {
         is KSResult.KSSuccess -> {

@@ -94,7 +94,7 @@ public final class KSOpConvert implements KSOpType
     throws Exception
   {
     final KSBlockDocument<KSEvaluation> document =
-      KSParseAndEvaluate.parseAndEvaluate(this.path);
+      KSParseAndEvaluate.parseAndEvaluate(this.path.getParent(), this.path);
 
     Files.createDirectories(this.output_path);
 

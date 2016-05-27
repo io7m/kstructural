@@ -55,6 +55,7 @@ import com.io7m.kstructural.parser.imperative.KSImperativeBuilderType
 import org.junit.Assert
 import org.junit.Test
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.Optional
 
 abstract class KSImperativeBuilderContract {
@@ -74,17 +75,19 @@ abstract class KSImperativeBuilderContract {
   private val id : Optional<KSID<KSParse>> = Optional.empty()
 
   private val id_real : KSID<KSParse> = KSID.create(
-    pos, "x", KSParse(KSParseContext.empty()))
+    pos, "x", KSParse(KSParseContext.empty(defaultPath())))
+
+  private fun defaultPath() : Path = Paths.get("")
 
   @Test fun testEmptyEOF() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
     val r = b.add(c, KSImperativeEOF(Optional.empty()))
     r as KSFailure
   }
 
   @Test fun testEmptyInline() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
     val i = KSInlineText(pos, false, KSParse(c), false, "xyz")
     val r = b.add(c, KSImperativeInline(i))
@@ -92,7 +95,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testParagraph() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -111,7 +114,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testFormalItem() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -131,7 +134,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testFootnote() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -150,7 +153,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testPart() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -168,7 +171,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testPartErrorImportDocument() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -187,7 +190,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testPartErrorImportContent() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -206,7 +209,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testPartSectionSubsection() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -228,7 +231,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testPartSectionParagraph() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -254,7 +257,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testPartErrorPart() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -268,7 +271,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testPartErrorInline() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -283,7 +286,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testPartErrorSubsection() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -298,7 +301,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testPartErrorParagraph() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -313,7 +316,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testPartErrorFootnote() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -328,7 +331,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testPartErrorFormalItem() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -343,7 +346,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testPartErrorDocument() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -358,7 +361,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSectionErrorPart() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -372,7 +375,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSectionErrorDocument() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -386,7 +389,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSectionErrorSection() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -399,7 +402,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSectionErrorSubsectionImportContent() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -421,7 +424,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSectionErrorContentImportSubsection() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -443,7 +446,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSectionErrorImportDocument() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -462,7 +465,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSectionParagraphs() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -485,7 +488,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSectionFootnotes() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -508,7 +511,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSectionErrorParagraphsSubsection() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -525,7 +528,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSectionErrorFootnotesSubsection() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -542,7 +545,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSectionFormalItems() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -565,7 +568,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSectionErrorFormalItemsSubsection() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -582,7 +585,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSectionSubsections() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -608,7 +611,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSectionErrorInline() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -622,7 +625,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSubsectionParagraph() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -645,7 +648,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSubsectionImportContent() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -677,7 +680,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSubsectionFootnote() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -700,7 +703,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSubsectionFormalItem() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -723,7 +726,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSubsectionErrorImportDocument() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -742,7 +745,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSubsectionErrorInline() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -758,7 +761,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSubsectionErrorSubsection() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -771,7 +774,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSubsectionErrorSection() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -785,7 +788,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSubsectionErrorPart() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -799,7 +802,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSubsectionErrorDocument() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -813,7 +816,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSectionSubsectionParagraph() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -839,7 +842,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSectionSubsectionFootnote() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -865,7 +868,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testSectionSubsectionFormalItem() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -891,7 +894,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocument() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -906,7 +909,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentSection() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -924,7 +927,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentSectionImportContent() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -948,7 +951,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentSectionContent() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -972,7 +975,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentPartSectionContent() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -1000,7 +1003,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentPartImportContent() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -1029,7 +1032,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentPart() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -1047,7 +1050,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentSectionPart() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -1064,7 +1067,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentErrorInline() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -1079,7 +1082,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentErrorImportSubsection() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -1098,7 +1101,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentErrorSubsection() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -1113,7 +1116,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentErrorSectionInline() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -1130,7 +1133,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentErrorPartInline() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -1147,7 +1150,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentImport() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -1165,7 +1168,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentErrorImportDocument() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -1185,7 +1188,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentImportSections() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -1210,7 +1213,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentErrorImportPartSectionsImport() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -1232,7 +1235,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentErrorImportPartSectionsImperative() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -1254,7 +1257,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentErrorImportSectionParts() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)
@@ -1276,7 +1279,7 @@ abstract class KSImperativeBuilderContract {
   }
 
   @Test fun testDocumentPartImportSection() {
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(defaultPath())
     val b = newBuilder()
 
     val kp = KSParse(c)

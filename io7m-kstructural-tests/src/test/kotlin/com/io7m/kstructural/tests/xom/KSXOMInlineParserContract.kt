@@ -39,6 +39,7 @@ import org.junit.Assert
 import org.junit.Test
 import java.math.BigInteger
 import java.net.URI
+import java.nio.file.Paths
 import java.util.Optional
 
 abstract class KSXOMInlineParserContract {
@@ -49,11 +50,14 @@ abstract class KSXOMInlineParserContract {
 
   val NAMESPACE = KSSchemaNamespaces.NAMESPACE_URI_TEXT
 
+  private fun defaultContext() =
+    KSParseContext.empty(Paths.get(""))
+  
   @Test
   fun testTerm() {
     val n = parseXML("""<s:term xmlns:s="${NAMESPACE}">xyz</s:term>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSInlineTerm<KSParse>, KSParseError>
@@ -66,7 +70,7 @@ abstract class KSXOMInlineParserContract {
   fun testTermType() {
     val n = parseXML("""<s:term xmlns:s="${NAMESPACE}" s:type="t">xyz</s:term>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSInlineTerm<KSParse>, KSParseError>
@@ -79,7 +83,7 @@ abstract class KSXOMInlineParserContract {
   fun testTermTypeInvalid() {
     val n = parseXML("""<s:term xmlns:s="${NAMESPACE}" s:type="-">xyz</s:term>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSFailure
@@ -89,7 +93,7 @@ abstract class KSXOMInlineParserContract {
   fun testImage() {
     val n = parseXML("""<s:image xmlns:s="${NAMESPACE}" s:target="http://example.com">xyz</s:image>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSInlineImage<KSParse>, KSParseError>
@@ -104,7 +108,7 @@ abstract class KSXOMInlineParserContract {
   fun testImageErrorTarget() {
     val n = parseXML("""<s:image xmlns:s="${NAMESPACE}" s:target="x x x">xyz</s:image>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSFailure
@@ -114,7 +118,7 @@ abstract class KSXOMInlineParserContract {
   fun testImageSize() {
     val n = parseXML("""<s:image xmlns:s="${NAMESPACE}" s:width="640" s:height="480" s:target="http://example.com">xyz</s:image>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSInlineImage<KSParse>, KSParseError>
@@ -130,7 +134,7 @@ abstract class KSXOMInlineParserContract {
   fun testImageErrorSize() {
     val n = parseXML("""<s:image xmlns:s="${NAMESPACE}" s:width="z" s:height="z" s:target="http://example.com">xyz</s:image>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSFailure
@@ -140,7 +144,7 @@ abstract class KSXOMInlineParserContract {
   fun testImageType() {
     val n = parseXML("""<s:image xmlns:s="${NAMESPACE}" s:type="t" s:target="http://example.com">xyz</s:image>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSInlineImage<KSParse>, KSParseError>
@@ -155,7 +159,7 @@ abstract class KSXOMInlineParserContract {
   fun testLink() {
     val n = parseXML("""<s:link xmlns:s="${NAMESPACE}" s:target="q">xyz</s:link>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSInlineLink<KSParse>, KSParseError>
@@ -168,7 +172,7 @@ abstract class KSXOMInlineParserContract {
   fun testLinkInvalidID() {
     val n = parseXML("""<s:link xmlns:s="${NAMESPACE}" s:target="-">xyz</s:link>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSFailure
@@ -178,7 +182,7 @@ abstract class KSXOMInlineParserContract {
   fun testLinkErrorTerm() {
     val n = parseXML("""<s:link xmlns:s="${NAMESPACE}" s:target="q"><s:term>q</s:term></s:link>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSFailure
@@ -188,7 +192,7 @@ abstract class KSXOMInlineParserContract {
   fun testLinkExternal() {
     val n = parseXML("""<s:link-external xmlns:s="${NAMESPACE}" s:target="q">xyz</s:link-external>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSInlineLink<KSParse>, KSParseError>
@@ -201,7 +205,7 @@ abstract class KSXOMInlineParserContract {
   fun testLinkExternalErrorTerm() {
     val n = parseXML("""<s:link-external xmlns:s="${NAMESPACE}" s:target="q"><s:term>q</s:term></s:link-external>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSFailure
@@ -211,7 +215,7 @@ abstract class KSXOMInlineParserContract {
   fun testVerbatim() {
     val n = parseXML("""<s:verbatim xmlns:s="${NAMESPACE}">xyz</s:verbatim>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSInlineVerbatim<KSParse>, KSParseError>
@@ -224,7 +228,7 @@ abstract class KSXOMInlineParserContract {
   fun testVerbatimType() {
     val n = parseXML("""<s:verbatim s:type="t" xmlns:s="${NAMESPACE}">xyz</s:verbatim>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSInlineVerbatim<KSParse>, KSParseError>
@@ -237,7 +241,7 @@ abstract class KSXOMInlineParserContract {
   fun testListOrdered() {
     val n = parseXML("""<s:list-ordered xmlns:s="${NAMESPACE}"><s:item>x</s:item><s:item>y</s:item></s:list-ordered>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSInlineListOrdered<KSParse>, KSParseError>
@@ -249,7 +253,7 @@ abstract class KSXOMInlineParserContract {
   fun testListOrderedError() {
     val n = parseXML("""<s:list-ordered xmlns:s="${NAMESPACE}">x</s:list-ordered>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSFailure
@@ -259,7 +263,7 @@ abstract class KSXOMInlineParserContract {
   fun testListUnordered() {
     val n = parseXML("""<s:list-unordered xmlns:s="${NAMESPACE}"><s:item>x</s:item><s:item>y</s:item></s:list-unordered>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSInlineListUnordered<KSParse>, KSParseError>
@@ -271,7 +275,7 @@ abstract class KSXOMInlineParserContract {
   fun testListUnorderedError() {
     val n = parseXML("""<s:list-unordered xmlns:s="${NAMESPACE}">x</s:list-unordered>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSFailure
@@ -293,7 +297,7 @@ abstract class KSXOMInlineParserContract {
   </s:body>
 </s:table>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSInlineTable<KSParse>, KSParseError>
@@ -326,7 +330,7 @@ abstract class KSXOMInlineParserContract {
   </s:body>
 </s:table>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSInlineTable<KSParse>, KSParseError>
@@ -343,7 +347,7 @@ abstract class KSXOMInlineParserContract {
   fun testFootnoteReference() {
     val n = parseXML("""<s:footnote-ref s:target="x" xmlns:s="${NAMESPACE}"/>""")
     val p = parser()
-    val c = KSParseContext.empty()
+    val c = defaultContext()
     val r = p.parse(c, n)
 
     r as KSSuccess<KSInlineFootnoteReference<KSParse>, KSParseError>

@@ -26,7 +26,7 @@ import com.io7m.kstructural.core.KSParse;
 import com.io7m.kstructural.core.KSParseContext;
 import com.io7m.kstructural.core.KSParseContextType;
 import com.io7m.kstructural.core.KSParseError;
-import com.io7m.kstructural.core.KSParserType;
+import com.io7m.kstructural.core.KSParserDriverType;
 import com.io7m.kstructural.core.KSResult;
 import com.io7m.kstructural.core.KSResult.KSFailure;
 import com.io7m.kstructural.core.KSResult.KSSuccess;
@@ -76,9 +76,10 @@ public final class KSOpCheck implements KSOpType
   {
     KSOpCheck.LOG.debug("checking {}", this.path);
 
-    final KSParseContextType context = KSParseContext.Companion.empty();
+    final KSParseContextType context =
+      KSParseContext.Companion.empty(this.path.getParent());
     final KSParsers parsers = KSParsers.getInstance();
-    final KSParserType p = parsers.create(context, this.path);
+    final KSParserDriverType p = parsers.create(context, this.path);
 
     KSOpCheck.LOG.debug("parsing");
 
@@ -86,10 +87,10 @@ public final class KSOpCheck implements KSOpType
     try {
       parse_r = p.parseBlock(context, this.path);
     } catch (final NoSuchFileException e) {
-      LOG.error("file not found: {}", this.path);
+      KSOpCheck.LOG.error("file not found: {}", this.path);
       throw e;
     } catch (final IOException e) {
-      LOG.error("i/o error: {}", this.path);
+      KSOpCheck.LOG.error("i/o error: {}", this.path);
       throw e;
     }
 
@@ -134,27 +135,13 @@ public final class KSOpCheck implements KSOpType
           KSOpCheck.LOG.debug("evaluated successfully");
           return Unit.unit();
         },
-        (c, section) -> {
-          return Unit.unit();
-        },
-        (c, subsection) -> {
-          return Unit.unit();
-        },
-        (c, paragraph) -> {
-          return Unit.unit();
-        },
-        (c, formal) -> {
-          return Unit.unit();
-        },
-        (c, footnote) -> {
-          return Unit.unit();
-        },
-        (c, part) -> {
-          return Unit.unit();
-        },
-        (c, import_e) -> {
-          return Unit.unit();
-        }
+        (c, section) -> Unit.unit(),
+        (c, subsection) -> Unit.unit(),
+        (c, paragraph) -> Unit.unit(),
+        (c, formal) -> Unit.unit(),
+        (c, footnote) -> Unit.unit(),
+        (c, part) -> Unit.unit(),
+        (c, import_e) -> Unit.unit()
       );
     }
 
