@@ -112,7 +112,15 @@ internal object KSXOM {
 
     val e = Element("head", XHTML_URI_TEXT)
     e.appendChild(title(sb.toString()))
+    e.appendChild(meta())
     settings.styles.forEach { s -> e.appendChild(css(s)) }
+    return e
+  }
+
+  private fun meta() : Element {
+    val e = Element("meta", XHTML_URI_TEXT);
+    e.addAttribute(attr("http-equiv", "Content-Type"))
+    e.addAttribute(attr("content", "application/xhtml+xml; charset=UTF-8"))
     return e
   }
 
