@@ -1,5 +1,5 @@
 [document
-  [title Structural ${project.version} Language Specification]
+  [title Structural 3.0.0 Language Specification]
   [import "notational.sdi"]
   [import "model.sdi"]
   [import "fmt-canon.sdi"]
