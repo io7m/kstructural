@@ -751,210 +751,313 @@ internal object KSXOM {
 
   fun contentsForSection(
     prov : KSXOMLinkProviderType,
-    s : KSBlockSection<KSEvaluation>) : Element {
+    section : KSBlockSection<KSEvaluation>) : Element {
 
-    val classes = listOf(
+    val subsections_list_classes = listOf(
       prefixedName("contents"),
       prefixedName("section_contents_outer"),
       prefixedName("section_contents"))
 
-    val e = Element("ul", XHTML_URI_TEXT)
-    e.addAttribute(attr("class", KSTextUtilities.concatenate(classes)))
+    val subsections_list_classes_text =
+      KSTextUtilities.concatenate(subsections_list_classes)
 
-    when (s) {
+    val subsections_list = Element("ul", XHTML_URI_TEXT)
+    subsections_list.addAttribute(attr("class", subsections_list_classes_text))
+
+    return when (section) {
       is KSBlockSection.KSBlockSectionWithContent     -> {
 
-      }
-      is KSBlockSection.KSBlockSectionWithSubsections -> {
-        s.content.forEach { ss ->
-          val ss_li = Element("li", XHTML_URI_TEXT)
-          val ss_li_classes = listOf(
-            prefixedName("contents_item"),
-            prefixedName("contents_item1"),
-            prefixedName("contents_item_subsection"))
-          ss_li.addAttribute(
-            attr("class", KSTextUtilities.concatenate(ss_li_classes)))
-          val ss_a = Element("a", XHTML_URI_TEXT)
-          val ss_number = ss.data.number.get()
-          ss_a.addAttribute(attr("href", prov.numberLink(ss_number)))
-          ss_a.addAttribute(attr("title", linkToSubsectionTitleText(ss)))
+        /**
+         * Do not generate an empty list.
+         */
 
-          val ss_title = KSTextUtilities.concatenate(ss.title)
-          val ss_a_text = StringBuilder()
-          ss_a_text.append(ss_number.toString())
-          ss_a_text.append(". ")
-          ss_a_text.append(ss_title)
-          appendEscapedText(ss_a, ss_a_text.toString())
-          ss_li.appendChild(ss_a)
-          e.appendChild(ss_li)
+        return Element("span", XHTML_URI_TEXT)
+      }
+
+      is KSBlockSection.KSBlockSectionWithSubsections -> {
+
+        /**
+         * Do not generate an empty list.
+         */
+
+        if (section.content.isEmpty()) {
+          return Element("span", XHTML_URI_TEXT)
         }
+
+        val subsection_item_classes = listOf(
+          prefixedName("contents_item"),
+          prefixedName("contents_item1"),
+          prefixedName("contents_item_subsection"))
+
+        val subsection_item_classes_text =
+          KSTextUtilities.concatenate(subsection_item_classes)
+
+        section.content.forEach { subsection ->
+          val subsection_item = Element("li", XHTML_URI_TEXT)
+
+          subsection_item.addAttribute(
+            attr("class", subsection_item_classes_text))
+          val subsection_link = Element("a", XHTML_URI_TEXT)
+          val subsection_number = subsection.data.number.get()
+          subsection_link.addAttribute(
+            attr("href", prov.numberLink(subsection_number)))
+          subsection_link.addAttribute(
+            attr("title", linkToSubsectionTitleText(subsection)))
+
+          appendEscapedText(
+            subsection_link, numberedTitle(subsection_number, subsection.title))
+          subsection_item.appendChild(subsection_link)
+          subsections_list.appendChild(subsection_item)
+        }
+
+        subsections_list
       }
     }
-
-    return e
   }
 
   fun contentsForPart(
     prov : KSXOMLinkProviderType,
-    p : KSBlockPart<KSEvaluation>) : Element {
+    part : KSBlockPart<KSEvaluation>) : Element {
 
-    val classes = listOf(
+    /**
+     * Do not generate an empty list.
+     */
+
+    if (part.content.isEmpty()) {
+      return Element("span", XHTML_URI_TEXT)
+    }
+
+    val sections_list_classes = listOf(
       prefixedName("contents"),
       prefixedName("part_contents_outer"),
       prefixedName("part_contents"))
 
-    val e = Element("ul", XHTML_URI_TEXT)
-    e.addAttribute(attr("class", KSTextUtilities.concatenate(classes)))
+    val sections_list = Element("ul", XHTML_URI_TEXT)
+    sections_list.addAttribute(
+      attr("class", KSTextUtilities.concatenate(sections_list_classes)))
 
-    p.content.forEach { s ->
-      val part_li = Element("li", XHTML_URI_TEXT)
-      val part_li_classes = listOf(
-        prefixedName("contents_item"),
-        prefixedName("contents_item1"),
-        prefixedName("contents_item_section"))
-      part_li.addAttribute(
-        attr("class", KSTextUtilities.concatenate(part_li_classes)))
-      val part_a = Element("a", XHTML_URI_TEXT)
-      val part_number = s.data.number.get()
-      part_a.addAttribute(attr("href", prov.numberLink(part_number)))
-      part_a.addAttribute(attr("title", linkToSectionTitleText(s)))
+    val sections_item_classes = listOf(
+      prefixedName("contents_item"),
+      prefixedName("contents_item1"),
+      prefixedName("contents_item_section"))
 
-      val section_title = KSTextUtilities.concatenate(s.title)
-      val part_a_text = StringBuilder()
-      part_a_text.append(part_number.toString())
-      part_a_text.append(". ")
-      part_a_text.append(section_title)
-      appendEscapedText(part_a, part_a_text.toString())
-      part_li.appendChild(part_a)
-      e.appendChild(part_li)
+    val sections_item_classes_text =
+      KSTextUtilities.concatenate(sections_item_classes)
 
-      when (s) {
+    part.content.forEach { section ->
+      val section_item = Element("li", XHTML_URI_TEXT)
+      section_item.addAttribute(attr("class", sections_item_classes_text))
+
+      val section_link = Element("a", XHTML_URI_TEXT)
+      val section_number = section.data.number.get()
+      section_link.addAttribute(
+        attr("href", prov.numberLink(section_number)))
+      section_link.addAttribute(
+        attr("title", linkToSectionTitleText(section)))
+
+      appendEscapedText(
+        section_link, numberedTitle(section_number, section.title))
+      section_item.appendChild(section_link)
+      sections_list.appendChild(section_item)
+
+      when (section) {
+
         is KSBlockSection.KSBlockSectionWithContent     -> {
 
         }
+
         is KSBlockSection.KSBlockSectionWithSubsections -> {
-          s.content.forEach { ss ->
-            val ss_li = Element("li", XHTML_URI_TEXT)
-            val ss_li_classes = listOf(
+
+          if (section.content.isNotEmpty()) {
+            val subsection_list_classes = listOf(
+              prefixedName("contents"),
+              prefixedName("section_contents"))
+
+            val subsection_list_classes_text =
+              KSTextUtilities.concatenate(subsection_list_classes)
+
+            val subsection_item_classes = listOf(
               prefixedName("contents_item"),
               prefixedName("contents_item2"),
               prefixedName("contents_item_subsection"))
-            ss_li.addAttribute(
-              attr("class", KSTextUtilities.concatenate(ss_li_classes)))
-            val ss_a = Element("a", XHTML_URI_TEXT)
-            val ss_number = ss.data.number.get()
-            ss_a.addAttribute(attr("href", prov.numberLink(ss_number)))
-            ss_a.addAttribute(attr("title", linkToSubsectionTitleText(ss)))
 
-            val ss_title = KSTextUtilities.concatenate(ss.title)
-            val ss_a_text = StringBuilder()
-            ss_a_text.append(ss_number.toString())
-            ss_a_text.append(". ")
-            ss_a_text.append(ss_title)
-            appendEscapedText(ss_a, ss_a_text.toString())
-            ss_li.appendChild(ss_a)
-            part_li.appendChild(ss_li)
+            val subsection_item_classes_text =
+              KSTextUtilities.concatenate(subsection_item_classes)
+
+            val subsections_list = Element("ul", XHTML_URI_TEXT)
+
+            subsections_list.addAttribute(
+              attr("class", subsection_list_classes_text))
+
+            section.content.forEach { subsection ->
+              val subsection_item = Element("li", XHTML_URI_TEXT)
+
+              subsection_item.addAttribute(
+                attr("class", subsection_item_classes_text))
+              val subsection_link = Element("a", XHTML_URI_TEXT)
+              val subsection_number = subsection.data.number.get()
+              subsection_link.addAttribute(
+                attr("href", prov.numberLink(subsection_number)))
+              subsection_link.addAttribute(
+                attr("title", linkToSubsectionTitleText(subsection)))
+              appendEscapedText(
+                subsection_link,
+                numberedTitle(subsection_number, subsection.title))
+
+              subsection_item.appendChild(subsection_link)
+              subsections_list.appendChild(subsection_item)
+            }
+
+            section_item.appendChild(subsections_list)
           }
         }
       }
     }
 
-    return e
+    return sections_list
+  }
+
+  private fun <T> numberedTitle(
+    n : KSNumber,
+    t : List<KSInlineText<T>>) : String {
+
+    val sb = StringBuilder()
+    val title = KSTextUtilities.concatenate(t)
+    sb.append(n.toString())
+    sb.append(". ")
+    sb.append(title)
+    return sb.toString()
   }
 
   fun contentsForDocument(
     prov : KSXOMLinkProviderType,
-    d : KSBlockDocument<KSEvaluation>) : Element {
+    document : KSBlockDocument<KSEvaluation>) : Element {
 
-    val classes = listOf(
+    val document_list_classes = listOf(
       prefixedName("contents"),
       prefixedName("document_contents"))
 
-    val e = Element("ul", XHTML_URI_TEXT)
-    e.addAttribute(
-      attr("class", KSTextUtilities.concatenate(classes)))
+    val document_list_classes_text =
+      KSTextUtilities.concatenate(document_list_classes)
 
-    return when (d) {
+    val document_list = Element("ul", XHTML_URI_TEXT)
+    document_list.addAttribute(
+      attr("class", document_list_classes_text))
+
+    return when (document) {
       is KSBlock.KSBlockDocument.KSBlockDocumentWithParts    -> {
-        d.content.forEach { p ->
-          val part_li = Element("li", XHTML_URI_TEXT)
-          val part_li_classes = listOf(
-            prefixedName("contents_item"),
-            prefixedName("contents_item1"),
-            prefixedName("contents_item_part"))
-          part_li.addAttribute(
-            attr("class", KSTextUtilities.concatenate(part_li_classes)))
-          val part_a = Element("a", XHTML_URI_TEXT)
-          val part_number = p.data.number.get()
-          part_a.addAttribute(attr("href", prov.numberLink(part_number)))
-          part_a.addAttribute(attr("title", linkToPartTitleText(p)))
 
-          val part_a_text = StringBuilder()
-          part_a_text.append(part_number.toString())
-          part_a_text.append(". ")
-          KSTextUtilities.concatenateInto(part_a_text, p.title)
-          appendEscapedText(part_a, part_a_text.toString())
-          part_li.appendChild(part_a)
-          e.appendChild(part_li)
+        /**
+         * Do not generate an empty list.
+         */
 
-          val part_ul_classes = listOf(
-            prefixedName("contents"),
-            prefixedName("part_contents"))
+        if (document.content.isEmpty()) {
+          return Element("span", XHTML_URI_TEXT)
+        }
 
-          val part_ul = Element("ul", XHTML_URI_TEXT)
-          part_ul.addAttribute(
-            attr("class", KSTextUtilities.concatenate(part_ul_classes)))
+        val part_item_classes = listOf(
+          prefixedName("contents_item"),
+          prefixedName("contents_item1"),
+          prefixedName("contents_item_part"))
 
-          p.content.forEach { s ->
-            val s_li = Element("li", XHTML_URI_TEXT)
-            val s_li_clases = listOf(
-              prefixedName("contents_item"),
-              prefixedName("contents_item2"),
-              prefixedName("contents_item_section"))
-            s_li.addAttribute(
-              attr("class", KSTextUtilities.concatenate(s_li_clases)))
-            val s_a = Element("a", XHTML_URI_TEXT)
-            val s_number = s.data.number.get()
-            s_a.addAttribute(attr("href", prov.numberLink(s_number)))
-            s_a.addAttribute(attr("title", linkToSectionTitleText(s)))
+        val part_item_classes_text =
+          KSTextUtilities.concatenate(part_item_classes)
 
-            val s_a_text = StringBuilder()
-            s_a_text.append(s_number.toString())
-            s_a_text.append(". ")
-            KSTextUtilities.concatenateInto(s_a_text, s.title)
-            appendEscapedText(s_a, s_a_text.toString())
-            s_li.appendChild(s_a)
-            part_ul.appendChild(s_li)
+        val section_list_classes = listOf(
+          prefixedName("contents"),
+          prefixedName("part_contents"))
+
+        val section_list_classes_text =
+          KSTextUtilities.concatenate(section_list_classes)
+
+        val section_item_classes = listOf(
+          prefixedName("contents_item"),
+          prefixedName("contents_item2"),
+          prefixedName("contents_item_section"))
+
+        val section_item_classes_text =
+          KSTextUtilities.concatenate(section_item_classes)
+
+        document.content.forEach { part ->
+
+          val part_item = Element("li", XHTML_URI_TEXT)
+          part_item.addAttribute(attr("class", part_item_classes_text))
+          val part_item_link = Element("a", XHTML_URI_TEXT)
+          val part_number = part.data.number.get()
+          part_item_link.addAttribute(
+            attr("href", prov.numberLink(part_number)))
+          part_item_link.addAttribute(
+            attr("title", linkToPartTitleText(part)))
+
+          appendEscapedText(
+            part_item_link, numberedTitle(part_number, part.title))
+          part_item.appendChild(part_item_link)
+          document_list.appendChild(part_item)
+
+          if (part.content.isNotEmpty()) {
+            val sections_list = Element("ul", XHTML_URI_TEXT)
+
+            sections_list.addAttribute(
+              attr("class", section_list_classes_text))
+
+            part.content.forEach { section ->
+              val section_item = Element("li", XHTML_URI_TEXT)
+              section_item.addAttribute(
+                attr("class", section_item_classes_text))
+              val section_item_link = Element("a", XHTML_URI_TEXT)
+              val section_number = section.data.number.get()
+              section_item_link.addAttribute(
+                attr("href", prov.numberLink(section_number)))
+              section_item_link.addAttribute(
+                attr("title", linkToSectionTitleText(section)))
+
+              appendEscapedText(
+                section_item_link, numberedTitle(section_number, section.title))
+              section_item.appendChild(section_item_link)
+              sections_list.appendChild(section_item)
+            }
+
+            part_item.appendChild(sections_list)
           }
-
-          part_li.appendChild(part_ul)
         }
 
-        e
+        document_list
       }
-      is KSBlock.KSBlockDocument.KSBlockDocumentWithSections -> {
-        d.content.forEach { s ->
-          val s_li = Element("li", XHTML_URI_TEXT)
-          val s_li_classes = listOf(
-            prefixedName("contents_item"),
-            prefixedName("contents_item1"),
-            prefixedName("contents_item_section"))
-          s_li.addAttribute(
-            attr("class", KSTextUtilities.concatenate(s_li_classes)))
-          val s_a = Element("a", XHTML_URI_TEXT)
-          val s_number = s.data.number.get()
-          s_a.addAttribute(attr("href", prov.numberLink(s_number)))
 
-          val s_a_text = StringBuilder()
-          s_a_text.append(s_number.toString())
-          s_a_text.append(". ")
-          KSTextUtilities.concatenateInto(s_a_text, s.title)
-          appendEscapedText(s_a, s_a_text.toString())
-          s_li.appendChild(s_a)
-          e.appendChild(s_li)
+      is KSBlock.KSBlockDocument.KSBlockDocumentWithSections -> {
+
+        /**
+         * Do not generate an empty list.
+         */
+
+        if (document.content.isEmpty()) {
+          return Element("span", XHTML_URI_TEXT)
         }
 
-        e
+        val section_item_classes = listOf(
+          prefixedName("contents_item"),
+          prefixedName("contents_item1"),
+          prefixedName("contents_item_section"))
+
+        val section_item_classes_text =
+          KSTextUtilities.concatenate(section_item_classes)
+
+        document.content.forEach { s ->
+          val section_item = Element("li", XHTML_URI_TEXT)
+
+          section_item.addAttribute(attr("class", section_item_classes_text))
+          val section_link = Element("a", XHTML_URI_TEXT)
+          val section_number = s.data.number.get()
+          section_link.addAttribute(
+            attr("href", prov.numberLink(section_number)))
+
+          appendEscapedText(
+            section_link, numberedTitle(section_number, s.title))
+          section_item.appendChild(section_link)
+          document_list.appendChild(section_item)
+        }
+
+        document_list
       }
     }
   }
