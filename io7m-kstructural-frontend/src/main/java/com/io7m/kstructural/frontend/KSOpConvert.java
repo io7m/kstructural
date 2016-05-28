@@ -52,7 +52,7 @@ public final class KSOpConvert implements KSOpType
     final int in_indent,
     final int in_width)
   {
-    this.path = NullCheck.notNull(in_path);
+    this.path = NullCheck.notNull(in_path).toAbsolutePath();
     this.output_path = NullCheck.notNull(in_output_path);
     this.output_format = NullCheck.notNull(in_output_format);
     this.reconstruct_imports = in_reconstruct_imports;

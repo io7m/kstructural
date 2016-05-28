@@ -62,7 +62,7 @@ public final class KSOpCompileXHTML implements KSOpType
     final XHTMLPagination in_pagination,
     final boolean in_css_create_default)
   {
-    this.path = NullCheck.notNull(in_path);
+    this.path = NullCheck.notNull(in_path).toAbsolutePath();
     this.output_path = NullCheck.notNull(in_output_path);
     this.settings = NullCheck.notNull(in_settings);
     this.pagination = NullCheck.notNull(in_pagination);

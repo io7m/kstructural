@@ -56,7 +56,7 @@ public final class KSOpCheck implements KSOpType
 
   private KSOpCheck(final Path p)
   {
-    this.path = NullCheck.notNull(p);
+    this.path = NullCheck.notNull(p).toAbsolutePath();
   }
 
   /**

@@ -52,7 +52,7 @@ public final class KSOpCompileLaTeX implements KSOpType
     final Path in_output_path,
     final KSLaTeXSettings in_settings)
   {
-    this.path = NullCheck.notNull(in_path);
+    this.path = NullCheck.notNull(in_path).toAbsolutePath();
     this.output_path = NullCheck.notNull(in_output_path);
     this.settings = NullCheck.notNull(in_settings);
   }
