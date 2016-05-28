@@ -18,10 +18,13 @@ package com.io7m.kstructural.tests.xom
 
 import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSParse
+import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.schema.KSSchemaNamespaces
 import org.junit.Assert
 import org.junit.Test
 import org.slf4j.LoggerFactory
+import java.nio.file.Paths
+import java.util.Optional
 
 abstract class KSXOMSerializerContract {
 
@@ -259,5 +262,22 @@ abstract class KSXOMSerializerContract {
     roundTripBlock("""
 <?xml version="1.0" encoding="UTF-8"?>
 <s:formal-item s:type="t" xml:id="x" s:title="A B C" xmlns:s="${NAMESPACE}">x y z</s:formal-item>""")
+  }
+
+  @Test fun testEscape() {
+    val t = StringBuilder().appendCodePoint(0).toString()
+    val kp = KSParse(KSParseContext.empty(Paths.get("")))
+
+    val text = KSElement.KSInline.KSInlineText(
+      Optional.empty(), false, kp, false, t)
+    val term = KSElement.KSInline.KSInlineTerm(
+      Optional.empty(), false, kp, Optional.empty(), listOf(text))
+
+    val s = serializeXML(term).trim()
+
+    Assert.assertEquals(
+"""<?xml version="1.0" encoding="UTF-8"?>
+<s:term xmlns:s="${NAMESPACE}">""" + "\uFFFD" + """</s:term>
+""".trim(), s)
   }
 }

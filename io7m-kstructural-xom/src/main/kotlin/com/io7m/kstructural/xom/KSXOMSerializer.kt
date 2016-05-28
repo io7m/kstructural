@@ -142,7 +142,7 @@ class KSXOMSerializer<T> private constructor(
     val sb = StringBuilder()
     val max = e.content.size - 1
     for (i in 0 .. max) {
-      sb.append(e.content[i].text)
+      sb.append(KSXOMEscapeCharacters.filterXML10(e.content[i].text))
       if (i < max) {
         sb.append(" ")
       }
@@ -179,7 +179,9 @@ class KSXOMSerializer<T> private constructor(
   private fun serializeInlineInclude(e : KSInlineInclude<T>) : Node {
     val xe = Element("xi:xinclude", KSSchemaNamespaces.XINCLUDE_NAMESPACE_URI_TEXT)
     xe.addAttribute(Attribute(
-      "xi:href", KSSchemaNamespaces.XINCLUDE_NAMESPACE_URI_TEXT, e.file.text))
+      "xi:href",
+      KSSchemaNamespaces.XINCLUDE_NAMESPACE_URI_TEXT,
+      KSXOMEscapeCharacters.filterXML10(e.file.text)))
     xe.addAttribute(Attribute(
       "xi:parse", KSSchemaNamespaces.XINCLUDE_NAMESPACE_URI_TEXT, "text"))
     return xe
@@ -257,7 +259,7 @@ class KSXOMSerializer<T> private constructor(
     return if (i.isPresent) {
       serializeInlineInclude(i.get())
     } else {
-      Text(e.text)
+      Text(KSXOMEscapeCharacters.filterXML10(e.text))
     }
   }
 
@@ -282,7 +284,9 @@ class KSXOMSerializer<T> private constructor(
   private fun serializeBlockImport(e : KSBlockImport<T>) : Node {
     val xe = Element("xi:xinclude", KSSchemaNamespaces.XINCLUDE_NAMESPACE_URI_TEXT)
     xe.addAttribute(Attribute(
-      "xi:href", KSSchemaNamespaces.XINCLUDE_NAMESPACE_URI_TEXT, e.file.text))
+      "xi:href",
+      KSSchemaNamespaces.XINCLUDE_NAMESPACE_URI_TEXT,
+      KSXOMEscapeCharacters.filterXML10(e.file.text)))
     xe.addAttribute(Attribute(
       "xi:parse", KSSchemaNamespaces.XINCLUDE_NAMESPACE_URI_TEXT, "xml"))
     return xe
@@ -354,7 +358,7 @@ class KSXOMSerializer<T> private constructor(
     val sb = StringBuilder()
     val max = title.size - 1
     for (i in 0 .. max) {
-      sb.append(title[i].text)
+      sb.append(KSXOMEscapeCharacters.filterXML10(title[i].text))
       if (i < max) {
         sb.append(" ")
       }
