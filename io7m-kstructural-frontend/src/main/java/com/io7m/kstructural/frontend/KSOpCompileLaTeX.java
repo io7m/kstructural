@@ -83,7 +83,7 @@ public final class KSOpCompileLaTeX implements KSOpType
     throws Exception
   {
     final KSBlockDocument<KSEvaluation> document =
-      KSParseAndEvaluate.parseAndEvaluate(this.path);
+      KSParseAndEvaluate.parseAndEvaluate(this.path.getParent(), this.path);
 
     Files.createDirectories(this.output_path);
 

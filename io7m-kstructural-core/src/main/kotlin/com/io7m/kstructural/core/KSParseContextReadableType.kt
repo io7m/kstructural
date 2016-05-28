@@ -24,6 +24,8 @@ import java.nio.file.Path
 
 interface KSParseContextReadableType {
 
+  val baseDirectory : Path
+
   val includes : Map<Path, String>
 
   val includePaths : Map<KSInlineInclude<KSParse>, Path>

@@ -25,8 +25,8 @@ import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSParserConstructorType
-import com.io7m.kstructural.core.KSParserType
+import com.io7m.kstructural.core.KSParserDriverConstructorType
+import com.io7m.kstructural.core.KSParserDriverType
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
@@ -34,15 +34,16 @@ import com.io7m.kstructural.core.evaluator.KSEvaluation
 import com.io7m.kstructural.core.evaluator.KSEvaluationError
 import com.io7m.kstructural.core.evaluator.KSEvaluator
 import com.io7m.kstructural.parser.KSExpressionParsers
+import com.io7m.kstructural.parser.KSIncluder
 import com.io7m.kstructural.parser.canon.KSCanonBlockParser
 import com.io7m.kstructural.parser.canon.KSCanonInlineParser
 import com.io7m.kstructural.pretty.canon.KSCanonPrettyPrinter
 import com.io7m.kstructural.tests.KSTestFilesystems
-import com.io7m.kstructural.tests.KSTestIO
 import org.slf4j.LoggerFactory
 import java.io.StringWriter
 import java.nio.file.FileSystem
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.Optional
 import java.util.function.Function
 
@@ -55,16 +56,16 @@ class KSCanonPrettyPrinterTest : KSCanonPrettyPrinterContract() {
 
   override fun parse(file : Path) : KSBlockDocument<KSEvaluation> {
     val sp = KSExpressionParsers.create(file)
-    val ip = KSCanonInlineParser.create(KSTestIO.utf8_includer)
-    val importers = object : KSParserConstructorType {
+    val ip = KSCanonInlineParser.create(KSIncluder.create(file.parent))
+    val importers = object : KSParserDriverConstructorType {
       override fun create(
         context : KSParseContextType,
         file : Path)
-        : KSParserType {
+        : KSParserDriverType {
 
         LOG.trace("instantiating parser for {}", file)
         val iis = this
-        return object : KSParserType {
+        return object : KSParserDriverType {
           override fun parseBlock(
             context : KSParseContextType,
             file : Path)
@@ -85,7 +86,7 @@ class KSCanonPrettyPrinterTest : KSCanonPrettyPrinterContract() {
     val bp = KSCanonBlockParser.create(ip, importers)
 
     val e = sp.parse().get()
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(file.parent)
     val r = bp.parse(c, e, file)
     if (r is KSFailure) {
       LOG.error("errors: {}", r.errors)

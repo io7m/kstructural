@@ -44,6 +44,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
@@ -283,8 +284,9 @@ public final class KSExporter implements KSExporterType
         s.flush();
 
         KSExporter.LOG.debug("validating output file");
-        try (final InputStream is = Files.newInputStream(out_tmp)) {
-          if (!KSJingValidation.validate(out_tmp, is)) {
+        try (final InputStream is =
+               Files.newInputStream(out_tmp, LinkOption.NOFOLLOW_LINKS)) {
+          if (!KSJingValidation.validate(out_tmp.getParent(), out_tmp, is)) {
             KSExporter.LOG.error("{}: validation failed!", out_tmp);
           }
         } catch (final SAXException e) {

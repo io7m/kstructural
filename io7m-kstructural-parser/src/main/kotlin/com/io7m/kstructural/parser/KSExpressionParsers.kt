@@ -21,17 +21,21 @@ import com.io7m.jsx.lexer.JSXLexer
 import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
 import com.io7m.jsx.parser.JSXParserConfiguration
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.io.Reader
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import java.nio.file.LinkOption
 import java.nio.file.Path
 import java.util.Optional
 
 object KSExpressionParsers {
 
   fun create(file : Path) : KSExpressionParserType {
+    val s = Files.newInputStream(file, LinkOption.NOFOLLOW_LINKS)
     return createWithReader(
-      file, Files.newBufferedReader(file, StandardCharsets.UTF_8))
+      file, BufferedReader(InputStreamReader(s, StandardCharsets.UTF_8)))
   }
 
   fun createWithReader(
@@ -51,9 +55,13 @@ object KSExpressionParsers {
     val pc = pcb.build()
     val p = JSXParser.newParser(pc, lex)
 
-    return KSExpressionParserType {
-      p.parseExpressionOrEOF().map { ee -> KSExpression.of(ee) }
+    return object:KSExpressionParserType {
+      override fun close() {
+        reader.close()
+      }
+      override fun parse() : Optional<KSExpression> {
+        return p.parseExpressionOrEOF().map { ee -> KSExpression.of(ee) }
+      }
     }
   }
-
 }

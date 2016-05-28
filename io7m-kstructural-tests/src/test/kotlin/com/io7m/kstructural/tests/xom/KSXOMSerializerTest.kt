@@ -30,6 +30,7 @@ import nu.xom.Serializer
 import java.io.ByteArrayOutputStream
 import java.io.StringReader
 import java.nio.charset.StandardCharsets
+import java.nio.file.Paths
 import java.util.Optional
 import java.util.function.Function
 
@@ -53,7 +54,7 @@ class KSXOMSerializerTest : KSXOMSerializerContract() {
     val b = Builder()
     val d = b.build(StringReader(text))
     val p = KSXOMInlineParser.create()
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(Paths.get(""))
     val r = p.parse(c, d.rootElement)
     return (r as KSResult.KSSuccess).result
   }
@@ -62,7 +63,7 @@ class KSXOMSerializerTest : KSXOMSerializerContract() {
     val b = Builder()
     val d = b.build(StringReader(text))
     val p = KSXOMBlockParser.create(KSXOMInlineParser.create())
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(Paths.get(""))
     val r = p.parse(c, d.rootElement)
     return (r as KSResult.KSSuccess).result
   }

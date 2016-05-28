@@ -14,20 +14,22 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.parser;
+package com.io7m.kstructural.tests.parser.imperative
 
-import java.io.Closeable;
-import java.util.Optional;
+import com.io7m.kstructural.core.KSParserDriverType
+import com.io7m.kstructural.frontend.KSParsers
+import com.io7m.kstructural.parser.imperative.KSImperativeParserDriver
+import com.io7m.kstructural.tests.KSTestFilesystems
+import java.nio.file.FileSystem
 
-/**
- * The type of s-expression parsers.
- */
+class KSImperativeParserDriverTest : KSImperativeParserDriverContract() {
 
-public interface KSExpressionParserType extends Closeable
-{
-  /**
-   * @return An expression or {@link Optional#empty()} on EOF
-   */
+  override fun newFilesystem() : FileSystem {
+    return KSTestFilesystems.newUnixFilesystem()
+  }
 
-  Optional<KSExpression> parse();
+  override fun newDriver() : KSParserDriverType {
+    return KSImperativeParserDriver.newDriver(KSParsers.getInstance())
+  }
+
 }

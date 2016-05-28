@@ -14,7 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.tests.pretty.canon
+package com.io7m.kstructural.tests.pretty.imperative
 
 import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
@@ -32,6 +32,7 @@ import com.io7m.kstructural.core.evaluator.KSEvaluator
 import com.io7m.kstructural.frontend.KSParsers
 import com.io7m.kstructural.pretty.imperative.KSImperativePrettyPrinter
 import com.io7m.kstructural.tests.KSTestFilesystems
+import com.io7m.kstructural.tests.pretty.imperative.KSImperativePrettyPrinterContract
 import org.slf4j.LoggerFactory
 import java.io.StringWriter
 import java.nio.file.FileSystem
@@ -47,7 +48,7 @@ class KSImperativePrettyPrinterTest : KSImperativePrettyPrinterContract() {
     KSTestFilesystems.newUnixFilesystem()
 
   override fun parse(file : Path) : KSBlockDocument<KSEvaluation> {
-    val pc = KSParseContext.empty()
+    val pc = KSParseContext.empty(file.parent)
     val pp = KSParsers.createImperative(pc)
     val rr = pp.parseBlock(pc, file)
 

@@ -136,7 +136,7 @@ public final class KSOpCompileXHTML implements KSOpType
     throws Exception
   {
     final KSBlockDocument<KSEvaluation> document =
-      KSParseAndEvaluate.parseAndEvaluate(this.path);
+      KSParseAndEvaluate.parseAndEvaluate(this.path.getParent(), this.path);
 
     KSXOMXHTMLWriterType w = null;
     switch (this.pagination) {

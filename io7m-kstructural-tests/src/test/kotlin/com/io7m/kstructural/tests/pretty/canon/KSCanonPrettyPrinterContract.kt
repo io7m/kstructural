@@ -18,6 +18,7 @@ package com.io7m.kstructural.tests.pretty.canon
 
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.evaluator.KSEvaluation
+import com.io7m.kstructural.tests.pretty.imperative.KSImperativePrettyPrinterContract
 import org.apache.commons.io.IOUtils
 import org.junit.After
 import org.junit.Assert
@@ -45,7 +46,7 @@ abstract class KSCanonPrettyPrinterContract {
     this.filesystem!!.close()
   }
 
-  protected fun defaultFile() = filesystem!!.getPath("file.txt")
+  protected fun defaultFile() = filesystem!!.getPath("/file.txt")
 
   fun roundTrip(
     text : String,

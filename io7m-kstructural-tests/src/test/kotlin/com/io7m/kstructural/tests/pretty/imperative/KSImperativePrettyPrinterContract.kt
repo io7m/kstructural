@@ -14,7 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.kstructural.tests.pretty.canon
+package com.io7m.kstructural.tests.pretty.imperative
 
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.evaluator.KSEvaluation
@@ -45,7 +45,7 @@ abstract class KSImperativePrettyPrinterContract {
     this.filesystem!!.close()
   }
 
-  protected fun defaultFile() = filesystem!!.getPath("file.txt")
+  protected fun defaultFile() = filesystem!!.getPath("/file.txt")
 
   fun roundTrip(
     text : String,

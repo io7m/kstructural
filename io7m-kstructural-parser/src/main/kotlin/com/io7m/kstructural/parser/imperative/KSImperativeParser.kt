@@ -17,7 +17,7 @@ import com.io7m.kstructural.core.KSLexicalType
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSParserConstructorType
+import com.io7m.kstructural.core.KSParserDriverConstructorType
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSType
 import com.io7m.kstructural.parser.KSExpression
@@ -42,7 +42,7 @@ import java.util.Optional
 
 class KSImperativeParser private constructor(
   private val inlines : KSCanonInlineParserType,
-  private val importers : KSParserConstructorType)
+  private val importers : KSParserDriverConstructorType)
 : KSImperativeParserType {
 
   companion object {
@@ -117,7 +117,7 @@ class KSImperativeParser private constructor(
 
     fun create(
       inlines : KSCanonInlineParserType,
-      importers : KSParserConstructorType) : KSImperativeParserType =
+      importers : KSParserDriverConstructorType) : KSImperativeParserType =
       KSImperativeParser(inlines, importers)
   }
 

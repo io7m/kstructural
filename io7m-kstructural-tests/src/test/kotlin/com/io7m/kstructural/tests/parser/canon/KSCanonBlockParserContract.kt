@@ -65,22 +65,24 @@ abstract class KSCanonBlockParserContract {
 
   protected fun defaultFile() = filesystem!!.getPath("file.txt")
 
+  protected fun rootDirectory() = filesystem!!.rootDirectories.first()!!
+  
   data class Parser(
     val p : KSCanonBlockParserType,
     val s : () -> KSExpression)
 
   @Test fun testParaError0() {
     val pp = newParserForString("[paragraph [link]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSFailure<KSBlockParagraph<*>, KSParseError>
     Assert.assertTrue(e.partial.isPresent)
     Assert.assertEquals(1, e.errors.size)
   }
-
+  
   @Test fun testParaSimple() {
     val pp = newParserForString("[paragraph Hello.]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
     Assert.assertEquals(1, e.result.content.size)
@@ -90,7 +92,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testParaID() {
     val pp = newParserForString("[paragraph [id x] Hello.]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
     Assert.assertEquals("x", e.result.id.get().value)
@@ -101,7 +103,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testParaType() {
     val pp = newParserForString("[paragraph [type x] Hello.]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
     Assert.assertEquals("x", e.result.type.get().value)
@@ -112,7 +114,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testParaTypeID() {
     val pp = newParserForString("[paragraph [type x] [id y] Hello.]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
     Assert.assertEquals("x", e.result.type.get().value)
@@ -124,7 +126,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testParaIDType() {
     val pp = newParserForString("[paragraph [id y] [type x] Hello.]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
     Assert.assertEquals("x", e.result.type.get().value)
@@ -137,7 +139,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testSubsectionErrorEmpty() {
     val pp = newParserForString("[subsection]")
 
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
     e as KSFailure<KSBlockSubsection<*>, KSParseError>
 
     Assert.assertFalse(e.partial.isPresent)
@@ -147,7 +149,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testSubsectionErrorWrongContent() {
     val pp = newParserForString("[subsection [title t] [subsection [title w]]]")
 
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
     e as KSFailure<KSBlockSubsection<*>, KSParseError>
 
     Assert.assertTrue(e.partial.isPresent)
@@ -157,7 +159,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testSubsectionErrorWrongTitle() {
     val pp = newParserForString("[subsection [title x [term q]]]")
 
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
     e as KSFailure<KSBlockSubsection<*>, KSParseError>
 
     Assert.assertTrue(e.partial.isPresent)
@@ -166,7 +168,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testSubsection() {
     val pp = newParserForString("[subsection [title t]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -176,7 +178,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testSubsectionID() {
     val pp = newParserForString("[subsection [title t] [id x]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -186,7 +188,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testSubsectionIDType() {
     val pp = newParserForString("[subsection [title t] [id x] [type k]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -197,7 +199,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testSubsectionTypeID() {
     val pp = newParserForString("[subsection [title t] [type k] [id x]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -208,7 +210,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testSubsectionType() {
     val pp = newParserForString("[subsection [title t] [type k]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -219,7 +221,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testSubsectionContent() {
     val pp = newParserForString("[subsection [title t] [paragraph Hello.]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -232,7 +234,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testSection() {
     val pp = newParserForString("[section [title t] [paragraph p]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSectionWithContent<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -246,7 +248,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testSectionID() {
     val pp = newParserForString("[section [title t] [id x] [paragraph p]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSectionWithContent<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -260,7 +262,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testSectionIDType() {
     val pp = newParserForString("[section [title t] [id x] [type t] [paragraph p]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSectionWithContent<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -274,7 +276,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testSectionTypeID() {
     val pp = newParserForString("[section [title t] [type t] [id x] [paragraph p]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSectionWithContent<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -288,7 +290,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testSectionType() {
     val pp = newParserForString("[section [title t] [type t] [paragraph p]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSectionWithContent<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -304,7 +306,7 @@ abstract class KSCanonBlockParserContract {
     val pp = newParserForString("""
 [section [title t] [type t] [id x]
   [subsection [title ss0] [paragraph p]]]""")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSectionWithSubsections<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -321,7 +323,7 @@ abstract class KSCanonBlockParserContract {
     val pp = newParserForString("""
 [section [title t] [id x] [type t]
   [subsection [title ss0] [paragraph p]]]""")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSectionWithSubsections<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -338,7 +340,7 @@ abstract class KSCanonBlockParserContract {
     val pp = newParserForString("""
 [section [title t] [id x]
   [subsection [title ss0] [paragraph p]]]""")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSectionWithSubsections<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -355,7 +357,7 @@ abstract class KSCanonBlockParserContract {
     val pp = newParserForString("""
 [section [title t] [type t]
   [subsection [title ss0] [paragraph p]]]""")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSectionWithSubsections<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -372,7 +374,7 @@ abstract class KSCanonBlockParserContract {
     val pp = newParserForString("""
 [section [title t]
   [subsection [title ss0] [paragraph p]]]""")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSectionWithSubsections<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -390,7 +392,7 @@ abstract class KSCanonBlockParserContract {
 [section [title t]
   (subsection [title ss0] [paragraph p])
   (paragraph q)]""")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSFailure
     Assert.assertEquals(1, e.errors.size)
@@ -401,7 +403,7 @@ abstract class KSCanonBlockParserContract {
 [section [title t]
   (paragraph q)
   (subsection [title ss0] [paragraph p])]""")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSFailure
     Assert.assertEquals(1, e.errors.size)
@@ -411,7 +413,7 @@ abstract class KSCanonBlockParserContract {
     val pp = newParserForString("""
 [section [title t]
   (section [title s] [paragraph p])]""")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSFailure
     Assert.assertEquals(2, e.errors.size)
@@ -419,7 +421,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testSectionEmpty() {
     val pp = newParserForString("[section [title t]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSFailure
     Assert.assertEquals(1, e.errors.size)
@@ -428,7 +430,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testPartErrorEmpty() {
     val pp = newParserForString("[part]")
 
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
     e as KSFailure<KSBlockPart<*>, KSParseError>
 
     Assert.assertFalse(e.partial.isPresent)
@@ -438,7 +440,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testPartErrorWrongContent() {
     val pp = newParserForString("[part [title t] [part [title w]]]")
 
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
     e as KSFailure<KSBlockPart<*>, KSParseError>
 
     Assert.assertTrue(e.partial.isPresent)
@@ -448,7 +450,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testPartErrorWrongTitle() {
     val pp = newParserForString("[part [title x [term q]]]")
 
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
     e as KSFailure<KSBlockPart<*>, KSParseError>
 
     Assert.assertTrue(e.partial.isPresent)
@@ -457,7 +459,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testPart() {
     val pp = newParserForString("[part [title t] (section [title k] [paragraph p])]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockPart<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -471,7 +473,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testPartID() {
     val pp = newParserForString("[part [title t] [id x] (section [title k] [paragraph p])]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockPart<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -485,7 +487,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testPartIDType() {
     val pp = newParserForString("[part [title t] [id x] [type k] (section [title k] [paragraph p])]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockPart<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -500,7 +502,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testPartTypeID() {
     val pp = newParserForString("[part [title t] [type k] [id x] (section [title k] [paragraph p])]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockPart<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -515,7 +517,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testPartType() {
     val pp = newParserForString("[part [title t] [type k] (section [title k] [paragraph p])]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockPart<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -531,7 +533,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testPartContent() {
     val pp = newParserForString(
       "[part (title t) (section [title k] [paragraph p])]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockPart<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -545,7 +547,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testDocumentErrorEmpty() {
     val pp = newParserForString("[document]")
 
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
     e as KSFailure<KSBlockDocument<*>, KSParseError>
 
     Assert.assertFalse(e.partial.isPresent)
@@ -555,7 +557,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testDocumentErrorWrongContent() {
     val pp = newParserForString("[document [title t] [paragraph q]]")
 
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
     e as KSFailure<KSBlockDocument<*>, KSParseError>
 
     Assert.assertEquals(2, e.errors.size)
@@ -564,7 +566,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testDocumentErrorWrongTitle() {
     val pp = newParserForString("[document [title x [term q]]]")
 
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
     e as KSFailure<KSBlockDocument<*>, KSParseError>
 
     Assert.assertEquals(2, e.errors.size)
@@ -574,7 +576,7 @@ abstract class KSCanonBlockParserContract {
     val pp = newParserForString("""
 [document [title t] (section [title k] [paragraph p])]
     """)
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithSections<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -589,7 +591,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testDocumentSectionID() {
     val pp = newParserForString(
       "[document [title t] [id x] (section [title k] [paragraph p])]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithSections<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -604,7 +606,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testDocumentSectionIDType() {
     val pp = newParserForString("" +
       "[document [title t] [id x] [type k] (section [title k] [paragraph p])]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithSections<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -620,7 +622,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testDocumentSectionTypeID() {
     val pp = newParserForString(
       "[document [title t] [type k] [id x] (section [title k] [paragraph p])]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithSections<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -636,7 +638,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testDocumentSectionType() {
     val pp = newParserForString(
       "[document [title t] [type k] (section [title k] [paragraph p])]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithSections<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -652,7 +654,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testDocumentSectionContent() {
     val pp = newParserForString(
       "[document (title t) (section [title k] [paragraph p])]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithSections<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -666,7 +668,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testDocumentEmpty() {
     val pp = newParserForString(
       "[document (title t)]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSFailure<KSBlockDocumentWithSections<KSParse>, KSParseError>
     Assert.assertEquals(1, e.errors.size)
@@ -676,7 +678,7 @@ abstract class KSCanonBlockParserContract {
     val pp = newParserForString("""
 [document [title t] (part [title q] [section (title k) (paragraph p)])]
     """)
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithParts<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -691,7 +693,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testDocumentPartID() {
     val pp = newParserForString(
       "[document [title t] [id x] (part [title q] [section (title k) (paragraph p)])]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithParts<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -706,7 +708,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testDocumentPartIDType() {
     val pp = newParserForString("" +
       "[document [title t] [id x] [type k] (part [title q] [section (title k) (paragraph p)])]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithParts<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -722,7 +724,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testDocumentPartTypeID() {
     val pp = newParserForString(
       "[document [title t] [type k] [id x] (part [title q] [section (title k) (paragraph p)])]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithParts<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -738,7 +740,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testDocumentPartType() {
     val pp = newParserForString(
       "[document [title t] [type k] (part [title q] [section (title k) (paragraph p)])]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithParts<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -754,7 +756,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testDocumentPartContent() {
     val pp = newParserForString(
       "[document (title t) (part [title q] [section (title k) (paragraph p)])]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithParts<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -772,7 +774,7 @@ abstract class KSCanonBlockParserContract {
   (part [title q] [section (title k) (paragraph p)])
   (section [title s] [paragraph z])]
 """)
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
     e as KSFailure<KSBlockDocument<*>, KSParseError>
 
     Assert.assertTrue(e.partial.isPresent)
@@ -786,7 +788,7 @@ abstract class KSCanonBlockParserContract {
   (section [title s] [paragraph z])
   (part [title q] [section (title k) (paragraph p)])]
 """)
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
     e as KSFailure<KSBlockDocument<*>, KSParseError>
 
     Assert.assertTrue(e.partial.isPresent)
@@ -796,7 +798,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testFormalItemErrorEmpty() {
     val pp = newParserForString("[formal-item]")
 
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
     e as KSFailure<KSBlockFormalItem<*>, KSParseError>
 
     Assert.assertFalse(e.partial.isPresent)
@@ -806,7 +808,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testFormalItemErrorWrongContent() {
     val pp = newParserForString("[formal-item [title t] [subsection [title w]]]")
 
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
     e as KSFailure<KSBlockFormalItem<*>, KSParseError>
 
     Assert.assertTrue(e.partial.isPresent)
@@ -816,7 +818,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testFormalItemErrorWrongTitle() {
     val pp = newParserForString("[formal-item [title x [term q]]]")
 
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
     e as KSFailure<KSBlockFormalItem<*>, KSParseError>
 
     Assert.assertTrue(e.partial.isPresent)
@@ -825,7 +827,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testFormalItem() {
     val pp = newParserForString("[formal-item [title t]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockFormalItem<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -835,7 +837,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testFormalItemID() {
     val pp = newParserForString("[formal-item [title t] [id x]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockFormalItem<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -845,7 +847,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testFormalItemIDType() {
     val pp = newParserForString("[formal-item [title t] [id x] [type k]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockFormalItem<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -856,7 +858,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testFormalItemTypeID() {
     val pp = newParserForString("[formal-item [title t] [type k] [id x]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockFormalItem<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -867,7 +869,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testFormalItemType() {
     val pp = newParserForString("[formal-item [title t] [type k]]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockFormalItem<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -878,7 +880,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testFormalItemContent() {
     val pp = newParserForString("[formal-item [title t] Hello.]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockFormalItem<KSParse>, KSParseError>
     Assert.assertEquals("t", e.result.title[0].text)
@@ -891,7 +893,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testFootnoteErrorEmpty() {
     val pp = newParserForString("[footnote]")
 
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
     e as KSFailure
 
     Assert.assertFalse(e.partial.isPresent)
@@ -901,7 +903,7 @@ abstract class KSCanonBlockParserContract {
   @Test fun testFootnoteErrorWrongContent() {
     val pp = newParserForString("[footnote [id x] [subsection [title w]]]")
 
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
     e as KSFailure
 
     Assert.assertTrue(e.partial.isPresent)
@@ -910,7 +912,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testFootnote() {
     val pp = newParserForString("[footnote [id x] z]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockFootnote<KSParse>, KSParseError>
     Assert.assertEquals("x", e.result.id.get().value)
@@ -920,7 +922,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testFootnoteIDType() {
     val pp = newParserForString("[footnote [id x] [type t] z]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockFootnote<KSParse>, KSParseError>
     Assert.assertEquals("x", e.result.id.get().value)
@@ -934,7 +936,7 @@ abstract class KSCanonBlockParserContract {
     Files.write(other_path, "[paragraph p]".toByteArray(StandardCharsets.UTF_8))
 
     val pp = newParserForString("[import \"other.txt\"]")
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(rootDirectory())
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockImport<KSParse>, KSParseError>
@@ -946,12 +948,42 @@ abstract class KSCanonBlockParserContract {
     Assert.assertTrue(c.importsByElement.containsKey(r))
   }
 
+  @Test fun testImportOutside() {
+    val base = filesystem!!.getPath("/base").toAbsolutePath()
+    Files.createDirectories(base)
+
+    val other_path = filesystem!!.getPath("/other/file.sd").toAbsolutePath()
+    Files.createDirectories(other_path.parent)
+    Files.write(other_path, "[paragraph p]\n".toByteArray(StandardCharsets.UTF_8))
+
+    val pp = newParserForString("[import \"/other/file.sd\"]")
+    val c = KSParseContext.empty(base)
+    val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
+
+    e as KSFailure<KSBlockImport<KSParse>, KSParseError>
+  }
+
+  @Test fun testImportOutsideRelative() {
+    val base = filesystem!!.getPath("/base").toAbsolutePath()
+    Files.createDirectories(base)
+
+    val other_path = filesystem!!.getPath("/other/file.sd").toAbsolutePath()
+    Files.createDirectories(other_path.parent)
+    Files.write(other_path, "[paragraph p]\n".toByteArray(StandardCharsets.UTF_8))
+
+    val pp = newParserForString("[import \"../other/file.sd\"]")
+    val c = KSParseContext.empty(base)
+    val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
+
+    e as KSFailure<KSBlockImport<KSParse>, KSParseError>
+  }
+
   @Test fun testImportNonexistent() {
     val other_path = filesystem!!.getPath("nonexistent.txt").toAbsolutePath()
     Files.deleteIfExists(other_path)
 
     val pp = newParserForString("[import \"nonexistent.txt\"]")
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(rootDirectory())
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSFailure<KSBlockImport<KSParse>, KSParseError>
@@ -959,7 +991,7 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testImportIncorrect() {
     val pp = newParserForString("[import [x]]")
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(rootDirectory())
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSFailure<KSBlockImport<KSParse>, KSParseError>
@@ -975,7 +1007,7 @@ abstract class KSCanonBlockParserContract {
   [import "other.txt"]
   [import "other.txt"]]
 """)
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(rootDirectory())
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSubsection<KSParse>, KSParseError>
@@ -995,7 +1027,7 @@ abstract class KSCanonBlockParserContract {
 [document [title d]
   [import "other.txt"]]
 """)
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(rootDirectory())
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithSections<KSParse>, KSParseError>
@@ -1015,7 +1047,7 @@ abstract class KSCanonBlockParserContract {
 [document [title d]
   [import "other.txt"]]
 """)
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(rootDirectory())
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockDocumentWithParts<KSParse>, KSParseError>
@@ -1032,7 +1064,7 @@ abstract class KSCanonBlockParserContract {
 [section [title d]
   [import "other.txt"]]
 """)
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(rootDirectory())
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSectionWithContent<KSParse>, KSParseError>
@@ -1050,7 +1082,7 @@ abstract class KSCanonBlockParserContract {
 [section [title d]
   [import "other.txt"]]
 """)
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(rootDirectory())
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockSectionWithSubsections<KSParse>, KSParseError>
@@ -1067,7 +1099,7 @@ abstract class KSCanonBlockParserContract {
 [part [title p]
   [import "other.txt"]]
 """)
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(rootDirectory())
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockPart<KSParse>, KSParseError>
@@ -1084,7 +1116,7 @@ abstract class KSCanonBlockParserContract {
     Files.write(third_path, """[import "first.txt"]""".toByteArray(StandardCharsets.UTF_8))
 
     val pp = newParserForString("""[import "first.txt"]]""")
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(rootDirectory())
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSFailure
@@ -1102,7 +1134,7 @@ abstract class KSCanonBlockParserContract {
     Files.write(third_path, """[paragraph p]""".toByteArray(StandardCharsets.UTF_8))
 
     val pp = newParserForString("""[import "/a/first.txt"]]""")
-    val c = KSParseContext.empty()
+    val c = KSParseContext.empty(rootDirectory())
     val e = pp.p.parse(c, pp.s.invoke(), defaultFile())
 
     e as KSSuccess<KSBlockPart<KSParse>, KSParseError>
@@ -1111,14 +1143,14 @@ abstract class KSCanonBlockParserContract {
 
   @Test fun testIDInvalid() {
     val pp = newParserForString("[paragraph [id -] Hello.]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSFailure
   }
 
   @Test fun testTypeInvalid() {
     val pp = newParserForString("[paragraph [type -] Hello.]")
-    val e = pp.p.parse(KSParseContext.empty(), pp.s.invoke(), defaultFile())
+    val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSFailure
   }

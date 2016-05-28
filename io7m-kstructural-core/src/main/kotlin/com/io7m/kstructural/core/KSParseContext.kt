@@ -35,7 +35,8 @@ class KSParseContext private constructor(
   override val importsByPath : MutableMap<Path, KSBlock<KSParse>>,
   override val importPathsByElement : MutableMap<KSBlockImport<KSParse>, Path>,
   override val importsByElement : MutableMap<KSBlock<KSParse>, KSBlockImport<KSParse>>,
-  override val importPathsEdgesByElement : MutableMap<KSBlockImport<KSParse>, KSImportPathEdge>)
+  override val importPathsEdgesByElement : MutableMap<KSBlockImport<KSParse>, KSImportPathEdge>,
+  override val baseDirectory : Path)
 : KSParseContextType {
 
   override fun checkImportCycle(
@@ -111,8 +112,9 @@ class KSParseContext private constructor(
   companion object {
     private val LOG = LoggerFactory.getLogger(KSParseContext::class.java)
 
-    fun empty() : KSParseContextType {
+    fun empty(base : Path) : KSParseContextType {
       return KSParseContext(
+        baseDirectory = base,
         includes = HashMap(),
         includePaths = IdentityHashMap(),
         includesByTexts = IdentityHashMap(),

@@ -16,14 +16,16 @@
 
 package com.io7m.kstructural.core
 
+import com.io7m.kstructural.core.KSElement.KSBlock
 import java.io.IOException
 import java.nio.file.Path
 
-interface KSParserConstructorType {
+interface KSParserDriverType {
 
   @Throws(exceptionClasses = IOException::class)
-  fun create(
+  fun parseBlock(
     context : KSParseContextType,
-    file : Path) : KSParserType
+    file : Path)
+    : KSResult<KSBlock<KSParse>, KSParseError>
 
 }

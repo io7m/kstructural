@@ -47,7 +47,7 @@ import com.io7m.kstructural.core.KSLexicalType
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
 import com.io7m.kstructural.core.KSParseError
-import com.io7m.kstructural.core.KSParserConstructorType
+import com.io7m.kstructural.core.KSParserDriverConstructorType
 import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSSectionContent
 import com.io7m.kstructural.core.KSSectionContent.KSSectionSubsection
@@ -69,7 +69,7 @@ import java.util.Optional
 
 class KSCanonBlockParser private constructor(
   private val inlines : KSCanonInlineParserType,
-  private val importers : KSParserConstructorType)
+  private val importers : KSParserDriverConstructorType)
 : KSCanonBlockParserType {
 
   private data class Context(
@@ -82,7 +82,7 @@ class KSCanonBlockParser private constructor(
 
     fun create(
       inlines : KSCanonInlineParserType,
-      importers : KSParserConstructorType)
+      importers : KSParserDriverConstructorType)
       : KSCanonBlockParserType =
       KSCanonBlockParser(inlines, importers)
 

@@ -24,7 +24,7 @@ import com.io7m.kstructural.core.KSParse;
 import com.io7m.kstructural.core.KSParseContext;
 import com.io7m.kstructural.core.KSParseContextType;
 import com.io7m.kstructural.core.KSParseError;
-import com.io7m.kstructural.core.KSParserType;
+import com.io7m.kstructural.core.KSParserDriverType;
 import com.io7m.kstructural.core.KSResult;
 import com.io7m.kstructural.core.evaluator.KSEvaluation;
 import com.io7m.kstructural.core.evaluator.KSEvaluationError;
@@ -51,20 +51,22 @@ final class KSParseAndEvaluate
   }
 
   static KSBlockDocument<KSEvaluation> parseAndEvaluate(
-    final Path path)
+    final Path base,
+    final Path file)
     throws IOException, KSOpFailed
   {
-    KSParseAndEvaluate.LOG.debug("checking {}", path);
+    KSParseAndEvaluate.LOG.debug("base directory: {}", base);
+    KSParseAndEvaluate.LOG.debug("checking:       {}", file);
 
-    final KSParseContextType context = KSParseContext.Companion.empty();
+    final KSParseContextType context = KSParseContext.Companion.empty(base);
     final KSParsers parsers = KSParsers.getInstance();
-    final KSParserType p = parsers.create(context, path);
+    final KSParserDriverType p = parsers.create(context, file);
 
     KSParseAndEvaluate.LOG.debug("parsing");
 
     final KSResult<KSElement.KSBlock<KSParse>, KSParseError> parse_r;
     try {
-      parse_r = p.parseBlock(context, path);
+      parse_r = p.parseBlock(context, file);
     } catch (final NoSuchFileException e) {
       KSParseAndEvaluate.LOG.error("file not found: {}", p);
       throw e;
@@ -92,7 +94,7 @@ final class KSParseAndEvaluate
 
       final KSElement.KSBlock<KSParse> r = s.getResult();
       return KSBlockMatch.INSTANCE.match(
-        path,
+        file,
         r,
         (c, doc) -> {
           KSParseAndEvaluate.LOG.debug("evaluating document");
