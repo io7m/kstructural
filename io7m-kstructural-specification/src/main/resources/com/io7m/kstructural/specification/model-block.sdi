@@ -23,6 +23,15 @@ Identifiers are restricted to combinations of letters, numbers,
 [verbatim [include "id.ebnf"]]
 
 [paragraph]
+An [term [type expression] id] value [term [type expression] k] is said to
+[term [type term] exist] if there is exactly one element in the document
+[term [type expression] d] such that
+[term [type expression] "(hasID k d == Just k)"]:
+
+[formal-item [title Identifier Existence]]
+[verbatim [include "IDExistence.hs"]]
+
+[paragraph]
 Implementations are required to check that all [term [type expression] id]
 values are unique within a document, and that all [term [type expression] id]
 values referenced by links within a document exist.
