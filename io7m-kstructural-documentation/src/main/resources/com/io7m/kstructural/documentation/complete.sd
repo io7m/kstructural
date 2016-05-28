@@ -163,7 +163,9 @@
     [subsection
       [title ASCII]
       [paragraph
-        This paragraph contains the entire ASCII space:
+        This paragraph contains the entire ASCII space. Note that
+        unrepresentable characters may be replaced with
+        [term [type constant] U+FFFD]:
         [verbatim [include "ascii.txt"]]]]
 
     [subsection

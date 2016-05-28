@@ -39,7 +39,7 @@ may freely combine elements written in any of the formats via the standard
 [subsection [title Portability]]
 [paragraph]
 The [term [type package] kstructural] implementation is written primarily
-in the [link-ext [target "http://http://kotlinlang.org/"] Kotlin] language
+in the [link-ext [target "http://kotlinlang.org/"] Kotlin] language
 using APIs defined in Java 8. The implementation can therefore execute on
 any JVM supporting Java 8 and above. This also means that the language can
 be used to generate documentation as part of the build process for Java
@@ -58,7 +58,11 @@ a simple import system: Documents may import elements or raw text from files,
 so large technical manuals can be cleanly separated into files based on logical
 content. Intra-document links are fully supported and full referential integrity
 checks are performed to ensure that links always point to elements that actually
-exist.
+exist. Circular imports are detected and prevented. Additionally, the parsers
+are constructed to be secure by default: Malicious documents cannot import
+files outside of a given base directory, and in the case of the XML encoding,
+cannot cause the XML parser to perform requests over the network for remote
+content.
 
 [subsection [title Comparison With Other Systems]]
 [paragraph]
