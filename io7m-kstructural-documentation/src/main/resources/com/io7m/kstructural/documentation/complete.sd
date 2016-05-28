@@ -158,7 +158,8 @@
     [subsection
       [title Verbatim]
       [paragraph
-        This paragraph contains verbatim text: [verbatim "This is verbatim text."]]]
+        This paragraph contains verbatim text:
+        [verbatim "This is verbatim text."]]]
 
     [subsection
       [title ASCII]
@@ -166,7 +167,19 @@
         This paragraph contains the entire ASCII space. Note that
         unrepresentable characters may be replaced with
         [term [type constant] U+FFFD]:
-        [verbatim [include "ascii.txt"]]]]
+        [verbatim [include "ascii.txt"]]]
+      [paragraph
+        This paragraph contains the entire ASCII space again, but
+        not contained within a verbatim element:
+        [include "ascii.txt"]]]
+
+    [subsection
+      [title LaTeX]
+      [paragraph
+        This paragraph contains text intended to injure the LaTeX backend by
+        trying to insert an [term [type command] \end{verbatim}] command inside
+        a verbatim element:
+        [verbatim "\\end{verbatim}"]]]
 
     [subsection
       [title Target]

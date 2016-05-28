@@ -1,5 +1,6 @@
 bold       : bold
 command    : mono
+constant   : mono
 expression : mono
 file       : mono
 function   : mono

@@ -59,7 +59,6 @@ object KSLaTeXWriter : KSLaTeXWriterType {
     output.write("\\documentclass[twoside,11pt]{book}\n")
     output.write("\n")
     output.write("\\usepackage{graphicx}\n")
-    output.write("\\usepackage[utf8]{inputenc}\n")
     output.write("\\usepackage[margin=1in]{geometry}\n")
     output.write("\\usepackage{hyperref}\n")
     output.write("\n")
@@ -318,13 +317,13 @@ object KSLaTeXWriter : KSLaTeXWriterType {
 
         is KSInlineVerbatim          -> {
           output.write("\\begin{verbatim}\n")
-          output.write(e_curr.text.text)
+          output.write(KSLaTeXEscapes.escapeForVerbatim(e_curr.text.text))
           output.write("\n")
           output.write("\\end{verbatim}\n")
         }
 
         is KSInlineText              -> {
-          output.write(e_curr.text)
+          output.write(KSLaTeXEscapes.escapeAll(e_curr.text))
         }
 
         is KSInlineLink              -> {
@@ -341,7 +340,7 @@ object KSLaTeXWriter : KSLaTeXWriterType {
 
                   }
                   is KSLinkContent.KSLinkText  -> {
-                    output.write(lc.actual.text)
+                    output.write(KSLaTeXEscapes.escapeAll(lc.actual.text))
                   }
                 }
                 if (i < max) {
@@ -362,7 +361,7 @@ object KSLaTeXWriter : KSLaTeXWriterType {
 
                   }
                   is KSLinkContent.KSLinkText  -> {
-                    output.write(lc.actual.text)
+                    output.write(KSLaTeXEscapes.escapeAll(lc.actual.text))
                   }
                 }
                 if (i < max) {
@@ -458,7 +457,7 @@ object KSLaTeXWriter : KSLaTeXWriterType {
     val sb = StringBuilder()
     val max = text.size - 1
     for (i in 0 .. max) {
-      sb.append(text[i])
+      sb.append(KSLaTeXEscapes.escapeAll(text[i].text))
       if (i < max) {
         sb.append(" ")
       }

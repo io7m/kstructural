@@ -494,7 +494,7 @@ internal object KSXOM {
   }
 
   fun inlineText(c : KSInlineText<KSEvaluation>) =
-    Text(c.text)
+    Text(KSXOMEscapeCharacters.filterXML10(c.text))
 
   fun partContainer(
     prov : KSXOMLinkProviderType,
