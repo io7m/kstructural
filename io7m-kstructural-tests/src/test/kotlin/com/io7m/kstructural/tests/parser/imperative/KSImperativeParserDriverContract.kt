@@ -16,43 +16,14 @@
 
 package com.io7m.kstructural.tests.parser.imperative
 
-import com.io7m.jlexing.core.LexicalPositionType
 import com.io7m.kstructural.core.KSElement.KSBlock
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockImport
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockParagraph
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockPart
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithContent
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSectionWithSubsections
-import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
-import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
-import com.io7m.kstructural.core.KSID
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContext
 import com.io7m.kstructural.core.KSParseError
 import com.io7m.kstructural.core.KSParserDriverType
-import com.io7m.kstructural.core.KSResult
 import com.io7m.kstructural.core.KSResult.KSFailure
 import com.io7m.kstructural.core.KSResult.KSSuccess
-import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFootnote
-import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFormalItem
-import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionParagraph
-import com.io7m.kstructural.core.KSType
-import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeDocument
-import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeFootnote
-import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeFormalItem
-import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeImport
-import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeParagraph
-import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativePart
-import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeSection
-import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeCommand.KSImperativeSubsection
-import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeEOF
-import com.io7m.kstructural.parser.imperative.KSImperative.KSImperativeInline
-import com.io7m.kstructural.parser.imperative.KSImperativeBuilderType
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -62,9 +33,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
-import java.util.Optional
-import java.util.logging.Logger
 
 abstract class KSImperativeParserDriverContract {
 
@@ -93,6 +61,17 @@ abstract class KSImperativeParserDriverContract {
 
   protected fun rootDirectory() =
     filesystem!!.rootDirectories.first()!!
+
+  private fun showErrors(r : KSFailure<KSBlock<KSParse>, KSParseError>) {
+    r.errors.forEachIndexed { i, e ->
+      LOG.error("[{}]: {}", i, e)
+    }
+  }
+
+  private fun write(s : String, file : Path) {
+    if (file.parent != null) Files.createDirectories(file.parent)
+    Files.write(file.toAbsolutePath(), s.toByteArray(StandardCharsets.UTF_8))
+  }
 
   @Test fun testErrorUnexpectedEOF() {
     write("""""", defaultFile())
@@ -229,16 +208,4 @@ A B C
 
     r as KSSuccess<KSBlockParagraph<KSParse>, KSParseError>
   }
-
-  private fun showErrors(r : KSFailure<KSBlock<KSParse>, KSParseError>) {
-    r.errors.forEachIndexed { i, e ->
-      LOG.error("[{}]: {}", i, e)
-    }
-  }
-
-  private fun write(s : String, file : Path) {
-    if (file.parent != null) Files.createDirectories(file.parent)
-    Files.write(file.toAbsolutePath(), s.toByteArray(StandardCharsets.UTF_8))
-  }
-
 }

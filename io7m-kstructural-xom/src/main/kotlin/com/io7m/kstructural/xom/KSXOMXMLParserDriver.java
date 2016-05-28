@@ -36,11 +36,16 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -79,10 +84,12 @@ public final class KSXOMXMLParserDriver implements KSParserDriverType
   }
 
   private static KSResult<Unit, KSParseError> validateDocument(
+    final Path base_directory,
     final Path file)
   {
-    try (final InputStream is = Files.newInputStream(file)) {
-      if (!KSJingValidation.validate(file, is)) {
+    try (final InputStream is =
+           Files.newInputStream(file, LinkOption.NOFOLLOW_LINKS)) {
+      if (!KSJingValidation.validate(base_directory, file, is)) {
         final KSParseError pe =
           new KSParseError(Optional.empty(), "Validation failed");
         return KSResults.fail(pe);
@@ -100,11 +107,13 @@ public final class KSXOMXMLParserDriver implements KSParserDriverType
   }
 
   private static KSResult<Document, KSParseError> parseDocument(
+    final Path base_directory,
     final Path file)
     throws IOException
   {
-    try (final InputStream is = Files.newInputStream(file)) {
-      final Builder b = new Builder();
+    try (final InputStream is =
+           Files.newInputStream(file, LinkOption.NOFOLLOW_LINKS)) {
+      final Builder b = KSXOMXMLParserDriver.newBuilder(base_directory);
       final Document e = b.build(is, file.toString());
       return new KSResult.KSSuccess<>(e);
     } catch (final ValidityException e) {
@@ -114,20 +123,73 @@ public final class KSXOMXMLParserDriver implements KSParserDriverType
           e.getLineNumber(),
           e.getColumnNumber(),
           fs.getPath(e.getURI()));
+      final StringBuilder sb = new StringBuilder(128);
+      sb.append("Parsing failed.");
+      sb.append(System.lineSeparator());
+      sb.append("  Cause: ");
+      sb.append(e);
+      sb.append(System.lineSeparator());
+
       final KSParseError pe =
-        new KSParseError(Optional.of(pos), "Validation failed");
+        new KSParseError(Optional.of(pos), sb.toString());
       return KSResults.fail(pe);
     } catch (final ParsingException e) {
+      if (KSXOMXMLParserDriver.LOG.isDebugEnabled()) {
+        KSXOMXMLParserDriver.LOG.debug("parsing exception: ", e);
+      }
+
       final FileSystem fs = file.getFileSystem();
       final ImmutableLexicalPositionType<Path> pos =
         ImmutableLexicalPosition.newPositionWithFile(
           e.getLineNumber(),
           e.getColumnNumber(),
           fs.getPath(e.getURI()));
+
+      final StringBuilder sb = new StringBuilder(128);
+      sb.append("Parsing failed.");
+      sb.append(System.lineSeparator());
+      sb.append("  Cause: ");
+      sb.append(e);
+      sb.append(System.lineSeparator());
+
       final KSParseError pe =
-        new KSParseError(Optional.of(pos), "Validation failed");
+        new KSParseError(Optional.of(pos), sb.toString());
+      return KSResults.fail(pe);
+    } catch (final ParserConfigurationException e) {
+      final StringBuilder sb = new StringBuilder(128);
+      sb.append("Parsing failed.");
+      sb.append(System.lineSeparator());
+      sb.append("  Cause: ");
+      sb.append(e);
+      sb.append(System.lineSeparator());
+      final KSParseError pe = new KSParseError(Optional.empty(), sb.toString());
+      return KSResults.fail(pe);
+    } catch (final SAXException e) {
+      final StringBuilder sb = new StringBuilder(128);
+      sb.append("Parsing failed.");
+      sb.append(System.lineSeparator());
+      sb.append("  Cause: ");
+      sb.append(e);
+      sb.append(System.lineSeparator());
+      final KSParseError pe = new KSParseError(Optional.empty(), sb.toString());
       return KSResults.fail(pe);
     }
+  }
+
+  @NotNull
+  private static Builder newBuilder(final Path base)
+    throws ParserConfigurationException, SAXException
+  {
+    final SAXParserFactory factory = SAXParserFactory.newInstance();
+    factory.setValidating(false);
+    factory.setNamespaceAware(true);
+    factory.setXIncludeAware(true);
+    factory.setFeature("http://apache.org/xml/features/xinclude", true);
+
+    final SAXParser file_parser = factory.newSAXParser();
+    final XMLReader file_reader = file_parser.getXMLReader();
+    file_reader.setEntityResolver(new KSRestrictedEntityResolver(base));
+    return new Builder(file_reader);
   }
 
   private static KSResult<KSElement.KSBlock<KSParse>, KSParseError> failOutsideBase(
@@ -164,11 +226,13 @@ public final class KSXOMXMLParserDriver implements KSParserDriverType
       return KSXOMXMLParserDriver.failOutsideBase(file, base);
     }
 
-    final KSResult<Document, KSParseError> d = KSXOMXMLParserDriver.parseDocument(
-      file);
+    final KSResult<Document, KSParseError> d =
+      KSXOMXMLParserDriver.parseDocument(context.getBaseDirectory(), file);
+
     return d.flatMap(
       document ->
-        KSXOMXMLParserDriver.validateDocument(file).flatMap(x -> {
+        KSXOMXMLParserDriver.validateDocument(
+          context.getBaseDirectory(), file).flatMap(x -> {
           final KSXOMInlineParserType ip =
             KSXOMInlineParser.Companion.create();
           final KSXOMBlockParserType bp =
