@@ -161,6 +161,12 @@
         This paragraph contains verbatim text: [verbatim "This is verbatim text."]]]
 
     [subsection
+      [title ASCII]
+      [paragraph
+        This paragraph contains the entire ASCII space:
+        [verbatim [include "ascii.txt"]]]]
+
+    [subsection
       [title Target]
       [id exhaustive.target]
       [paragraph

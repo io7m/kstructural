@@ -118,21 +118,21 @@ internal object KSXOM {
 
   private fun css(u : URI) : Element {
     val e = Element("link", XHTML_URI_TEXT);
-    e.addAttribute(Attribute("rel", null, "stylesheet"));
-    e.addAttribute(Attribute("type", null, "text/css"));
-    e.addAttribute(Attribute("href", null, u.toString()));
+    e.addAttribute(attr("rel", "stylesheet"));
+    e.addAttribute(attr("type", "text/css"));
+    e.addAttribute(attr("href", u.toString()));
     return e;
   }
 
   fun title(text : String) : Element {
     val e = Element("title", XHTML_URI_TEXT)
-    e.appendChild(text)
+    appendEscapedText(e, text)
     return e
   }
 
   fun bodyContainer() : Element {
     val e = Element("div", XHTML_URI_TEXT)
-    e.addAttribute(Attribute("class", null, prefixedName("body")))
+    e.addAttribute(attr("class", prefixedName("body")))
     return e
   }
 
@@ -144,16 +144,16 @@ internal object KSXOM {
     val number = number_opt.get()
 
     val sc = Element("div", XHTML_URI_TEXT)
-    sc.addAttribute(Attribute("class", null, prefixedName("section_container")))
+    sc.addAttribute(attr("class", prefixedName("section_container")))
 
     s.id.ifPresent { id ->
       val stid_a = Element("a", XHTML_URI_TEXT)
-      stid_a.addAttribute(Attribute("id", null, id.value))
+      stid_a.addAttribute(attr("id", id.value))
       sc.appendChild(stid_a)
     }
 
     val stn = Element("div", XHTML_URI_TEXT)
-    stn.addAttribute(Attribute("class", null, prefixedName("section_title_number")))
+    stn.addAttribute(attr("class", prefixedName("section_title_number")))
 
     val title_text = KSTextUtilities.concatenate(s.title)
     val title = StringBuilder()
@@ -163,15 +163,15 @@ internal object KSXOM {
     title.append(title_text)
 
     val stn_a = Element("a", XHTML_URI_TEXT)
-    stn_a.addAttribute(Attribute("id", null, prov.numberAnchorID(number)))
-    stn_a.addAttribute(Attribute("href", null, prov.numberAnchor(number)))
-    stn_a.addAttribute(Attribute("title", null, title.toString()))
-    stn_a.appendChild(number.toString())
+    stn_a.addAttribute(attr("id", prov.numberAnchorID(number)))
+    stn_a.addAttribute(attr("href", prov.numberAnchor(number)))
+    stn_a.addAttribute(attr("title", title.toString()))
+    appendEscapedText(stn_a, number.toString())
     stn.appendChild(stn_a)
 
     val st = Element("div", XHTML_URI_TEXT)
-    st.addAttribute(Attribute("class", null, prefixedName("section_title")))
-    st.appendChild(title_text)
+    st.addAttribute(attr("class", prefixedName("section_title")))
+    appendEscapedText(st, title_text)
 
     sc.appendChild(stn)
     sc.appendChild(st)
@@ -194,16 +194,16 @@ internal object KSXOM {
     val number = number_opt.get()
 
     val sc = Element("div", XHTML_URI_TEXT)
-    sc.addAttribute(Attribute("class", null, prefixedName("subsection_container")))
+    sc.addAttribute(attr("class", prefixedName("subsection_container")))
 
     ss.id.ifPresent { id ->
       val stid_a = Element("a", XHTML_URI_TEXT)
-      stid_a.addAttribute(Attribute("id", null, id.value))
+      stid_a.addAttribute(attr("id", id.value))
       sc.appendChild(stid_a)
     }
 
     val stn = Element("div", XHTML_URI_TEXT)
-    stn.addAttribute(Attribute("class", null, prefixedName("subsection_title_number")))
+    stn.addAttribute(attr("class", prefixedName("subsection_title_number")))
 
     val title_text = KSTextUtilities.concatenate(ss.title)
     val title = StringBuilder()
@@ -213,15 +213,15 @@ internal object KSXOM {
     title.append(title_text)
 
     val stn_a = Element("a", XHTML_URI_TEXT)
-    stn_a.addAttribute(Attribute("id", null, prov.numberAnchorID(number)))
-    stn_a.addAttribute(Attribute("href", null, prov.numberAnchor(number)))
-    stn_a.addAttribute(Attribute("title", null, title.toString()))
-    stn_a.appendChild(number.toString())
+    stn_a.addAttribute(attr("id", prov.numberAnchorID(number)))
+    stn_a.addAttribute(attr("href", prov.numberAnchor(number)))
+    stn_a.addAttribute(attr("title", title.toString()))
+    appendEscapedText(stn_a, number.toString())
     stn.appendChild(stn_a)
 
     val st = Element("div", XHTML_URI_TEXT)
-    st.addAttribute(Attribute("class", null, prefixedName("subsection_title")))
-    st.appendChild(title_text)
+    st.addAttribute(attr("class", prefixedName("subsection_title")))
+    appendEscapedText(st, title_text)
 
     sc.appendChild(stn)
     sc.appendChild(st)
@@ -241,30 +241,30 @@ internal object KSXOM {
     val number = number_opt.get()
 
     val sc = Element("div", XHTML_URI_TEXT)
-    sc.addAttribute(Attribute("class", null, prefixedName("paragraph_container")))
+    sc.addAttribute(attr("class", prefixedName("paragraph_container")))
 
     p.id.ifPresent { id ->
       val stid_a = Element("a", XHTML_URI_TEXT)
-      stid_a.addAttribute(Attribute("id", null, id.value))
+      stid_a.addAttribute(attr("id", id.value))
       sc.appendChild(stid_a)
     }
 
     val stn = Element("div", XHTML_URI_TEXT)
-    stn.addAttribute(Attribute("class", null, prefixedName("paragraph_number")))
+    stn.addAttribute(attr("class", prefixedName("paragraph_number")))
 
     val title = StringBuilder()
     title.append("Paragraph ")
     title.append(number)
 
     val stn_a = Element("a", XHTML_URI_TEXT)
-    stn_a.addAttribute(Attribute("id", null, prov.numberAnchorID(number)))
-    stn_a.addAttribute(Attribute("href", null, prov.numberAnchor(number)))
-    stn_a.addAttribute(Attribute("title", null, title.toString()))
-    stn_a.appendChild(number.least.toString())
+    stn_a.addAttribute(attr("id", prov.numberAnchorID(number)))
+    stn_a.addAttribute(attr("href", prov.numberAnchor(number)))
+    stn_a.addAttribute(attr("title", title.toString()))
+    appendEscapedText(stn_a, number.least.toString())
     stn.appendChild(stn_a)
 
     val scc = Element("div", XHTML_URI_TEXT)
-    scc.addAttribute(Attribute("class", null, prefixedName("paragraph")))
+    scc.addAttribute(attr("class", prefixedName("paragraph")))
 
     sc.appendChild(stn)
     sc.appendChild(scc)
@@ -307,16 +307,16 @@ internal object KSXOM {
     title.append(")")
 
     val a = Element("a", XHTML_URI_TEXT)
-    a.addAttribute(Attribute("href", null, prov.footnoteLink(fn, ref.index)))
-    a.addAttribute(Attribute("id", null, prov.footnoteReferenceAnchor(ref)))
-    a.addAttribute(Attribute("title", null, title.toString()))
-    a.appendChild(fn.data.index.toString())
+    a.addAttribute(attr("href", prov.footnoteLink(fn, ref.index)))
+    a.addAttribute(attr("id", prov.footnoteReferenceAnchor(ref)))
+    a.addAttribute(attr("title", title.toString()))
+    appendEscapedText(a, fn.data.index.toString())
 
     val e = Element("span", XHTML_URI_TEXT)
-    e.addAttribute(Attribute("class", null, prefixedName("footnote_reference")))
-    e.appendChild("[")
+    e.addAttribute(attr("class", prefixedName("footnote_reference")))
+    appendEscapedText(e, "[")
     e.appendChild(a)
-    e.appendChild("]")
+    appendEscapedText(e, "]")
     return e
   }
 
@@ -330,21 +330,21 @@ internal object KSXOM {
     val classes_text = KSTextUtilities.concatenate(classes)
 
     val sc = Element("table", XHTML_URI_TEXT)
-    sc.addAttribute(Attribute("class", null, classes_text))
+    sc.addAttribute(attr("class", classes_text))
 
     val summary_text = KSTextUtilities.concatenate(t.summary.content)
-    sc.addAttribute(Attribute("summary", null, summary_text))
+    sc.addAttribute(attr("summary", summary_text))
 
     if (t.head.isPresent) {
       val th = t.head.get()
       val tsc = Element("thead", XHTML_URI_TEXT)
-      tsc.addAttribute(Attribute("class", null, prefixedName("table_head")))
+      tsc.addAttribute(attr("class", prefixedName("table_head")))
       val tsc_row = Element("tr", XHTML_URI_TEXT)
       tsc.appendChild(tsc_row)
 
       th.column_names.forEach { n ->
         val tsc_cell = Element("th", XHTML_URI_TEXT)
-        tsc_cell.addAttribute(Attribute("class", null, prefixedName("table_column_name")))
+        tsc_cell.addAttribute(attr("class", prefixedName("table_column_name")))
         KSXOMSpacing.appendWithSpace(tsc_cell, n.content, { ic -> inline(prov, ic) })
         tsc_row.appendChild(tsc_cell)
       }
@@ -353,7 +353,7 @@ internal object KSXOM {
     }
 
     val tsc = Element("tbody", XHTML_URI_TEXT)
-    tsc.addAttribute(Attribute("class", null, prefixedName("table_body")))
+    tsc.addAttribute(attr("class", prefixedName("table_body")))
     sc.appendChild(tsc)
 
     t.body.rows.forEach { row ->
@@ -362,7 +362,7 @@ internal object KSXOM {
 
       row.cells.forEach { cell ->
         val tsc_cell = Element("td", XHTML_URI_TEXT)
-        tsc_cell.addAttribute(Attribute("class", null, prefixedName("table_cell")))
+        tsc_cell.addAttribute(attr("class", prefixedName("table_cell")))
         tsc_row.appendChild(tsc_cell)
         KSXOMSpacing.appendWithSpace(tsc_cell, cell.content, { ic -> inline(prov, ic) })
       }
@@ -380,10 +380,10 @@ internal object KSXOM {
     val classes_text = KSTextUtilities.concatenate(classes)
 
     val sc = Element("ul", XHTML_URI_TEXT)
-    sc.addAttribute(Attribute("class", null, classes_text))
+    sc.addAttribute(attr("class", classes_text))
     c.content.forEach { i ->
       val ie = Element("li", XHTML_URI_TEXT)
-      ie.addAttribute(Attribute("class", null, prefixedName("list_item")))
+      ie.addAttribute(attr("class", prefixedName("list_item")))
       sc.appendChild(ie)
       KSXOMSpacing.appendWithSpace(ie, i.content, { ic -> inline(prov, ic) })
     }
@@ -399,10 +399,10 @@ internal object KSXOM {
     val classes_text = KSTextUtilities.concatenate(classes)
 
     val sc = Element("ul", XHTML_URI_TEXT)
-    sc.addAttribute(Attribute("class", null, classes_text))
+    sc.addAttribute(attr("class", classes_text))
     c.content.forEach { i ->
       val ie = Element("li", XHTML_URI_TEXT)
-      ie.addAttribute(Attribute("class", null, prefixedName("list_item")))
+      ie.addAttribute(attr("class", prefixedName("list_item")))
       sc.appendChild(ie)
       KSXOMSpacing.appendWithSpace(ie, i.content, { ic -> inline(prov, ic) })
     }
@@ -422,12 +422,12 @@ internal object KSXOM {
     val classes_text = KSTextUtilities.concatenate(classes)
 
     val sc = Element("img", XHTML_URI_TEXT)
-    sc.addAttribute(Attribute("class", null, classes_text))
-    sc.addAttribute(Attribute("alt", null, KSTextUtilities.concatenate(c.content)))
-    sc.addAttribute(Attribute("src", null, c.target.toString()))
+    sc.addAttribute(attr("class", classes_text))
+    sc.addAttribute(attr("alt", KSTextUtilities.concatenate(c.content)))
+    sc.addAttribute(attr("src", c.target.toString()))
     c.size.ifPresent { size ->
-      sc.addAttribute(Attribute("width", null, size.width.toString()))
-      sc.addAttribute(Attribute("height", null, size.height.toString()))
+      sc.addAttribute(attr("width", size.width.toString()))
+      sc.addAttribute(attr("height", size.height.toString()))
     }
     return sc
   }
@@ -440,8 +440,8 @@ internal object KSXOM {
     val classes_text = KSTextUtilities.concatenate(classes)
 
     val sc = Element("span", XHTML_URI_TEXT)
-    sc.addAttribute(Attribute("class", null, classes_text))
-    sc.appendChild(KSTextUtilities.concatenate(c.content))
+    sc.addAttribute(attr("class", classes_text))
+    appendEscapedText(sc, KSTextUtilities.concatenate(c.content))
     return sc
   }
 
@@ -452,8 +452,8 @@ internal object KSXOM {
     val classes_text = KSTextUtilities.concatenate(classes)
 
     val sc = Element("pre", XHTML_URI_TEXT)
-    sc.addAttribute(Attribute("class", null, classes_text))
-    sc.appendChild(c.text.text)
+    sc.addAttribute(attr("class", classes_text))
+    appendEscapedText(sc, c.text.text)
     return sc
   }
 
@@ -471,16 +471,16 @@ internal object KSXOM {
     prov : KSXOMLinkProviderType,
     link : KSLinkInternal<KSEvaluation>) : Node {
     val sc = Element("a", XHTML_URI_TEXT)
-    sc.addAttribute(Attribute("class", null, prefixedName("link")))
-    sc.addAttribute(Attribute("href", null, prov.idLink(link.target)))
+    sc.addAttribute(attr("class", prefixedName("link")))
+    sc.addAttribute(attr("href", prov.idLink(link.target)))
     KSXOMSpacing.appendWithSpace(sc, link.content, { c -> linkContent(c) })
     return sc
   }
 
   private fun linkExternal(link : KSLinkExternal<KSEvaluation>) : Node {
     val sc = Element("a", XHTML_URI_TEXT)
-    sc.addAttribute(Attribute("class", null, prefixedName("link_external")))
-    sc.addAttribute(Attribute("href", null, link.target.toString()))
+    sc.addAttribute(attr("class", prefixedName("link_external")))
+    sc.addAttribute(attr("href", link.target.toString()))
     KSXOMSpacing.appendWithSpace(sc, link.content, { c -> linkContent(c) })
     return sc
   }
@@ -497,16 +497,16 @@ internal object KSXOM {
     val number = number_opt.get()
 
     val sc = Element("div", XHTML_URI_TEXT)
-    sc.addAttribute(Attribute("class", null, prefixedName("part_container")))
+    sc.addAttribute(attr("class", prefixedName("part_container")))
 
     p.id.ifPresent { id ->
       val stid_a = Element("a", XHTML_URI_TEXT)
-      stid_a.addAttribute(Attribute("id", null, id.value))
+      stid_a.addAttribute(attr("id", id.value))
       sc.appendChild(stid_a)
     }
 
     val stn = Element("div", XHTML_URI_TEXT)
-    stn.addAttribute(Attribute("class", null, prefixedName("part_title_number")))
+    stn.addAttribute(attr("class", prefixedName("part_title_number")))
 
     val title_text = KSTextUtilities.concatenate(p.title)
     val title = StringBuilder()
@@ -516,15 +516,15 @@ internal object KSXOM {
     title.append(title_text)
 
     val stn_a = Element("a", XHTML_URI_TEXT)
-    stn_a.addAttribute(Attribute("id", null, prov.numberAnchorID(number)))
-    stn_a.addAttribute(Attribute("href", null, prov.numberAnchor(number)))
-    stn_a.addAttribute(Attribute("title", null, title.toString()))
-    stn_a.appendChild(number.toString())
+    stn_a.addAttribute(attr("id", prov.numberAnchorID(number)))
+    stn_a.addAttribute(attr("href", prov.numberAnchor(number)))
+    stn_a.addAttribute(attr("title", title.toString()))
+    appendEscapedText(stn_a, number.toString())
     stn.appendChild(stn_a)
 
     val st = Element("div", XHTML_URI_TEXT)
-    st.addAttribute(Attribute("class", null, prefixedName("part_title")))
-    st.appendChild(title_text)
+    st.addAttribute(attr("class", prefixedName("part_title")))
+    appendEscapedText(st, title_text)
 
     sc.appendChild(stn)
     sc.appendChild(st)
@@ -547,7 +547,7 @@ internal object KSXOM {
     val classes_text = KSTextUtilities.concatenate(classes)
 
     val sc = Element("div", XHTML_URI_TEXT)
-    sc.addAttribute(Attribute("class", null, classes_text))
+    sc.addAttribute(attr("class", classes_text))
 
     when (pos) {
       is NavigationBarPosition.Top    -> {
@@ -555,14 +555,14 @@ internal object KSXOM {
       }
       is NavigationBarPosition.Bottom -> {
         val hr = Element("hr", XHTML_URI_TEXT)
-        hr.addAttribute(Attribute("class", null, prefixedName("hr")))
+        hr.addAttribute(attr("class", prefixedName("hr")))
         sc.appendChild(hr)
       }
     }
 
     val titles_prev = Element("td", XHTML_URI_TEXT)
     titles_prev.addAttribute(
-      Attribute("class", null, prefixedName("navbar_prev_title_cell")))
+      attr("class", prefixedName("navbar_prev_title_cell")))
     b.data.context.elementSegmentPrevious(b).ifPresent {
       block ->
       navigationBarCellTitle(block, titles_prev)
@@ -570,7 +570,7 @@ internal object KSXOM {
 
     val titles_up = Element("td", XHTML_URI_TEXT)
     titles_up.addAttribute(
-      Attribute("class", null, prefixedName("navbar_up_title_cell")))
+      attr("class", prefixedName("navbar_up_title_cell")))
     b.data.context.elementSegmentUp(b).ifPresent {
       block ->
       navigationBarCellTitle(block, titles_up)
@@ -578,7 +578,7 @@ internal object KSXOM {
 
     val titles_next = Element("td", XHTML_URI_TEXT)
     titles_next.addAttribute(
-      Attribute("class", null, prefixedName("navbar_next_title_cell")))
+      attr("class", prefixedName("navbar_next_title_cell")))
     b.data.context.elementSegmentNext(b).ifPresent {
       block ->
       navigationBarCellTitle(block, titles_next)
@@ -591,7 +591,7 @@ internal object KSXOM {
 
     val files_prev = Element("td", XHTML_URI_TEXT)
     files_prev.addAttribute(
-      Attribute("class", null, prefixedName("navbar_prev_file_cell")))
+      attr("class", prefixedName("navbar_prev_file_cell")))
     b.data.context.elementSegmentPrevious(b).ifPresent {
       block ->
       navigationBarCellFile(
@@ -600,7 +600,7 @@ internal object KSXOM {
 
     val files_up = Element("td", XHTML_URI_TEXT)
     files_up.addAttribute(
-      Attribute("class", null, prefixedName("navbar_up_file_cell")))
+      attr("class", prefixedName("navbar_up_file_cell")))
     b.data.context.elementSegmentUp(b).ifPresent {
       block ->
       navigationBarCellFile(
@@ -609,7 +609,7 @@ internal object KSXOM {
 
     val files_next = Element("td", XHTML_URI_TEXT)
     files_next.addAttribute(
-      Attribute("class", null, prefixedName("navbar_next_file_cell")))
+      attr("class", prefixedName("navbar_next_file_cell")))
     b.data.context.elementSegmentNext(b).ifPresent {
       block ->
       navigationBarCellFile(
@@ -622,8 +622,8 @@ internal object KSXOM {
     files.appendChild(files_next)
 
     val te = Element("table", XHTML_URI_TEXT)
-    te.addAttribute(Attribute("class", null, prefixedName("navbar_table")))
-    te.addAttribute(Attribute("summary", null, prefixedName("Navigation bar")))
+    te.addAttribute(attr("class", prefixedName("navbar_table")))
+    te.addAttribute(attr("summary", prefixedName("Navigation bar")))
     sc.appendChild(te)
 
     when (pos) {
@@ -640,7 +640,7 @@ internal object KSXOM {
     when (pos) {
       is NavigationBarPosition.Top    -> {
         val hr = Element("hr", XHTML_URI_TEXT)
-        hr.addAttribute(Attribute("class", null, prefixedName("hr")))
+        hr.addAttribute(attr("class", prefixedName("hr")))
         sc.appendChild(hr)
       }
       is NavigationBarPosition.Bottom -> {
@@ -674,7 +674,7 @@ internal object KSXOM {
         throw UnreachableCodeException()
     }
 
-    parent.appendChild(text_sb.toString())
+    appendEscapedText(parent, text_sb.toString())
   }
 
   private fun navigationBarCellFile(
@@ -685,26 +685,26 @@ internal object KSXOM {
     title : String) {
 
     val e = Element("a", XHTML_URI_TEXT)
-    e.addAttribute(Attribute("rel", null, relation))
+    e.addAttribute(attr("rel", relation))
 
     if (block.data.number.isPresent) {
       val number = block.data.number.get()
-      e.addAttribute(Attribute("href", null, prov.numberLink(number)))
+      e.addAttribute(attr("href", prov.numberLink(number)))
     } else {
-      e.addAttribute(Attribute("href", null, prov.documentAnchor()))
+      e.addAttribute(attr("href", prov.documentAnchor()))
     }
-    e.addAttribute(Attribute("title", null, title))
+    e.addAttribute(attr("title", title))
 
     val fc = relation.get(0).toTitleCase()
     val rest = relation.slice(1 .. relation.length - 1)
-    e.appendChild(fc + rest)
+    appendEscapedText(e, fc + rest)
     parent.appendChild(e)
   }
 
   fun documentIndexTitle(d : KSBlockDocument<KSEvaluation>) : Element {
     val e = Element("div", XHTML_URI_TEXT)
-    e.addAttribute(Attribute("class", null, prefixedName("document_title")))
-    e.appendChild(KSTextUtilities.concatenate(d.title))
+    e.addAttribute(attr("class", prefixedName("document_title")))
+    appendEscapedText(e, KSTextUtilities.concatenate(d.title))
     return e
   }
 
@@ -751,8 +751,7 @@ internal object KSXOM {
       prefixedName("section_contents"))
 
     val e = Element("ul", XHTML_URI_TEXT)
-    e.addAttribute(
-      Attribute("class", null, KSTextUtilities.concatenate(classes)))
+    e.addAttribute(attr("class", KSTextUtilities.concatenate(classes)))
 
     when (s) {
       is KSBlockSection.KSBlockSectionWithContent     -> {
@@ -766,20 +765,18 @@ internal object KSXOM {
             prefixedName("contents_item1"),
             prefixedName("contents_item_subsection"))
           ss_li.addAttribute(
-            Attribute("class", null, KSTextUtilities.concatenate(ss_li_classes)))
+            attr("class", KSTextUtilities.concatenate(ss_li_classes)))
           val ss_a = Element("a", XHTML_URI_TEXT)
           val ss_number = ss.data.number.get()
-          ss_a.addAttribute(
-            Attribute("href", null, prov.numberLink(ss_number)))
-          ss_a.addAttribute(
-            Attribute("title", null, linkToSubsectionTitleText(ss)))
+          ss_a.addAttribute(attr("href", prov.numberLink(ss_number)))
+          ss_a.addAttribute(attr("title", linkToSubsectionTitleText(ss)))
 
           val ss_title = KSTextUtilities.concatenate(ss.title)
           val ss_a_text = StringBuilder()
           ss_a_text.append(ss_number.toString())
           ss_a_text.append(". ")
           ss_a_text.append(ss_title)
-          ss_a.appendChild(ss_a_text.toString())
+          appendEscapedText(ss_a, ss_a_text.toString())
           ss_li.appendChild(ss_a)
           e.appendChild(ss_li)
         }
@@ -799,8 +796,7 @@ internal object KSXOM {
       prefixedName("part_contents"))
 
     val e = Element("ul", XHTML_URI_TEXT)
-    e.addAttribute(
-      Attribute("class", null, KSTextUtilities.concatenate(classes)))
+    e.addAttribute(attr("class", KSTextUtilities.concatenate(classes)))
 
     p.content.forEach { s ->
       val part_li = Element("li", XHTML_URI_TEXT)
@@ -809,20 +805,18 @@ internal object KSXOM {
         prefixedName("contents_item1"),
         prefixedName("contents_item_section"))
       part_li.addAttribute(
-        Attribute("class", null, KSTextUtilities.concatenate(part_li_classes)))
+        attr("class", KSTextUtilities.concatenate(part_li_classes)))
       val part_a = Element("a", XHTML_URI_TEXT)
       val part_number = s.data.number.get()
-      part_a.addAttribute(
-        Attribute("href", null, prov.numberLink(part_number)))
-      part_a.addAttribute(
-        Attribute("title", null, linkToSectionTitleText(s)))
+      part_a.addAttribute(attr("href", prov.numberLink(part_number)))
+      part_a.addAttribute(attr("title", linkToSectionTitleText(s)))
 
       val section_title = KSTextUtilities.concatenate(s.title)
       val part_a_text = StringBuilder()
       part_a_text.append(part_number.toString())
       part_a_text.append(". ")
       part_a_text.append(section_title)
-      part_a.appendChild(part_a_text.toString())
+      appendEscapedText(part_a, part_a_text.toString())
       part_li.appendChild(part_a)
       e.appendChild(part_li)
 
@@ -838,20 +832,18 @@ internal object KSXOM {
               prefixedName("contents_item2"),
               prefixedName("contents_item_subsection"))
             ss_li.addAttribute(
-              Attribute("class", null, KSTextUtilities.concatenate(ss_li_classes)))
+              attr("class", KSTextUtilities.concatenate(ss_li_classes)))
             val ss_a = Element("a", XHTML_URI_TEXT)
             val ss_number = ss.data.number.get()
-            ss_a.addAttribute(
-              Attribute("href", null, prov.numberLink(ss_number)))
-            ss_a.addAttribute(
-              Attribute("title", null, linkToSubsectionTitleText(ss)))
+            ss_a.addAttribute(attr("href", prov.numberLink(ss_number)))
+            ss_a.addAttribute(attr("title", linkToSubsectionTitleText(ss)))
 
             val ss_title = KSTextUtilities.concatenate(ss.title)
             val ss_a_text = StringBuilder()
             ss_a_text.append(ss_number.toString())
             ss_a_text.append(". ")
             ss_a_text.append(ss_title)
-            ss_a.appendChild(ss_a_text.toString())
+            appendEscapedText(ss_a, ss_a_text.toString())
             ss_li.appendChild(ss_a)
             part_li.appendChild(ss_li)
           }
@@ -872,7 +864,7 @@ internal object KSXOM {
 
     val e = Element("ul", XHTML_URI_TEXT)
     e.addAttribute(
-      Attribute("class", null, KSTextUtilities.concatenate(classes)))
+      attr("class", KSTextUtilities.concatenate(classes)))
 
     return when (d) {
       is KSBlock.KSBlockDocument.KSBlockDocumentWithParts    -> {
@@ -883,19 +875,17 @@ internal object KSXOM {
             prefixedName("contents_item1"),
             prefixedName("contents_item_part"))
           part_li.addAttribute(
-            Attribute("class", null, KSTextUtilities.concatenate(part_li_classes)))
+            attr("class", KSTextUtilities.concatenate(part_li_classes)))
           val part_a = Element("a", XHTML_URI_TEXT)
           val part_number = p.data.number.get()
-          part_a.addAttribute(
-            Attribute("href", null, prov.numberLink(part_number)))
-          part_a.addAttribute(
-            Attribute("title", null, linkToPartTitleText(p)))
+          part_a.addAttribute(attr("href", prov.numberLink(part_number)))
+          part_a.addAttribute(attr("title", linkToPartTitleText(p)))
 
           val part_a_text = StringBuilder()
           part_a_text.append(part_number.toString())
           part_a_text.append(". ")
           KSTextUtilities.concatenateInto(part_a_text, p.title)
-          part_a.appendChild(part_a_text.toString())
+          appendEscapedText(part_a, part_a_text.toString())
           part_li.appendChild(part_a)
           e.appendChild(part_li)
 
@@ -905,7 +895,7 @@ internal object KSXOM {
 
           val part_ul = Element("ul", XHTML_URI_TEXT)
           part_ul.addAttribute(
-            Attribute("class", null, KSTextUtilities.concatenate(part_ul_classes)))
+            attr("class", KSTextUtilities.concatenate(part_ul_classes)))
 
           p.content.forEach { s ->
             val s_li = Element("li", XHTML_URI_TEXT)
@@ -914,19 +904,17 @@ internal object KSXOM {
               prefixedName("contents_item2"),
               prefixedName("contents_item_section"))
             s_li.addAttribute(
-              Attribute("class", null, KSTextUtilities.concatenate(s_li_clases)))
+              attr("class", KSTextUtilities.concatenate(s_li_clases)))
             val s_a = Element("a", XHTML_URI_TEXT)
             val s_number = s.data.number.get()
-            s_a.addAttribute(
-              Attribute("href", null, prov.numberLink(s_number)))
-            s_a.addAttribute(
-              Attribute("title", null, linkToSectionTitleText(s)))
+            s_a.addAttribute(attr("href", prov.numberLink(s_number)))
+            s_a.addAttribute(attr("title", linkToSectionTitleText(s)))
 
             val s_a_text = StringBuilder()
             s_a_text.append(s_number.toString())
             s_a_text.append(". ")
             KSTextUtilities.concatenateInto(s_a_text, s.title)
-            s_a.appendChild(s_a_text.toString())
+            appendEscapedText(s_a, s_a_text.toString())
             s_li.appendChild(s_a)
             part_ul.appendChild(s_li)
           }
@@ -944,17 +932,16 @@ internal object KSXOM {
             prefixedName("contents_item1"),
             prefixedName("contents_item_section"))
           s_li.addAttribute(
-            Attribute("class", null, KSTextUtilities.concatenate(s_li_classes)))
+            attr("class", KSTextUtilities.concatenate(s_li_classes)))
           val s_a = Element("a", XHTML_URI_TEXT)
           val s_number = s.data.number.get()
-          s_a.addAttribute(
-            Attribute("href", null, prov.numberLink(s_number)))
+          s_a.addAttribute(attr("href", prov.numberLink(s_number)))
 
           val s_a_text = StringBuilder()
           s_a_text.append(s_number.toString())
           s_a_text.append(". ")
           KSTextUtilities.concatenateInto(s_a_text, s.title)
-          s_a.appendChild(s_a_text.toString())
+          appendEscapedText(s_a, s_a_text.toString())
           s_li.appendChild(s_a)
           e.appendChild(s_li)
         }
@@ -973,16 +960,16 @@ internal object KSXOM {
     val number = number_opt.get()
 
     val sc = Element("div", XHTML_URI_TEXT)
-    sc.addAttribute(Attribute("class", null, prefixedName("formal_item")))
+    sc.addAttribute(attr("class", prefixedName("formal_item")))
 
     f.id.ifPresent { id ->
       val stid_a = Element("a", XHTML_URI_TEXT)
-      stid_a.addAttribute(Attribute("id", null, id.value))
+      stid_a.addAttribute(attr("id", id.value))
       sc.appendChild(stid_a)
     }
 
     val st = Element("div", XHTML_URI_TEXT)
-    st.addAttribute(Attribute("class", null, prefixedName("formal_item_title")))
+    st.addAttribute(attr("class", prefixedName("formal_item_title")))
 
     val title_text = KSTextUtilities.concatenate(f.title)
     val title = StringBuilder()
@@ -992,18 +979,18 @@ internal object KSXOM {
     title.append(title_text)
 
     val stn_a = Element("a", XHTML_URI_TEXT)
-    stn_a.addAttribute(Attribute("id", null, prov.numberAnchorID(number)))
-    stn_a.addAttribute(Attribute("href", null, prov.numberAnchor(number)))
-    stn_a.addAttribute(Attribute("title", null, title.toString()))
-    stn_a.appendChild(number.toString())
-    stn_a.appendChild(" ")
-    stn_a.appendChild(title_text)
+    stn_a.addAttribute(attr("id", prov.numberAnchorID(number)))
+    stn_a.addAttribute(attr("href", prov.numberAnchor(number)))
+    stn_a.addAttribute(attr("title", title.toString()))
+    appendEscapedText(stn_a, number.toString())
+    appendEscapedText(stn_a, " ")
+    appendEscapedText(stn_a, title_text)
     st.appendChild(stn_a)
 
     sc.appendChild(st)
 
     val scc = Element("div", XHTML_URI_TEXT)
-    scc.addAttribute(Attribute("class", null, prefixedName("formal_item_content")))
+    scc.addAttribute(attr("class", prefixedName("formal_item_content")))
 
     sc.appendChild(scc)
     return Pair(sc, scc)
@@ -1014,7 +1001,7 @@ internal object KSXOM {
     footnotes : Map<KSID<KSEvaluation>, KSBlockFootnote<KSEvaluation>>) : Element {
 
     val e = Element("div", XHTML_URI_TEXT)
-    e.addAttribute(Attribute("class", null, prefixedName("footnotes")))
+    e.addAttribute(attr("class", prefixedName("footnotes")))
     e.appendChild(Element("hr", XHTML_URI_TEXT))
 
     for (fn in footnotes) {
@@ -1023,31 +1010,27 @@ internal object KSXOM {
 
       refs.forEach { r ->
         val ee = Element("div", XHTML_URI_TEXT)
-        ee.addAttribute(
-          Attribute("class", null, prefixedName("footnote_container")))
+        ee.addAttribute(attr("class", prefixedName("footnote_container")))
         val eid = Element("div", XHTML_URI_TEXT)
-        eid.addAttribute(
-          Attribute("class", null, prefixedName("footnote_id")))
-        eid.appendChild("[")
+        eid.addAttribute(attr("class", prefixedName("footnote_id")))
+        appendEscapedText(eid, "[")
         val eaa = Element("a", XHTML_URI_TEXT)
-        eaa.addAttribute(
-          Attribute("id", null, prov.footnoteAnchor(fn.value, r.key)))
-        eaa.addAttribute(
-          Attribute("href", null, prov.footnoteReferenceLink(r.value)))
+        eaa.addAttribute(attr("id", prov.footnoteAnchor(fn.value, r.key)))
+        eaa.addAttribute(attr("href", prov.footnoteReferenceLink(r.value)))
 
         val title = StringBuilder()
         title.append("Jump back to reference ")
         title.append(r.value.index)
         title.append(" of footnote ")
         title.append(fn.key.value)
-        eaa.addAttribute(Attribute("title", null, title.toString()))
+        eaa.addAttribute(attr("title", title.toString()))
 
-        eaa.appendChild(fn.value.data.index.toString())
+        appendEscapedText(eaa, fn.value.data.index.toString())
         eid.appendChild(eaa)
-        eid.appendChild("]")
+        appendEscapedText(eid, "]")
 
         val ec = Element("div", XHTML_URI_TEXT)
-        ec.addAttribute(Attribute("class", null, prefixedName("footnote_body")))
+        ec.addAttribute(attr("class", prefixedName("footnote_body")))
         KSXOMSpacing.appendWithSpace(ec, fn.value.content, { c -> inline(prov, c) })
 
         ee.appendChild(eid)
@@ -1057,5 +1040,17 @@ internal object KSXOM {
     }
 
     return e
+  }
+
+  private fun attr(
+    name : String,
+    text : String)
+    : Attribute
+  {
+    return Attribute(name, null, KSXOMEscapeCharacters.filterXML10(text))
+  }
+
+  private fun appendEscapedText(e : Element, text : String) {
+    e.appendChild(KSXOMEscapeCharacters.filterXML10(text))
   }
 }
