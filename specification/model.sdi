@@ -1,0 +1,16 @@
+[part [title Model] [id model]]
+
+[section [title Overview] [id model.overview]]
+
+[paragraph]
+The definition of the [term [type package] structural] language is given as
+an [term [type term] algebraic data type]. Later parts of the specification
+define the concrete syntax that maps text to terms of the described types.
+
+[paragraph]
+A [term [type package] structural] document consists of nested
+[link [target model.block] block] terms that, at the lowest level, contain
+[link [target model.inline] inline] terms.
+
+[import "model-inline.sdi"]
+[import "model-block.sdi"]

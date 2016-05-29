@@ -1,0 +1,309 @@
+[section [title Orientation] [id pkg.orientation]]
+[subsection [title Overview]]
+[paragraph]
+The [term [type package] structural] language is a syntactically
+lightweight language for writing technical documentation.
+
+[subsection [title Metadata] [id pkg.orientation.meta]]
+[paragraph]
+The [term [type package] structural] language allows for tagging of terms
+with [term [type term] metadata]. For example, in this document, every
+reference to the name [term [type package] structural] is tagged with
+[term [type constant] "\"package\""]. Individual terms within a document
+are given semantic meaning. The available tags are entirely user-defined: The
+language merely provides a way to apply tags, but does not define any tags
+of its own.
+
+[subsection [title Semantic Simplicity]]
+[paragraph]
+The [term [type package] structural] language currently defines around
+twenty elements. The language is trivial to learn, the number of possible
+permutations of elements is low, and the output is predictable.
+
+[subsection [title Lightweight Syntax]]
+[paragraph]
+The [term [type package] structural] language defines an abstract model for
+documents as an algebraic data type. It then defines multiple formats, all of
+which compile down to the same internal model. The canonical format is defined in
+terms of [term [type term] s-expressions] and can be parsed at a basic level
+by any standard s-expression parser. An XML format with a full RELAX-NG schema
+is provided for legacy compatibility. Additionally, an
+[term [type term] imperative] format is provided that allows for syntax
+that is only slightly more heavyweight than [term [type term] Markdown] whilst
+still allowing for the same control over
+[link [target pkg.orientation.meta] metadata] and document structure. Documents
+may freely combine elements written in any of the formats via the standard
+[link [target pkg.orientation.modular] import] mechanism
+[footnote-ref pkg.orientation.import_xml].
+
+[subsection [title Portability]]
+[paragraph]
+The [term [type package] kstructural] implementation is written primarily
+in the [link-ext [target "http://kotlinlang.org/"] Kotlin] language
+using APIs defined in Java 8. The implementation can therefore execute on
+any JVM supporting Java 8 and above. This also means that the language can
+be used to generate documentation as part of the build process for Java
+based projects without having to assume the existence of any platform-specific
+native binaries.
+
+[subsection [title Specification]]
+[paragraph]
+The [term [type package] structural] language is carefully and unambiguously
+specified as an executable Haskell specification.
+
+[subsection [title Modular Documents] [id pkg.orientation.modular]]
+[paragraph]
+The [term [type package] structural] language supports modular documents with
+a simple import system: Documents may import elements or raw text from files,
+so large technical manuals can be cleanly separated into files based on logical
+content. Intra-document links are fully supported and full referential integrity
+checks are performed to ensure that links always point to elements that actually
+exist. Circular imports are detected and prevented. Additionally, the parsers
+are constructed to be secure by default: Malicious documents cannot import
+files outside of a given base directory, and in the case of the XML encoding,
+cannot cause the XML parser to perform requests over the network for remote
+content.
+
+[subsection [title Comparison With Other Systems]]
+[paragraph]
+In the table below, [term [type term] Metadata] should be taken to mean that
+the language allows for expressing the semantic meaning of the contents of
+the documents, as opposed to just being a series of formatting commands.
+[term [type term] Semantic Simplicity] is a somewhat subjective "(but" somewhat
+"measurable)" judgement of how simple the conceptual model is of each language.
+An excellent way to measure this aspect of a language is to attempt to come
+up with a definition of an algebraic type that is able to represent a parsed
+and validated document in the given language
+[footnote-ref pkg.orientation.semantic_latex_note].
+[term [type term] Lightweight Syntax] is an indication of the ratio between
+markup and actual document content. For example, XML is notoriously verbose
+and the text of some documents can often consist more of XML elements than
+actual content. The term [term [type term] Specification] should be taken to
+mean that both the language has a complete formal specification of the syntax
+and the underlying semantic model, and that documents can be machine-checked
+against this specification. The important point is: For a given document, can
+a machine determine unambiguously whether or not a document is valid?
+This is critical for both for ensuring that documents remain accessible decades
+into the future, and for ensuring that different implementations of languages
+assign the same meaning to documents: If a language does not have a
+machine-checkable specification, then users of that language are
+locked into that implementation of the language perpetually. Languages are
+assigned a value of [term [type term] Informal] if they have at least made an
+attempt at a complete specification even if the specification is ambiguous,
+unimplementable, and/or does not provide any means to check documents. The term
+[term [type term] Portability] should be taken to mean that the language either
+has a platform-independent implementation, or implementations exist for multiple
+platforms [footnote-ref pkg.orientation.portability_note]. The term
+[term [type term] Modular Documents] should be taken to mean that a language
+provides a way to break documents into multiple files. Languages are assigned
+a value of [term [type term] Import] if they have a language-supported
+system that actually parses external files and performs substitutions into
+an abstract syntax tree. Languages are assigned a value of
+[term [type term] Include] if they only implement a simple-minded system akin
+to macro expansions or the C preprocessor "(where" the contents of external
+files are simply dumped verbatim into the current file and the whole mess is
+parsed as one "unit)."
+
+[formal-item [title Feature Comparison]]
+[table
+  [summary Comparison with other systems]
+  [type comparison]
+  [head
+    [name ]
+    [name structural]
+    [name DocBook]
+    [name Markdown]
+    [name Texinfo]
+    [name troff]
+    [name AsciiDoc]
+    [name reStructuredText]
+    [name LaTeX]
+  ]
+  [body
+    [row
+      [cell Metadata]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+    ]
+    [row
+      [cell Semantic Simplicity]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_neutral] Maybe] [footnote-ref pkg.orientation.markdown_semantic]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+    ]
+    [row
+      [cell Lightweight Syntax]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_neutral] Questionable]]
+    ]
+    [row
+      [cell Specification]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_neutral] Informal]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_neutral] Informal]]
+      [cell [term [type comparison_bad] No]]
+    ]
+    [row
+      [cell Portability]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_neutral] Maybe] [footnote-ref pkg.orientation.markdown_port]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_neutral] Maybe] [footnote-ref pkg.orientation.troff_unix]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+      [cell [term [type comparison_good] Yes]]
+    ]
+    [row
+      [cell Modular Documents]
+      [cell [term [type comparison_good] Import]]
+      [cell [term [type comparison_good] Import]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_neutral] Include]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_neutral] Include]]
+      [cell [term [type comparison_bad] No]]
+      [cell [term [type comparison_neutral] Include]]
+    ]
+]]
+
+[paragraph [id pkg.orientation.docbook]]
+The [link-ext [target "http://docbook.org"] DocBook] system is similar
+to [term [type package] structural] in that it allows for metadata within a
+document. DocBook, however, takes a different approach in that it defines
+elements for all of the things that authors may be expected to talk about
+in technical documentation. For example, if an author wants to tag a name
+as being the name of a software package, the name has to be contained within
+a [link-ext [target "http://docbook.org/tdg5/en/html/package.html"] package]
+element. In terms of semantic simplicity, the sheer number of defined elements
+and the resulting possible permutations of elements mean that it is difficult
+to make the case that DocBook is in any way [term [type term] simple]. In the
+author's experience, there are many combinations of elements in DocBook that
+are valid according to the schema but cannot actually be used in practice
+because the resulting XHTML output becomes ugly or difficult to style in a
+useful manner. DocBook is, however, strongly and unambiguously specified: If
+a document is well-formed XML, it can be machine-checked against the published
+schema and it is immediately known whether or not the document is valid.
+DocBook also allows for modular documents via the standard XML
+[link-ext [target https://www.w3.org/TR/xinclude/] XInclude] mechanism.
+Unfortunately, due to DocBook being defined in XML, writing documents using it
+can be an exercise in physical stamina. XML is notorious for being syntactically
+heavyweight and really requires editor support to avoid causing repetitive
+strain injury.
+
+[paragraph [id pkg.orientation.markdown]]
+[link-ext [target "http://daringfireball.net/projects/markdown/"] Markdown] was
+originally designed as a trivial text format intended for quick conversion to
+HTML. Additionally, Markdown is intended to be readable without processing.
+Unfortunately, the original description of Markdown has numerous ambiguities,
+meaning that almost every implementation of the format differs
+in important ways. It was also designed with the incredibly poorly thought out
+idea that no document should be considered invalid; every mistake simply causes
+silent failure or corrupted output. It offers absolutely no standard way to
+incorporate metadata into documents: Terms may be marked as being bold, italic,
+or monospace, and very little else. It offers no way to make documents modular,
+and most implementations require the user to manually concatenate their documents
+into one large file before passing it to the Markdown processor. An attempt has
+been made to formalize a compatible common subset of Markdown into a system
+known as [link-ext [target "http://commonmark.org/"] CommonMark]. Unfortunately,
+after two years, the compatible subset is still rather poorly specified and
+contains almost none of the features of any existing implementation such as
+footnotes and intra-document links [footnote-ref pkg.orientation.markdown_foot].
+
+[paragraph [id pkg.orientation.texinfo]]
+[link-ext [target "https://www.gnu.org/software/texinfo/texinfo.html"] GNU Texinfo]
+is a typesetting system similar to [link [target pkg.orientation.latex] LaTeX]
+and has all of the same advantages and flaws as that system.
+
+[paragraph [id pkg.orientation.troff]]
+[link-ext [target "https://www.gnu.org/software/groff/"] troff] is a somewhat
+archaic UNIX typesetting tool primarily used to construct manual pages. Due
+to being a macro-based typesetting system "(albeit" a drastically simpler
+"one)," it suffers from most of the same disadvantages as
+[link [target pkg.orientation.latex] LaTeX]. The syntax, however, is extremely
+lightweight and easy to parse.
+
+[paragraph [id pkg.orientation.latex]]
+[link-ext [target "https://latex-project.org/"] LaTeX] is a set of macros for
+the [link-ext [target "http://tug.org/"] TeX] typesetting system. While it
+produces very aesthetically pleasing output and has moderately lightweight
+syntax, it suffers from an excruciatingly error-prone document authoring
+workflow due to its macro-based nature. The user is forced to manage the state
+of an enormous imperative typesetting engine, error messages are
+incomprehensible at best and typically contain layers of elements that have
+appeared from inside expanded macros. Users are forced to use external packages
+of macros to get support for basic features such as images, and due to the
+complete lack of a type system or indeed any kind of module system at all,
+packages can and do break when combined in unexpected ways. The language has
+no specification, and an [term [type term] include]-based system for modular
+documents "(made" extremely dangerous by the presence of the global state
+"machine)." The [term [type package] kstructural] implementation of the
+[term [type package] structural] language currently contains support for
+producing LaTeX code. This protects users from having to have anything to do
+with the LaTeX or TeX system directly.
+
+[paragraph [id pkg.orientation.asciidoc]]
+[link-ext [target "http://www.methods.co.nz/asciidoc/"] AsciiDoc] is a
+Python-based text document format. It has all of the advantages and disadvantages
+of a [link [target pkg.orientation.markdown] Markdown] based system but supports
+a drastically larger feature set than most Markdown implementations. It also
+contains an [link-ext [target "http://www.methods.co.nz/asciidoc/chunked/apc.html"] insecure-by-default]
+mode of operation that makes evaluating arbitrary documents a risky proposition.
+It has no specification.
+
+[paragraph [id pkg.orientation.restructuredtext]]
+[link-ext [target "http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html"] reStructuredText] is a
+text document format in the style of [link [target pkg.orientation.asciidoc] AsciiDoc].
+It has the same advantages and disadvantages as both AsciiDoc and Markdown. It
+has what appears to be a fairly complete informal specification, but does not
+have any way to determine if a given document is valid or not.
+
+[footnote [id pkg.orientation.semantic_latex_note]]
+Doing this for an imperative state machine such as LaTeX could easily become
+a research-level project.
+
+[footnote [id pkg.orientation.portability_note]]
+This again assumes the existence of an unambiguous formal specifications so that
+multiple interoperable implementations can actually exist!
+
+[footnote [id pkg.orientation.markdown_foot]]
+Users of Markdown are resigned to the fact that they are writing documents in
+an implementation-specific dialect of Markdown because there is no other
+alternative. This is an incredibly poor long-term strategy.
+
+[footnote [id pkg.orientation.markdown_semantic]]
+The [term [type package] CommonMark] specification has a simple semantic model
+due to including almost nothing.
+
+[footnote [id pkg.orientation.markdown_port]]
+There are Markdown implementations for most languages. However, there may not
+be an implementation that supports the specific dialect the author has used.
+
+[footnote [id pkg.orientation.troff_unix]]
+Being a traditional UNIX tool, the [term [type command] troff] tool is unlikely
+to be pleasant to use outside of UNIX.
+
+[footnote [id pkg.orientation.import_xml]]
+Although elements written in the XML format cannot import non-XML elements due
+to limitations with [link-ext [target https://www.w3.org/TR/xinclude/] XInclude].

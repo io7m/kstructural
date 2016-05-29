@@ -1,0 +1,5 @@
+type_character =
+  ? p{IsLetter} | p{isNumber} | U+005F ? ;
+
+type =
+  type_character , { type_character } ;

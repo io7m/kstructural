@@ -1,0 +1,12 @@
+[part [title Canonical Format] [id fmt_canon]]
+
+[section [title Overview] [id fmt_canon.overview]]
+
+[paragraph]
+The [term [type package] structural] language defines a number of different
+concrete syntaxes used to produce values of the types defined by the
+[link [target model] model]. The primary [term [type term] canonical] syntax
+is based on [link [target conventions.sexprs] s-expressions].
+
+[import "fmt-canon-inline.sdi"]
+[import "fmt-canon-block.sdi"]

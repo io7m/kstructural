@@ -1,0 +1,34 @@
+[section [title Installation]]
+[subsection [title Source compilation]]
+[paragraph]
+The project can be compiled and installed with
+[link-ext [target "http://maven.apache.org"] Maven]:
+
+[paragraph]
+[verbatim [type example] "$ mvn -C clean install"]
+
+[subsection [title Maven]]
+[paragraph]
+Regular releases are made to the
+[link-ext [target "http://search.maven.org/#search%7Cga%7C1%7Cio7m-kstructural"] Central Repository],
+so it's possible to use the [term [type package] io7m-kstructural] package
+in your projects with the following Maven dependencies:
+
+[paragraph]
+[verbatim [type example]
+"<!-- For the user-friendly frontend Java API -->
+<dependency>
+  <groupId>com.io7m.kstructural</groupId>
+  <artifactId>io7m-kstructural-frontend</artifactId>
+  <version>0.1.0</version>
+</dependency>"]
+
+[paragraph]
+All [link-ext [target "http://io7m.com"] io7m.com] packages use
+Semantic Versioning [footnote-ref semver], which implies that it is
+always safe to use version ranges with an exclusive upper bound equal
+to the next major version - the API of the package will not change in
+a backwards-incompatible manner before the next major version.
+
+[footnote [id semver]]
+[link-ext [target "http://semver.org"] http://semver.org]

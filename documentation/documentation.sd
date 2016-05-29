@@ -1,0 +1,5 @@
+[document [title io7m-kstructural 0.1.0 Documentation]
+  [import "pkg.sdi"]
+  [import "tutorial.sdi"]
+  [import "tools.sdi"]
+  [import "complete.sd"]]

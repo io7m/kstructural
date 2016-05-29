@@ -1,0 +1,1188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Structural 3.0.0 Language Specification</title><meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8"/><link rel="stylesheet" type="text/css" href="kstructural-layout.css"/><link rel="stylesheet" type="text/css" href="kstructural-colour.css"/><link rel="stylesheet" type="text/css" href="specification.css"/></head><body><div class="st300_body"><div class="st300_document_title">Structural 3.0.0 Language Specification</div><ul class="st300_contents st300_document_contents"><li class="st300_contents_item st300_contents_item1 st300_contents_item_part"><a href="#st300_p1" title="Link to part 1: Notational Conventions">1. Notational Conventions</a><ul class="st300_contents st300_part_contents"><li class="st300_contents_item st300_contents_item2 st300_contents_item_section"><a href="#st300_p1s1" title="Link to section 1.1: Unicode">1.1. Unicode</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_section"><a href="#st300_p1s2" title="Link to section 1.2: EBNF">1.2. EBNF</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_section"><a href="#st300_p1s3" title="Link to section 1.3: Haskell">1.3. Haskell</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_section"><a href="#st300_p1s4" title="Link to section 1.4: S-Expressions">1.4. S-Expressions</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_section"><a href="#st300_p1s5" title="Link to section 1.5: S-Expression Metasyntax">1.5. S-Expression Metasyntax</a></li></ul></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_part"><a href="#st300_p2" title="Link to part 2: Model">2. Model</a><ul class="st300_contents st300_part_contents"><li class="st300_contents_item st300_contents_item2 st300_contents_item_section"><a href="#st300_p2s1" title="Link to section 2.1: Overview">2.1. Overview</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_section"><a href="#st300_p2s2" title="Link to section 2.2: Inline Content">2.2. Inline Content</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_section"><a href="#st300_p2s3" title="Link to section 2.3: Block Content">2.3. Block Content</a></li></ul></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_part"><a href="#st300_p3" title="Link to part 3: Canonical Format">3. Canonical Format</a><ul class="st300_contents st300_part_contents"><li class="st300_contents_item st300_contents_item2 st300_contents_item_section"><a href="#st300_p3s1" title="Link to section 3.1: Overview">3.1. Overview</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_section"><a href="#st300_p3s2" title="Link to section 3.2: Inline Elements">3.2. Inline Elements</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_section"><a href="#st300_p3s3" title="Link to section 3.3: Block Elements">3.3. Block Elements</a></li></ul></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_part"><a href="#st300_p4" title="Link to part 4: Imperative Format">4. Imperative Format</a><ul class="st300_contents st300_part_contents"><li class="st300_contents_item st300_contents_item2 st300_contents_item_section"><a href="#st300_p4s1" title="Link to section 4.1: Overview">4.1. Overview</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_section"><a href="#st300_p4s2" title="Link to section 4.2: Block Commands">4.2. Block Commands</a></li></ul></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_part"><a href="#st300_p5" title="Link to part 5: XML Format">5. XML Format</a><ul class="st300_contents st300_part_contents"><li class="st300_contents_item st300_contents_item2 st300_contents_item_section"><a href="#st300_p5s1" title="Link to section 5.1: Overview">5.1. Overview</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_section"><a href="#st300_p5s2" title="Link to section 5.2: RELAX-NG Schema">5.2. RELAX-NG Schema</a></li></ul></li></ul><div class="st300_part_container"><a id="conventions"/><div class="st300_part_title_number"><a id="st300_p1" href="#st300_p1" title="Part 1: Notational Conventions">1</a></div><div class="st300_part_title">Notational Conventions</div><ul class="st300_contents st300_part_contents_outer st300_part_contents"><li class="st300_contents_item st300_contents_item1 st300_contents_item_section"><a href="#st300_p1s1" title="Link to section 1.1: Unicode">1.1. Unicode</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_section"><a href="#st300_p1s2" title="Link to section 1.2: EBNF">1.2. EBNF</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_section"><a href="#st300_p1s3" title="Link to section 1.3: Haskell">1.3. Haskell</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_section"><a href="#st300_p1s4" title="Link to section 1.4: S-Expressions">1.4. S-Expressions</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_section"><a href="#st300_p1s5" title="Link to section 1.5: S-Expression Metasyntax">1.5. S-Expression Metasyntax</a><ul class="st300_contents st300_section_contents"><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p1s5ss1" title="Link to subsection 1.5.1: Overview">1.5.1. Overview</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p1s5ss2" title="Link to subsection 1.5.2: Rules">1.5.2. Rules</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p1s5ss3" title="Link to subsection 1.5.3: Examples">1.5.3. Examples</a></li></ul></li></ul><div class="st300_section_container"><a id="conventions.unicode"/><div class="st300_section_title_number"><a id="st300_p1s1" href="#st300_p1s1" title="Section 1.1: Unicode">1.1</a></div><div class="st300_section_title">Unicode</div><span/><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s1c1" href="#st300_p1s1c1" title="Paragraph 1.1.1">1</a></div><div class="st300_paragraph">The specification makes reference to the Unicode character set which, at the time of writing, is at version <span class="st300_term constant">8.0.0</span>. The specification often references specific Unicode characters, and does so using the standard notation <span class="st300_term constant">U+NNNN</span>, where <span class="st300_term variable">N</span> represents a hexadecimal digit. For example, <span class="st300_term constant">U+03BB</span> corresponds to the lowercase lambda symbol <span class="st300_term constant">λ</span>.</div></div></div><div class="st300_section_container"><a id="conventions.ebnf"/><div class="st300_section_title_number"><a id="st300_p1s2" href="#st300_p1s2" title="Section 1.2: EBNF">1.2</a></div><div class="st300_section_title">EBNF</div><span/><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s2c1" href="#st300_p1s2c1" title="Paragraph 1.2.1">1</a></div><div class="st300_paragraph">The specification gives grammar definitions in <span class="st300_term package">ISO/IEC 14977:1996</span> Extended Backus-Naur form.</div></div></div><div class="st300_section_container"><a id="conventions.haskell"/><div class="st300_section_title_number"><a id="st300_p1s3" href="#st300_p1s3" title="Section 1.3: Haskell">1.3</a></div><div class="st300_section_title">Haskell</div><span/><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s3c1" href="#st300_p1s3c1" title="Paragraph 1.3.1">1</a></div><div class="st300_paragraph">Rather than rely on untyped and ambiguous mathematical notation, this documentation expresses all mathematics and type definitions in strict <a class="st300_link_external" href="http://www.haskell.org/onlinereport/haskell2010/">Haskell 2010</a> with no extensions. All Haskell sources are included along with the documentation and can therefore be executed from the command line <a class="st300_link_external" href="http://www.haskell.org/haskellwiki/GHC/GHCi">GHCi</a> tool in order to interactively check results and experiment with functions.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s3c2" href="#st300_p1s3c2" title="Paragraph 1.3.2">2</a></div><div class="st300_paragraph">When used within prose, functions are referred to using fully qualified notation, such as <span class="st300_term expression">(Vector3f.cross n t)</span>. This is the application of the <span class="st300_term function">cross</span> function defined in the <span class="st300_term package">Vector3f</span> module, to the arguments <span class="st300_term variable">n</span> and <span class="st300_term variable">t</span>.</div></div></div><div class="st300_section_container"><a id="conventions.sexprs"/><div class="st300_section_title_number"><a id="st300_p1s4" href="#st300_p1s4" title="Section 1.4: S-Expressions">1.4</a></div><div class="st300_section_title">S-Expressions</div><span/><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s4c1" href="#st300_p1s4c1" title="Paragraph 1.4.1">1</a></div><div class="st300_paragraph">An <span class="st300_term term">s-expression</span> is defined by the following grammar:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p1s4c2" href="#st300_p1s4c2" title="Formal item 1.4.2: S-Expression Grammar">1.4.2 S-Expression Grammar</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">expression =
+    symbol
+  | quoted_string
+  | "[" , { expression } , "]"
+  | "(" , { expression } , ")" ;</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s4c3" href="#st300_p1s4c3" title="Paragraph 1.4.3">3</a></div><div class="st300_paragraph">The sequences <span class="st300_term constant">U+000D U+000A</span> and <span class="st300_term constant">U+000A</span> are recognized as line terminators for the purposes of tracking line and column numbers for diagnostic messages. Bare <span class="st300_term constant">U+000D</span> characters are not permitted to appear outside of quoted strings.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s4c4" href="#st300_p1s4c4" title="Paragraph 1.4.4">4</a></div><div class="st300_paragraph">The terminals of the grammar are given as:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p1s4c5" href="#st300_p1s4c5" title="Formal item 1.4.5: S-Expression Grammar">1.4.5 S-Expression Grammar</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">symbol_character =
+  ? not (")" | "(" | "[" | "]" | U+0022 | WHITESPACE) ? ;
+
+symbol =
+  symbol_character , { symbol_character } ;
+
+quoted_character =
+  ? not U+0022 ? ;
+
+quoted_string =
+  U+0022 , (quoted_character | escape) , { (quoted_character | escape) } , U+0022 ;
+
+escape =
+    escape_carriage
+  | escape_newline
+  | escape_tab
+  | escape_quote
+  | escape_unicode4
+  | escape_unicode8 ;
+
+escape_carriage =
+  "\r" ;
+
+escape_newline =
+  "\n" ;
+
+escape_quote =
+  "\" , U+0022 ;
+
+escape_tab =
+  "\t" ;
+
+escape_unicode4 =
+  "\u" ,
+  hex_digit , hex_digit , hex_digit , hex_digit ;
+
+escape_unicode8 =
+  "\u" ,
+  hex_digit , hex_digit , hex_digit , hex_digit ,
+  hex_digit , hex_digit , hex_digit , hex_digit ;
+
+hex_digit =
+  "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "0" |
+  "a" | "A" | "b" | "B" | "c" | "C" | "d" | "D" | "e" | "E" | "f" | "F" ;
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s4c6" href="#st300_p1s4c6" title="Paragraph 1.4.6">6</a></div><div class="st300_paragraph">Due to limitations in the <a class="st300_link_external" href="https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_Form">EBNF</a> format, the definitions for <span class="st300_term expression">symbol_character</span> and <span class="st300_term expression">quoted_character</span> cannot be expressed directly. Informally, the <span class="st300_term expression">symbol_character</span> rule should be understood to specify any Unicode character that is not whitespace, is not <span class="st300_term constant">U+0028 (</span>, is not <span class="st300_term constant">U+0029 )</span>, and is not <span class="st300_term constant">U+0022 "</span>.</div></div></div><div class="st300_section_container"><a id="fmt_canon.meta"/><div class="st300_section_title_number"><a id="st300_p1s5" href="#st300_p1s5" title="Section 1.5: S-Expression Metasyntax">1.5</a></div><div class="st300_section_title">S-Expression Metasyntax</div><ul class="st300_contents st300_section_contents_outer st300_section_contents"><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p1s5ss1" title="Link to subsection 1.5.1: Overview">1.5.1. Overview</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p1s5ss2" title="Link to subsection 1.5.2: Rules">1.5.2. Rules</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p1s5ss3" title="Link to subsection 1.5.3: Examples">1.5.3. Examples</a></li></ul><div class="st300_subsection_container"><div class="st300_subsection_title_number"><a id="st300_p1s5ss1" href="#st300_p1s5ss1" title="Subsection 1.5.1: Overview">1.5.1</a></div><div class="st300_subsection_title">Overview</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s5ss1c1" href="#st300_p1s5ss1c1" title="Paragraph 1.5.1.1">1</a></div><div class="st300_paragraph">Because no formal standard exists to describe the actual structure of parsed s-expressions, a small language is introduced here to describe the forms used to describe the document elements specified later on in this publication. The syntax of the syntax rules are themselves given as s-expressions, and to avoid an infinite regression problem akin to trying to specify EBNF using EBNF itself, the language here is described informally with an executable Haskell specification <a class="st300_link_external" href="SEMatcher.hs">[SEMatcher.hs]</a> to make the semantics clear where English cannot.</div></div></div><div class="st300_subsection_container"><div class="st300_subsection_title_number"><a id="st300_p1s5ss2" href="#st300_p1s5ss2" title="Subsection 1.5.2: Rules">1.5.2</a></div><div class="st300_subsection_title">Rules</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s5ss2c1" href="#st300_p1s5ss2c1" title="Paragraph 1.5.2.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">rule</span> may take one of the following forms:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p1s5ss2c2" href="#st300_p1s5ss2c2" title="Formal item 1.5.2.2: Rules">1.5.2.2 Rules</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data Rule
+  = MAnySymbol
+  | MAnyQuoted
+  | MAnyList
+  | MExactSymbol String
+  | MExactQuoted String
+  | MExactList [Rule]
+  | MChoice [Rule]
+  | MListVariadic [Rule] Rule
+  deriving Eq
+
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s5ss2c3" href="#st300_p1s5ss2c3" title="Paragraph 1.5.2.3">3</a></div><div class="st300_paragraph">The s-expression syntax of each rule may be inferred from the given <span class="st300_term type">Show</span> instance:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p1s5ss2c4" href="#st300_p1s5ss2c4" title="Formal item 1.5.2.4: Rule Syntax">1.5.2.4 Rule Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">instance Show Rule where
+  show (MExactSymbol s)    = "(#exact-symbol " ++ s ++ ")"
+  show (MExactQuoted s)    = "(#exact-quoted " ++ s ++ ")"
+  show (MExactList s)      = "(#exact-list [" ++ (concatMap show s) ++ "])"
+  show  MAnySymbol         = "#any-symbol"
+  show  MAnyQuoted         = "#any-quoted"
+  show  MAnyList           = "#any-list"
+  show (MChoice s)         = "(#choice [" ++ (concatMap show s) ++ "])"
+  show (MListVariadic s m) = "(#variadic [" ++ (concatMap show s) ++ "]" ++ (show m) ++ ")"
+
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s5ss2c5" href="#st300_p1s5ss2c5" title="Paragraph 1.5.2.5">5</a></div><div class="st300_paragraph">A rule is <span class="st300_term expression">r</span> said to <span class="st300_term term">match</span> an expression <span class="st300_term expression">e</span> if, given the <span class="st300_term function">matches</span> function defined below, <span class="st300_term expression">matches e r == True</span>.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p1s5ss2c6" href="#st300_p1s5ss2c6" title="Formal item 1.5.2.6: Informal Description Of Rules">1.5.2.6 Informal Description Of Rules</a></div><div class="st300_formal_item_content"><ul class="st300_list_unordered"><li class="st300_list_item">The <span class="st300_term expression">#any-symbol</span> rule matches an expression <span class="st300_term expression">e</span> iff <span class="st300_term expression">e</span> is a symbol.</li><li class="st300_list_item">The <span class="st300_term expression">#any-quoted</span> rule matches an expression <span class="st300_term expression">e</span> iff <span class="st300_term expression">e</span> is a quoted string.</li><li class="st300_list_item">The <span class="st300_term expression">#any-list</span> rule matches an expression <span class="st300_term expression">e</span> iff <span class="st300_term expression">e</span> is a list.</li><li class="st300_list_item">The <span class="st300_term expression">(#exact-symbol s)</span> rule matches an expression <span class="st300_term expression">e</span> iff <span class="st300_term expression">e</span> is a symbol with the value <span class="st300_term expression">s</span>.</li><li class="st300_list_item">The <span class="st300_term expression">(#exact-quoted s)</span> rule matches an expression <span class="st300_term expression">e</span> iff <span class="st300_term expression">e</span> is a quoted string with the value <span class="st300_term expression">s</span>.</li><li class="st300_list_item">The <span class="st300_term expression">(#exact-list (m₀ m₁ ... mₙ))</span> rule matches an expression <span class="st300_term expression">e</span> iff <span class="st300_term expression">e</span> is a list, the length of <span class="st300_term expression">e</span> is <span class="st300_term expression">n + 1</span>, and <span class="st300_term expression">∀k. 0 &lt;= k &lt;= n → e[k] matches mₖ</span>.</li><li class="st300_list_item">The <span class="st300_term expression">(#choice (m₀ ... mₙ))</span> rule matches an expression <span class="st300_term expression">e</span> iff <span class="st300_term emphasis">exactly one</span> rule in the given list <span class="st300_term expression">(m₀ ... mₙ)</span> matches <span class="st300_term expression">e</span>. Accordingly, the rule <span class="st300_term expression">(#choice ())</span> never matches anything.</li><li class="st300_list_item">The <span class="st300_term expression">(#variadic (m₀ m₁ ... mₙ) r)</span> rule matches an expression <span class="st300_term expression">e</span> iff <span class="st300_term expression">e</span> is a list, the length of <span class="st300_term expression">e</span> is <span class="st300_term expression">&gt;= n + 1</span>, <span class="st300_term expression">∀k. 0 &lt;= k &lt;= n → e[k] matches mₖ</span>, and the remaining elements in <span class="st300_term expression">e</span> match <span class="st300_term expression">r</span>. Accordingly, the rule <span class="st300_term expression">(#variadic () r)</span> will check that every element of a given list matches <span class="st300_term expression">r</span>, and will always match for a given empty list.</li></ul></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s5ss2c7" href="#st300_p1s5ss2c7" title="Paragraph 1.5.2.7">7</a></div><div class="st300_paragraph">Matching an arbitrary s-expression against a rule is a simple matter of checking to see if the structure of the given expression matches the structure allowed by the rule against which it is being matched. A complete definition of a matching function that encodes the above rules is as follows:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p1s5ss2c8" href="#st300_p1s5ss2c8" title="Formal item 1.5.2.8: Match Function">1.5.2.8 Match Function</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">matches :: SE.Expr -&gt; Rule -&gt; Bool
+matches (SE.ESymbol e) (MExactSymbol s)    = e == s
+matches (SE.ESymbol _) (MExactQuoted _)    = False
+matches (SE.ESymbol _) (MExactList _)      = False
+matches (SE.ESymbol _) MAnySymbol          = True
+matches (SE.ESymbol _) MAnyQuoted          = False
+matches (SE.ESymbol _) MAnyList            = False
+matches (SE.ESymbol _) (MListVariadic _ _) = False
+matches (SE.EQuoted _) MAnySymbol          = False
+matches (SE.EQuoted _) MAnyQuoted          = True
+matches (SE.EQuoted _) MAnyList            = False
+matches (SE.EQuoted e) (MExactQuoted s)    = e == s
+matches (SE.EQuoted _) (MExactSymbol _)    = False
+matches (SE.EQuoted _) (MExactList _)      = False
+matches (SE.EQuoted _) (MListVariadic _ _) = False
+matches (SE.EList _)   (MExactSymbol _) = False
+matches (SE.EList _)   (MExactQuoted _) = False
+matches (SE.EList _)   MAnySymbol       = False
+matches (SE.EList _)   MAnyQuoted       = False
+matches (SE.EList _)   MAnyList         = True
+matches (SE.EList s) (MExactList m) =
+  (length s) == (length m) &amp;&amp; all (\(xe,xm) -&gt; matches xe xm) (zip s m)
+matches (SE.EList s) (MListVariadic m0 mr) =
+  if (length s &gt;= length m0)
+  then
+    let
+      prefix_zip = take (length m0) (zip s m0)
+      prefix_ok  = all (\(xe,xm) -&gt; matches xe xm) prefix_zip
+      suffix     = drop (length m0) s
+      suffix_zip = zip suffix (replicate (length suffix) mr)
+      suffix_ok  = all (\(xe,xm) -&gt; matches xe xm) suffix_zip
+    in
+      prefix_ok &amp;&amp; suffix_ok
+  else
+    False
+matches e (MChoice m0)= 1 == length (filter (matches e) m0)
+</pre></div></div></div><div class="st300_subsection_container"><div class="st300_subsection_title_number"><a id="st300_p1s5ss3" href="#st300_p1s5ss3" title="Subsection 1.5.3: Examples">1.5.3</a></div><div class="st300_subsection_title">Examples</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s5ss3c1" href="#st300_p1s5ss3c1" title="Paragraph 1.5.3.1">1</a></div><div class="st300_paragraph">This section is informative. These results can be reproduced by evaluating the given terms in the <span class="st300_term type">SEMatcher</span> module using Haskell's interactive command prompt.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s5ss3c2" href="#st300_p1s5ss3c2" title="Paragraph 1.5.3.2">2</a></div><div class="st300_paragraph">The expression <span class="st300_term expression">x</span> is matched by the rule <span class="st300_term expression">#any-symbol</span>, but <span class="st300_term expression">"x"</span> is not:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p1s5ss3c3" href="#st300_p1s5ss3c3" title="Formal item 1.5.3.3: Example 0">1.5.3.3 Example 0</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">&gt; matches (SE.ESymbol "x") MAnySymbol
+True
+&gt; matches (SE.EQuoted "x") MAnySymbol
+False
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s5ss3c4" href="#st300_p1s5ss3c4" title="Paragraph 1.5.3.4">4</a></div><div class="st300_paragraph">The expression <span class="st300_term expression">(x y z)</span> is matched by the rule <span class="st300_term expression">(#exact-list (#exact-symbol "x") (#exact-symbol "y") (#exact-symbol "z"))</span>, but <span class="st300_term expression">(x y y)</span> and <span class="st300_term expression">(x y)</span> are not:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p1s5ss3c5" href="#st300_p1s5ss3c5" title="Formal item 1.5.3.5: Example 1">1.5.3.5 Example 1</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">&gt; matches (SE.EList [SE.ESymbol "x", SE.ESymbol "y", SE.ESymbol "z"]) (MExactList [MExactSymbol "x", MExactSymbol "y", MExactSymbol "z"])
+True
+&gt; matches (SE.EList [SE.ESymbol "x", SE.ESymbol "y", SE.ESymbol "y"]) (MExactList [MExactSymbol "x", MExactSymbol "y", MExactSymbol "z"])
+False
+&gt; matches (SE.EList [SE.ESymbol "x", SE.ESymbol "y"]) (MExactList [MExactSymbol "x", MExactSymbol "y", MExactSymbol "z"])
+False</pre></div></div></div></div></div><div class="st300_part_container"><a id="model"/><div class="st300_part_title_number"><a id="st300_p2" href="#st300_p2" title="Part 2: Model">2</a></div><div class="st300_part_title">Model</div><ul class="st300_contents st300_part_contents_outer st300_part_contents"><li class="st300_contents_item st300_contents_item1 st300_contents_item_section"><a href="#st300_p2s1" title="Link to section 2.1: Overview">2.1. Overview</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_section"><a href="#st300_p2s2" title="Link to section 2.2: Inline Content">2.2. Inline Content</a><ul class="st300_contents st300_section_contents"><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s2ss1" title="Link to subsection 2.2.1: Overview">2.2.1. Overview</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s2ss2" title="Link to subsection 2.2.2: Types">2.2.2. Types</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s2ss3" title="Link to subsection 2.2.3: Text">2.2.3. Text</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s2ss4" title="Link to subsection 2.2.4: Term">2.2.4. Term</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s2ss5" title="Link to subsection 2.2.5: Image">2.2.5. Image</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s2ss6" title="Link to subsection 2.2.6: Verbatim">2.2.6. Verbatim</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s2ss7" title="Link to subsection 2.2.7: Link">2.2.7. Link</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s2ss8" title="Link to subsection 2.2.8: Link External">2.2.8. Link External</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s2ss9" title="Link to subsection 2.2.9: Footnote Reference">2.2.9. Footnote Reference</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s2ss10" title="Link to subsection 2.2.10: Ordered List">2.2.10. Ordered List</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s2ss11" title="Link to subsection 2.2.11: Unordered List">2.2.11. Unordered List</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s2ss12" title="Link to subsection 2.2.12: Table">2.2.12. Table</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s2ss13" title="Link to subsection 2.2.13: Include">2.2.13. Include</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s2ss14" title="Link to subsection 2.2.14: Complete Inline Model">2.2.14. Complete Inline Model</a></li></ul></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_section"><a href="#st300_p2s3" title="Link to section 2.3: Block Content">2.3. Block Content</a><ul class="st300_contents st300_section_contents"><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s3ss1" title="Link to subsection 2.3.1: Overview">2.3.1. Overview</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s3ss2" title="Link to subsection 2.3.2: ID">2.3.2. ID</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s3ss3" title="Link to subsection 2.3.3: Paragraph">2.3.3. Paragraph</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s3ss4" title="Link to subsection 2.3.4: Formal Item">2.3.4. Formal Item</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s3ss5" title="Link to subsection 2.3.5: Footnote">2.3.5. Footnote</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s3ss6" title="Link to subsection 2.3.6: Subsection">2.3.6. Subsection</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s3ss7" title="Link to subsection 2.3.7: Section">2.3.7. Section</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s3ss8" title="Link to subsection 2.3.8: Part">2.3.8. Part</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s3ss9" title="Link to subsection 2.3.9: Document">2.3.9. Document</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p2s3ss10" title="Link to subsection 2.3.10: Import">2.3.10. Import</a></li></ul></li></ul><div class="st300_section_container"><a id="model.overview"/><div class="st300_section_title_number"><a id="st300_p2s1" href="#st300_p2s1" title="Section 2.1: Overview">2.1</a></div><div class="st300_section_title">Overview</div><span/><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s1c1" href="#st300_p2s1c1" title="Paragraph 2.1.1">1</a></div><div class="st300_paragraph">The definition of the <span class="st300_term package">structural</span> language is given as an <span class="st300_term term">algebraic data type</span>. Later parts of the specification define the concrete syntax that maps text to terms of the described types.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s1c2" href="#st300_p2s1c2" title="Paragraph 2.1.2">2</a></div><div class="st300_paragraph">A <span class="st300_term package">structural</span> document consists of nested <a class="st300_link" href="#model.block">block</a> terms that, at the lowest level, contain <a class="st300_link" href="#model.inline">inline</a> terms.</div></div></div><div class="st300_section_container"><a id="model.inline"/><div class="st300_section_title_number"><a id="st300_p2s2" href="#st300_p2s2" title="Section 2.2: Inline Content">2.2</a></div><div class="st300_section_title">Inline Content</div><ul class="st300_contents st300_section_contents_outer st300_section_contents"><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s2ss1" title="Link to subsection 2.2.1: Overview">2.2.1. Overview</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s2ss2" title="Link to subsection 2.2.2: Types">2.2.2. Types</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s2ss3" title="Link to subsection 2.2.3: Text">2.2.3. Text</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s2ss4" title="Link to subsection 2.2.4: Term">2.2.4. Term</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s2ss5" title="Link to subsection 2.2.5: Image">2.2.5. Image</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s2ss6" title="Link to subsection 2.2.6: Verbatim">2.2.6. Verbatim</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s2ss7" title="Link to subsection 2.2.7: Link">2.2.7. Link</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s2ss8" title="Link to subsection 2.2.8: Link External">2.2.8. Link External</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s2ss9" title="Link to subsection 2.2.9: Footnote Reference">2.2.9. Footnote Reference</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s2ss10" title="Link to subsection 2.2.10: Ordered List">2.2.10. Ordered List</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s2ss11" title="Link to subsection 2.2.11: Unordered List">2.2.11. Unordered List</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s2ss12" title="Link to subsection 2.2.12: Table">2.2.12. Table</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s2ss13" title="Link to subsection 2.2.13: Include">2.2.13. Include</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s2ss14" title="Link to subsection 2.2.14: Complete Inline Model">2.2.14. Complete Inline Model</a></li></ul><div class="st300_subsection_container"><a id="model.inline.overview"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss1" href="#st300_p2s2ss1" title="Subsection 2.2.1: Overview">2.2.1</a></div><div class="st300_subsection_title">Overview</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss1c1" href="#st300_p2s2ss1c1" title="Paragraph 2.2.1.1">1</a></div><div class="st300_paragraph">An <span class="st300_term term">inline</span> value is the smallest unit of content that can appear in a <span class="st300_term package">structural</span> document. The type of inline content is given by the following definition:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss1c2" href="#st300_p2s2ss1c2" title="Formal item 2.2.1.2: Inline Content">2.2.1.2 Inline Content</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineContent
+  = ICText          InlineText
+  | ICTerm          InlineTerm
+  | ICImage         InlineImage
+  | ICVerbatim      InlineVerbatim
+  | ICLink          InlineLinkInternal
+  | ICLinkExternal  InlineLinkExternal
+  | ICListOrdered   InlineListOrdered
+  | ICListUnordered InlineListUnordered
+  | ICFootnoteRef   InlineFootnoteRef
+  | ICTable         InlineTable
+  | ICInclude       InlineInclude
+  deriving Eq
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.types"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss2" href="#st300_p2s2ss2" title="Subsection 2.2.2: Types">2.2.2</a></div><div class="st300_subsection_title">Types</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss2c1" href="#st300_p2s2ss2c1" title="Paragraph 2.2.2.1">1</a></div><div class="st300_paragraph">Most elements defined here may have an associated <span class="st300_term type">type</span> parameter that can be used to distinguish the element from other elements of the same type during document processing. As an example, the author of a document may tag all mentions of a software package with a type parameter value of <span class="st300_term term">package</span> so that the mentions can be highlighted when the document is exported to one of the supported export formats. The values have no intrinsic meaning; their meaning is decided by the author of any given document.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss2c2" href="#st300_p2s2ss2c2" title="Paragraph 2.2.2.2">2</a></div><div class="st300_paragraph">Type identifiers are restricted to combinations of letters, numbers, and <span class="st300_term constant">U+005F "_"</span>.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss2c3" href="#st300_p2s2ss2c3" title="Formal item 2.2.2.3: Type Identifier Syntax">2.2.2.3 Type Identifier Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">type_character =
+  ? p{IsLetter} | p{isNumber} | U+005F ? ;
+
+type =
+  type_character , { type_character } ;
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.text"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss3" href="#st300_p2s2ss3" title="Subsection 2.2.3: Text">2.2.3</a></div><div class="st300_subsection_title">Text</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss3c1" href="#st300_p2s2ss3c1" title="Paragraph 2.2.3.1">1</a></div><div class="st300_paragraph">The simplest type of inline content that appears in <span class="st300_term package">structural</span> documents is the <span class="st300_term type">InlineText</span> type. Terms of type <span class="st300_term type">InlineText</span> are simply strings.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss3c2" href="#st300_p2s2ss3c2" title="Formal item 2.2.3.2: Text">2.2.3.2 Text</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineText =
+  InlineText String
+  deriving Eq
+
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.term"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss4" href="#st300_p2s2ss4" title="Subsection 2.2.4: Term">2.2.4</a></div><div class="st300_subsection_title">Term</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss4c1" href="#st300_p2s2ss4c1" title="Paragraph 2.2.4.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineTerm</span> type denotes a significant element of a section of text. It is usually used to highlight or mark individual words.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss4c2" href="#st300_p2s2ss4c2" title="Formal item 2.2.4.2: Term">2.2.4.2 Term</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineTerm = InlineTerm {
+  termType    :: Maybe String,
+  termContent :: [InlineText]
+} deriving Eq
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss4c3" href="#st300_p2s2ss4c3" title="Paragraph 2.2.4.3">3</a></div><div class="st300_paragraph">As shown by the type definition, values of type <span class="st300_term type">InlineTerm</span> may have an associated optional <a class="st300_link" href="#model.inline.types">type</a> parameter value.</div></div></div><div class="st300_subsection_container"><a id="model.inline.image"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss5" href="#st300_p2s2ss5" title="Subsection 2.2.5: Image">2.2.5</a></div><div class="st300_subsection_title">Image</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss5c1" href="#st300_p2s2ss5c1" title="Paragraph 2.2.5.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineImage</span> type denotes a reference to an image. The location of the image is given by the <span class="st300_term parameter">target</span> parameter. The width and height of the image can be specified by the optional <span class="st300_term parameter">size</span> parameter. The associated list of inline <a class="st300_link" href="#model.inline.text">text</a> elements are used as fallback text in the case that the image becomes unavailable.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss5c2" href="#st300_p2s2ss5c2" title="Formal item 2.2.5.2: Text">2.2.5.2 Text</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineImage = InlineImage {
+  imageType    :: Maybe String,
+  imageTarget  :: URI.T,
+  imageSize    :: Maybe Size,
+  imageContent :: [InlineText]
+} deriving Eq
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss5c3" href="#st300_p2s2ss5c3" title="Paragraph 2.2.5.3">3</a></div><div class="st300_paragraph">As shown by the type definition, values of type <span class="st300_term type">InlineImage</span> may have an associated optional <a class="st300_link" href="#model.inline.types">type</a> parameter value.</div></div></div><div class="st300_subsection_container"><a id="model.inline.verbatim"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss6" href="#st300_p2s2ss6" title="Subsection 2.2.6: Verbatim">2.2.6</a></div><div class="st300_subsection_title">Verbatim</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss6c1" href="#st300_p2s2ss6c1" title="Paragraph 2.2.6.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineVerbatim</span> type denotes a section of text in which whitespace should be preserved exactly as it was written.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss6c2" href="#st300_p2s2ss6c2" title="Formal item 2.2.6.2: Verbatim">2.2.6.2 Verbatim</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineVerbatim = InlineVerbatim {
+  verbatimType    :: Maybe String,
+  verbatimContent :: InlineText
+} deriving Eq
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss6c3" href="#st300_p2s2ss6c3" title="Paragraph 2.2.6.3">3</a></div><div class="st300_paragraph">As shown by the type definition, values of type <span class="st300_term type">InlineVerbatim</span> may have an associated optional <a class="st300_link" href="#model.inline.types">type</a> parameter value.</div></div></div><div class="st300_subsection_container"><a id="model.inline.link"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss7" href="#st300_p2s2ss7" title="Subsection 2.2.7: Link">2.2.7</a></div><div class="st300_subsection_title">Link</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss7c1" href="#st300_p2s2ss7c1" title="Paragraph 2.2.7.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineLinkInternal</span> type denotes a link to an element within the current document. The value of the given <span class="st300_term expression">target</span> parameter must be equal to the value of the <span class="st300_term expression">id</span> parameter on an existing <a class="st300_link" href="#model.block">block</a> value.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss7c2" href="#st300_p2s2ss7c2" title="Formal item 2.2.7.2: Link">2.2.7.2 Link</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineLinkInternal = InlineLinkInternal {
+  linkInternalTarget  :: ID.T,
+  linkInternalContent :: [LinkContent]
+} deriving Eq
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss7c3" href="#st300_p2s2ss7c3" title="Paragraph 2.2.7.3">3</a></div><div class="st300_paragraph">Only a restricted subset of the available inline content types are allowed to appear as descendants of links. The subset is described by the <span class="st300_term type">LinkContent</span> type:</div></div><div class="st300_formal_item"><a id="model.inline.link.content"/><div class="st300_formal_item_title"><a id="st300_p2s2ss7c4" href="#st300_p2s2ss7c4" title="Formal item 2.2.7.4: Link Content">2.2.7.4 Link Content</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data LinkContent
+  = LCText  InlineText
+  | LCImage InlineImage
+  deriving Eq
+
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.link_external"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss8" href="#st300_p2s2ss8" title="Subsection 2.2.8: Link External">2.2.8</a></div><div class="st300_subsection_title">Link External</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss8c1" href="#st300_p2s2ss8c1" title="Paragraph 2.2.8.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineLinkExternal</span> type denotes a link to an external resource.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss8c2" href="#st300_p2s2ss8c2" title="Formal item 2.2.8.2: Link External">2.2.8.2 Link External</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineLinkExternal = InlineLinkExternal {
+  linkExternalTarget  :: URI.T,
+  linkExternalContent :: [LinkContent]
+} deriving Eq
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.footnote_ref"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss9" href="#st300_p2s2ss9" title="Subsection 2.2.9: Footnote Reference">2.2.9</a></div><div class="st300_subsection_title">Footnote Reference</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss9c1" href="#st300_p2s2ss9c1" title="Paragraph 2.2.9.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineFootnoteRef</span> type denotes a link to a <a class="st300_link" href="#model.block.footnote">footnote</a> within the current document.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss9c2" href="#st300_p2s2ss9c2" title="Paragraph 2.2.9.2">2</a></div><div class="st300_paragraph">The value of the given <span class="st300_term expression">target</span> parameter must be equal to the value of the <span class="st300_term expression">id</span> parameter on an existing <a class="st300_link" href="#model.block.footnote">footnote</a> value.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss9c3" href="#st300_p2s2ss9c3" title="Formal item 2.2.9.3: Footnote Reference">2.2.9.3 Footnote Reference</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineFootnoteRef = InlineFootnoteRef {
+  footnoteTarget :: ID.T
+} deriving Eq
+
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.list_ordered"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss10" href="#st300_p2s2ss10" title="Subsection 2.2.10: Ordered List">2.2.10</a></div><div class="st300_subsection_title">Ordered List</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss10c1" href="#st300_p2s2ss10c1" title="Paragraph 2.2.10.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineListOrdered</span> type denotes a list of elements that should be understood to be <span class="st300_term term">ordered</span>. The individual elements of the list are denoted by values of the <span class="st300_term type">ListItem</span> type.</div></div><div class="st300_formal_item"><a id="model.inline.list_item"/><div class="st300_formal_item_title"><a id="st300_p2s2ss10c2" href="#st300_p2s2ss10c2" title="Formal item 2.2.10.2: Ordered List">2.2.10.2 Ordered List</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data ListItem = ListItem {
+  listItemContent :: [InlineContent]
+} deriving Eq
+</pre></div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss10c3" href="#st300_p2s2ss10c3" title="Formal item 2.2.10.3: Ordered List">2.2.10.3 Ordered List</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineListOrdered = InlineListOrdered {
+  listOrderedItems :: [ListItem]
+} deriving Eq
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.list_unordered"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss11" href="#st300_p2s2ss11" title="Subsection 2.2.11: Unordered List">2.2.11</a></div><div class="st300_subsection_title">Unordered List</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss11c1" href="#st300_p2s2ss11c1" title="Paragraph 2.2.11.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineListUnordered</span> type denotes a list of elements that should be understood to be in no specific order.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss11c2" href="#st300_p2s2ss11c2" title="Formal item 2.2.11.2: Unordered List">2.2.11.2 Unordered List</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineListUnordered = InlineListUnordered {
+  listUnorderedItems :: [ListItem]
+} deriving Eq
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.table"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss12" href="#st300_p2s2ss12" title="Subsection 2.2.12: Table">2.2.12</a></div><div class="st300_subsection_title">Table</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss12c1" href="#st300_p2s2ss12c1" title="Paragraph 2.2.12.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineTable</span> type is a relatively complex type that describes a table consisting of <span class="st300_term term">rows</span>, with each row consisting of a number of <span class="st300_term term">cells</span>.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss12c2" href="#st300_p2s2ss12c2" title="Formal item 2.2.12.2: Table Cell">2.2.12.2 Table Cell</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data TableCell = TableCell {
+  tableCellContent :: [TableCellContent]
+} deriving Eq
+</pre></div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss12c3" href="#st300_p2s2ss12c3" title="Formal item 2.2.12.3: Table Row">2.2.12.3 Table Row</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data TableRow = TableRow {
+  tableRowCells :: [TableCell]
+} deriving Eq
+</pre></div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss12c4" href="#st300_p2s2ss12c4" title="Formal item 2.2.12.4: Table">2.2.12.4 Table</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineTable = InlineTable {
+  tableType    :: Maybe String,
+  tableSummary :: [InlineText],
+  tableHead    :: Maybe TableHead,
+  tableBody    :: TableBody
+} deriving Eq
+
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss12c5" href="#st300_p2s2ss12c5" title="Paragraph 2.2.12.5">5</a></div><div class="st300_paragraph">A table may have an optional <span class="st300_term term">head</span> that describes the number and names of columns in the table.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss12c6" href="#st300_p2s2ss12c6" title="Formal item 2.2.12.6: Table Head">2.2.12.6 Table Head</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data TableRow = TableRow {
+  tableRowCells :: [TableCell]
+} deriving Eq
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss12c7" href="#st300_p2s2ss12c7" title="Paragraph 2.2.12.7">7</a></div><div class="st300_paragraph">Implementations are required to check that, if a head is defined, the number of cells in each table row is equal to the number of column names defined in the head.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss12c8" href="#st300_p2s2ss12c8" title="Formal item 2.2.12.8: Table Check">2.2.12.8 Table Check</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">tableCheck :: InlineTable -&gt; Bool
+tableCheck table =
+  case (tableHead table) of
+    Nothing -&gt; True
+    Just th -&gt;
+      let rows     = tableBodyRows $ tableBody table
+          expected = length $ tableHeadNames th
+      in all (\row -&gt; length (tableRowCells row) == expected) rows
+
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss12c9" href="#st300_p2s2ss12c9" title="Paragraph 2.2.12.9">9</a></div><div class="st300_paragraph">Tables may not be nested. That is, the inline content that may appear inside a table cell must not contain a table.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss12c10" href="#st300_p2s2ss12c10" title="Formal item 2.2.12.10: Table Cell Content">2.2.12.10 Table Cell Content</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data TableCellContent
+  = TCText          InlineText
+  | TCTerm          InlineTerm
+  | TCImage         InlineImage
+  | TCVerbatim      InlineVerbatim
+  | TCLink          InlineLinkInternal
+  | TCLinkExternal  InlineLinkExternal
+  | TCListOrdered   InlineListOrdered
+  | TCListUnordered InlineListUnordered
+  | TCFootnoteRef   InlineFootnoteRef
+  | TCInclude       InlineInclude
+  deriving Eq
+
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.include"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss13" href="#st300_p2s2ss13" title="Subsection 2.2.13: Include">2.2.13</a></div><div class="st300_subsection_title">Include</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss13c1" href="#st300_p2s2ss13c1" title="Paragraph 2.2.13.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineInclude</span> type denotes a link to an external file. Values of type <span class="st300_term type">InlineInclude</span> do not actually appear in documents directly: They are replaced with the contents of the referenced file as if they had been inserted as a single quoted string.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss13c2" href="#st300_p2s2ss13c2" title="Formal item 2.2.13.2: Include">2.2.13.2 Include</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineInclude = InlineInclude {
+  includeFile :: String
+} deriving Eq
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.complete"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss14" href="#st300_p2s2ss14" title="Subsection 2.2.14: Complete Inline Model">2.2.14</a></div><div class="st300_subsection_title">Complete Inline Model</div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss14c1" href="#st300_p2s2ss14c1" title="Formal item 2.2.14.1: Type Model">2.2.14.1 Type Model</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">module InlineContent where
+
+import qualified URI
+import qualified ID
+
+data InlineText =
+  InlineText String
+  deriving Eq
+
+data InlineTerm = InlineTerm {
+  termType    :: Maybe String,
+  termContent :: [InlineText]
+} deriving Eq
+
+data Size = Size {
+  sizeWidth  :: Integer,
+  sizeHeight :: Integer
+} deriving Eq
+
+data InlineImage = InlineImage {
+  imageType    :: Maybe String,
+  imageTarget  :: URI.T,
+  imageSize    :: Maybe Size,
+  imageContent :: [InlineText]
+} deriving Eq
+
+data InlineVerbatim = InlineVerbatim {
+  verbatimType    :: Maybe String,
+  verbatimContent :: InlineText
+} deriving Eq
+
+data LinkContent
+  = LCText  InlineText
+  | LCImage InlineImage
+  deriving Eq
+
+data InlineLinkInternal = InlineLinkInternal {
+  linkInternalTarget  :: ID.T,
+  linkInternalContent :: [LinkContent]
+} deriving Eq
+
+data InlineLinkExternal = InlineLinkExternal {
+  linkExternalTarget  :: URI.T,
+  linkExternalContent :: [LinkContent]
+} deriving Eq
+
+data ListItem = ListItem {
+  listItemContent :: [InlineContent]
+} deriving Eq
+
+data InlineListOrdered = InlineListOrdered {
+  listOrderedItems :: [ListItem]
+} deriving Eq
+
+data InlineListUnordered = InlineListUnordered {
+  listUnorderedItems :: [ListItem]
+} deriving Eq
+
+data InlineFootnoteRef = InlineFootnoteRef {
+  footnoteTarget :: ID.T
+} deriving Eq
+
+type TableColumnName = [InlineText]
+
+data TableHead = TableHead {
+  tableHeadNames :: [TableColumnName]
+} deriving Eq
+
+data TableCell = TableCell {
+  tableCellContent :: [TableCellContent]
+} deriving Eq
+
+data TableCellContent
+  = TCText          InlineText
+  | TCTerm          InlineTerm
+  | TCImage         InlineImage
+  | TCVerbatim      InlineVerbatim
+  | TCLink          InlineLinkInternal
+  | TCLinkExternal  InlineLinkExternal
+  | TCListOrdered   InlineListOrdered
+  | TCListUnordered InlineListUnordered
+  | TCFootnoteRef   InlineFootnoteRef
+  | TCInclude       InlineInclude
+  deriving Eq
+
+data TableRow = TableRow {
+  tableRowCells :: [TableCell]
+} deriving Eq
+
+data TableBody = TableBody {
+  tableBodyRows :: [TableRow]
+} deriving Eq
+
+data InlineTable = InlineTable {
+  tableType    :: Maybe String,
+  tableSummary :: [InlineText],
+  tableHead    :: Maybe TableHead,
+  tableBody    :: TableBody
+} deriving Eq
+
+tableCheck :: InlineTable -&gt; Bool
+tableCheck table =
+  case (tableHead table) of
+    Nothing -&gt; True
+    Just th -&gt;
+      let rows     = tableBodyRows $ tableBody table
+          expected = length $ tableHeadNames th
+      in all (\row -&gt; length (tableRowCells row) == expected) rows
+
+data InlineInclude = InlineInclude {
+  includeFile :: String
+} deriving Eq
+
+data InlineContent
+  = ICText          InlineText
+  | ICTerm          InlineTerm
+  | ICImage         InlineImage
+  | ICVerbatim      InlineVerbatim
+  | ICLink          InlineLinkInternal
+  | ICLinkExternal  InlineLinkExternal
+  | ICListOrdered   InlineListOrdered
+  | ICListUnordered InlineListUnordered
+  | ICFootnoteRef   InlineFootnoteRef
+  | ICTable         InlineTable
+  | ICInclude       InlineInclude
+  deriving Eq
+</pre></div></div></div></div><div class="st300_section_container"><a id="model.block"/><div class="st300_section_title_number"><a id="st300_p2s3" href="#st300_p2s3" title="Section 2.3: Block Content">2.3</a></div><div class="st300_section_title">Block Content</div><ul class="st300_contents st300_section_contents_outer st300_section_contents"><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s3ss1" title="Link to subsection 2.3.1: Overview">2.3.1. Overview</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s3ss2" title="Link to subsection 2.3.2: ID">2.3.2. ID</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s3ss3" title="Link to subsection 2.3.3: Paragraph">2.3.3. Paragraph</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s3ss4" title="Link to subsection 2.3.4: Formal Item">2.3.4. Formal Item</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s3ss5" title="Link to subsection 2.3.5: Footnote">2.3.5. Footnote</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s3ss6" title="Link to subsection 2.3.6: Subsection">2.3.6. Subsection</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s3ss7" title="Link to subsection 2.3.7: Section">2.3.7. Section</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s3ss8" title="Link to subsection 2.3.8: Part">2.3.8. Part</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s3ss9" title="Link to subsection 2.3.9: Document">2.3.9. Document</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p2s3ss10" title="Link to subsection 2.3.10: Import">2.3.10. Import</a></li></ul><div class="st300_subsection_container"><a id="model.block.overview"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss1" href="#st300_p2s3ss1" title="Subsection 2.3.1: Overview">2.3.1</a></div><div class="st300_subsection_title">Overview</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss1c1" href="#st300_p2s3ss1c1" title="Paragraph 2.3.1.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">block</span> value denotes a significant section of content within a document.</div></div></div><div class="st300_subsection_container"><a id="model.block.id"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss2" href="#st300_p2s3ss2" title="Subsection 2.3.2: ID">2.3.2</a></div><div class="st300_subsection_title">ID</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss2c1" href="#st300_p2s3ss2c1" title="Paragraph 2.3.2.1">1</a></div><div class="st300_paragraph">All block values have an optional <span class="st300_term expression">id</span> parameter that, if present, must be unique within a document. The value of this parameter may be used by <a class="st300_link" href="#model.inline.link">link</a> elements to create intra-document links to content.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss2c2" href="#st300_p2s3ss2c2" title="Paragraph 2.3.2.2">2</a></div><div class="st300_paragraph">Identifiers are restricted to combinations of letters, numbers, <span class="st300_term constant">U+005F "_"</span>, and <span class="st300_term constant">U+002E "."</span>.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss2c3" href="#st300_p2s3ss2c3" title="Formal item 2.3.2.3: Identifier Syntax">2.3.2.3 Identifier Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">id_character =
+  ? p{IsLetter} | p{isNumber} | U+005F | U+002E ? ;
+
+id =
+  id_character , { id_character } ;
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss2c4" href="#st300_p2s3ss2c4" title="Paragraph 2.3.2.4">4</a></div><div class="st300_paragraph">An <span class="st300_term expression">id</span> value <span class="st300_term expression">k</span> is said to <span class="st300_term term">exist</span> if there is exactly one element in the document <span class="st300_term expression">d</span> such that <span class="st300_term expression">(hasID k d == Just k)</span>:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss2c5" href="#st300_p2s3ss2c5" title="Formal item 2.3.2.5: Identifier Existence">2.3.2.5 Identifier Existence</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">module IDExistence where
+
+import qualified ID
+import qualified BlockContent as BC
+import qualified Control.Monad as CM
+
+class HasID a where
+  hasID :: ID.T -&gt; a -&gt; Maybe ID.T
+
+maybeEq :: Eq a =&gt; a -&gt; Maybe a -&gt; Maybe a
+maybeEq x Nothing  = Nothing
+maybeEq x (Just y) = if x == y then Just y else Nothing
+
+instance HasID BC.BlockParagraph where
+  hasID k b = maybeEq k (BC.para_id b)
+
+instance HasID BC.BlockFormalItem where
+  hasID k b = maybeEq k (BC.formal_id b)
+
+instance HasID BC.BlockFootnote where
+  hasID k b = maybeEq k (Just $ BC.footnote_id b)
+
+instance HasID BC.SubsectionContent where
+  hasID k (BC.SCParagraph b)  = hasID k b
+  hasID k (BC.SCFormalItem b) = hasID k b
+  hasID k (BC.SCFootnote b)   = hasID k b
+
+instance HasID BC.BlockSubsection where
+  hasID k b =
+    case maybeEq k (BC.subsection_id b) of
+      Just x  -&gt; Just k
+      Nothing -&gt; CM.foldM hasID k (BC.subsection_content b)
+
+instance HasID BC.BlockSection where
+  hasID k b =
+    case maybeEq k (BC.section_id b) of
+      Just x  -&gt; Just k
+      Nothing -&gt;
+        case BC.section_content b of
+          Left ss  -&gt; CM.foldM hasID k ss
+          Right sc -&gt; CM.foldM hasID k sc
+
+instance HasID BC.BlockPart where
+  hasID k b =
+    case maybeEq k (BC.part_id b) of
+      Just x  -&gt; Just k
+      Nothing -&gt; CM.foldM hasID k (BC.part_content b)
+
+instance HasID BC.BlockDocument where
+  hasID k b =
+    case maybeEq k (BC.document_id b) of
+      Just x  -&gt; Just k
+      Nothing -&gt;
+        case BC.document_content b of
+          Left p  -&gt; CM.foldM hasID k p
+          Right s -&gt; CM.foldM hasID k s
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss2c6" href="#st300_p2s3ss2c6" title="Paragraph 2.3.2.6">6</a></div><div class="st300_paragraph">Implementations are required to check that all <span class="st300_term expression">id</span> values are unique within a document, and that all <span class="st300_term expression">id</span> values referenced by links within a document exist.</div></div></div><div class="st300_subsection_container"><a id="model.block.paragraph"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss3" href="#st300_p2s3ss3" title="Subsection 2.3.3: Paragraph">2.3.3</a></div><div class="st300_subsection_title">Paragraph</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss3c1" href="#st300_p2s3ss3c1" title="Paragraph 2.3.3.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">paragraph</span> is one of the lowest level block values in terms of structural significance. It is simply a container for <a class="st300_link" href="#model.inline">inline</a> content.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss3c2" href="#st300_p2s3ss3c2" title="Formal item 2.3.3.2: Paragraph">2.3.3.2 Paragraph</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data BlockParagraph = BlockParagraph {
+  para_type    :: Maybe String,
+  para_id      :: Maybe ID.T,
+  para_content :: [I.InlineContent]
+}
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.block.formal_item"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss4" href="#st300_p2s3ss4" title="Subsection 2.3.4: Formal Item">2.3.4</a></div><div class="st300_subsection_title">Formal Item</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss4c1" href="#st300_p2s3ss4c1" title="Paragraph 2.3.4.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">formal-item</span> is similar to a <a class="st300_link" href="#model.block.paragraph">paragraph</a> except that it has an explicit <span class="st300_term term">title</span>.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss4c2" href="#st300_p2s3ss4c2" title="Formal item 2.3.4.2: Formal Item">2.3.4.2 Formal Item</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data BlockFormalItem = BlockFormalItem {
+  formal_type    :: Maybe String,
+  formal_id      :: Maybe ID.T,
+  formal_title   :: [I.InlineText],
+  formal_content :: [I.InlineContent]
+}
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.block.footnote"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss5" href="#st300_p2s3ss5" title="Subsection 2.3.5: Footnote">2.3.5</a></div><div class="st300_subsection_title">Footnote</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss5c1" href="#st300_p2s3ss5c1" title="Paragraph 2.3.5.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">footnote</span> is similar to a <a class="st300_link" href="#model.block.paragraph">paragraph</a> except that it denotes content that should appear as supplemental information at the bottom of a page when the document is processed for presentation.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss5c2" href="#st300_p2s3ss5c2" title="Paragraph 2.3.5.2">2</a></div><div class="st300_paragraph">A footnote <span class="st300_term term">must</span> have an <span class="st300_term expression">id</span> value specified, and may be referenced by any number of <a class="st300_link" href="#model.inline.footnote_ref">footnote-ref</a> values.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss5c3" href="#st300_p2s3ss5c3" title="Formal item 2.3.5.3: Footnote">2.3.5.3 Footnote</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data BlockFootnote = BlockFootnote {
+  footnote_type    :: Maybe String,
+  footnote_id      :: ID.T,
+  footnote_content :: [I.InlineContent]
+}
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.block.subsection"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss6" href="#st300_p2s3ss6" title="Subsection 2.3.6: Subsection">2.3.6</a></div><div class="st300_subsection_title">Subsection</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss6c1" href="#st300_p2s3ss6c1" title="Paragraph 2.3.6.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">subsection</span> is a container for <span class="st300_term term">subsection content</span>. A subsection is required to have a <span class="st300_term term">title</span>.</div></div><div class="st300_formal_item"><a id="model.block.subsection.content"/><div class="st300_formal_item_title"><a id="st300_p2s3ss6c2" href="#st300_p2s3ss6c2" title="Formal item 2.3.6.2: Subsection Content">2.3.6.2 Subsection Content</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data SubsectionContent
+  = SCParagraph  BlockParagraph
+  | SCFormalItem BlockFormalItem
+  | SCFootnote   BlockFootnote
+
+</pre></div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss6c3" href="#st300_p2s3ss6c3" title="Formal item 2.3.6.3: Subsection">2.3.6.3 Subsection</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data BlockSubsection = BlockSubsection {
+  subsection_type    :: Maybe String,
+  subsection_id      :: Maybe ID.T,
+  subsection_title   :: [I.InlineText],
+  subsection_content :: [SubsectionContent]
+}
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.block.section"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss7" href="#st300_p2s3ss7" title="Subsection 2.3.7: Section">2.3.7</a></div><div class="st300_subsection_title">Section</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss7c1" href="#st300_p2s3ss7c1" title="Paragraph 2.3.7.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">section</span> is a container for either <a class="st300_link" href="#model.block.subsection.content">subsection content</a>, or <a class="st300_link" href="#model.block.subsection">subsections</a>, but not both at the same time. A section is required to have a <span class="st300_term term">title</span>.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss7c2" href="#st300_p2s3ss7c2" title="Formal item 2.3.7.2: Section">2.3.7.2 Section</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data BlockSection = BlockSection {
+  section_type    :: Maybe String,
+  section_id      :: Maybe ID.T,
+  section_title   :: [I.InlineText],
+  section_content :: Either [BlockSubsection] [SubsectionContent]
+}
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.block.part"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss8" href="#st300_p2s3ss8" title="Subsection 2.3.8: Part">2.3.8</a></div><div class="st300_subsection_title">Part</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss8c1" href="#st300_p2s3ss8c1" title="Paragraph 2.3.8.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">part</span> is a container for <a class="st300_link" href="#model.block.section">sections</a>. A part is required to have a <span class="st300_term term">title</span>.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss8c2" href="#st300_p2s3ss8c2" title="Formal item 2.3.8.2: Part">2.3.8.2 Part</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data BlockPart = BlockPart {
+  part_type    :: Maybe String,
+  part_id      :: Maybe ID.T,
+  part_title   :: [I.InlineText],
+  part_content :: [BlockSection]
+}
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.block.document"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss9" href="#st300_p2s3ss9" title="Subsection 2.3.9: Document">2.3.9</a></div><div class="st300_subsection_title">Document</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss9c1" href="#st300_p2s3ss9c1" title="Paragraph 2.3.9.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">document</span> is the top-level container of other content. It may contain a list of <a class="st300_link" href="#model.block.part">parts</a>, or a list of <a class="st300_link" href="#model.block.section">sections</a>, but not both. A document is required to have a <span class="st300_term term">title</span>.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss9c2" href="#st300_p2s3ss9c2" title="Formal item 2.3.9.2: Document">2.3.9.2 Document</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data BlockDocument = BlockDocument {
+  document_type    :: Maybe String,
+  document_id      :: Maybe ID.T,
+  document_title   :: [I.InlineText],
+  document_content :: Either [BlockPart] [BlockSection]
+}
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.block.import"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss10" href="#st300_p2s3ss10" title="Subsection 2.3.10: Import">2.3.10</a></div><div class="st300_subsection_title">Import</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss10c1" href="#st300_p2s3ss10c1" title="Paragraph 2.3.10.1">1</a></div><div class="st300_paragraph">An <span class="st300_term term">import</span> is somewhat analogous to the inline <a class="st300_link" href="#model.inline.include">include</a> type, except that the referenced file is actually parsed as a <span class="st300_term package">structural</span> block value and inserted into the current document at the location of the <span class="st300_term term">import</span> value.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss10c2" href="#st300_p2s3ss10c2" title="Formal item 2.3.10.2: Import">2.3.10.2 Import</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data BlockImport = BlockImport {
+  importFile :: String
+}
+</pre></div></div></div></div></div><div class="st300_part_container"><a id="fmt_canon"/><div class="st300_part_title_number"><a id="st300_p3" href="#st300_p3" title="Part 3: Canonical Format">3</a></div><div class="st300_part_title">Canonical Format</div><ul class="st300_contents st300_part_contents_outer st300_part_contents"><li class="st300_contents_item st300_contents_item1 st300_contents_item_section"><a href="#st300_p3s1" title="Link to section 3.1: Overview">3.1. Overview</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_section"><a href="#st300_p3s2" title="Link to section 3.2: Inline Elements">3.2. Inline Elements</a><ul class="st300_contents st300_section_contents"><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s2ss1" title="Link to subsection 3.2.1: Overview">3.2.1. Overview</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s2ss2" title="Link to subsection 3.2.2: Text">3.2.2. Text</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s2ss3" title="Link to subsection 3.2.3: Term">3.2.3. Term</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s2ss4" title="Link to subsection 3.2.4: Image">3.2.4. Image</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s2ss5" title="Link to subsection 3.2.5: Verbatim">3.2.5. Verbatim</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s2ss6" title="Link to subsection 3.2.6: Link">3.2.6. Link</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s2ss7" title="Link to subsection 3.2.7: Link External">3.2.7. Link External</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s2ss8" title="Link to subsection 3.2.8: Footnote Reference">3.2.8. Footnote Reference</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s2ss9" title="Link to subsection 3.2.9: Ordered List">3.2.9. Ordered List</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s2ss10" title="Link to subsection 3.2.10: Unordered List">3.2.10. Unordered List</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s2ss11" title="Link to subsection 3.2.11: Table">3.2.11. Table</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s2ss12" title="Link to subsection 3.2.12: Include">3.2.12. Include</a></li></ul></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_section"><a href="#st300_p3s3" title="Link to section 3.3: Block Elements">3.3. Block Elements</a><ul class="st300_contents st300_section_contents"><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s3ss1" title="Link to subsection 3.3.1: Paragraph">3.3.1. Paragraph</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s3ss2" title="Link to subsection 3.3.2: Formal Item">3.3.2. Formal Item</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s3ss3" title="Link to subsection 3.3.3: Footnote">3.3.3. Footnote</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s3ss4" title="Link to subsection 3.3.4: Subsection">3.3.4. Subsection</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s3ss5" title="Link to subsection 3.3.5: Section">3.3.5. Section</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s3ss6" title="Link to subsection 3.3.6: Part">3.3.6. Part</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s3ss7" title="Link to subsection 3.3.7: Document">3.3.7. Document</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p3s3ss8" title="Link to subsection 3.3.8: Import">3.3.8. Import</a></li></ul></li></ul><div class="st300_section_container"><a id="fmt_canon.overview"/><div class="st300_section_title_number"><a id="st300_p3s1" href="#st300_p3s1" title="Section 3.1: Overview">3.1</a></div><div class="st300_section_title">Overview</div><span/><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1c1" href="#st300_p3s1c1" title="Paragraph 3.1.1">1</a></div><div class="st300_paragraph">The <span class="st300_term package">structural</span> language defines a number of different concrete syntaxes used to produce values of the types defined by the <a class="st300_link" href="#model">model</a>. The primary <span class="st300_term term">canonical</span> syntax is based on <a class="st300_link" href="#conventions.sexprs">s-expressions</a>.</div></div></div><div class="st300_section_container"><a id="fmt_canon.inlines"/><div class="st300_section_title_number"><a id="st300_p3s2" href="#st300_p3s2" title="Section 3.2: Inline Elements">3.2</a></div><div class="st300_section_title">Inline Elements</div><ul class="st300_contents st300_section_contents_outer st300_section_contents"><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s2ss1" title="Link to subsection 3.2.1: Overview">3.2.1. Overview</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s2ss2" title="Link to subsection 3.2.2: Text">3.2.2. Text</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s2ss3" title="Link to subsection 3.2.3: Term">3.2.3. Term</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s2ss4" title="Link to subsection 3.2.4: Image">3.2.4. Image</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s2ss5" title="Link to subsection 3.2.5: Verbatim">3.2.5. Verbatim</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s2ss6" title="Link to subsection 3.2.6: Link">3.2.6. Link</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s2ss7" title="Link to subsection 3.2.7: Link External">3.2.7. Link External</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s2ss8" title="Link to subsection 3.2.8: Footnote Reference">3.2.8. Footnote Reference</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s2ss9" title="Link to subsection 3.2.9: Ordered List">3.2.9. Ordered List</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s2ss10" title="Link to subsection 3.2.10: Unordered List">3.2.10. Unordered List</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s2ss11" title="Link to subsection 3.2.11: Table">3.2.11. Table</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s2ss12" title="Link to subsection 3.2.12: Include">3.2.12. Include</a></li></ul><div class="st300_subsection_container"><a id="fmt_canon.inlines.overview"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss1" href="#st300_p3s2ss1" title="Subsection 3.2.1: Overview">3.2.1</a></div><div class="st300_subsection_title">Overview</div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss1c1" href="#st300_p3s2ss1c1" title="Formal item 3.2.1.1: Main Syntax">3.2.1.1 Main Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_inline =
+  (#choice [
+    canon_footnote_ref
+    canon_image
+    canon_include
+    canon_link
+    canon_link_external
+    canon_list_ordered
+    canon_list_unordered
+    canon_term
+    canon_text
+    canon_verbatim
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.text"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss2" href="#st300_p3s2ss2" title="Subsection 3.2.2: Text">3.2.2</a></div><div class="st300_subsection_title">Text</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss2c1" href="#st300_p3s2ss2c1" title="Paragraph 3.2.2.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.inline.text">InlineText</a> type. Most contexts in documents that accept text can also accept <a class="st300_link" href="#fmt_canon.inlines.include">include</a> values, so an additional rule is given here that allows choosing between values of the two types.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss2c2" href="#st300_p3s2ss2c2" title="Formal item 3.2.2.2: Text Syntax">3.2.2.2 Text Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_text =
+  (#choice [#any-symbol #any-quoted])
+
+canon_text_or_include =
+  (#choice [canon_text canon_include])</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.term"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss3" href="#st300_p3s2ss3" title="Subsection 3.2.3: Term">3.2.3</a></div><div class="st300_subsection_title">Term</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss3c1" href="#st300_p3s2ss3c1" title="Paragraph 3.2.3.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.inline.term">InlineTerm</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss3c2" href="#st300_p3s2ss3c2" title="Formal item 3.2.3.2: Term Syntax">3.2.3.2 Term Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_type =
+  (#exact-list [#exact-symbol "type"] #any-symbol)
+
+canon_term_name =
+  (#exact-symbol "term")
+
+canon_term =
+  (#choice [
+    (#variadic [canon_term_name] canon_text_or_include)
+    (#variadic [canon_term_name canon_type] canon_text_or_include)
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.image"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss4" href="#st300_p3s2ss4" title="Subsection 3.2.4: Image">3.2.4</a></div><div class="st300_subsection_title">Image</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss4c1" href="#st300_p3s2ss4c1" title="Paragraph 3.2.4.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.inline.image">InlineImage</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss4c2" href="#st300_p3s2ss4c2" title="Formal item 3.2.4.2: Image Syntax">3.2.4.2 Image Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_target =
+  (#exact-list [#exact-symbol "target"] canon_text)
+
+canon_size =
+  (#exact-list [#exact-symbol "size"] #any-symbol #any-symbol)
+
+canon_image_name =
+  (#exact-symbol "image")
+
+canon_image =
+  (#choice [
+    (#variadic [canon_image_name canon_target] canon_text_or_include)
+    (#variadic [canon_image_name canon_target canon_type] canon_text_or_include)
+    (#variadic [canon_image_name canon_target canon_size] canon_text_or_include)
+    (#variadic [canon_image_name canon_target canon_size canon_type] canon_text_or_include)
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.verbatim"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss5" href="#st300_p3s2ss5" title="Subsection 3.2.5: Verbatim">3.2.5</a></div><div class="st300_subsection_title">Verbatim</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss5c1" href="#st300_p3s2ss5c1" title="Paragraph 3.2.5.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.inline.verbatim">InlineVerbatim</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss5c2" href="#st300_p3s2ss5c2" title="Formal item 3.2.5.2: Verbatim Syntax">3.2.5.2 Verbatim Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_verbatim_name =
+  (#exact-symbol "verbatim")
+
+canon_verbatim =
+  (#choice [
+    (#exact-list [canon_verbatim_name canon_text_or_include])
+    (#exact-list [canon_verbatim_name canon_type canon_text_or_include])
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.link"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss6" href="#st300_p3s2ss6" title="Subsection 3.2.6: Link">3.2.6</a></div><div class="st300_subsection_title">Link</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss6c1" href="#st300_p3s2ss6c1" title="Paragraph 3.2.6.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.inline.link">InlineLinkInternal</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss6c2" href="#st300_p3s2ss6c2" title="Formal item 3.2.6.2: Link Syntax">3.2.6.2 Link Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_link_name =
+  (#exact-symbol "link")
+
+canon_link =
+  (#variadic [canon_link_name canon_target] canon_text_or_include)
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.link_external"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss7" href="#st300_p3s2ss7" title="Subsection 3.2.7: Link External">3.2.7</a></div><div class="st300_subsection_title">Link External</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss7c1" href="#st300_p3s2ss7c1" title="Paragraph 3.2.7.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.inline.link_external">InlineLinkExternal</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss7c2" href="#st300_p3s2ss7c2" title="Formal item 3.2.7.2: Link External Syntax">3.2.7.2 Link External Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_link_external_name =
+  (#exact-symbol "link-ext")
+
+canon_link_external =
+  (#variadic [canon_link_external_name canon_target] canon_text_or_include)
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.footnote_ref"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss8" href="#st300_p3s2ss8" title="Subsection 3.2.8: Footnote Reference">3.2.8</a></div><div class="st300_subsection_title">Footnote Reference</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss8c1" href="#st300_p3s2ss8c1" title="Paragraph 3.2.8.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.inline.footnote_ref">InlineFootnoteRef</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss8c2" href="#st300_p3s2ss8c2" title="Formal item 3.2.8.2: Footnote Reference Syntax">3.2.8.2 Footnote Reference Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_footnote_ref_name =
+  (#exact-symbol "footnote-ref")
+
+canon_footnote_ref =
+  (#exact-list canon_footnote_ref_name canon_text)
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.list_ordered"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss9" href="#st300_p3s2ss9" title="Subsection 3.2.9: Ordered List">3.2.9</a></div><div class="st300_subsection_title">Ordered List</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss9c1" href="#st300_p3s2ss9c1" title="Paragraph 3.2.9.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.inline.list_ordered">InlineListOrdered</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss9c2" href="#st300_p3s2ss9c2" title="Formal item 3.2.9.2: Ordered List Syntax">3.2.9.2 Ordered List Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_list_item_name =
+  (#exact-symbol "item")
+
+canon_list_item =
+  (#variadic [canon_list_item_name] canon_inline)
+
+canon_list_ordered_name =
+  (#exact-symbol "list-ordered")
+
+canon_list_ordered =
+  (#variadic [canon_list_ordered_name] canon_list_item)
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.list_unordered"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss10" href="#st300_p3s2ss10" title="Subsection 3.2.10: Unordered List">3.2.10</a></div><div class="st300_subsection_title">Unordered List</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss10c1" href="#st300_p3s2ss10c1" title="Paragraph 3.2.10.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.inline.list_unordered">InlineListUnordered</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss10c2" href="#st300_p3s2ss10c2" title="Formal item 3.2.10.2: Unordered List Syntax">3.2.10.2 Unordered List Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_list_unordered_name =
+  (#exact-symbol "list-unordered")
+
+canon_list_unordered =
+  (#variadic [canon_list_unordered_name] canon_list_item)
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.table"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss11" href="#st300_p3s2ss11" title="Subsection 3.2.11: Table">3.2.11</a></div><div class="st300_subsection_title">Table</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss11c1" href="#st300_p3s2ss11c1" title="Paragraph 3.2.11.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.inline.table">InlineTable</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss11c2" href="#st300_p3s2ss11c2" title="Formal item 3.2.11.2: Table Syntax">3.2.11.2 Table Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_table_name =
+  (#exact-symbol "table")
+
+canon_table_summary_name =
+  (#exact-symbol "summary")
+
+canon_table_summary =
+  (#variadic [canon_table_summary_name] canon_text_or_include)
+
+canon_table_body_cell_name =
+  (#exact-symbol "cell")
+
+canon_table_body_cell =
+  (#variadic [canon_table_body_cell_name] canon_inline)
+
+canon_table_body_row_name =
+  (#exact-symbol "row")
+
+canon_table_body_row =
+  (#variadic [canon_table_body_row_name] canon_table_body_cell)
+
+canon_table_body_name =
+  (#exact-symbol "body")
+
+canon_table_body =
+  (#variadic [canon_table_body_name] canon_table_body_row)
+
+canon_table_body_head_cell_name =
+  (#exact-symbol "name")
+
+canon_table_body_head_cell =
+  (#variadic [canon_table_body_head_cell_name] canon_text)
+
+canon_table_head_name =
+  (#exact-symbol "head")
+
+canon_table_head =
+  (#variadic [canon_table_head_name] canon_table_head_cell)
+
+canon_table =
+  (#choice [
+    (#exact-list [canon_table_name canon_table_summary cannon_table_body])
+    (#exact-list [canon_table_name canon_table_summary canon_type cannon_table_body])
+    (#exact-list [canon_table_name canon_table_summary cannon_table_head cannon_table_body])
+    (#exact-list [canon_table_name canon_table_summary canon_type cannon_table_head cannon_table_body])
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.include"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss12" href="#st300_p3s2ss12" title="Subsection 3.2.12: Include">3.2.12</a></div><div class="st300_subsection_title">Include</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss12c1" href="#st300_p3s2ss12c1" title="Paragraph 3.2.12.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.inline.include">InlineInclude</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss12c2" href="#st300_p3s2ss12c2" title="Formal item 3.2.12.2: Include Syntax">3.2.12.2 Include Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_include_name =
+  (#exact-symbol "include")
+
+canon_include =
+  (#exact-list [canon_include_name #any-quoted])
+</pre></div></div></div></div><div class="st300_section_container"><a id="fmt_canon.blocks"/><div class="st300_section_title_number"><a id="st300_p3s3" href="#st300_p3s3" title="Section 3.3: Block Elements">3.3</a></div><div class="st300_section_title">Block Elements</div><ul class="st300_contents st300_section_contents_outer st300_section_contents"><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s3ss1" title="Link to subsection 3.3.1: Paragraph">3.3.1. Paragraph</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s3ss2" title="Link to subsection 3.3.2: Formal Item">3.3.2. Formal Item</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s3ss3" title="Link to subsection 3.3.3: Footnote">3.3.3. Footnote</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s3ss4" title="Link to subsection 3.3.4: Subsection">3.3.4. Subsection</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s3ss5" title="Link to subsection 3.3.5: Section">3.3.5. Section</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s3ss6" title="Link to subsection 3.3.6: Part">3.3.6. Part</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s3ss7" title="Link to subsection 3.3.7: Document">3.3.7. Document</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p3s3ss8" title="Link to subsection 3.3.8: Import">3.3.8. Import</a></li></ul><div class="st300_subsection_container"><a id="fmt_canon.blocks.paragraph"/><div class="st300_subsection_title_number"><a id="st300_p3s3ss1" href="#st300_p3s3ss1" title="Subsection 3.3.1: Paragraph">3.3.1</a></div><div class="st300_subsection_title">Paragraph</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s3ss1c1" href="#st300_p3s3ss1c1" title="Paragraph 3.3.1.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.block.paragraph">BlockParagraph</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s3ss1c2" href="#st300_p3s3ss1c2" title="Formal item 3.3.1.2: Paragraph Syntax">3.3.1.2 Paragraph Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_id_name =
+  (#exact-symbol "id")
+
+canon_id =
+  (#exact-list [canon_id_name canon_text])
+
+canon_paragraph_name =
+  (#exact-symbol "paragraph")
+
+canon_paragraph =
+  (#choice [
+    (#variadic [canon_paragraph_name] canon_inline)
+    (#variadic [canon_paragraph_name canon_id] canon_inline)
+    (#variadic [canon_paragraph_name canon_id canon_type] canon_inline)
+    (#variadic [canon_paragraph_name canon_type canon_id] canon_inline)
+    (#variadic [canon_paragraph_name canon_type] canon_inline)
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.blocks.formal_item"/><div class="st300_subsection_title_number"><a id="st300_p3s3ss2" href="#st300_p3s3ss2" title="Subsection 3.3.2: Formal Item">3.3.2</a></div><div class="st300_subsection_title">Formal Item</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s3ss2c1" href="#st300_p3s3ss2c1" title="Paragraph 3.3.2.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.block.formal_item">BlockFormalItem</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s3ss2c2" href="#st300_p3s3ss2c2" title="Formal item 3.3.2.2: Formal Item Syntax">3.3.2.2 Formal Item Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_title_name =
+  (#exact-symbol "title")
+
+canon_title =
+  (#variadic [canon_title_name] canon_text)
+
+canon_formal_item_name =
+  (#exact-symbol "formal-item")
+
+canon_formal_item =
+  (#choice [
+    (#variadic [canon_formal_item_name canon_title] canon_inline)
+    (#variadic [canon_formal_item_name canon_title canon_id] canon_inline)
+    (#variadic [canon_formal_item_name canon_title canon_id canon_type] canon_inline)
+    (#variadic [canon_formal_item_name canon_title canon_type canon_id] canon_inline)
+    (#variadic [canon_formal_item_name canon_title canon_type] canon_inline)
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.blocks.footnote"/><div class="st300_subsection_title_number"><a id="st300_p3s3ss3" href="#st300_p3s3ss3" title="Subsection 3.3.3: Footnote">3.3.3</a></div><div class="st300_subsection_title">Footnote</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s3ss3c1" href="#st300_p3s3ss3c1" title="Paragraph 3.3.3.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.block.footnote">BlockFootnote</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s3ss3c2" href="#st300_p3s3ss3c2" title="Formal item 3.3.3.2: Footnote Syntax">3.3.3.2 Footnote Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_footnote_name =
+  (#exact-symbol "footnote")
+
+canon_footnote =
+  (#choice [
+    (#variadic [canon_footnote_name canon_id] canon_inline)
+    (#variadic [canon_footnote_name canon_id canon_type] canon_inline)
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.blocks.subsection"/><div class="st300_subsection_title_number"><a id="st300_p3s3ss4" href="#st300_p3s3ss4" title="Subsection 3.3.4: Subsection">3.3.4</a></div><div class="st300_subsection_title">Subsection</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s3ss4c1" href="#st300_p3s3ss4c1" title="Paragraph 3.3.4.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.block.subsection">BlockSubsection</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s3ss4c2" href="#st300_p3s3ss4c2" title="Formal item 3.3.4.2: Subsection Syntax">3.3.4.2 Subsection Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_subsection_name =
+  (#exact-symbol "subsection")
+
+canon_subsection_content =
+  (#choice [canon_paragraph canon_footnote canon_formal_item])
+
+canon_subsection =
+  (#choice [
+    (#variadic [canon_subsection_name canon_title] canon_subsection_content)
+    (#variadic [canon_subsection_name canon_title canon_id] canon_subsection_content)
+    (#variadic [canon_subsection_name canon_title canon_id canon_type] canon_subsection_content)
+    (#variadic [canon_subsection_name canon_title canon_type canon_id] canon_subsection_content)
+    (#variadic [canon_subsection_name canon_title canon_type] canon_subsection_content)
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.blocks.section"/><div class="st300_subsection_title_number"><a id="st300_p3s3ss5" href="#st300_p3s3ss5" title="Subsection 3.3.5: Section">3.3.5</a></div><div class="st300_subsection_title">Section</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s3ss5c1" href="#st300_p3s3ss5c1" title="Paragraph 3.3.5.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.block.section">BlockSection</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s3ss5c2" href="#st300_p3s3ss5c2" title="Formal item 3.3.5.2: Section Syntax">3.3.5.2 Section Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_section_name =
+  (#exact-symbol "section")
+
+canon_section_content =
+  (#choice [canon_subsection canon_subsection_content])
+
+canon_section =
+  (#choice [
+    (#variadic [canon_section_name canon_title] canon_section_content)
+    (#variadic [canon_section_name canon_title canon_id] canon_section_content)
+    (#variadic [canon_section_name canon_title canon_id canon_type] canon_section_content)
+    (#variadic [canon_section_name canon_title canon_type canon_id] canon_section_content)
+    (#variadic [canon_section_name canon_title canon_type] canon_section_content)
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.blocks.part"/><div class="st300_subsection_title_number"><a id="st300_p3s3ss6" href="#st300_p3s3ss6" title="Subsection 3.3.6: Part">3.3.6</a></div><div class="st300_subsection_title">Part</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s3ss6c1" href="#st300_p3s3ss6c1" title="Paragraph 3.3.6.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.block.part">BlockPart</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s3ss6c2" href="#st300_p3s3ss6c2" title="Formal item 3.3.6.2: Part Syntax">3.3.6.2 Part Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_part_name =
+  (#exact-symbol "part")
+
+canon_part =
+  (#choice [
+    (#variadic [canon_part_name canon_title] canon_section)
+    (#variadic [canon_part_name canon_title canon_id] canon_section)
+    (#variadic [canon_part_name canon_title canon_id canon_type] canon_section)
+    (#variadic [canon_part_name canon_title canon_type canon_id] canon_section)
+    (#variadic [canon_part_name canon_title canon_type] canon_section)
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.blocks.document"/><div class="st300_subsection_title_number"><a id="st300_p3s3ss7" href="#st300_p3s3ss7" title="Subsection 3.3.7: Document">3.3.7</a></div><div class="st300_subsection_title">Document</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s3ss7c1" href="#st300_p3s3ss7c1" title="Paragraph 3.3.7.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.block.document">BlockDocument</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s3ss7c2" href="#st300_p3s3ss7c2" title="Formal item 3.3.7.2: Document Syntax">3.3.7.2 Document Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_document_name =
+  (#exact-symbol "document")
+
+canon_document_content =
+  (#choice [canon_section canon_part])
+
+canon_document =
+  (#choice [
+    (#variadic [canon_document_name canon_title] canon_document_content)
+    (#variadic [canon_document_name canon_title canon_id] canon_document_content)
+    (#variadic [canon_document_name canon_title canon_id canon_type] canon_document_content)
+    (#variadic [canon_document_name canon_title canon_type canon_id] canon_document_content)
+    (#variadic [canon_document_name canon_title canon_type] canon_document_content)
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.blocks.import"/><div class="st300_subsection_title_number"><a id="st300_p3s3ss8" href="#st300_p3s3ss8" title="Subsection 3.3.8: Import">3.3.8</a></div><div class="st300_subsection_title">Import</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s3ss8c1" href="#st300_p3s3ss8c1" title="Paragraph 3.3.8.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="#model.block.import">BlockImport</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s3ss8c2" href="#st300_p3s3ss8c2" title="Formal item 3.3.8.2: Import Syntax">3.3.8.2 Import Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_import_name =
+  (#exact-symbol "import")
+
+canon_import =
+  (#exact-list [canon_import_name canon_text])
+</pre></div></div></div></div></div><div class="st300_part_container"><a id="fmt_imp"/><div class="st300_part_title_number"><a id="st300_p4" href="#st300_p4" title="Part 4: Imperative Format">4</a></div><div class="st300_part_title">Imperative Format</div><ul class="st300_contents st300_part_contents_outer st300_part_contents"><li class="st300_contents_item st300_contents_item1 st300_contents_item_section"><a href="#st300_p4s1" title="Link to section 4.1: Overview">4.1. Overview</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_section"><a href="#st300_p4s2" title="Link to section 4.2: Block Commands">4.2. Block Commands</a><ul class="st300_contents st300_section_contents"><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p4s2ss1" title="Link to subsection 4.2.1: Overview">4.2.1. Overview</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p4s2ss2" title="Link to subsection 4.2.2: Structural Significance">4.2.2. Structural Significance</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p4s2ss3" title="Link to subsection 4.2.3: Paragraph">4.2.3. Paragraph</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p4s2ss4" title="Link to subsection 4.2.4: Formal Item">4.2.4. Formal Item</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p4s2ss5" title="Link to subsection 4.2.5: Footnote">4.2.5. Footnote</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p4s2ss6" title="Link to subsection 4.2.6: Subsection">4.2.6. Subsection</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p4s2ss7" title="Link to subsection 4.2.7: Section">4.2.7. Section</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p4s2ss8" title="Link to subsection 4.2.8: Part">4.2.8. Part</a></li><li class="st300_contents_item st300_contents_item2 st300_contents_item_subsection"><a href="#st300_p4s2ss9" title="Link to subsection 4.2.9: Document">4.2.9. Document</a></li></ul></li></ul><div class="st300_section_container"><a id="fmt_imp.overview"/><div class="st300_section_title_number"><a id="st300_p4s1" href="#st300_p4s1" title="Section 4.1: Overview">4.1</a></div><div class="st300_section_title">Overview</div><span/><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s1c1" href="#st300_p4s1c1" title="Paragraph 4.1.1">1</a></div><div class="st300_paragraph">One observation of all document languages that present a tree-like structure and syntax is that the writer spends a certain amount of time managing the tree structure itself. Although <a class="st300_link" href="#conventions.sexprs">s-expressions</a> represent about the most lightweight syntax possible for representing trees directly, it's possible to reduce the syntactic overhead even further by allowing the author to progressively define trees using a series of imperative commands.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s1c2" href="#st300_p4s1c2" title="Paragraph 4.1.2">2</a></div><div class="st300_paragraph">The so-called <span class="st300_term term">imperative</span> syntax combines the <a class="st300_link" href="#fmt_canon.inlines">inline</a> elements from the <span class="st300_term term">canonical</span> syntax with a set of imperative <span class="st300_term term">block commands</span>.</div></div></div><div class="st300_section_container"><a id="fmt_imp.blocks"/><div class="st300_section_title_number"><a id="st300_p4s2" href="#st300_p4s2" title="Section 4.2: Block Commands">4.2</a></div><div class="st300_section_title">Block Commands</div><ul class="st300_contents st300_section_contents_outer st300_section_contents"><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p4s2ss1" title="Link to subsection 4.2.1: Overview">4.2.1. Overview</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p4s2ss2" title="Link to subsection 4.2.2: Structural Significance">4.2.2. Structural Significance</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p4s2ss3" title="Link to subsection 4.2.3: Paragraph">4.2.3. Paragraph</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p4s2ss4" title="Link to subsection 4.2.4: Formal Item">4.2.4. Formal Item</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p4s2ss5" title="Link to subsection 4.2.5: Footnote">4.2.5. Footnote</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p4s2ss6" title="Link to subsection 4.2.6: Subsection">4.2.6. Subsection</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p4s2ss7" title="Link to subsection 4.2.7: Section">4.2.7. Section</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p4s2ss8" title="Link to subsection 4.2.8: Part">4.2.8. Part</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="#st300_p4s2ss9" title="Link to subsection 4.2.9: Document">4.2.9. Document</a></li></ul><div class="st300_subsection_container"><a id="fmt_imp.blocks.overview"/><div class="st300_subsection_title_number"><a id="st300_p4s2ss1" href="#st300_p4s2ss1" title="Subsection 4.2.1: Overview">4.2.1</a></div><div class="st300_subsection_title">Overview</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss1c1" href="#st300_p4s2ss1c1" title="Paragraph 4.2.1.1">1</a></div><div class="st300_paragraph">An <span class="st300_term term">imperative command</span> begins the construction of a new <a class="st300_link" href="#model.block">block</a>. Any block currently under construction that is of lesser than or equal to <a class="st300_link" href="#fmt_imp.blocks.structsig">structural significance</a> is completed on receipt of the command (or on end-of-file), prior to beginning the construction of a new block. <a class="st300_link" href="#model.inline">Inline</a> content is supplied to blocks that accept it by simply including the content between commands:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss1c2" href="#st300_p4s2ss1c2" title="Formal item 4.2.1.2: Imperative Example">4.2.1.2 Imperative Example</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">[subsection [title An example subsection]]
+[paragraph]
+This is some content for the first paragraph.
+[paragraph]
+This is some [term [type emphasis] content] for the second paragraph.
+
+[subsection [title Another example subsection]]
+[paragraph]
+This is some content for the first paragraph of the next section.
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss1c3" href="#st300_p4s2ss1c3" title="Paragraph 4.2.1.3">3</a></div><div class="st300_paragraph">An imperative command may take one of the following forms:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss1c4" href="#st300_p4s2ss1c4" title="Formal item 4.2.1.4: Imperative Commands">4.2.1.4 Imperative Commands</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data ImperativeContent
+  = ICParagraph  ImperativeParagraph
+  | ICFormalItem ImperativeFormalItem
+  | ICFootnote   ImperativeFootnote
+  | ICSubsection ImperativeSubsection
+  | ICSection    ImperativeSection
+  | ICPart       ImperativePart
+  | ICDocument   ImperativeDocument
+  | ICImport     ImperativeImport
+  deriving Eq
+
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss1c5" href="#st300_p4s2ss1c5" title="Paragraph 4.2.1.5">5</a></div><div class="st300_paragraph">Imperative commands create values of the types specified in the <a class="st300_link" href="#model.block">model</a>, and therefore the same rules apply with regards to where blocks can be created. For example, it is an error (by the definition of the <a class="st300_link" href="#model.block.section">section</a> type) to first create a <a class="st300_link" href="#model.block.subsection">subsection</a> inside a section and then attempt to follow it with the definition of a <a class="st300_link" href="#model.block.paragraph">paragraph</a>.</div></div></div><div class="st300_subsection_container"><a id="fmt_imp.blocks.structsig"/><div class="st300_subsection_title_number"><a id="st300_p4s2ss2" href="#st300_p4s2ss2" title="Subsection 4.2.2: Structural Significance">4.2.2</a></div><div class="st300_subsection_title">Structural Significance</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss2c1" href="#st300_p4s2ss2c1" title="Paragraph 4.2.2.1">1</a></div><div class="st300_paragraph">In order for the receipt of a command to complete the construction of a block that is already under construction, it is necessary to define an ordering on the <span class="st300_term term">structural significance</span> of each of the block types.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss2c2" href="#st300_p4s2ss2c2" title="Formal item 4.2.2.2: Significance Ordering">4.2.2.2 Significance Ordering</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">instance Ord ImperativeContent where
+  compare (ICParagraph _) (ICParagraph _)   = EQ
+  compare (ICParagraph _) (ICFormalItem _)  = EQ
+  compare (ICParagraph _) (ICFootnote _)    = EQ
+  compare (ICParagraph _) (ICSubsection _)  = LT
+  compare (ICParagraph _) (ICSection _)     = LT
+  compare (ICParagraph _) (ICPart _)        = LT
+  compare (ICParagraph _) (ICDocument _)    = LT
+  compare (ICFormalItem _) (ICParagraph _)  = EQ
+  compare (ICFormalItem _) (ICFormalItem _) = EQ
+  compare (ICFormalItem _) (ICFootnote _)   = EQ
+  compare (ICFormalItem _) (ICSubsection _) = LT
+  compare (ICFormalItem _) (ICSection _)    = LT
+  compare (ICFormalItem _) (ICPart _)       = LT
+  compare (ICFormalItem _) (ICDocument _)   = LT
+  compare (ICFootnote _) (ICParagraph _)  = EQ
+  compare (ICFootnote _) (ICFormalItem _) = EQ
+  compare (ICFootnote _) (ICFootnote _)   = EQ
+  compare (ICFootnote _) (ICSubsection _) = LT
+  compare (ICFootnote _) (ICSection _)    = LT
+  compare (ICFootnote _) (ICPart _)       = LT
+  compare (ICFootnote _) (ICDocument _)   = LT
+  compare (ICSubsection _) (ICParagraph _)  = GT
+  compare (ICSubsection _) (ICFormalItem _) = GT
+  compare (ICSubsection _) (ICFootnote _)   = GT
+  compare (ICSubsection _) (ICSubsection _) = EQ
+  compare (ICSubsection _) (ICSection _)    = LT
+  compare (ICSubsection _) (ICPart _)       = LT
+  compare (ICSubsection _) (ICDocument _)   = LT
+  compare (ICSection _) (ICParagraph _)  = GT
+  compare (ICSection _) (ICFormalItem _) = GT
+  compare (ICSection _) (ICFootnote _)   = GT
+  compare (ICSection _) (ICSubsection _) = GT
+  compare (ICSection _) (ICSection _)    = EQ
+  compare (ICSection _) (ICPart _)       = LT
+  compare (ICSection _) (ICDocument _)   = LT
+  compare (ICPart _) (ICParagraph _)  = GT
+  compare (ICPart _) (ICFormalItem _) = GT
+  compare (ICPart _) (ICFootnote _)   = GT
+  compare (ICPart _) (ICSubsection _) = GT
+  compare (ICPart _) (ICSection _)    = GT
+  compare (ICPart _) (ICPart _)       = EQ
+  compare (ICPart _) (ICDocument _)   = LT
+  compare (ICDocument _) (ICParagraph _)  = GT
+  compare (ICDocument _) (ICFormalItem _) = GT
+  compare (ICDocument _) (ICFootnote _)   = GT
+  compare (ICDocument _) (ICSubsection _) = GT
+  compare (ICDocument _) (ICSection _)    = GT
+  compare (ICDocument _) (ICPart _)       = GT
+  compare (ICDocument _) (ICDocument _)   = EQ
+  compare (ICImport i) e = compare (importContent i) e
+  compare e (ICImport i) = compare e (importContent i)</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss2c3" href="#st300_p4s2ss2c3" title="Paragraph 4.2.2.3">3</a></div><div class="st300_paragraph">The <span class="st300_term function">importContent</span> function is a function that maps <span class="st300_term expression">import</span> blocks to their imported content. This is a function of the actual language implementation and so is left undefined in this specification.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss2c4" href="#st300_p4s2ss2c4" title="Formal item 4.2.2.4: Import Content">4.2.2.4 Import Content</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">importContent :: ImperativeImport -&gt; ImperativeContent
+importContent _ = undefined
+
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_imp.blocks.paragraph"/><div class="st300_subsection_title_number"><a id="st300_p4s2ss3" href="#st300_p4s2ss3" title="Subsection 4.2.3: Paragraph">4.2.3</a></div><div class="st300_subsection_title">Paragraph</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss3c1" href="#st300_p4s2ss3c1" title="Paragraph 4.2.3.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">paragraph</span> command begins a new <a class="st300_link" href="#model.block.paragraph">paragraph</a> in the current context.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss3c2" href="#st300_p4s2ss3c2" title="Formal item 4.2.3.2: Paragraph">4.2.3.2 Paragraph</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data ImperativeParagraph = ImperativeParagraph {
+  para_type    :: Maybe String,
+  para_id      :: Maybe ID.T
+} deriving Eq
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss3c3" href="#st300_p4s2ss3c3" title="Paragraph 4.2.3.3">3</a></div><div class="st300_paragraph">The concrete syntax for the command is as follows:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss3c4" href="#st300_p4s2ss3c4" title="Formal item 4.2.3.4: Syntax">4.2.3.4 Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">imperative_paragraph =
+  (#choice [
+    (#exact-list [canon_paragraph_name])
+    (#exact-list [canon_paragraph_name canon_id])
+    (#exact-list [canon_paragraph_name canon_id canon_type])
+    (#exact-list [canon_paragraph_name canon_type canon_id])
+    (#exact-list [canon_paragraph_name canon_type])
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_imp.blocks.formal_item"/><div class="st300_subsection_title_number"><a id="st300_p4s2ss4" href="#st300_p4s2ss4" title="Subsection 4.2.4: Formal Item">4.2.4</a></div><div class="st300_subsection_title">Formal Item</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss4c1" href="#st300_p4s2ss4c1" title="Paragraph 4.2.4.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">formal-item</span> command begins a new <a class="st300_link" href="#model.block.formal_item">formal item</a> in the current context.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss4c2" href="#st300_p4s2ss4c2" title="Formal item 4.2.4.2: Formal Item">4.2.4.2 Formal Item</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data ImperativeFormalItem = ImperativeFormalItem {
+  formal_type  :: Maybe String,
+  formal_id    :: Maybe ID.T,
+  formal_title :: [I.InlineText]
+} deriving Eq
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss4c3" href="#st300_p4s2ss4c3" title="Paragraph 4.2.4.3">3</a></div><div class="st300_paragraph">The concrete syntax for the command is as follows:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss4c4" href="#st300_p4s2ss4c4" title="Formal item 4.2.4.4: Syntax">4.2.4.4 Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">imperative_formal_item =
+  (#choice [
+    (#exact-list [canon_formal_item_name canon_title])
+    (#exact-list [canon_formal_item_name canon_title canon_id])
+    (#exact-list [canon_formal_item_name canon_title canon_id canon_type])
+    (#exact-list [canon_formal_item_name canon_title canon_type canon_id])
+    (#exact-list [canon_formal_item_name canon_title canon_type])
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_imp.blocks.footnote"/><div class="st300_subsection_title_number"><a id="st300_p4s2ss5" href="#st300_p4s2ss5" title="Subsection 4.2.5: Footnote">4.2.5</a></div><div class="st300_subsection_title">Footnote</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss5c1" href="#st300_p4s2ss5c1" title="Paragraph 4.2.5.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">footnote</span> command begins a new <a class="st300_link" href="#model.block.footnote">footnote</a> in the current context.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss5c2" href="#st300_p4s2ss5c2" title="Formal item 4.2.5.2: Footnote">4.2.5.2 Footnote</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data ImperativeFootnote = ImperativeFootnote {
+  footnote_type :: Maybe String,
+  footnote_id   :: ID.T
+} deriving Eq
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss5c3" href="#st300_p4s2ss5c3" title="Paragraph 4.2.5.3">3</a></div><div class="st300_paragraph">The concrete syntax for the command is as follows:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss5c4" href="#st300_p4s2ss5c4" title="Formal item 4.2.5.4: Syntax">4.2.5.4 Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">imperative_footnote =
+  (#choice [
+    (#exact-list [canon_footnote_name canon_id])
+    (#exact-list [canon_footnote_name canon_id canon_type])
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_imp.blocks.subsection"/><div class="st300_subsection_title_number"><a id="st300_p4s2ss6" href="#st300_p4s2ss6" title="Subsection 4.2.6: Subsection">4.2.6</a></div><div class="st300_subsection_title">Subsection</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss6c1" href="#st300_p4s2ss6c1" title="Paragraph 4.2.6.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">subsection</span> command begins a new <a class="st300_link" href="#model.block.subsection">subsection</a> in the current context.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss6c2" href="#st300_p4s2ss6c2" title="Formal item 4.2.6.2: Subsection">4.2.6.2 Subsection</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data ImperativeSubsection = ImperativeSubsection {
+  subsection_type  :: Maybe String,
+  subsection_id    :: Maybe ID.T,
+  subsection_title :: [I.InlineText]
+} deriving Eq
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss6c3" href="#st300_p4s2ss6c3" title="Paragraph 4.2.6.3">3</a></div><div class="st300_paragraph">The concrete syntax for the command is as follows:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss6c4" href="#st300_p4s2ss6c4" title="Formal item 4.2.6.4: Syntax">4.2.6.4 Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">imperative_subsection =
+  (#choice [
+    (#exact-list [canon_subsection_name canon_title])
+    (#exact-list [canon_subsection_name canon_title canon_id])
+    (#exact-list [canon_subsection_name canon_title canon_id canon_type])
+    (#exact-list [canon_subsection_name canon_title canon_type canon_id])
+    (#exact-list [canon_subsection_name canon_title canon_type])
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_imp.blocks.section"/><div class="st300_subsection_title_number"><a id="st300_p4s2ss7" href="#st300_p4s2ss7" title="Subsection 4.2.7: Section">4.2.7</a></div><div class="st300_subsection_title">Section</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss7c1" href="#st300_p4s2ss7c1" title="Paragraph 4.2.7.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">section</span> command begins a new <a class="st300_link" href="#model.block.section">section</a> in the current context.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss7c2" href="#st300_p4s2ss7c2" title="Formal item 4.2.7.2: Section">4.2.7.2 Section</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data ImperativeSection = ImperativeSection {
+  section_type  :: Maybe String,
+  section_id    :: Maybe ID.T,
+  section_title :: [I.InlineText]
+} deriving Eq
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss7c3" href="#st300_p4s2ss7c3" title="Paragraph 4.2.7.3">3</a></div><div class="st300_paragraph">The concrete syntax for the command is as follows:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss7c4" href="#st300_p4s2ss7c4" title="Formal item 4.2.7.4: Syntax">4.2.7.4 Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">imperative_section =
+  (#choice [
+    (#exact-list [canon_section_name canon_title])
+    (#exact-list [canon_section_name canon_title canon_id])
+    (#exact-list [canon_section_name canon_title canon_id canon_type])
+    (#exact-list [canon_section_name canon_title canon_type canon_id])
+    (#exact-list [canon_section_name canon_title canon_type])
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_imp.blocks.part"/><div class="st300_subsection_title_number"><a id="st300_p4s2ss8" href="#st300_p4s2ss8" title="Subsection 4.2.8: Part">4.2.8</a></div><div class="st300_subsection_title">Part</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss8c1" href="#st300_p4s2ss8c1" title="Paragraph 4.2.8.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">part</span> command begins a new <a class="st300_link" href="#model.block.part">part</a> in the current context.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss8c2" href="#st300_p4s2ss8c2" title="Formal item 4.2.8.2: Part">4.2.8.2 Part</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data ImperativePart = ImperativePart {
+  part_type  :: Maybe String,
+  part_id    :: Maybe ID.T,
+  part_title :: [I.InlineText]
+} deriving Eq
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss8c3" href="#st300_p4s2ss8c3" title="Paragraph 4.2.8.3">3</a></div><div class="st300_paragraph">The concrete syntax for the command is as follows:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss8c4" href="#st300_p4s2ss8c4" title="Formal item 4.2.8.4: Syntax">4.2.8.4 Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">imperative_part =
+  (#choice [
+    (#exact-list [canon_part_name canon_title])
+    (#exact-list [canon_part_name canon_title canon_id])
+    (#exact-list [canon_part_name canon_title canon_id canon_type])
+    (#exact-list [canon_part_name canon_title canon_type canon_id])
+    (#exact-list [canon_part_name canon_title canon_type])
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_imp.blocks.document"/><div class="st300_subsection_title_number"><a id="st300_p4s2ss9" href="#st300_p4s2ss9" title="Subsection 4.2.9: Document">4.2.9</a></div><div class="st300_subsection_title">Document</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss9c1" href="#st300_p4s2ss9c1" title="Paragraph 4.2.9.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">document</span> command begins a new <a class="st300_link" href="#model.block.document">document</a> in the current context.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss9c2" href="#st300_p4s2ss9c2" title="Formal item 4.2.9.2: Document">4.2.9.2 Document</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data ImperativeDocument = ImperativeDocument {
+  document_type  :: Maybe String,
+  document_id    :: Maybe ID.T,
+  document_title :: [I.InlineText]
+} deriving Eq
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p4s2ss9c3" href="#st300_p4s2ss9c3" title="Paragraph 4.2.9.3">3</a></div><div class="st300_paragraph">The concrete syntax for the command is as follows:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p4s2ss9c4" href="#st300_p4s2ss9c4" title="Formal item 4.2.9.4: Syntax">4.2.9.4 Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">imperative_document =
+  (#choice [
+    (#exact-list [canon_document_name canon_title])
+    (#exact-list [canon_document_name canon_title canon_id])
+    (#exact-list [canon_document_name canon_title canon_id canon_type])
+    (#exact-list [canon_document_name canon_title canon_type canon_id])
+    (#exact-list [canon_document_name canon_title canon_type])
+  ])
+</pre></div></div></div></div></div><div class="st300_part_container"><a id="fmt_xml"/><div class="st300_part_title_number"><a id="st300_p5" href="#st300_p5" title="Part 5: XML Format">5</a></div><div class="st300_part_title">XML Format</div><ul class="st300_contents st300_part_contents_outer st300_part_contents"><li class="st300_contents_item st300_contents_item1 st300_contents_item_section"><a href="#st300_p5s1" title="Link to section 5.1: Overview">5.1. Overview</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_section"><a href="#st300_p5s2" title="Link to section 5.2: RELAX-NG Schema">5.2. RELAX-NG Schema</a></li></ul><div class="st300_section_container"><a id="fmt_xml.overview"/><div class="st300_section_title_number"><a id="st300_p5s1" href="#st300_p5s1" title="Section 5.1: Overview">5.1</a></div><div class="st300_section_title">Overview</div><span/><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p5s1c1" href="#st300_p5s1c1" title="Paragraph 5.1.1">1</a></div><div class="st300_paragraph">The XML format is defined as a simple encoding of the <a class="st300_link" href="#fmt_canon">canonical</a> format as XML. Instead of <a class="st300_link" href="#model.inline.include">include</a> and <a class="st300_link" href="#model.block.import">import</a> elements, the user is expected to use <a class="st300_link_external" href="https://www.w3.org/TR/xinclude/">XInclude</a>.</div></div></div><div class="st300_section_container"><a id="fmt_xml.schema"/><div class="st300_section_title_number"><a id="st300_p5s2" href="#st300_p5s2" title="Section 5.2: RELAX-NG Schema">5.2</a></div><div class="st300_section_title">RELAX-NG Schema</div><span/><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p5s2c1" href="#st300_p5s2c1" title="Formal item 5.2.1: Schema">5.2.1 Schema</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;r:grammar
+  xmlns:s="http://schemas.io7m.com/structural/3.0.0"
+  xmlns:r="http://relaxng.org/ns/structure/1.0"
+  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"&gt;
+
+  &lt;r:start combine="choice"&gt;
+    &lt;r:ref name="io7m.structural-3_0_0.block_content"/&gt;
+  &lt;/r:start&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.xml-id"&gt;
+    &lt;r:attribute name="xml:id"&gt;
+      &lt;r:data type="ID"/&gt;
+    &lt;/r:attribute&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.standard-attributes"&gt;
+    &lt;r:optional&gt;
+      &lt;r:attribute name="xml:base"&gt;
+        &lt;r:text/&gt;
+      &lt;/r:attribute&gt;
+    &lt;/r:optional&gt;
+    &lt;r:optional&gt;
+      &lt;r:attribute name="xml:lang"&gt;
+        &lt;r:text/&gt;
+      &lt;/r:attribute&gt;
+    &lt;/r:optional&gt;
+    &lt;r:optional&gt;
+      &lt;r:attribute name="s:type"&gt;
+        &lt;r:data type="token"/&gt;
+      &lt;/r:attribute&gt;
+    &lt;/r:optional&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_text"&gt;
+    &lt;r:text/&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_footnote_ref"&gt;
+    &lt;r:element name="s:footnote-ref"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:attribute name="s:target"&gt;
+        &lt;r:data type="IDREF"/&gt;
+      &lt;/r:attribute&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_term"&gt;
+    &lt;r:element name="s:term"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.inline_text"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_verbatim"&gt;
+    &lt;r:element name="s:verbatim"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.inline_text"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_image"&gt;
+    &lt;r:element name="s:image"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:attribute name="s:source"&gt;
+        &lt;r:data type="anyURI"/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:optional&gt;
+        &lt;r:attribute name="s:width"&gt;
+          &lt;r:data type="positiveInteger"/&gt;
+        &lt;/r:attribute&gt;
+        &lt;r:attribute name="s:height"&gt;
+          &lt;r:data type="positiveInteger"/&gt;
+        &lt;/r:attribute&gt;
+      &lt;/r:optional&gt;
+      &lt;r:text/&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.list_item"&gt;
+    &lt;r:element name="s:item"&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.inline_content"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_list_ordered"&gt;
+    &lt;r:element name="s:list-ordered"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.list_item"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_list_unordered"&gt;
+    &lt;r:element name="s:list-unordered"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.list_item"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.table_head_column_name"&gt;
+    &lt;r:element name="s:name"&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.inline_text"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.table_head"&gt;
+    &lt;r:element name="s:head"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.table_head_column_name"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.table_body_cell"&gt;
+    &lt;r:element name="s:cell"&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.inline_content"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.table_body_row"&gt;
+    &lt;r:element name="s:row"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.table_body_cell"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.table_body"&gt;
+    &lt;r:element name="s:body"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.table_body_row"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_table"&gt;
+    &lt;r:element name="s:table"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:attribute name="s:summary"&gt;
+        &lt;r:text/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:optional&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.table_head"/&gt;
+      &lt;/r:optional&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.table_body"/&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.link_content"&gt;
+    &lt;r:choice&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_text"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_image"/&gt;
+    &lt;/r:choice&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_link"&gt;
+    &lt;r:element name="s:link"&gt;
+      &lt;r:attribute name="s:target"&gt;
+        &lt;r:data type="IDREF"/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.link_content"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_link_external"&gt;
+    &lt;r:element name="s:link-external"&gt;
+      &lt;r:attribute name="s:target"&gt;
+        &lt;r:data type="anyURI"/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.link_content"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_content"&gt;
+    &lt;r:choice&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_footnote_ref"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_image"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_link"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_link_external"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_list_ordered"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_list_unordered"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_table"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_term"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_text"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_verbatim"/&gt;
+    &lt;/r:choice&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.subsection_content"&gt;
+    &lt;r:choice&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.footnote"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.formal_item"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.paragraph"/&gt;
+    &lt;/r:choice&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.paragraph"&gt;
+    &lt;r:element name="s:paragraph"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:optional&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.xml-id"/&gt;
+      &lt;/r:optional&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.inline_content"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.formal_item"&gt;
+    &lt;r:element name="s:formal-item"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:optional&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.xml-id"/&gt;
+      &lt;/r:optional&gt;
+      &lt;r:attribute name="s:title"&gt;
+        &lt;r:text/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.inline_content"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.footnote"&gt;
+    &lt;r:element name="s:footnote"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.xml-id"/&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.inline_content"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.document"&gt;
+    &lt;r:element name="s:document"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:optional&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.xml-id"/&gt;
+      &lt;/r:optional&gt;
+      &lt;r:attribute name="s:title"&gt;
+        &lt;r:text/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:choice&gt;
+        &lt;r:zeroOrMore&gt;
+          &lt;r:ref name="io7m.structural-3_0_0.part"/&gt;
+        &lt;/r:zeroOrMore&gt;
+        &lt;r:zeroOrMore&gt;
+          &lt;r:ref name="io7m.structural-3_0_0.section"/&gt;
+        &lt;/r:zeroOrMore&gt;
+      &lt;/r:choice&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.part"&gt;
+    &lt;r:element name="s:part"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:optional&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.xml-id"/&gt;
+      &lt;/r:optional&gt;
+      &lt;r:attribute name="s:title"&gt;
+        &lt;r:text/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:choice&gt;
+        &lt;r:zeroOrMore&gt;
+          &lt;r:ref name="io7m.structural-3_0_0.section"/&gt;
+        &lt;/r:zeroOrMore&gt;
+      &lt;/r:choice&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.section"&gt;
+    &lt;r:element name="s:section"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:optional&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.xml-id"/&gt;
+      &lt;/r:optional&gt;
+      &lt;r:attribute name="s:title"&gt;
+        &lt;r:text/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:choice&gt;
+        &lt;r:zeroOrMore&gt;
+          &lt;r:ref name="io7m.structural-3_0_0.subsection"/&gt;
+        &lt;/r:zeroOrMore&gt;
+        &lt;r:zeroOrMore&gt;
+          &lt;r:ref name="io7m.structural-3_0_0.subsection_content"/&gt;
+        &lt;/r:zeroOrMore&gt;
+      &lt;/r:choice&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.subsection"&gt;
+    &lt;r:element name="s:subsection"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:optional&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.xml-id"/&gt;
+      &lt;/r:optional&gt;
+      &lt;r:attribute name="s:title"&gt;
+        &lt;r:text/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.subsection_content"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.block_content"&gt;
+    &lt;r:choice&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.document"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.paragraph"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.part"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.subsection"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.section"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.footnote"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.formal_item"/&gt;
+    &lt;/r:choice&gt;
+  &lt;/r:define&gt;
+
+&lt;/r:grammar&gt;
+</pre></div></div></div></div><div class="st300_footnotes"><hr/></div></div></body></html>

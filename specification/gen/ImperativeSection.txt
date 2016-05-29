@@ -1,0 +1,5 @@
+data ImperativeSection = ImperativeSection {
+  section_type  :: Maybe String,
+  section_id    :: Maybe ID.T,
+  section_title :: [I.InlineText]
+} deriving Eq

@@ -1,0 +1,7 @@
+data InlineTable = InlineTable {
+  tableType    :: Maybe String,
+  tableSummary :: [InlineText],
+  tableHead    :: Maybe TableHead,
+  tableBody    :: TableBody
+} deriving Eq
+

@@ -1,0 +1,44 @@
+symbol_character =
+  ? not (")" | "(" | "[" | "]" | U+0022 | WHITESPACE) ? ;
+
+symbol =
+  symbol_character , { symbol_character } ;
+
+quoted_character =
+  ? not U+0022 ? ;
+
+quoted_string =
+  U+0022 , (quoted_character | escape) , { (quoted_character | escape) } , U+0022 ;
+
+escape =
+    escape_carriage
+  | escape_newline
+  | escape_tab
+  | escape_quote
+  | escape_unicode4
+  | escape_unicode8 ;
+
+escape_carriage =
+  "\r" ;
+
+escape_newline =
+  "\n" ;
+
+escape_quote =
+  "\" , U+0022 ;
+
+escape_tab =
+  "\t" ;
+
+escape_unicode4 =
+  "\u" ,
+  hex_digit , hex_digit , hex_digit , hex_digit ;
+
+escape_unicode8 =
+  "\u" ,
+  hex_digit , hex_digit , hex_digit , hex_digit ,
+  hex_digit , hex_digit , hex_digit , hex_digit ;
+
+hex_digit =
+  "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "0" |
+  "a" | "A" | "b" | "B" | "c" | "C" | "d" | "D" | "e" | "E" | "f" | "F" ;

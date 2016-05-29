@@ -1,0 +1,16 @@
+[formal-item
+  [title Documentation Listing]
+  [list-unordered
+    [item [link-ext [target "pkg-install.sdi"] "pkg-install.sdi"]]
+    [item [link-ext [target "pkg-license.sdi"] "pkg-license.sdi"]]
+    [item [link-ext [target "pkg-overview.sdi"] "pkg-overview.sdi"]]
+    [item [link-ext [target "pkg-platform.sdi"] "pkg-platform.sdi"]]
+    [item [link-ext [target "pkg.sdi"] "pkg.sdi"]]
+    [item [link-ext [target "tools-cmdline.sdi"] "tools-cmdline.sdi"]]
+    [item [link-ext [target "tools-maven.sdi"] "tools-maven.sdi"]]
+    [item [link-ext [target "tools.sdi"] "tools.sdi"]]
+    [item [link-ext [target "tutorial.sdi"] "tutorial.sdi"]]
+    [item [link-ext [target "complete.sd"] "complete.sd"]]
+    [item [link-ext [target "documentation.sd"] "documentation.sd"]]
+    [item [link-ext [target "listing.sd"] "listing.sd"]]
+]]

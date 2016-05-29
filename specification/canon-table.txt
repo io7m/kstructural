@@ -1,0 +1,46 @@
+canon_table_name =
+  (#exact-symbol "table")
+
+canon_table_summary_name =
+  (#exact-symbol "summary")
+
+canon_table_summary =
+  (#variadic [canon_table_summary_name] canon_text_or_include)
+
+canon_table_body_cell_name =
+  (#exact-symbol "cell")
+
+canon_table_body_cell =
+  (#variadic [canon_table_body_cell_name] canon_inline)
+
+canon_table_body_row_name =
+  (#exact-symbol "row")
+
+canon_table_body_row =
+  (#variadic [canon_table_body_row_name] canon_table_body_cell)
+
+canon_table_body_name =
+  (#exact-symbol "body")
+
+canon_table_body =
+  (#variadic [canon_table_body_name] canon_table_body_row)
+
+canon_table_body_head_cell_name =
+  (#exact-symbol "name")
+
+canon_table_body_head_cell =
+  (#variadic [canon_table_body_head_cell_name] canon_text)
+
+canon_table_head_name =
+  (#exact-symbol "head")
+
+canon_table_head =
+  (#variadic [canon_table_head_name] canon_table_head_cell)
+
+canon_table =
+  (#choice [
+    (#exact-list [canon_table_name canon_table_summary cannon_table_body])
+    (#exact-list [canon_table_name canon_table_summary canon_type cannon_table_body])
+    (#exact-list [canon_table_name canon_table_summary cannon_table_head cannon_table_body])
+    (#exact-list [canon_table_name canon_table_summary canon_type cannon_table_head cannon_table_body])
+  ])

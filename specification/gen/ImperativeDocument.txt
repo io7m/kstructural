@@ -1,0 +1,5 @@
+data ImperativeDocument = ImperativeDocument {
+  document_type  :: Maybe String,
+  document_id    :: Maybe ID.T,
+  document_title :: [I.InlineText]
+} deriving Eq

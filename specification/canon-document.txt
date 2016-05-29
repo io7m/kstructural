@@ -1,0 +1,14 @@
+canon_document_name =
+  (#exact-symbol "document")
+
+canon_document_content =
+  (#choice [canon_section canon_part])
+
+canon_document =
+  (#choice [
+    (#variadic [canon_document_name canon_title] canon_document_content)
+    (#variadic [canon_document_name canon_title canon_id] canon_document_content)
+    (#variadic [canon_document_name canon_title canon_id canon_type] canon_document_content)
+    (#variadic [canon_document_name canon_title canon_type canon_id] canon_document_content)
+    (#variadic [canon_document_name canon_title canon_type] canon_document_content)
+  ])

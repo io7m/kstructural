@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Structural 3.0.0 Language Specification: 1.4. S-Expressions</title><meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8"/><link rel="stylesheet" type="text/css" href="kstructural-layout.css"/><link rel="stylesheet" type="text/css" href="kstructural-colour.css"/><link rel="stylesheet" type="text/css" href="specification.css"/></head><body><div class="st300_body"><div class="st300_navbar st300_navbar_top"><table class="st300_navbar_table" summary="st300_Navigation bar"><tr><td class="st300_navbar_prev_title_cell">1.3. Haskell</td><td class="st300_navbar_up_title_cell">1. Notational Conventions</td><td class="st300_navbar_next_title_cell">1.5. S-Expression Metasyntax</td></tr><tr><td class="st300_navbar_prev_file_cell"><a rel="previous" href="p1s3.xhtml#st300_p1s3" title="Go to previous page">Previous</a></td><td class="st300_navbar_up_file_cell"><a rel="up" href="p1.xhtml#st300_p1" title="Go to parent page">Up</a></td><td class="st300_navbar_next_file_cell"><a rel="next" href="p1s5.xhtml#st300_p1s5" title="Go to next page">Next</a></td></tr></table><hr class="st300_hr"/></div><div class="st300_section_container"><a id="conventions.sexprs"/><div class="st300_section_title_number"><a id="st300_p1s4" href="#st300_p1s4" title="Section 1.4: S-Expressions">1.4</a></div><div class="st300_section_title">S-Expressions</div><span/><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s4c1" href="#st300_p1s4c1" title="Paragraph 1.4.1">1</a></div><div class="st300_paragraph">An <span class="st300_term term">s-expression</span> is defined by the following grammar:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p1s4c2" href="#st300_p1s4c2" title="Formal item 1.4.2: S-Expression Grammar">1.4.2 S-Expression Grammar</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">expression =
+    symbol
+  | quoted_string
+  | "[" , { expression } , "]"
+  | "(" , { expression } , ")" ;</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s4c3" href="#st300_p1s4c3" title="Paragraph 1.4.3">3</a></div><div class="st300_paragraph">The sequences <span class="st300_term constant">U+000D U+000A</span> and <span class="st300_term constant">U+000A</span> are recognized as line terminators for the purposes of tracking line and column numbers for diagnostic messages. Bare <span class="st300_term constant">U+000D</span> characters are not permitted to appear outside of quoted strings.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s4c4" href="#st300_p1s4c4" title="Paragraph 1.4.4">4</a></div><div class="st300_paragraph">The terminals of the grammar are given as:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p1s4c5" href="#st300_p1s4c5" title="Formal item 1.4.5: S-Expression Grammar">1.4.5 S-Expression Grammar</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">symbol_character =
+  ? not (")" | "(" | "[" | "]" | U+0022 | WHITESPACE) ? ;
+
+symbol =
+  symbol_character , { symbol_character } ;
+
+quoted_character =
+  ? not U+0022 ? ;
+
+quoted_string =
+  U+0022 , (quoted_character | escape) , { (quoted_character | escape) } , U+0022 ;
+
+escape =
+    escape_carriage
+  | escape_newline
+  | escape_tab
+  | escape_quote
+  | escape_unicode4
+  | escape_unicode8 ;
+
+escape_carriage =
+  "\r" ;
+
+escape_newline =
+  "\n" ;
+
+escape_quote =
+  "\" , U+0022 ;
+
+escape_tab =
+  "\t" ;
+
+escape_unicode4 =
+  "\u" ,
+  hex_digit , hex_digit , hex_digit , hex_digit ;
+
+escape_unicode8 =
+  "\u" ,
+  hex_digit , hex_digit , hex_digit , hex_digit ,
+  hex_digit , hex_digit , hex_digit , hex_digit ;
+
+hex_digit =
+  "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "0" |
+  "a" | "A" | "b" | "B" | "c" | "C" | "d" | "D" | "e" | "E" | "f" | "F" ;
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p1s4c6" href="#st300_p1s4c6" title="Paragraph 1.4.6">6</a></div><div class="st300_paragraph">Due to limitations in the <a class="st300_link_external" href="https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_Form">EBNF</a> format, the definitions for <span class="st300_term expression">symbol_character</span> and <span class="st300_term expression">quoted_character</span> cannot be expressed directly. Informally, the <span class="st300_term expression">symbol_character</span> rule should be understood to specify any Unicode character that is not whitespace, is not <span class="st300_term constant">U+0028 (</span>, is not <span class="st300_term constant">U+0029 )</span>, and is not <span class="st300_term constant">U+0022 "</span>.</div></div></div><div class="st300_navbar st300_navbar_bottom"><hr class="st300_hr"/><table class="st300_navbar_table" summary="st300_Navigation bar"><tr><td class="st300_navbar_prev_file_cell"><a rel="previous" href="p1s3.xhtml#st300_p1s3" title="Go to previous page">Previous</a></td><td class="st300_navbar_up_file_cell"><a rel="up" href="p1.xhtml#st300_p1" title="Go to parent page">Up</a></td><td class="st300_navbar_next_file_cell"><a rel="next" href="p1s5.xhtml#st300_p1s5" title="Go to next page">Next</a></td></tr><tr><td class="st300_navbar_prev_title_cell">1.3. Haskell</td><td class="st300_navbar_up_title_cell">1. Notational Conventions</td><td class="st300_navbar_next_title_cell">1.5. S-Expression Metasyntax</td></tr></table></div></div></body></html>

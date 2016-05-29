@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Structural 3.0.0 Language Specification: 2.2. Inline Content</title><meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8"/><link rel="stylesheet" type="text/css" href="kstructural-layout.css"/><link rel="stylesheet" type="text/css" href="kstructural-colour.css"/><link rel="stylesheet" type="text/css" href="specification.css"/></head><body><div class="st300_body"><div class="st300_navbar st300_navbar_top"><table class="st300_navbar_table" summary="st300_Navigation bar"><tr><td class="st300_navbar_prev_title_cell">2.1. Overview</td><td class="st300_navbar_up_title_cell">2. Model</td><td class="st300_navbar_next_title_cell">2.3. Block Content</td></tr><tr><td class="st300_navbar_prev_file_cell"><a rel="previous" href="p2s1.xhtml#st300_p2s1" title="Go to previous page">Previous</a></td><td class="st300_navbar_up_file_cell"><a rel="up" href="p2.xhtml#st300_p2" title="Go to parent page">Up</a></td><td class="st300_navbar_next_file_cell"><a rel="next" href="p2s3.xhtml#st300_p2s3" title="Go to next page">Next</a></td></tr></table><hr class="st300_hr"/></div><div class="st300_section_container"><a id="model.inline"/><div class="st300_section_title_number"><a id="st300_p2s2" href="#st300_p2s2" title="Section 2.2: Inline Content">2.2</a></div><div class="st300_section_title">Inline Content</div><ul class="st300_contents st300_section_contents_outer st300_section_contents"><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s2.xhtml#st300_p2s2ss1" title="Link to subsection 2.2.1: Overview">2.2.1. Overview</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s2.xhtml#st300_p2s2ss2" title="Link to subsection 2.2.2: Types">2.2.2. Types</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s2.xhtml#st300_p2s2ss3" title="Link to subsection 2.2.3: Text">2.2.3. Text</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s2.xhtml#st300_p2s2ss4" title="Link to subsection 2.2.4: Term">2.2.4. Term</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s2.xhtml#st300_p2s2ss5" title="Link to subsection 2.2.5: Image">2.2.5. Image</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s2.xhtml#st300_p2s2ss6" title="Link to subsection 2.2.6: Verbatim">2.2.6. Verbatim</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s2.xhtml#st300_p2s2ss7" title="Link to subsection 2.2.7: Link">2.2.7. Link</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s2.xhtml#st300_p2s2ss8" title="Link to subsection 2.2.8: Link External">2.2.8. Link External</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s2.xhtml#st300_p2s2ss9" title="Link to subsection 2.2.9: Footnote Reference">2.2.9. Footnote Reference</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s2.xhtml#st300_p2s2ss10" title="Link to subsection 2.2.10: Ordered List">2.2.10. Ordered List</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s2.xhtml#st300_p2s2ss11" title="Link to subsection 2.2.11: Unordered List">2.2.11. Unordered List</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s2.xhtml#st300_p2s2ss12" title="Link to subsection 2.2.12: Table">2.2.12. Table</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s2.xhtml#st300_p2s2ss13" title="Link to subsection 2.2.13: Include">2.2.13. Include</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s2.xhtml#st300_p2s2ss14" title="Link to subsection 2.2.14: Complete Inline Model">2.2.14. Complete Inline Model</a></li></ul><div class="st300_subsection_container"><a id="model.inline.overview"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss1" href="#st300_p2s2ss1" title="Subsection 2.2.1: Overview">2.2.1</a></div><div class="st300_subsection_title">Overview</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss1c1" href="#st300_p2s2ss1c1" title="Paragraph 2.2.1.1">1</a></div><div class="st300_paragraph">An <span class="st300_term term">inline</span> value is the smallest unit of content that can appear in a <span class="st300_term package">structural</span> document. The type of inline content is given by the following definition:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss1c2" href="#st300_p2s2ss1c2" title="Formal item 2.2.1.2: Inline Content">2.2.1.2 Inline Content</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineContent
+  = ICText          InlineText
+  | ICTerm          InlineTerm
+  | ICImage         InlineImage
+  | ICVerbatim      InlineVerbatim
+  | ICLink          InlineLinkInternal
+  | ICLinkExternal  InlineLinkExternal
+  | ICListOrdered   InlineListOrdered
+  | ICListUnordered InlineListUnordered
+  | ICFootnoteRef   InlineFootnoteRef
+  | ICTable         InlineTable
+  | ICInclude       InlineInclude
+  deriving Eq
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.types"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss2" href="#st300_p2s2ss2" title="Subsection 2.2.2: Types">2.2.2</a></div><div class="st300_subsection_title">Types</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss2c1" href="#st300_p2s2ss2c1" title="Paragraph 2.2.2.1">1</a></div><div class="st300_paragraph">Most elements defined here may have an associated <span class="st300_term type">type</span> parameter that can be used to distinguish the element from other elements of the same type during document processing. As an example, the author of a document may tag all mentions of a software package with a type parameter value of <span class="st300_term term">package</span> so that the mentions can be highlighted when the document is exported to one of the supported export formats. The values have no intrinsic meaning; their meaning is decided by the author of any given document.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss2c2" href="#st300_p2s2ss2c2" title="Paragraph 2.2.2.2">2</a></div><div class="st300_paragraph">Type identifiers are restricted to combinations of letters, numbers, and <span class="st300_term constant">U+005F "_"</span>.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss2c3" href="#st300_p2s2ss2c3" title="Formal item 2.2.2.3: Type Identifier Syntax">2.2.2.3 Type Identifier Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">type_character =
+  ? p{IsLetter} | p{isNumber} | U+005F ? ;
+
+type =
+  type_character , { type_character } ;
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.text"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss3" href="#st300_p2s2ss3" title="Subsection 2.2.3: Text">2.2.3</a></div><div class="st300_subsection_title">Text</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss3c1" href="#st300_p2s2ss3c1" title="Paragraph 2.2.3.1">1</a></div><div class="st300_paragraph">The simplest type of inline content that appears in <span class="st300_term package">structural</span> documents is the <span class="st300_term type">InlineText</span> type. Terms of type <span class="st300_term type">InlineText</span> are simply strings.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss3c2" href="#st300_p2s2ss3c2" title="Formal item 2.2.3.2: Text">2.2.3.2 Text</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineText =
+  InlineText String
+  deriving Eq
+
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.term"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss4" href="#st300_p2s2ss4" title="Subsection 2.2.4: Term">2.2.4</a></div><div class="st300_subsection_title">Term</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss4c1" href="#st300_p2s2ss4c1" title="Paragraph 2.2.4.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineTerm</span> type denotes a significant element of a section of text. It is usually used to highlight or mark individual words.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss4c2" href="#st300_p2s2ss4c2" title="Formal item 2.2.4.2: Term">2.2.4.2 Term</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineTerm = InlineTerm {
+  termType    :: Maybe String,
+  termContent :: [InlineText]
+} deriving Eq
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss4c3" href="#st300_p2s2ss4c3" title="Paragraph 2.2.4.3">3</a></div><div class="st300_paragraph">As shown by the type definition, values of type <span class="st300_term type">InlineTerm</span> may have an associated optional <a class="st300_link" href="p2s2.xhtml#model.inline.types">type</a> parameter value.</div></div></div><div class="st300_subsection_container"><a id="model.inline.image"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss5" href="#st300_p2s2ss5" title="Subsection 2.2.5: Image">2.2.5</a></div><div class="st300_subsection_title">Image</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss5c1" href="#st300_p2s2ss5c1" title="Paragraph 2.2.5.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineImage</span> type denotes a reference to an image. The location of the image is given by the <span class="st300_term parameter">target</span> parameter. The width and height of the image can be specified by the optional <span class="st300_term parameter">size</span> parameter. The associated list of inline <a class="st300_link" href="p2s2.xhtml#model.inline.text">text</a> elements are used as fallback text in the case that the image becomes unavailable.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss5c2" href="#st300_p2s2ss5c2" title="Formal item 2.2.5.2: Text">2.2.5.2 Text</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineImage = InlineImage {
+  imageType    :: Maybe String,
+  imageTarget  :: URI.T,
+  imageSize    :: Maybe Size,
+  imageContent :: [InlineText]
+} deriving Eq
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss5c3" href="#st300_p2s2ss5c3" title="Paragraph 2.2.5.3">3</a></div><div class="st300_paragraph">As shown by the type definition, values of type <span class="st300_term type">InlineImage</span> may have an associated optional <a class="st300_link" href="p2s2.xhtml#model.inline.types">type</a> parameter value.</div></div></div><div class="st300_subsection_container"><a id="model.inline.verbatim"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss6" href="#st300_p2s2ss6" title="Subsection 2.2.6: Verbatim">2.2.6</a></div><div class="st300_subsection_title">Verbatim</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss6c1" href="#st300_p2s2ss6c1" title="Paragraph 2.2.6.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineVerbatim</span> type denotes a section of text in which whitespace should be preserved exactly as it was written.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss6c2" href="#st300_p2s2ss6c2" title="Formal item 2.2.6.2: Verbatim">2.2.6.2 Verbatim</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineVerbatim = InlineVerbatim {
+  verbatimType    :: Maybe String,
+  verbatimContent :: InlineText
+} deriving Eq
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss6c3" href="#st300_p2s2ss6c3" title="Paragraph 2.2.6.3">3</a></div><div class="st300_paragraph">As shown by the type definition, values of type <span class="st300_term type">InlineVerbatim</span> may have an associated optional <a class="st300_link" href="p2s2.xhtml#model.inline.types">type</a> parameter value.</div></div></div><div class="st300_subsection_container"><a id="model.inline.link"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss7" href="#st300_p2s2ss7" title="Subsection 2.2.7: Link">2.2.7</a></div><div class="st300_subsection_title">Link</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss7c1" href="#st300_p2s2ss7c1" title="Paragraph 2.2.7.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineLinkInternal</span> type denotes a link to an element within the current document. The value of the given <span class="st300_term expression">target</span> parameter must be equal to the value of the <span class="st300_term expression">id</span> parameter on an existing <a class="st300_link" href="p2s3.xhtml#model.block">block</a> value.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss7c2" href="#st300_p2s2ss7c2" title="Formal item 2.2.7.2: Link">2.2.7.2 Link</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineLinkInternal = InlineLinkInternal {
+  linkInternalTarget  :: ID.T,
+  linkInternalContent :: [LinkContent]
+} deriving Eq
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss7c3" href="#st300_p2s2ss7c3" title="Paragraph 2.2.7.3">3</a></div><div class="st300_paragraph">Only a restricted subset of the available inline content types are allowed to appear as descendants of links. The subset is described by the <span class="st300_term type">LinkContent</span> type:</div></div><div class="st300_formal_item"><a id="model.inline.link.content"/><div class="st300_formal_item_title"><a id="st300_p2s2ss7c4" href="#st300_p2s2ss7c4" title="Formal item 2.2.7.4: Link Content">2.2.7.4 Link Content</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data LinkContent
+  = LCText  InlineText
+  | LCImage InlineImage
+  deriving Eq
+
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.link_external"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss8" href="#st300_p2s2ss8" title="Subsection 2.2.8: Link External">2.2.8</a></div><div class="st300_subsection_title">Link External</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss8c1" href="#st300_p2s2ss8c1" title="Paragraph 2.2.8.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineLinkExternal</span> type denotes a link to an external resource.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss8c2" href="#st300_p2s2ss8c2" title="Formal item 2.2.8.2: Link External">2.2.8.2 Link External</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineLinkExternal = InlineLinkExternal {
+  linkExternalTarget  :: URI.T,
+  linkExternalContent :: [LinkContent]
+} deriving Eq
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.footnote_ref"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss9" href="#st300_p2s2ss9" title="Subsection 2.2.9: Footnote Reference">2.2.9</a></div><div class="st300_subsection_title">Footnote Reference</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss9c1" href="#st300_p2s2ss9c1" title="Paragraph 2.2.9.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineFootnoteRef</span> type denotes a link to a <a class="st300_link" href="p2s3.xhtml#model.block.footnote">footnote</a> within the current document.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss9c2" href="#st300_p2s2ss9c2" title="Paragraph 2.2.9.2">2</a></div><div class="st300_paragraph">The value of the given <span class="st300_term expression">target</span> parameter must be equal to the value of the <span class="st300_term expression">id</span> parameter on an existing <a class="st300_link" href="p2s3.xhtml#model.block.footnote">footnote</a> value.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss9c3" href="#st300_p2s2ss9c3" title="Formal item 2.2.9.3: Footnote Reference">2.2.9.3 Footnote Reference</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineFootnoteRef = InlineFootnoteRef {
+  footnoteTarget :: ID.T
+} deriving Eq
+
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.list_ordered"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss10" href="#st300_p2s2ss10" title="Subsection 2.2.10: Ordered List">2.2.10</a></div><div class="st300_subsection_title">Ordered List</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss10c1" href="#st300_p2s2ss10c1" title="Paragraph 2.2.10.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineListOrdered</span> type denotes a list of elements that should be understood to be <span class="st300_term term">ordered</span>. The individual elements of the list are denoted by values of the <span class="st300_term type">ListItem</span> type.</div></div><div class="st300_formal_item"><a id="model.inline.list_item"/><div class="st300_formal_item_title"><a id="st300_p2s2ss10c2" href="#st300_p2s2ss10c2" title="Formal item 2.2.10.2: Ordered List">2.2.10.2 Ordered List</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data ListItem = ListItem {
+  listItemContent :: [InlineContent]
+} deriving Eq
+</pre></div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss10c3" href="#st300_p2s2ss10c3" title="Formal item 2.2.10.3: Ordered List">2.2.10.3 Ordered List</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineListOrdered = InlineListOrdered {
+  listOrderedItems :: [ListItem]
+} deriving Eq
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.list_unordered"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss11" href="#st300_p2s2ss11" title="Subsection 2.2.11: Unordered List">2.2.11</a></div><div class="st300_subsection_title">Unordered List</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss11c1" href="#st300_p2s2ss11c1" title="Paragraph 2.2.11.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineListUnordered</span> type denotes a list of elements that should be understood to be in no specific order.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss11c2" href="#st300_p2s2ss11c2" title="Formal item 2.2.11.2: Unordered List">2.2.11.2 Unordered List</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineListUnordered = InlineListUnordered {
+  listUnorderedItems :: [ListItem]
+} deriving Eq
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.table"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss12" href="#st300_p2s2ss12" title="Subsection 2.2.12: Table">2.2.12</a></div><div class="st300_subsection_title">Table</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss12c1" href="#st300_p2s2ss12c1" title="Paragraph 2.2.12.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineTable</span> type is a relatively complex type that describes a table consisting of <span class="st300_term term">rows</span>, with each row consisting of a number of <span class="st300_term term">cells</span>.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss12c2" href="#st300_p2s2ss12c2" title="Formal item 2.2.12.2: Table Cell">2.2.12.2 Table Cell</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data TableCell = TableCell {
+  tableCellContent :: [TableCellContent]
+} deriving Eq
+</pre></div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss12c3" href="#st300_p2s2ss12c3" title="Formal item 2.2.12.3: Table Row">2.2.12.3 Table Row</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data TableRow = TableRow {
+  tableRowCells :: [TableCell]
+} deriving Eq
+</pre></div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss12c4" href="#st300_p2s2ss12c4" title="Formal item 2.2.12.4: Table">2.2.12.4 Table</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineTable = InlineTable {
+  tableType    :: Maybe String,
+  tableSummary :: [InlineText],
+  tableHead    :: Maybe TableHead,
+  tableBody    :: TableBody
+} deriving Eq
+
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss12c5" href="#st300_p2s2ss12c5" title="Paragraph 2.2.12.5">5</a></div><div class="st300_paragraph">A table may have an optional <span class="st300_term term">head</span> that describes the number and names of columns in the table.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss12c6" href="#st300_p2s2ss12c6" title="Formal item 2.2.12.6: Table Head">2.2.12.6 Table Head</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data TableRow = TableRow {
+  tableRowCells :: [TableCell]
+} deriving Eq
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss12c7" href="#st300_p2s2ss12c7" title="Paragraph 2.2.12.7">7</a></div><div class="st300_paragraph">Implementations are required to check that, if a head is defined, the number of cells in each table row is equal to the number of column names defined in the head.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss12c8" href="#st300_p2s2ss12c8" title="Formal item 2.2.12.8: Table Check">2.2.12.8 Table Check</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">tableCheck :: InlineTable -&gt; Bool
+tableCheck table =
+  case (tableHead table) of
+    Nothing -&gt; True
+    Just th -&gt;
+      let rows     = tableBodyRows $ tableBody table
+          expected = length $ tableHeadNames th
+      in all (\row -&gt; length (tableRowCells row) == expected) rows
+
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss12c9" href="#st300_p2s2ss12c9" title="Paragraph 2.2.12.9">9</a></div><div class="st300_paragraph">Tables may not be nested. That is, the inline content that may appear inside a table cell must not contain a table.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss12c10" href="#st300_p2s2ss12c10" title="Formal item 2.2.12.10: Table Cell Content">2.2.12.10 Table Cell Content</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data TableCellContent
+  = TCText          InlineText
+  | TCTerm          InlineTerm
+  | TCImage         InlineImage
+  | TCVerbatim      InlineVerbatim
+  | TCLink          InlineLinkInternal
+  | TCLinkExternal  InlineLinkExternal
+  | TCListOrdered   InlineListOrdered
+  | TCListUnordered InlineListUnordered
+  | TCFootnoteRef   InlineFootnoteRef
+  | TCInclude       InlineInclude
+  deriving Eq
+
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.include"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss13" href="#st300_p2s2ss13" title="Subsection 2.2.13: Include">2.2.13</a></div><div class="st300_subsection_title">Include</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s2ss13c1" href="#st300_p2s2ss13c1" title="Paragraph 2.2.13.1">1</a></div><div class="st300_paragraph">The <span class="st300_term type">InlineInclude</span> type denotes a link to an external file. Values of type <span class="st300_term type">InlineInclude</span> do not actually appear in documents directly: They are replaced with the contents of the referenced file as if they had been inserted as a single quoted string.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss13c2" href="#st300_p2s2ss13c2" title="Formal item 2.2.13.2: Include">2.2.13.2 Include</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data InlineInclude = InlineInclude {
+  includeFile :: String
+} deriving Eq
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.inline.complete"/><div class="st300_subsection_title_number"><a id="st300_p2s2ss14" href="#st300_p2s2ss14" title="Subsection 2.2.14: Complete Inline Model">2.2.14</a></div><div class="st300_subsection_title">Complete Inline Model</div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s2ss14c1" href="#st300_p2s2ss14c1" title="Formal item 2.2.14.1: Type Model">2.2.14.1 Type Model</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">module InlineContent where
+
+import qualified URI
+import qualified ID
+
+data InlineText =
+  InlineText String
+  deriving Eq
+
+data InlineTerm = InlineTerm {
+  termType    :: Maybe String,
+  termContent :: [InlineText]
+} deriving Eq
+
+data Size = Size {
+  sizeWidth  :: Integer,
+  sizeHeight :: Integer
+} deriving Eq
+
+data InlineImage = InlineImage {
+  imageType    :: Maybe String,
+  imageTarget  :: URI.T,
+  imageSize    :: Maybe Size,
+  imageContent :: [InlineText]
+} deriving Eq
+
+data InlineVerbatim = InlineVerbatim {
+  verbatimType    :: Maybe String,
+  verbatimContent :: InlineText
+} deriving Eq
+
+data LinkContent
+  = LCText  InlineText
+  | LCImage InlineImage
+  deriving Eq
+
+data InlineLinkInternal = InlineLinkInternal {
+  linkInternalTarget  :: ID.T,
+  linkInternalContent :: [LinkContent]
+} deriving Eq
+
+data InlineLinkExternal = InlineLinkExternal {
+  linkExternalTarget  :: URI.T,
+  linkExternalContent :: [LinkContent]
+} deriving Eq
+
+data ListItem = ListItem {
+  listItemContent :: [InlineContent]
+} deriving Eq
+
+data InlineListOrdered = InlineListOrdered {
+  listOrderedItems :: [ListItem]
+} deriving Eq
+
+data InlineListUnordered = InlineListUnordered {
+  listUnorderedItems :: [ListItem]
+} deriving Eq
+
+data InlineFootnoteRef = InlineFootnoteRef {
+  footnoteTarget :: ID.T
+} deriving Eq
+
+type TableColumnName = [InlineText]
+
+data TableHead = TableHead {
+  tableHeadNames :: [TableColumnName]
+} deriving Eq
+
+data TableCell = TableCell {
+  tableCellContent :: [TableCellContent]
+} deriving Eq
+
+data TableCellContent
+  = TCText          InlineText
+  | TCTerm          InlineTerm
+  | TCImage         InlineImage
+  | TCVerbatim      InlineVerbatim
+  | TCLink          InlineLinkInternal
+  | TCLinkExternal  InlineLinkExternal
+  | TCListOrdered   InlineListOrdered
+  | TCListUnordered InlineListUnordered
+  | TCFootnoteRef   InlineFootnoteRef
+  | TCInclude       InlineInclude
+  deriving Eq
+
+data TableRow = TableRow {
+  tableRowCells :: [TableCell]
+} deriving Eq
+
+data TableBody = TableBody {
+  tableBodyRows :: [TableRow]
+} deriving Eq
+
+data InlineTable = InlineTable {
+  tableType    :: Maybe String,
+  tableSummary :: [InlineText],
+  tableHead    :: Maybe TableHead,
+  tableBody    :: TableBody
+} deriving Eq
+
+tableCheck :: InlineTable -&gt; Bool
+tableCheck table =
+  case (tableHead table) of
+    Nothing -&gt; True
+    Just th -&gt;
+      let rows     = tableBodyRows $ tableBody table
+          expected = length $ tableHeadNames th
+      in all (\row -&gt; length (tableRowCells row) == expected) rows
+
+data InlineInclude = InlineInclude {
+  includeFile :: String
+} deriving Eq
+
+data InlineContent
+  = ICText          InlineText
+  | ICTerm          InlineTerm
+  | ICImage         InlineImage
+  | ICVerbatim      InlineVerbatim
+  | ICLink          InlineLinkInternal
+  | ICLinkExternal  InlineLinkExternal
+  | ICListOrdered   InlineListOrdered
+  | ICListUnordered InlineListUnordered
+  | ICFootnoteRef   InlineFootnoteRef
+  | ICTable         InlineTable
+  | ICInclude       InlineInclude
+  deriving Eq
+</pre></div></div></div></div><div class="st300_navbar st300_navbar_bottom"><hr class="st300_hr"/><table class="st300_navbar_table" summary="st300_Navigation bar"><tr><td class="st300_navbar_prev_file_cell"><a rel="previous" href="p2s1.xhtml#st300_p2s1" title="Go to previous page">Previous</a></td><td class="st300_navbar_up_file_cell"><a rel="up" href="p2.xhtml#st300_p2" title="Go to parent page">Up</a></td><td class="st300_navbar_next_file_cell"><a rel="next" href="p2s3.xhtml#st300_p2s3" title="Go to next page">Next</a></td></tr><tr><td class="st300_navbar_prev_title_cell">2.1. Overview</td><td class="st300_navbar_up_title_cell">2. Model</td><td class="st300_navbar_next_title_cell">2.3. Block Content</td></tr></table></div></div></body></html>

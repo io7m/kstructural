@@ -1,0 +1,5 @@
+data ImperativeFormalItem = ImperativeFormalItem {
+  formal_type  :: Maybe String,
+  formal_id    :: Maybe ID.T,
+  formal_title :: [I.InlineText]
+} deriving Eq

@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Structural 3.0.0 Language Specification: 5.2. RELAX-NG Schema</title><meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8"/><link rel="stylesheet" type="text/css" href="kstructural-layout.css"/><link rel="stylesheet" type="text/css" href="kstructural-colour.css"/><link rel="stylesheet" type="text/css" href="specification.css"/></head><body><div class="st300_body"><div class="st300_navbar st300_navbar_top"><table class="st300_navbar_table" summary="st300_Navigation bar"><tr><td class="st300_navbar_prev_title_cell">5.1. Overview</td><td class="st300_navbar_up_title_cell">5. XML Format</td><td class="st300_navbar_next_title_cell"/></tr><tr><td class="st300_navbar_prev_file_cell"><a rel="previous" href="p5s1.xhtml#st300_p5s1" title="Go to previous page">Previous</a></td><td class="st300_navbar_up_file_cell"><a rel="up" href="p5.xhtml#st300_p5" title="Go to parent page">Up</a></td><td class="st300_navbar_next_file_cell"/></tr></table><hr class="st300_hr"/></div><div class="st300_section_container"><a id="fmt_xml.schema"/><div class="st300_section_title_number"><a id="st300_p5s2" href="#st300_p5s2" title="Section 5.2: RELAX-NG Schema">5.2</a></div><div class="st300_section_title">RELAX-NG Schema</div><span/><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p5s2c1" href="#st300_p5s2c1" title="Formal item 5.2.1: Schema">5.2.1 Schema</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;r:grammar
+  xmlns:s="http://schemas.io7m.com/structural/3.0.0"
+  xmlns:r="http://relaxng.org/ns/structure/1.0"
+  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"&gt;
+
+  &lt;r:start combine="choice"&gt;
+    &lt;r:ref name="io7m.structural-3_0_0.block_content"/&gt;
+  &lt;/r:start&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.xml-id"&gt;
+    &lt;r:attribute name="xml:id"&gt;
+      &lt;r:data type="ID"/&gt;
+    &lt;/r:attribute&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.standard-attributes"&gt;
+    &lt;r:optional&gt;
+      &lt;r:attribute name="xml:base"&gt;
+        &lt;r:text/&gt;
+      &lt;/r:attribute&gt;
+    &lt;/r:optional&gt;
+    &lt;r:optional&gt;
+      &lt;r:attribute name="xml:lang"&gt;
+        &lt;r:text/&gt;
+      &lt;/r:attribute&gt;
+    &lt;/r:optional&gt;
+    &lt;r:optional&gt;
+      &lt;r:attribute name="s:type"&gt;
+        &lt;r:data type="token"/&gt;
+      &lt;/r:attribute&gt;
+    &lt;/r:optional&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_text"&gt;
+    &lt;r:text/&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_footnote_ref"&gt;
+    &lt;r:element name="s:footnote-ref"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:attribute name="s:target"&gt;
+        &lt;r:data type="IDREF"/&gt;
+      &lt;/r:attribute&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_term"&gt;
+    &lt;r:element name="s:term"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.inline_text"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_verbatim"&gt;
+    &lt;r:element name="s:verbatim"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.inline_text"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_image"&gt;
+    &lt;r:element name="s:image"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:attribute name="s:source"&gt;
+        &lt;r:data type="anyURI"/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:optional&gt;
+        &lt;r:attribute name="s:width"&gt;
+          &lt;r:data type="positiveInteger"/&gt;
+        &lt;/r:attribute&gt;
+        &lt;r:attribute name="s:height"&gt;
+          &lt;r:data type="positiveInteger"/&gt;
+        &lt;/r:attribute&gt;
+      &lt;/r:optional&gt;
+      &lt;r:text/&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.list_item"&gt;
+    &lt;r:element name="s:item"&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.inline_content"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_list_ordered"&gt;
+    &lt;r:element name="s:list-ordered"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.list_item"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_list_unordered"&gt;
+    &lt;r:element name="s:list-unordered"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.list_item"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.table_head_column_name"&gt;
+    &lt;r:element name="s:name"&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.inline_text"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.table_head"&gt;
+    &lt;r:element name="s:head"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.table_head_column_name"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.table_body_cell"&gt;
+    &lt;r:element name="s:cell"&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.inline_content"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.table_body_row"&gt;
+    &lt;r:element name="s:row"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.table_body_cell"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.table_body"&gt;
+    &lt;r:element name="s:body"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.table_body_row"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_table"&gt;
+    &lt;r:element name="s:table"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:attribute name="s:summary"&gt;
+        &lt;r:text/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:optional&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.table_head"/&gt;
+      &lt;/r:optional&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.table_body"/&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.link_content"&gt;
+    &lt;r:choice&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_text"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_image"/&gt;
+    &lt;/r:choice&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_link"&gt;
+    &lt;r:element name="s:link"&gt;
+      &lt;r:attribute name="s:target"&gt;
+        &lt;r:data type="IDREF"/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.link_content"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_link_external"&gt;
+    &lt;r:element name="s:link-external"&gt;
+      &lt;r:attribute name="s:target"&gt;
+        &lt;r:data type="anyURI"/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.link_content"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.inline_content"&gt;
+    &lt;r:choice&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_footnote_ref"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_image"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_link"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_link_external"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_list_ordered"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_list_unordered"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_table"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_term"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_text"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.inline_verbatim"/&gt;
+    &lt;/r:choice&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.subsection_content"&gt;
+    &lt;r:choice&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.footnote"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.formal_item"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.paragraph"/&gt;
+    &lt;/r:choice&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.paragraph"&gt;
+    &lt;r:element name="s:paragraph"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:optional&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.xml-id"/&gt;
+      &lt;/r:optional&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.inline_content"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.formal_item"&gt;
+    &lt;r:element name="s:formal-item"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:optional&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.xml-id"/&gt;
+      &lt;/r:optional&gt;
+      &lt;r:attribute name="s:title"&gt;
+        &lt;r:text/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.inline_content"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.footnote"&gt;
+    &lt;r:element name="s:footnote"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.xml-id"/&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.inline_content"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.document"&gt;
+    &lt;r:element name="s:document"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:optional&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.xml-id"/&gt;
+      &lt;/r:optional&gt;
+      &lt;r:attribute name="s:title"&gt;
+        &lt;r:text/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:choice&gt;
+        &lt;r:zeroOrMore&gt;
+          &lt;r:ref name="io7m.structural-3_0_0.part"/&gt;
+        &lt;/r:zeroOrMore&gt;
+        &lt;r:zeroOrMore&gt;
+          &lt;r:ref name="io7m.structural-3_0_0.section"/&gt;
+        &lt;/r:zeroOrMore&gt;
+      &lt;/r:choice&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.part"&gt;
+    &lt;r:element name="s:part"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:optional&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.xml-id"/&gt;
+      &lt;/r:optional&gt;
+      &lt;r:attribute name="s:title"&gt;
+        &lt;r:text/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:choice&gt;
+        &lt;r:zeroOrMore&gt;
+          &lt;r:ref name="io7m.structural-3_0_0.section"/&gt;
+        &lt;/r:zeroOrMore&gt;
+      &lt;/r:choice&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.section"&gt;
+    &lt;r:element name="s:section"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:optional&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.xml-id"/&gt;
+      &lt;/r:optional&gt;
+      &lt;r:attribute name="s:title"&gt;
+        &lt;r:text/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:choice&gt;
+        &lt;r:zeroOrMore&gt;
+          &lt;r:ref name="io7m.structural-3_0_0.subsection"/&gt;
+        &lt;/r:zeroOrMore&gt;
+        &lt;r:zeroOrMore&gt;
+          &lt;r:ref name="io7m.structural-3_0_0.subsection_content"/&gt;
+        &lt;/r:zeroOrMore&gt;
+      &lt;/r:choice&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.subsection"&gt;
+    &lt;r:element name="s:subsection"&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.standard-attributes"/&gt;
+      &lt;r:optional&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.xml-id"/&gt;
+      &lt;/r:optional&gt;
+      &lt;r:attribute name="s:title"&gt;
+        &lt;r:text/&gt;
+      &lt;/r:attribute&gt;
+      &lt;r:zeroOrMore&gt;
+        &lt;r:ref name="io7m.structural-3_0_0.subsection_content"/&gt;
+      &lt;/r:zeroOrMore&gt;
+    &lt;/r:element&gt;
+  &lt;/r:define&gt;
+
+  &lt;r:define name="io7m.structural-3_0_0.block_content"&gt;
+    &lt;r:choice&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.document"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.paragraph"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.part"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.subsection"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.section"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.footnote"/&gt;
+      &lt;r:ref name="io7m.structural-3_0_0.formal_item"/&gt;
+    &lt;/r:choice&gt;
+  &lt;/r:define&gt;
+
+&lt;/r:grammar&gt;
+</pre></div></div></div><div class="st300_navbar st300_navbar_bottom"><hr class="st300_hr"/><table class="st300_navbar_table" summary="st300_Navigation bar"><tr><td class="st300_navbar_prev_file_cell"><a rel="previous" href="p5s1.xhtml#st300_p5s1" title="Go to previous page">Previous</a></td><td class="st300_navbar_up_file_cell"><a rel="up" href="p5.xhtml#st300_p5" title="Go to parent page">Up</a></td><td class="st300_navbar_next_file_cell"/></tr><tr><td class="st300_navbar_prev_title_cell">5.1. Overview</td><td class="st300_navbar_up_title_cell">5. XML Format</td><td class="st300_navbar_next_title_cell"/></tr></table></div></div></body></html>

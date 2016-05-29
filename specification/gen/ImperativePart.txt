@@ -1,0 +1,5 @@
+data ImperativePart = ImperativePart {
+  part_type  :: Maybe String,
+  part_id    :: Maybe ID.T,
+  part_title :: [I.InlineText]
+} deriving Eq

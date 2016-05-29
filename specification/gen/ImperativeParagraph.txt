@@ -1,0 +1,4 @@
+data ImperativeParagraph = ImperativeParagraph {
+  para_type    :: Maybe String,
+  para_id      :: Maybe ID.T
+} deriving Eq

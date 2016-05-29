@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Structural 3.0.0 Language Specification: 3.2. Inline Elements</title><meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8"/><link rel="stylesheet" type="text/css" href="kstructural-layout.css"/><link rel="stylesheet" type="text/css" href="kstructural-colour.css"/><link rel="stylesheet" type="text/css" href="specification.css"/></head><body><div class="st300_body"><div class="st300_navbar st300_navbar_top"><table class="st300_navbar_table" summary="st300_Navigation bar"><tr><td class="st300_navbar_prev_title_cell">3.1. Overview</td><td class="st300_navbar_up_title_cell">3. Canonical Format</td><td class="st300_navbar_next_title_cell">3.3. Block Elements</td></tr><tr><td class="st300_navbar_prev_file_cell"><a rel="previous" href="p3s1.xhtml#st300_p3s1" title="Go to previous page">Previous</a></td><td class="st300_navbar_up_file_cell"><a rel="up" href="p3.xhtml#st300_p3" title="Go to parent page">Up</a></td><td class="st300_navbar_next_file_cell"><a rel="next" href="p3s3.xhtml#st300_p3s3" title="Go to next page">Next</a></td></tr></table><hr class="st300_hr"/></div><div class="st300_section_container"><a id="fmt_canon.inlines"/><div class="st300_section_title_number"><a id="st300_p3s2" href="#st300_p3s2" title="Section 3.2: Inline Elements">3.2</a></div><div class="st300_section_title">Inline Elements</div><ul class="st300_contents st300_section_contents_outer st300_section_contents"><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s2.xhtml#st300_p3s2ss1" title="Link to subsection 3.2.1: Overview">3.2.1. Overview</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s2.xhtml#st300_p3s2ss2" title="Link to subsection 3.2.2: Text">3.2.2. Text</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s2.xhtml#st300_p3s2ss3" title="Link to subsection 3.2.3: Term">3.2.3. Term</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s2.xhtml#st300_p3s2ss4" title="Link to subsection 3.2.4: Image">3.2.4. Image</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s2.xhtml#st300_p3s2ss5" title="Link to subsection 3.2.5: Verbatim">3.2.5. Verbatim</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s2.xhtml#st300_p3s2ss6" title="Link to subsection 3.2.6: Link">3.2.6. Link</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s2.xhtml#st300_p3s2ss7" title="Link to subsection 3.2.7: Link External">3.2.7. Link External</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s2.xhtml#st300_p3s2ss8" title="Link to subsection 3.2.8: Footnote Reference">3.2.8. Footnote Reference</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s2.xhtml#st300_p3s2ss9" title="Link to subsection 3.2.9: Ordered List">3.2.9. Ordered List</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s2.xhtml#st300_p3s2ss10" title="Link to subsection 3.2.10: Unordered List">3.2.10. Unordered List</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s2.xhtml#st300_p3s2ss11" title="Link to subsection 3.2.11: Table">3.2.11. Table</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s2.xhtml#st300_p3s2ss12" title="Link to subsection 3.2.12: Include">3.2.12. Include</a></li></ul><div class="st300_subsection_container"><a id="fmt_canon.inlines.overview"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss1" href="#st300_p3s2ss1" title="Subsection 3.2.1: Overview">3.2.1</a></div><div class="st300_subsection_title">Overview</div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss1c1" href="#st300_p3s2ss1c1" title="Formal item 3.2.1.1: Main Syntax">3.2.1.1 Main Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_inline =
+  (#choice [
+    canon_footnote_ref
+    canon_image
+    canon_include
+    canon_link
+    canon_link_external
+    canon_list_ordered
+    canon_list_unordered
+    canon_term
+    canon_text
+    canon_verbatim
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.text"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss2" href="#st300_p3s2ss2" title="Subsection 3.2.2: Text">3.2.2</a></div><div class="st300_subsection_title">Text</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss2c1" href="#st300_p3s2ss2c1" title="Paragraph 3.2.2.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="p2s2.xhtml#model.inline.text">InlineText</a> type. Most contexts in documents that accept text can also accept <a class="st300_link" href="p3s2.xhtml#fmt_canon.inlines.include">include</a> values, so an additional rule is given here that allows choosing between values of the two types.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss2c2" href="#st300_p3s2ss2c2" title="Formal item 3.2.2.2: Text Syntax">3.2.2.2 Text Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_text =
+  (#choice [#any-symbol #any-quoted])
+
+canon_text_or_include =
+  (#choice [canon_text canon_include])</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.term"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss3" href="#st300_p3s2ss3" title="Subsection 3.2.3: Term">3.2.3</a></div><div class="st300_subsection_title">Term</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss3c1" href="#st300_p3s2ss3c1" title="Paragraph 3.2.3.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="p2s2.xhtml#model.inline.term">InlineTerm</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss3c2" href="#st300_p3s2ss3c2" title="Formal item 3.2.3.2: Term Syntax">3.2.3.2 Term Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_type =
+  (#exact-list [#exact-symbol "type"] #any-symbol)
+
+canon_term_name =
+  (#exact-symbol "term")
+
+canon_term =
+  (#choice [
+    (#variadic [canon_term_name] canon_text_or_include)
+    (#variadic [canon_term_name canon_type] canon_text_or_include)
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.image"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss4" href="#st300_p3s2ss4" title="Subsection 3.2.4: Image">3.2.4</a></div><div class="st300_subsection_title">Image</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss4c1" href="#st300_p3s2ss4c1" title="Paragraph 3.2.4.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="p2s2.xhtml#model.inline.image">InlineImage</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss4c2" href="#st300_p3s2ss4c2" title="Formal item 3.2.4.2: Image Syntax">3.2.4.2 Image Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_target =
+  (#exact-list [#exact-symbol "target"] canon_text)
+
+canon_size =
+  (#exact-list [#exact-symbol "size"] #any-symbol #any-symbol)
+
+canon_image_name =
+  (#exact-symbol "image")
+
+canon_image =
+  (#choice [
+    (#variadic [canon_image_name canon_target] canon_text_or_include)
+    (#variadic [canon_image_name canon_target canon_type] canon_text_or_include)
+    (#variadic [canon_image_name canon_target canon_size] canon_text_or_include)
+    (#variadic [canon_image_name canon_target canon_size canon_type] canon_text_or_include)
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.verbatim"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss5" href="#st300_p3s2ss5" title="Subsection 3.2.5: Verbatim">3.2.5</a></div><div class="st300_subsection_title">Verbatim</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss5c1" href="#st300_p3s2ss5c1" title="Paragraph 3.2.5.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="p2s2.xhtml#model.inline.verbatim">InlineVerbatim</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss5c2" href="#st300_p3s2ss5c2" title="Formal item 3.2.5.2: Verbatim Syntax">3.2.5.2 Verbatim Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_verbatim_name =
+  (#exact-symbol "verbatim")
+
+canon_verbatim =
+  (#choice [
+    (#exact-list [canon_verbatim_name canon_text_or_include])
+    (#exact-list [canon_verbatim_name canon_type canon_text_or_include])
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.link"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss6" href="#st300_p3s2ss6" title="Subsection 3.2.6: Link">3.2.6</a></div><div class="st300_subsection_title">Link</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss6c1" href="#st300_p3s2ss6c1" title="Paragraph 3.2.6.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="p2s2.xhtml#model.inline.link">InlineLinkInternal</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss6c2" href="#st300_p3s2ss6c2" title="Formal item 3.2.6.2: Link Syntax">3.2.6.2 Link Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_link_name =
+  (#exact-symbol "link")
+
+canon_link =
+  (#variadic [canon_link_name canon_target] canon_text_or_include)
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.link_external"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss7" href="#st300_p3s2ss7" title="Subsection 3.2.7: Link External">3.2.7</a></div><div class="st300_subsection_title">Link External</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss7c1" href="#st300_p3s2ss7c1" title="Paragraph 3.2.7.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="p2s2.xhtml#model.inline.link_external">InlineLinkExternal</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss7c2" href="#st300_p3s2ss7c2" title="Formal item 3.2.7.2: Link External Syntax">3.2.7.2 Link External Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_link_external_name =
+  (#exact-symbol "link-ext")
+
+canon_link_external =
+  (#variadic [canon_link_external_name canon_target] canon_text_or_include)
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.footnote_ref"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss8" href="#st300_p3s2ss8" title="Subsection 3.2.8: Footnote Reference">3.2.8</a></div><div class="st300_subsection_title">Footnote Reference</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss8c1" href="#st300_p3s2ss8c1" title="Paragraph 3.2.8.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="p2s2.xhtml#model.inline.footnote_ref">InlineFootnoteRef</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss8c2" href="#st300_p3s2ss8c2" title="Formal item 3.2.8.2: Footnote Reference Syntax">3.2.8.2 Footnote Reference Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_footnote_ref_name =
+  (#exact-symbol "footnote-ref")
+
+canon_footnote_ref =
+  (#exact-list canon_footnote_ref_name canon_text)
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.list_ordered"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss9" href="#st300_p3s2ss9" title="Subsection 3.2.9: Ordered List">3.2.9</a></div><div class="st300_subsection_title">Ordered List</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss9c1" href="#st300_p3s2ss9c1" title="Paragraph 3.2.9.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="p2s2.xhtml#model.inline.list_ordered">InlineListOrdered</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss9c2" href="#st300_p3s2ss9c2" title="Formal item 3.2.9.2: Ordered List Syntax">3.2.9.2 Ordered List Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_list_item_name =
+  (#exact-symbol "item")
+
+canon_list_item =
+  (#variadic [canon_list_item_name] canon_inline)
+
+canon_list_ordered_name =
+  (#exact-symbol "list-ordered")
+
+canon_list_ordered =
+  (#variadic [canon_list_ordered_name] canon_list_item)
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.list_unordered"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss10" href="#st300_p3s2ss10" title="Subsection 3.2.10: Unordered List">3.2.10</a></div><div class="st300_subsection_title">Unordered List</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss10c1" href="#st300_p3s2ss10c1" title="Paragraph 3.2.10.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="p2s2.xhtml#model.inline.list_unordered">InlineListUnordered</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss10c2" href="#st300_p3s2ss10c2" title="Formal item 3.2.10.2: Unordered List Syntax">3.2.10.2 Unordered List Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_list_unordered_name =
+  (#exact-symbol "list-unordered")
+
+canon_list_unordered =
+  (#variadic [canon_list_unordered_name] canon_list_item)
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.table"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss11" href="#st300_p3s2ss11" title="Subsection 3.2.11: Table">3.2.11</a></div><div class="st300_subsection_title">Table</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss11c1" href="#st300_p3s2ss11c1" title="Paragraph 3.2.11.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="p2s2.xhtml#model.inline.table">InlineTable</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss11c2" href="#st300_p3s2ss11c2" title="Formal item 3.2.11.2: Table Syntax">3.2.11.2 Table Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_table_name =
+  (#exact-symbol "table")
+
+canon_table_summary_name =
+  (#exact-symbol "summary")
+
+canon_table_summary =
+  (#variadic [canon_table_summary_name] canon_text_or_include)
+
+canon_table_body_cell_name =
+  (#exact-symbol "cell")
+
+canon_table_body_cell =
+  (#variadic [canon_table_body_cell_name] canon_inline)
+
+canon_table_body_row_name =
+  (#exact-symbol "row")
+
+canon_table_body_row =
+  (#variadic [canon_table_body_row_name] canon_table_body_cell)
+
+canon_table_body_name =
+  (#exact-symbol "body")
+
+canon_table_body =
+  (#variadic [canon_table_body_name] canon_table_body_row)
+
+canon_table_body_head_cell_name =
+  (#exact-symbol "name")
+
+canon_table_body_head_cell =
+  (#variadic [canon_table_body_head_cell_name] canon_text)
+
+canon_table_head_name =
+  (#exact-symbol "head")
+
+canon_table_head =
+  (#variadic [canon_table_head_name] canon_table_head_cell)
+
+canon_table =
+  (#choice [
+    (#exact-list [canon_table_name canon_table_summary cannon_table_body])
+    (#exact-list [canon_table_name canon_table_summary canon_type cannon_table_body])
+    (#exact-list [canon_table_name canon_table_summary cannon_table_head cannon_table_body])
+    (#exact-list [canon_table_name canon_table_summary canon_type cannon_table_head cannon_table_body])
+  ])
+</pre></div></div></div><div class="st300_subsection_container"><a id="fmt_canon.inlines.include"/><div class="st300_subsection_title_number"><a id="st300_p3s2ss12" href="#st300_p3s2ss12" title="Subsection 3.2.12: Include">3.2.12</a></div><div class="st300_subsection_title">Include</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s2ss12c1" href="#st300_p3s2ss12c1" title="Paragraph 3.2.12.1">1</a></div><div class="st300_paragraph">The concrete syntax specified here maps text to values of the <a class="st300_link" href="p2s2.xhtml#model.inline.include">InlineInclude</a> type.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s2ss12c2" href="#st300_p3s2ss12c2" title="Formal item 3.2.12.2: Include Syntax">3.2.12.2 Include Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">canon_include_name =
+  (#exact-symbol "include")
+
+canon_include =
+  (#exact-list [canon_include_name #any-quoted])
+</pre></div></div></div></div><div class="st300_navbar st300_navbar_bottom"><hr class="st300_hr"/><table class="st300_navbar_table" summary="st300_Navigation bar"><tr><td class="st300_navbar_prev_file_cell"><a rel="previous" href="p3s1.xhtml#st300_p3s1" title="Go to previous page">Previous</a></td><td class="st300_navbar_up_file_cell"><a rel="up" href="p3.xhtml#st300_p3" title="Go to parent page">Up</a></td><td class="st300_navbar_next_file_cell"><a rel="next" href="p3s3.xhtml#st300_p3s3" title="Go to next page">Next</a></td></tr><tr><td class="st300_navbar_prev_title_cell">3.1. Overview</td><td class="st300_navbar_up_title_cell">3. Canonical Format</td><td class="st300_navbar_next_title_cell">3.3. Block Elements</td></tr></table></div></div></body></html>

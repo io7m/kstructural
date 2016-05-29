@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Structural 3.0.0 Language Specification: 2.3. Block Content</title><meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8"/><link rel="stylesheet" type="text/css" href="kstructural-layout.css"/><link rel="stylesheet" type="text/css" href="kstructural-colour.css"/><link rel="stylesheet" type="text/css" href="specification.css"/></head><body><div class="st300_body"><div class="st300_navbar st300_navbar_top"><table class="st300_navbar_table" summary="st300_Navigation bar"><tr><td class="st300_navbar_prev_title_cell">2.2. Inline Content</td><td class="st300_navbar_up_title_cell">2. Model</td><td class="st300_navbar_next_title_cell">3. Canonical Format</td></tr><tr><td class="st300_navbar_prev_file_cell"><a rel="previous" href="p2s2.xhtml#st300_p2s2" title="Go to previous page">Previous</a></td><td class="st300_navbar_up_file_cell"><a rel="up" href="p2.xhtml#st300_p2" title="Go to parent page">Up</a></td><td class="st300_navbar_next_file_cell"><a rel="next" href="p3.xhtml#st300_p3" title="Go to next page">Next</a></td></tr></table><hr class="st300_hr"/></div><div class="st300_section_container"><a id="model.block"/><div class="st300_section_title_number"><a id="st300_p2s3" href="#st300_p2s3" title="Section 2.3: Block Content">2.3</a></div><div class="st300_section_title">Block Content</div><ul class="st300_contents st300_section_contents_outer st300_section_contents"><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s3.xhtml#st300_p2s3ss1" title="Link to subsection 2.3.1: Overview">2.3.1. Overview</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s3.xhtml#st300_p2s3ss2" title="Link to subsection 2.3.2: ID">2.3.2. ID</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s3.xhtml#st300_p2s3ss3" title="Link to subsection 2.3.3: Paragraph">2.3.3. Paragraph</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s3.xhtml#st300_p2s3ss4" title="Link to subsection 2.3.4: Formal Item">2.3.4. Formal Item</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s3.xhtml#st300_p2s3ss5" title="Link to subsection 2.3.5: Footnote">2.3.5. Footnote</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s3.xhtml#st300_p2s3ss6" title="Link to subsection 2.3.6: Subsection">2.3.6. Subsection</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s3.xhtml#st300_p2s3ss7" title="Link to subsection 2.3.7: Section">2.3.7. Section</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s3.xhtml#st300_p2s3ss8" title="Link to subsection 2.3.8: Part">2.3.8. Part</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s3.xhtml#st300_p2s3ss9" title="Link to subsection 2.3.9: Document">2.3.9. Document</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p2s3.xhtml#st300_p2s3ss10" title="Link to subsection 2.3.10: Import">2.3.10. Import</a></li></ul><div class="st300_subsection_container"><a id="model.block.overview"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss1" href="#st300_p2s3ss1" title="Subsection 2.3.1: Overview">2.3.1</a></div><div class="st300_subsection_title">Overview</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss1c1" href="#st300_p2s3ss1c1" title="Paragraph 2.3.1.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">block</span> value denotes a significant section of content within a document.</div></div></div><div class="st300_subsection_container"><a id="model.block.id"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss2" href="#st300_p2s3ss2" title="Subsection 2.3.2: ID">2.3.2</a></div><div class="st300_subsection_title">ID</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss2c1" href="#st300_p2s3ss2c1" title="Paragraph 2.3.2.1">1</a></div><div class="st300_paragraph">All block values have an optional <span class="st300_term expression">id</span> parameter that, if present, must be unique within a document. The value of this parameter may be used by <a class="st300_link" href="p2s2.xhtml#model.inline.link">link</a> elements to create intra-document links to content.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss2c2" href="#st300_p2s3ss2c2" title="Paragraph 2.3.2.2">2</a></div><div class="st300_paragraph">Identifiers are restricted to combinations of letters, numbers, <span class="st300_term constant">U+005F "_"</span>, and <span class="st300_term constant">U+002E "."</span>.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss2c3" href="#st300_p2s3ss2c3" title="Formal item 2.3.2.3: Identifier Syntax">2.3.2.3 Identifier Syntax</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">id_character =
+  ? p{IsLetter} | p{isNumber} | U+005F | U+002E ? ;
+
+id =
+  id_character , { id_character } ;
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss2c4" href="#st300_p2s3ss2c4" title="Paragraph 2.3.2.4">4</a></div><div class="st300_paragraph">An <span class="st300_term expression">id</span> value <span class="st300_term expression">k</span> is said to <span class="st300_term term">exist</span> if there is exactly one element in the document <span class="st300_term expression">d</span> such that <span class="st300_term expression">(hasID k d == Just k)</span>:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss2c5" href="#st300_p2s3ss2c5" title="Formal item 2.3.2.5: Identifier Existence">2.3.2.5 Identifier Existence</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">module IDExistence where
+
+import qualified ID
+import qualified BlockContent as BC
+import qualified Control.Monad as CM
+
+class HasID a where
+  hasID :: ID.T -&gt; a -&gt; Maybe ID.T
+
+maybeEq :: Eq a =&gt; a -&gt; Maybe a -&gt; Maybe a
+maybeEq x Nothing  = Nothing
+maybeEq x (Just y) = if x == y then Just y else Nothing
+
+instance HasID BC.BlockParagraph where
+  hasID k b = maybeEq k (BC.para_id b)
+
+instance HasID BC.BlockFormalItem where
+  hasID k b = maybeEq k (BC.formal_id b)
+
+instance HasID BC.BlockFootnote where
+  hasID k b = maybeEq k (Just $ BC.footnote_id b)
+
+instance HasID BC.SubsectionContent where
+  hasID k (BC.SCParagraph b)  = hasID k b
+  hasID k (BC.SCFormalItem b) = hasID k b
+  hasID k (BC.SCFootnote b)   = hasID k b
+
+instance HasID BC.BlockSubsection where
+  hasID k b =
+    case maybeEq k (BC.subsection_id b) of
+      Just x  -&gt; Just k
+      Nothing -&gt; CM.foldM hasID k (BC.subsection_content b)
+
+instance HasID BC.BlockSection where
+  hasID k b =
+    case maybeEq k (BC.section_id b) of
+      Just x  -&gt; Just k
+      Nothing -&gt;
+        case BC.section_content b of
+          Left ss  -&gt; CM.foldM hasID k ss
+          Right sc -&gt; CM.foldM hasID k sc
+
+instance HasID BC.BlockPart where
+  hasID k b =
+    case maybeEq k (BC.part_id b) of
+      Just x  -&gt; Just k
+      Nothing -&gt; CM.foldM hasID k (BC.part_content b)
+
+instance HasID BC.BlockDocument where
+  hasID k b =
+    case maybeEq k (BC.document_id b) of
+      Just x  -&gt; Just k
+      Nothing -&gt;
+        case BC.document_content b of
+          Left p  -&gt; CM.foldM hasID k p
+          Right s -&gt; CM.foldM hasID k s
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss2c6" href="#st300_p2s3ss2c6" title="Paragraph 2.3.2.6">6</a></div><div class="st300_paragraph">Implementations are required to check that all <span class="st300_term expression">id</span> values are unique within a document, and that all <span class="st300_term expression">id</span> values referenced by links within a document exist.</div></div></div><div class="st300_subsection_container"><a id="model.block.paragraph"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss3" href="#st300_p2s3ss3" title="Subsection 2.3.3: Paragraph">2.3.3</a></div><div class="st300_subsection_title">Paragraph</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss3c1" href="#st300_p2s3ss3c1" title="Paragraph 2.3.3.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">paragraph</span> is one of the lowest level block values in terms of structural significance. It is simply a container for <a class="st300_link" href="p2s2.xhtml#model.inline">inline</a> content.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss3c2" href="#st300_p2s3ss3c2" title="Formal item 2.3.3.2: Paragraph">2.3.3.2 Paragraph</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data BlockParagraph = BlockParagraph {
+  para_type    :: Maybe String,
+  para_id      :: Maybe ID.T,
+  para_content :: [I.InlineContent]
+}
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.block.formal_item"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss4" href="#st300_p2s3ss4" title="Subsection 2.3.4: Formal Item">2.3.4</a></div><div class="st300_subsection_title">Formal Item</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss4c1" href="#st300_p2s3ss4c1" title="Paragraph 2.3.4.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">formal-item</span> is similar to a <a class="st300_link" href="p2s3.xhtml#model.block.paragraph">paragraph</a> except that it has an explicit <span class="st300_term term">title</span>.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss4c2" href="#st300_p2s3ss4c2" title="Formal item 2.3.4.2: Formal Item">2.3.4.2 Formal Item</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data BlockFormalItem = BlockFormalItem {
+  formal_type    :: Maybe String,
+  formal_id      :: Maybe ID.T,
+  formal_title   :: [I.InlineText],
+  formal_content :: [I.InlineContent]
+}
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.block.footnote"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss5" href="#st300_p2s3ss5" title="Subsection 2.3.5: Footnote">2.3.5</a></div><div class="st300_subsection_title">Footnote</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss5c1" href="#st300_p2s3ss5c1" title="Paragraph 2.3.5.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">footnote</span> is similar to a <a class="st300_link" href="p2s3.xhtml#model.block.paragraph">paragraph</a> except that it denotes content that should appear as supplemental information at the bottom of a page when the document is processed for presentation.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss5c2" href="#st300_p2s3ss5c2" title="Paragraph 2.3.5.2">2</a></div><div class="st300_paragraph">A footnote <span class="st300_term term">must</span> have an <span class="st300_term expression">id</span> value specified, and may be referenced by any number of <a class="st300_link" href="p2s2.xhtml#model.inline.footnote_ref">footnote-ref</a> values.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss5c3" href="#st300_p2s3ss5c3" title="Formal item 2.3.5.3: Footnote">2.3.5.3 Footnote</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data BlockFootnote = BlockFootnote {
+  footnote_type    :: Maybe String,
+  footnote_id      :: ID.T,
+  footnote_content :: [I.InlineContent]
+}
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.block.subsection"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss6" href="#st300_p2s3ss6" title="Subsection 2.3.6: Subsection">2.3.6</a></div><div class="st300_subsection_title">Subsection</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss6c1" href="#st300_p2s3ss6c1" title="Paragraph 2.3.6.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">subsection</span> is a container for <span class="st300_term term">subsection content</span>. A subsection is required to have a <span class="st300_term term">title</span>.</div></div><div class="st300_formal_item"><a id="model.block.subsection.content"/><div class="st300_formal_item_title"><a id="st300_p2s3ss6c2" href="#st300_p2s3ss6c2" title="Formal item 2.3.6.2: Subsection Content">2.3.6.2 Subsection Content</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data SubsectionContent
+  = SCParagraph  BlockParagraph
+  | SCFormalItem BlockFormalItem
+  | SCFootnote   BlockFootnote
+
+</pre></div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss6c3" href="#st300_p2s3ss6c3" title="Formal item 2.3.6.3: Subsection">2.3.6.3 Subsection</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data BlockSubsection = BlockSubsection {
+  subsection_type    :: Maybe String,
+  subsection_id      :: Maybe ID.T,
+  subsection_title   :: [I.InlineText],
+  subsection_content :: [SubsectionContent]
+}
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.block.section"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss7" href="#st300_p2s3ss7" title="Subsection 2.3.7: Section">2.3.7</a></div><div class="st300_subsection_title">Section</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss7c1" href="#st300_p2s3ss7c1" title="Paragraph 2.3.7.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">section</span> is a container for either <a class="st300_link" href="p2s3.xhtml#model.block.subsection.content">subsection content</a>, or <a class="st300_link" href="p2s3.xhtml#model.block.subsection">subsections</a>, but not both at the same time. A section is required to have a <span class="st300_term term">title</span>.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss7c2" href="#st300_p2s3ss7c2" title="Formal item 2.3.7.2: Section">2.3.7.2 Section</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data BlockSection = BlockSection {
+  section_type    :: Maybe String,
+  section_id      :: Maybe ID.T,
+  section_title   :: [I.InlineText],
+  section_content :: Either [BlockSubsection] [SubsectionContent]
+}
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.block.part"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss8" href="#st300_p2s3ss8" title="Subsection 2.3.8: Part">2.3.8</a></div><div class="st300_subsection_title">Part</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss8c1" href="#st300_p2s3ss8c1" title="Paragraph 2.3.8.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">part</span> is a container for <a class="st300_link" href="p2s3.xhtml#model.block.section">sections</a>. A part is required to have a <span class="st300_term term">title</span>.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss8c2" href="#st300_p2s3ss8c2" title="Formal item 2.3.8.2: Part">2.3.8.2 Part</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data BlockPart = BlockPart {
+  part_type    :: Maybe String,
+  part_id      :: Maybe ID.T,
+  part_title   :: [I.InlineText],
+  part_content :: [BlockSection]
+}
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.block.document"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss9" href="#st300_p2s3ss9" title="Subsection 2.3.9: Document">2.3.9</a></div><div class="st300_subsection_title">Document</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss9c1" href="#st300_p2s3ss9c1" title="Paragraph 2.3.9.1">1</a></div><div class="st300_paragraph">A <span class="st300_term term">document</span> is the top-level container of other content. It may contain a list of <a class="st300_link" href="p2s3.xhtml#model.block.part">parts</a>, or a list of <a class="st300_link" href="p2s3.xhtml#model.block.section">sections</a>, but not both. A document is required to have a <span class="st300_term term">title</span>.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss9c2" href="#st300_p2s3ss9c2" title="Formal item 2.3.9.2: Document">2.3.9.2 Document</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data BlockDocument = BlockDocument {
+  document_type    :: Maybe String,
+  document_id      :: Maybe ID.T,
+  document_title   :: [I.InlineText],
+  document_content :: Either [BlockPart] [BlockSection]
+}
+</pre></div></div></div><div class="st300_subsection_container"><a id="model.block.import"/><div class="st300_subsection_title_number"><a id="st300_p2s3ss10" href="#st300_p2s3ss10" title="Subsection 2.3.10: Import">2.3.10</a></div><div class="st300_subsection_title">Import</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p2s3ss10c1" href="#st300_p2s3ss10c1" title="Paragraph 2.3.10.1">1</a></div><div class="st300_paragraph">An <span class="st300_term term">import</span> is somewhat analogous to the inline <a class="st300_link" href="p2s2.xhtml#model.inline.include">include</a> type, except that the referenced file is actually parsed as a <span class="st300_term package">structural</span> block value and inserted into the current document at the location of the <span class="st300_term term">import</span> value.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p2s3ss10c2" href="#st300_p2s3ss10c2" title="Formal item 2.3.10.2: Import">2.3.10.2 Import</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">data BlockImport = BlockImport {
+  importFile :: String
+}
+</pre></div></div></div></div><div class="st300_navbar st300_navbar_bottom"><hr class="st300_hr"/><table class="st300_navbar_table" summary="st300_Navigation bar"><tr><td class="st300_navbar_prev_file_cell"><a rel="previous" href="p2s2.xhtml#st300_p2s2" title="Go to previous page">Previous</a></td><td class="st300_navbar_up_file_cell"><a rel="up" href="p2.xhtml#st300_p2" title="Go to parent page">Up</a></td><td class="st300_navbar_next_file_cell"><a rel="next" href="p3.xhtml#st300_p3" title="Go to next page">Next</a></td></tr><tr><td class="st300_navbar_prev_title_cell">2.2. Inline Content</td><td class="st300_navbar_up_title_cell">2. Model</td><td class="st300_navbar_next_title_cell">3. Canonical Format</td></tr></table></div></div></body></html>

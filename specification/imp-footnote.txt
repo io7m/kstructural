@@ -1,0 +1,5 @@
+imperative_footnote =
+  (#choice [
+    (#exact-list [canon_footnote_name canon_id])
+    (#exact-list [canon_footnote_name canon_id canon_type])
+  ])

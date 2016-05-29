@@ -1,0 +1,4 @@
+data InlineLinkExternal = InlineLinkExternal {
+  linkExternalTarget  :: URI.T,
+  linkExternalContent :: [LinkContent]
+} deriving Eq

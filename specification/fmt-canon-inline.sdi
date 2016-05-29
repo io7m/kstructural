@@ -1,0 +1,108 @@
+[section [title Inline Elements] [id fmt_canon.inlines]]
+
+[subsection [title Overview] [id fmt_canon.inlines.overview]]
+
+[formal-item [title Main Syntax]]
+[verbatim [include "canon-inline.txt"]]
+
+[subsection [title Text] [id fmt_canon.inlines.text]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.inline.text] InlineText] type. Most contexts
+in documents that accept text can also accept
+[link [target fmt_canon.inlines.include] include] values, so an additional
+rule is given here that allows choosing between values of the two types.
+
+[formal-item [title Text Syntax]]
+[verbatim [include "canon-text.txt"]]
+
+[subsection [title Term] [id fmt_canon.inlines.term]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.inline.term] InlineTerm] type.
+
+[formal-item [title Term Syntax]]
+[verbatim [include "canon-term.txt"]]
+
+[subsection [title Image] [id fmt_canon.inlines.image]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.inline.image] InlineImage] type.
+
+[formal-item [title Image Syntax]]
+[verbatim [include "canon-image.txt"]]
+
+[subsection [title Verbatim] [id fmt_canon.inlines.verbatim]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.inline.verbatim] InlineVerbatim] type.
+
+[formal-item [title Verbatim Syntax]]
+[verbatim [include "canon-verbatim.txt"]]
+
+[subsection [title Link] [id fmt_canon.inlines.link]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.inline.link] InlineLinkInternal] type.
+
+[formal-item [title Link Syntax]]
+[verbatim [include "canon-link.txt"]]
+
+[subsection [title Link External] [id fmt_canon.inlines.link_external]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.inline.link_external] InlineLinkExternal] type.
+
+[formal-item [title Link External Syntax]]
+[verbatim [include "canon-link_external.txt"]]
+
+[subsection [title Footnote Reference] [id fmt_canon.inlines.footnote_ref]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.inline.footnote_ref] InlineFootnoteRef] type.
+
+[formal-item [title Footnote Reference Syntax]]
+[verbatim [include "canon-footnote_ref.txt"]]
+
+[subsection [title Ordered List] [id fmt_canon.inlines.list_ordered]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.inline.list_ordered] InlineListOrdered] type.
+
+[formal-item [title Ordered List Syntax]]
+[verbatim [include "canon-list_ordered.txt"]]
+
+[subsection [title Unordered List] [id fmt_canon.inlines.list_unordered]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.inline.list_unordered] InlineListUnordered] type.
+
+[formal-item [title Unordered List Syntax]]
+[verbatim [include "canon-list_unordered.txt"]]
+
+[subsection [title Table] [id fmt_canon.inlines.table]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.inline.table] InlineTable] type.
+
+[formal-item [title Table Syntax]]
+[verbatim [include "canon-table.txt"]]
+
+[subsection [title Include] [id fmt_canon.inlines.include]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.inline.include] InlineInclude] type.
+
+[formal-item [title Include Syntax]]
+[verbatim [include "canon-include.txt"]]

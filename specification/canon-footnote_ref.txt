@@ -1,0 +1,5 @@
+canon_footnote_ref_name =
+  (#exact-symbol "footnote-ref")
+
+canon_footnote_ref =
+  (#exact-list canon_footnote_ref_name canon_text)

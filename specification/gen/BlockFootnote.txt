@@ -1,0 +1,5 @@
+data BlockFootnote = BlockFootnote {
+  footnote_type    :: Maybe String,
+  footnote_id      :: ID.T,
+  footnote_content :: [I.InlineContent]
+}

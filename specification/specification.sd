@@ -1,0 +1,7 @@
+[document
+  [title Structural 3.0.0 Language Specification]
+  [import "notational.sdi"]
+  [import "model.sdi"]
+  [import "fmt-canon.sdi"]
+  [import "fmt-imperative.sdi"]
+  [import "fmt-xml.sdi"]]

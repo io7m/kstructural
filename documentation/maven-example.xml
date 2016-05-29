@@ -1,0 +1,28 @@
+<plugin>
+  <groupId>com.io7m.kstructural</groupId>
+  <artifactId>io7m-kstructural-maven-plugin</artifactId>
+  <version>0.1.0</version>
+  <executions>
+    <execution>
+      <id>exec-multi</id>
+      <goals>
+        <goal>compileXHTML</goal>
+      </goals>
+      <phase>process-resources</phase>
+      <configuration>
+        <documentFile>src/main/resources/documentation/documentation.sd</documentFile>
+        <outputDirectory>target/documentation/</outputDirectory>
+        <pagination>XHTML_MULTI_PAGE</pagination>
+        <brandTopFile>src/main/resources/documentation/brand.xml</brandTopFile>
+        <renderTOCDocument>true</renderTOCDocument>
+        <renderTOCSection>true</renderTOCSection>
+        <renderTOCPart>true</renderTOCPart>
+        <cssIncludeDefault>true</cssIncludeDefault>
+        <cssCreateDefault>true</cssCreateDefault>
+        <cssExtraStyles>
+          <param>documentation.css</param>
+        </cssExtraStyles>
+      </configuration>
+    </execution>
+  </executions>
+</plugin>

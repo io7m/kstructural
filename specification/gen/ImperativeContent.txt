@@ -1,0 +1,11 @@
+data ImperativeContent
+  = ICParagraph  ImperativeParagraph
+  | ICFormalItem ImperativeFormalItem
+  | ICFootnote   ImperativeFootnote
+  | ICSubsection ImperativeSubsection
+  | ICSection    ImperativeSection
+  | ICPart       ImperativePart
+  | ICDocument   ImperativeDocument
+  | ICImport     ImperativeImport
+  deriving Eq
+

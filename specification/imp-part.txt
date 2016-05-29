@@ -1,0 +1,8 @@
+imperative_part =
+  (#choice [
+    (#exact-list [canon_part_name canon_title])
+    (#exact-list [canon_part_name canon_title canon_id])
+    (#exact-list [canon_part_name canon_title canon_id canon_type])
+    (#exact-list [canon_part_name canon_title canon_type canon_id])
+    (#exact-list [canon_part_name canon_title canon_type])
+  ])

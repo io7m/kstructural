@@ -1,0 +1,73 @@
+[section [title Block Elements] [id fmt_canon.blocks]]
+
+[subsection [title Paragraph] [id fmt_canon.blocks.paragraph]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.block.paragraph] BlockParagraph] type.
+
+[formal-item [title Paragraph Syntax]]
+[verbatim [include "canon-paragraph.txt"]]
+
+[subsection [title Formal Item] [id fmt_canon.blocks.formal_item]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.block.formal_item] BlockFormalItem] type.
+
+[formal-item [title Formal Item Syntax]]
+[verbatim [include "canon-formal_item.txt"]]
+
+[subsection [title Footnote] [id fmt_canon.blocks.footnote]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.block.footnote] BlockFootnote] type.
+
+[formal-item [title Footnote Syntax]]
+[verbatim [include "canon-footnote.txt"]]
+
+[subsection [title Subsection] [id fmt_canon.blocks.subsection]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.block.subsection] BlockSubsection] type.
+
+[formal-item [title Subsection Syntax]]
+[verbatim [include "canon-subsection.txt"]]
+
+[subsection [title Section] [id fmt_canon.blocks.section]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.block.section] BlockSection] type.
+
+[formal-item [title Section Syntax]]
+[verbatim [include "canon-section.txt"]]
+
+[subsection [title Part] [id fmt_canon.blocks.part]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.block.part] BlockPart] type.
+
+[formal-item [title Part Syntax]]
+[verbatim [include "canon-part.txt"]]
+
+[subsection [title Document] [id fmt_canon.blocks.document]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.block.document] BlockDocument] type.
+
+[formal-item [title Document Syntax]]
+[verbatim [include "canon-document.txt"]]
+
+[subsection [title Import] [id fmt_canon.blocks.import]]
+
+[paragraph]
+The concrete syntax specified here maps text to values of the
+[link [target model.block.import] BlockImport] type.
+
+[formal-item [title Import Syntax]]
+[verbatim [include "canon-import.txt"]]

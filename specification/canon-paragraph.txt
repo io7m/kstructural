@@ -1,0 +1,17 @@
+canon_id_name =
+  (#exact-symbol "id")
+
+canon_id =
+  (#exact-list [canon_id_name canon_text])
+
+canon_paragraph_name =
+  (#exact-symbol "paragraph")
+
+canon_paragraph =
+  (#choice [
+    (#variadic [canon_paragraph_name] canon_inline)
+    (#variadic [canon_paragraph_name canon_id] canon_inline)
+    (#variadic [canon_paragraph_name canon_id canon_type] canon_inline)
+    (#variadic [canon_paragraph_name canon_type canon_id] canon_inline)
+    (#variadic [canon_paragraph_name canon_type] canon_inline)
+  ])

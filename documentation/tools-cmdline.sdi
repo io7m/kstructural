@@ -1,0 +1,164 @@
+[section [title Command Line Usage] [id tools.cmdline]]
+[subsection [title Synopsis]]
+[paragraph]
+The [term [type command] kstructural] command processes
+[term [type package] structural] documents.
+[verbatim [type terminal] [include "cmdline-usage.txt"]]
+
+[paragraph]
+The command line tool is distributed as part of the executable
+[term [type file] "io7m-kstructural-cmdline-0.1.0-main.jar"]
+file "(referred" to as [term [type command] "kstructural.jar"] in usage examples,
+for "brevity):"
+
+[paragraph]
+[verbatim [type terminal] "$ java -jar io7m-kstructural-cmdline-0.1.0-main.jar"]
+
+[subsection [title check] [id tools.cmdline.check]]
+[paragraph]
+The [term [type command] check] subcommand parses and validates the given
+document.
+
+[formal-item [title Check Subcommand]]
+[verbatim [include "gen/cmdline-usage-check.txt"]]
+
+[paragraph]
+The command exits with code [term [type constant] 0] if no errors occurred,
+and a positive exit code otherwise.
+
+[formal-item [title Checking Example]]
+[verbatim "
+$ java -jar kstructural.jar check -file valid.sd
+$ echo $?
+0
+
+$ java -jar kstructural.jar check -file invalid.sd
+ERROR com.io7m.kstructural.frontend.KSOpCheck: invalid.sd: 1:14: Expected an inline element.
+  Expected: [symbol:{image | include | link-ext | link | term | verbatim | footnote-ref | table | list-ordered | list-unordered} ... ]
+  Received: [invalid]
+$ echo $?
+1"]
+
+[subsection [title compile-xhtml] [id tools.cmdline.compile_xhtml]]
+[paragraph]
+The [term [type command] compile-xhtml] subcommand parses and validates the given
+document, and then generates XHTML pages based on the content.
+
+[formal-item [title XHTML Compilation Subcommand]]
+[verbatim [include "gen/cmdline-usage-compile-xhtml.txt"]]
+
+[paragraph [id tools.cmdline.compile_xhtml.brand_bottom]]
+The [term [type command] -brand-bottom] option specifies an XML file that will
+be appended to the body of each generated XHTML page. This effectively allows
+for custom footers on generated pages. Note that the XML file is parsed and the
+element is appended to the AST of each generated page. This guarantees that
+the output is well formed "(although" not necessarily "valid)" XHTML.
+
+[paragraph [id tools.cmdline.compile_xhtml.brand_top]]
+The [term [type command] -brand-top] option specifies an XML file that will
+be prepended to the body of each generated XHTML page. This effectively allows
+for custom headers on generated pages. Note that the XML file is parsed and the
+element is prepended to the AST of each generated page. This guarantees that
+the output is well formed "(although" not necessarily "valid)" XHTML.
+
+[paragraph [id tools.cmdline.compile_xhtml.css_create_default]]
+The [term [type command] -css-create-default] option specifies that the default
+CSS files used by the [term [type command] kstructural] should be written to
+the output directory. This option can be set to [term [type constant] false] if
+entirely custom CSS is to be used.
+
+[paragraph [id tools.cmdline.compile_xhtml.file]]
+The [term [type command] -file] option specifies the input file.
+
+[paragraph [id tools.cmdline.compile_xhtml.css_include_default]]
+The [term [type command] -css-include-default] option specifies that links
+to the default CSS files used by the [term [type command] kstructural] should
+be generated in each XHTML page. This option can be set to
+[term [type constant] false] if entirely custom CSS is to be used.
+
+[paragraph [id tools.cmdline.compile_xhtml.output_dir]]
+The [term [type command] -output-dir] option specifies the output directory.
+
+[paragraph [id tools.cmdline.compile_xhtml.pagination]]
+The [term [type command] -pagination] option specifies how the generated
+XHTML should be paginated. A value of [term [type constant] single] indicates
+that the output should be one large XHTML page. A value of
+[term [type constant] multi] indicates that a new page should be created for
+each [term [type type] document], [term [type type] part], and
+[term [type type] section].
+
+[paragraph [id tools.cmdline.compile_xhtml.render_toc_document]]
+The [term [type command] -render-toc-document] option specifies whether or
+not a table of contents should be generated for the main document.
+
+[paragraph [id tools.cmdline.compile_xhtml.render_toc_section]]
+The [term [type command] -render-toc-section] option specifies whether or
+not a table of contents should be generated at the start of each section.
+
+[paragraph [id tools.cmdline.compile_xhtml.render_toc_part]]
+The [term [type command] -render-toc-part] option specifies whether or
+not a table of contents should be generated at the start of each part.
+
+[paragraph [id tools.cmdline.compile_xhtml.verbose]]
+The [term [type command] -verbose] option specifies the level of logging
+desired.
+
+[paragraph]
+The command exits with code [term [type constant] 0] if no errors occurred,
+and a positive exit code otherwise.
+
+[formal-item [title XHTML Compilation Example]]
+[verbatim "
+$ java -jar kstructural.jar compile-xhtml -file valid.sd -output-dir /tmp
+$ echo $?
+0
+
+$ java -jar kstructural.jar compile-xhtml -pagination single -file valid.sd -output-dir /tmp
+$ echo $?
+0
+
+$ file /tmp/index-m.xhtml
+/tmp/index-m.xhtml: XML 1.0 document, ASCII text, with very long lines, with CRLF line terminators
+$ file /tmp/index.xhtml
+/tmp/index.xhtml: XML 1.0 document, ASCII text, with very long lines, with CRLF line terminators"]
+
+[subsection [title convert] [id tools.cmdline.convert]]
+[paragraph]
+The [term [type command] convert] subcommand parses and validates the given
+document, and then converts it to one of the supported
+[term [type package] structural] formats.
+
+[formal-item [title Convert Subcommand]]
+[verbatim [include "gen/cmdline-usage-convert.txt"]]
+
+[paragraph]
+The command exits with code [term [type constant] 0] if no errors occurred,
+and a positive exit code otherwise.
+
+[formal-item [title Conversion Example]]
+[verbatim "
+$ cat valid.sd
+[document
+  [title A document]
+  [section
+    [title A section]
+    [paragraph A paragraph]]]
+
+$ java -jar kstructural.jar convert -file valid.sd -output-dir /tmp -format imperative
+$ java -jar kstructural.jar convert -file valid.sd -output-dir /tmp -format xml
+
+$ cat /tmp/main.xml
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<s:document s:title=\"A document\" xmlns:s=\"http://schemas.io7m.com/structural/3.0.0\">
+  <s:section s:title=\"A section\">
+    <s:paragraph>A paragraph</s:paragraph>
+  </s:section>
+</s:document>
+
+$ cat /tmp/main.sdi
+[document [title A document]]
+[section [title A section]]
+[paragraph]
+A paragraph
+"]
+
