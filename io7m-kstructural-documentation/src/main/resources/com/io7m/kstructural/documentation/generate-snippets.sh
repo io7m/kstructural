@@ -6,3 +6,20 @@ java -jar "${JAR_FILE}" 2>&1 | sed -n -e '/^    check/,/^$/ p' | tee gen/cmdline
 java -jar "${JAR_FILE}" 2>&1 | sed -n -e '/^    compile-xhtml/,/^$/ p' | tee gen/cmdline-usage-compile-xhtml.txt
 java -jar "${JAR_FILE}" 2>&1 | sed -n -e '/^    convert/,/^$/ p' | tee gen/cmdline-usage-convert.txt
 
+FILES=`ls *.sdi`
+FILES="${FILES} `ls *.sd`"
+
+cat <<EOF
+[list-unordered
+EOF
+
+for f in ${FILES}
+do
+  cat <<EOF
+  [item [link-ext [target "$f"] "$f"]]
+EOF
+done
+
+cat <<EOF
+]
+EOF
