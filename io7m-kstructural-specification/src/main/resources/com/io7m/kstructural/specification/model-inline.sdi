@@ -181,6 +181,13 @@ defined in the head.
 [formal-item [title Table Check]]
 [verbatim [include "gen/TableCheck.txt"]]
 
+[paragraph]
+Tables may not be nested. That is, the inline content that may appear
+inside a table cell must not contain a table.
+
+[formal-item [title Table Cell Content]]
+[verbatim [include "gen/TableCellContent.txt"]]
+
 [subsection [title Include] [id model.inline.include]]
 
 [paragraph]

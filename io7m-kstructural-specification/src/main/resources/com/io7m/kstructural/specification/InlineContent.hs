@@ -67,8 +67,21 @@ data TableHead = TableHead {
 } deriving Eq
 
 data TableCell = TableCell {
-  tableCellContent :: [InlineContent]
+  tableCellContent :: [TableCellContent]
 } deriving Eq
+
+data TableCellContent
+  = TCText          InlineText
+  | TCTerm          InlineTerm
+  | TCImage         InlineImage
+  | TCVerbatim      InlineVerbatim
+  | TCLink          InlineLinkInternal
+  | TCLinkExternal  InlineLinkExternal
+  | TCListOrdered   InlineListOrdered
+  | TCListUnordered InlineListUnordered
+  | TCFootnoteRef   InlineFootnoteRef
+  | TCInclude       InlineInclude
+  deriving Eq
 
 data TableRow = TableRow {
   tableRowCells :: [TableCell]

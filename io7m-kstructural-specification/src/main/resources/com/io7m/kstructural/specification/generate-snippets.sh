@@ -19,11 +19,12 @@ sed -n -e '/data LinkContent/,/^$/ p' ${SOURCE} > gen/LinkContent.txt
 sed -n -e '/data ListItem/,/}/ p' ${SOURCE} > gen/ListItem.txt
 sed -n -e '/data Size/,/}/ p' ${SOURCE} > gen/Size.txt
 sed -n -e '/data TableBody/,/}/ p' ${SOURCE} > gen/TableBody.txt
-sed -n -e '/data TableCell/,/}/ p' ${SOURCE} > gen/TableCell.txt
 sed -n -e '/data TableColumnName/,/}/ p' ${SOURCE} > gen/TableColumnName.txt
 sed -n -e '/data TableHead/,/}/ p' ${SOURCE} > gen/TableHead.txt
 sed -n -e '/data TableRow/,/}/ p' ${SOURCE} > gen/TableRow.txt
 sed -n -e '/tableCheck/,/^$/ p' ${SOURCE} > gen/TableCheck.txt
+sed -n -e '/data TableCellContent/,/^$/ p' ${SOURCE} > gen/TableCellContent.txt
+sed -n -e '/data TableCell /,/^}/ p' ${SOURCE} > gen/TableCell.txt
 
 SOURCE=BlockContent.hs
 
