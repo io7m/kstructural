@@ -301,8 +301,8 @@ There are Markdown implementations for most languages. However, there may not
 be an implementation that supports the specific dialect the author has used.
 
 [footnote [id pkg.orientation.troff_unix]]
-Being a traditional UNIX tool, the [term [type command] troff] is unlikely to be
-pleasant to use outside of UNIX.
+Being a traditional UNIX tool, the [term [type command] troff] tool is unlikely
+to be pleasant to use outside of UNIX.
 
 [footnote [id pkg.orientation.import_xml]]
 Although elements written in the XML format cannot import non-XML elements due
