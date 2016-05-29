@@ -1,0 +1,5 @@
+expression =
+    symbol
+  | quoted_string
+  | "[" , { expression } , "]"
+  | "(" , { expression } , ")" ;

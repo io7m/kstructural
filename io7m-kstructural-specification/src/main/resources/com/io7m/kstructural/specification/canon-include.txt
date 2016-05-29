@@ -1,0 +1,5 @@
+canon_include_name =
+  (#exact-symbol "include")
+
+canon_include =
+  (#exact-list [canon_include_name #any-quoted])

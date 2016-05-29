@@ -1,0 +1,5 @@
+canon_link_external_name =
+  (#exact-symbol "link-ext")
+
+canon_link_external =
+  (#variadic [canon_link_external_name canon_target] canon_text_or_include)

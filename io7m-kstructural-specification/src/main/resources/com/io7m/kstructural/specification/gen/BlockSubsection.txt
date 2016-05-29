@@ -1,0 +1,6 @@
+data BlockSubsection = BlockSubsection {
+  subsection_type    :: Maybe String,
+  subsection_id      :: Maybe ID.T,
+  subsection_title   :: [I.InlineText],
+  subsection_content :: [SubsectionContent]
+}

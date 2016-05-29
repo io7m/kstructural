@@ -1,0 +1,4 @@
+data InlineText =
+  InlineText String
+  deriving Eq
+

@@ -1,0 +1,5 @@
+id_character =
+  ? p{IsLetter} | p{isNumber} | U+005F | U+002E ? ;
+
+id =
+  id_character , { id_character } ;

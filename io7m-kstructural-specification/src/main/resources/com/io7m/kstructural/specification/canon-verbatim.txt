@@ -1,0 +1,8 @@
+canon_verbatim_name =
+  (#exact-symbol "verbatim")
+
+canon_verbatim =
+  (#choice [
+    (#exact-list [canon_verbatim_name canon_text_or_include])
+    (#exact-list [canon_verbatim_name canon_type canon_text_or_include])
+  ])

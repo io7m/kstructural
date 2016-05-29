@@ -1,0 +1,5 @@
+data ImperativeSubsection = ImperativeSubsection {
+  subsection_type  :: Maybe String,
+  subsection_id    :: Maybe ID.T,
+  subsection_title :: [I.InlineText]
+} deriving Eq

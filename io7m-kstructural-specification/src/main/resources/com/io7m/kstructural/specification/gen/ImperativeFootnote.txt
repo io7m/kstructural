@@ -1,0 +1,4 @@
+data ImperativeFootnote = ImperativeFootnote {
+  footnote_type :: Maybe String,
+  footnote_id   :: ID.T
+} deriving Eq

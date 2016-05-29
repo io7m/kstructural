@@ -1,0 +1,8 @@
+canon_footnote_name =
+  (#exact-symbol "footnote")
+
+canon_footnote =
+  (#choice [
+    (#variadic [canon_footnote_name canon_id] canon_inline)
+    (#variadic [canon_footnote_name canon_id canon_type] canon_inline)
+  ])

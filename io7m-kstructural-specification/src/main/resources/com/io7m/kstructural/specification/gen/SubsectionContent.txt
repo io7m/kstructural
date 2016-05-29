@@ -1,0 +1,5 @@
+data SubsectionContent
+  = SCParagraph  BlockParagraph
+  | SCFormalItem BlockFormalItem
+  | SCFootnote   BlockFootnote
+

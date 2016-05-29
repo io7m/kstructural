@@ -1,0 +1,6 @@
+> matches (SE.EList [SE.ESymbol "x", SE.ESymbol "y", SE.ESymbol "z"]) (MExactList [MExactSymbol "x", MExactSymbol "y", MExactSymbol "z"])
+True
+> matches (SE.EList [SE.ESymbol "x", SE.ESymbol "y", SE.ESymbol "y"]) (MExactList [MExactSymbol "x", MExactSymbol "y", MExactSymbol "z"])
+False
+> matches (SE.EList [SE.ESymbol "x", SE.ESymbol "y"]) (MExactList [MExactSymbol "x", MExactSymbol "y", MExactSymbol "z"])
+False

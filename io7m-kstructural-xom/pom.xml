@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.io7m.kstructural</groupId>
+    <artifactId>io7m-kstructural</artifactId>
+    <version>0.1.0</version>
+  </parent>
+  <artifactId>io7m-kstructural-xom</artifactId>
+
+  <packaging>jar</packaging>
+  <name>io7m-kstructural-xom</name>
+  <description>Kotlin implementation of the structural document language (XOM backend)</description>
+  <url>http://io7m.github.io/kstructural/</url>
+
+  <scm>
+    <url>${project.parent.scm.url}</url>
+    <connection>${project.parent.scm.connection}</connection>
+    <developerConnection>${project.parent.scm.developerConnection}</developerConnection>
+  </scm>
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>io7m-kstructural-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>io7m-kstructural-schema</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.io7m.xom</groupId>
+      <artifactId>xom</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.stephenc.jcip</groupId>
+      <artifactId>jcip-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-stdlib</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.valid4j</groupId>
+      <artifactId>valid4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.thaiopensource</groupId>
+      <artifactId>jing</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.java.quickcheck</groupId>
+      <artifactId>quickcheck</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>io7m-kstructural-parser</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+
+    <plugins>
+      <plugin>
+        <artifactId>kotlin-maven-plugin</artifactId>
+        <groupId>org.jetbrains.kotlin</groupId>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

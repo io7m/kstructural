@@ -1,0 +1,4 @@
+data Size = Size {
+  sizeWidth  :: Integer,
+  sizeHeight :: Integer
+} deriving Eq

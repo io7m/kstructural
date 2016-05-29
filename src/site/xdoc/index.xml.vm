@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document
+  xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+
+  <properties>
+    <title>${project.name}</title>
+  </properties>
+
+  <body>
+    <subsection name="${project.name}">
+      <p>
+        The <tt>structural</tt> language is a syntactically lightweight
+        language for writing technical documentation.
+      </p>
+    </subsection>
+    <subsection name="Features">
+      <ul>
+        <li>Extremely simple core language with roughly ~20 elements. Easy to learn!</li>
+        <li>DocBook-like semantic tagging of terms without the need to memorize hundreds of XML elements.</li>
+        <li>Lightweight syntax for repetitive strain injury reduction.</li>
+        <li>Automatic tables of content, section and paragraph numbering.</li>
+        <li>Full RELAX-NG schema for the XML format.</li>
+        <li>XHTML Strict 1.0 output, in single or multi-page forms.</li>
+        <li>Produces valid and strongly accessible XHTML, with captions and metadata for screen readers.</li>
+        <li>XeLaTeX output for producing PDF and Postscript files.</li>
+        <li>Tables and lists without disastrously ambiguous whitespace-sensitive syntax.</li>
+        <li>Write modular documents using the well-behaved and secure-by-default <tt>import</tt> system.</li>
+        <li>Full specification of syntax and semantics to ensure that your documents can be validated and can still be opened decades into the future.</li>
+        <li>Written in <a href="http://kotlinglang.org">Kotlin</a> and Java 8 for platform independence.</li>
+        <li>Fully documented command line tools for document processing.</li>
+        <li>Maven plugin for processing documentation as part of a project build.</li>
+        <li>Large, high-coverage test suite.</li>
+        <li>ISC license.</li>
+      </ul>
+    </subsection>
+  </body>
+
+</document>

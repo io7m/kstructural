@@ -1,0 +1,4 @@
+data InlineLinkInternal = InlineLinkInternal {
+  linkInternalTarget  :: ID.T,
+  linkInternalContent :: [LinkContent]
+} deriving Eq

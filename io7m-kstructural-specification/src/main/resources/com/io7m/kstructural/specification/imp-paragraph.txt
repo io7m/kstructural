@@ -1,0 +1,8 @@
+imperative_paragraph =
+  (#choice [
+    (#exact-list [canon_paragraph_name])
+    (#exact-list [canon_paragraph_name canon_id])
+    (#exact-list [canon_paragraph_name canon_id canon_type])
+    (#exact-list [canon_paragraph_name canon_type canon_id])
+    (#exact-list [canon_paragraph_name canon_type])
+  ])

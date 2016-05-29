@@ -1,0 +1,45 @@
+/*
+ * Copyright © 2016 <code@io7m.com> http://io7m.com
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+ * SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+ * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
+package com.io7m.kstructural.xom
+
+import com.io7m.jfunctional.PartialProcedureType
+import nu.xom.Element
+import java.io.IOException
+import java.io.InputStream
+import java.net.URI
+
+class KSXOMSettings(
+  val render_toc_document : Boolean = true,
+  val render_toc_parts : Boolean = true,
+  val render_toc_sections : Boolean = true,
+  val styles : MutableList<URI> = mutableListOf(CSSDefaultLayout, CSSDefaultColour),
+  val on_body_start : PartialProcedureType<Element, IOException>,
+  val on_body_end : PartialProcedureType<Element, IOException>) {
+
+  companion object {
+    val CSSDefaultLayout = URI.create("kstructural-layout.css")
+    val CSSDefaultColour = URI.create("kstructural-colour.css")
+
+    fun getCSSDefaultLayoutStream() : InputStream =
+      KSXOMSettings::class.java.getResourceAsStream(
+        "/com/io7m/kstructural/xom/kstructural-layout.css")
+
+    fun getCSSDefaultColourStream() : InputStream =
+      KSXOMSettings::class.java.getResourceAsStream(
+        "/com/io7m/kstructural/xom/kstructural-colour.css")
+  }
+}

@@ -1,0 +1,4 @@
+data InlineTerm = InlineTerm {
+  termType    :: Maybe String,
+  termContent :: [InlineText]
+} deriving Eq

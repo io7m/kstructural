@@ -1,0 +1,3 @@
+data TableHead = TableHead {
+  tableHeadNames :: [TableColumnName]
+} deriving Eq

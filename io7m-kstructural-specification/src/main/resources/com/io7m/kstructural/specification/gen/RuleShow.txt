@@ -1,0 +1,10 @@
+instance Show Rule where
+  show (MExactSymbol s)    = "(#exact-symbol " ++ s ++ ")"
+  show (MExactQuoted s)    = "(#exact-quoted " ++ s ++ ")"
+  show (MExactList s)      = "(#exact-list [" ++ (concatMap show s) ++ "])"
+  show  MAnySymbol         = "#any-symbol"
+  show  MAnyQuoted         = "#any-quoted"
+  show  MAnyList           = "#any-list"
+  show (MChoice s)         = "(#choice [" ++ (concatMap show s) ++ "])"
+  show (MListVariadic s m) = "(#variadic [" ++ (concatMap show s) ++ "]" ++ (show m) ++ ")"
+

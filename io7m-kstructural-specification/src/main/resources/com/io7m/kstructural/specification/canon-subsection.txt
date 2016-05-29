@@ -1,0 +1,14 @@
+canon_subsection_name =
+  (#exact-symbol "subsection")
+
+canon_subsection_content =
+  (#choice [canon_paragraph canon_footnote canon_formal_item])
+
+canon_subsection =
+  (#choice [
+    (#variadic [canon_subsection_name canon_title] canon_subsection_content)
+    (#variadic [canon_subsection_name canon_title canon_id] canon_subsection_content)
+    (#variadic [canon_subsection_name canon_title canon_id canon_type] canon_subsection_content)
+    (#variadic [canon_subsection_name canon_title canon_type canon_id] canon_subsection_content)
+    (#variadic [canon_subsection_name canon_title canon_type] canon_subsection_content)
+  ])

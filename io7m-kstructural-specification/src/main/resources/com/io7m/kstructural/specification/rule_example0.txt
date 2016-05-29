@@ -1,0 +1,4 @@
+> matches (SE.ESymbol "x") MAnySymbol
+True
+> matches (SE.EQuoted "x") MAnySymbol
+False

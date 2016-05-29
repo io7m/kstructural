@@ -1,0 +1,205 @@
+[section [title Inline Content] [id model.inline]]
+
+[subsection [title Overview] [id model.inline.overview]]
+
+[paragraph]
+An [term [type term] inline] value is the smallest unit of content that
+can appear in a [term [type package] structural] document. The type of inline
+content is given by the following definition:
+
+[formal-item [title Inline Content]]
+[verbatim [include "gen/InlineContent.txt"]]
+
+[subsection [title Types] [id model.inline.types]]
+
+[paragraph]
+Most elements defined here may have an associated [term [type type] type]
+parameter that can be used to distinguish the element from other elements of
+the same type during document processing. As an example, the author of a
+document may tag all mentions of a software package with a type parameter
+value of [term [type term] package] so that the mentions can be highlighted when
+the document is exported to one of the supported export formats. The
+values have no intrinsic meaning; their meaning is decided by the author of
+any given document.
+
+[paragraph]
+Type identifiers are restricted to combinations of letters, numbers, and
+[term [type constant] "U+005F \"_\""].
+
+[formal-item [title Type Identifier Syntax]]
+[verbatim [include "type.ebnf"]]
+
+[subsection [title Text] [id model.inline.text]]
+
+[paragraph]
+The simplest type of inline content that appears in
+[term [type package] structural] documents is the [term [type type] InlineText]
+type. Terms of type [term [type type] InlineText] are simply strings.
+
+[formal-item [title Text]]
+[verbatim [include "gen/InlineText.txt"]]
+
+[subsection [title Term] [id model.inline.term]]
+
+[paragraph]
+The [term [type type] InlineTerm] type denotes a significant element of a
+section of text. It is usually used to highlight or mark individual words.
+
+[formal-item [title Term]]
+[verbatim [include "gen/InlineTerm.txt"]]
+
+[paragraph]
+As shown by the type definition, values of type [term [type type] InlineTerm]
+may have an associated optional [link [target model.inline.types] type]
+parameter value.
+
+[subsection [title Image] [id model.inline.image]]
+
+[paragraph]
+The [term [type type] InlineImage] type denotes a reference to an image.
+The location of the image is given by the [term [type parameter] target]
+parameter. The width and height of the image can be specified by the optional
+[term [type parameter] size] parameter. The associated list of inline
+[link [target model.inline.text] text] elements are used as fallback text in
+the case that the image becomes unavailable.
+
+[formal-item [title Text]]
+[verbatim [include "gen/InlineImage.txt"]]
+
+[paragraph]
+As shown by the type definition, values of type [term [type type] InlineImage]
+may have an associated optional [link [target model.inline.types] type]
+parameter value.
+
+[subsection [title Verbatim] [id model.inline.verbatim]]
+
+[paragraph]
+The [term [type type] InlineVerbatim] type denotes a section of text in
+which whitespace should be preserved exactly as it was written.
+
+[formal-item [title Verbatim]]
+[verbatim [include "gen/InlineVerbatim.txt"]]
+
+[paragraph]
+As shown by the type definition, values of type [term [type type] InlineVerbatim]
+may have an associated optional [link [target model.inline.types] type]
+parameter value.
+
+[subsection [title Link] [id model.inline.link]]
+
+[paragraph]
+The [term [type type] InlineLinkInternal] type denotes a link to an element
+within the current document. The value of the given [term [type expression] target]
+parameter must be equal to the value of the [term [type expression] id]
+parameter on an existing [link [target model.block] block] value.
+
+[formal-item [title Link]]
+[verbatim [include "gen/InlineLinkInternal.txt"]]
+
+[paragraph]
+Only a restricted subset of the available inline content types are allowed
+to appear as descendants of links. The subset is described by the
+[term [type type] LinkContent] type:
+
+[formal-item [title Link Content] [id model.inline.link.content]]
+[verbatim [include "gen/LinkContent.txt"]]
+
+[subsection [title Link External] [id model.inline.link_external]]
+
+[paragraph]
+The [term [type type] InlineLinkExternal] type denotes a link to an external
+resource.
+
+[formal-item [title Link External]]
+[verbatim [include "gen/InlineLinkExternal.txt"]]
+
+[subsection [title Footnote Reference] [id model.inline.footnote_ref]]
+
+[paragraph]
+The [term [type type] InlineFootnoteRef] type denotes a link to a
+[link [target model.block.footnote] footnote] within the current document.
+
+[paragraph]
+The value of the given [term [type expression] target]
+parameter must be equal to the value of the [term [type expression] id]
+parameter on an existing [link [target model.block.footnote] footnote] value.
+
+[formal-item [title Footnote Reference]]
+[verbatim [include "gen/InlineFootnoteRef.txt"]]
+
+[subsection [title Ordered List] [id model.inline.list_ordered]]
+
+[paragraph]
+The [term [type type] InlineListOrdered] type denotes a list of elements
+that should be understood to be [term [type term] ordered]. The individual
+elements of the list are denoted by values of the
+[term [type type] ListItem] type.
+
+[formal-item [title Ordered List] [id model.inline.list_item]]
+[verbatim [include "gen/ListItem.txt"]]
+
+[formal-item [title Ordered List]]
+[verbatim [include "gen/InlineListOrdered.txt"]]
+
+[subsection [title Unordered List] [id model.inline.list_unordered]]
+
+[paragraph]
+The [term [type type] InlineListUnordered] type denotes a list of elements
+that should be understood to be in no specific order.
+
+[formal-item [title Unordered List]]
+[verbatim [include "gen/InlineListUnordered.txt"]]
+
+[subsection [title Table] [id model.inline.table]]
+
+[paragraph]
+The [term [type type] InlineTable] type is a relatively complex type that
+describes a table consisting of [term [type term] rows], with each row
+consisting of a number of [term [type term] cells].
+
+[formal-item [title Table Cell]]
+[verbatim [include "gen/TableCell.txt"]]
+
+[formal-item [title Table Row]]
+[verbatim [include "gen/TableRow.txt"]]
+
+[formal-item [title Table]]
+[verbatim [include "gen/InlineTable.txt"]]
+
+[paragraph]
+A table may have an optional [term [type term] head] that describes the
+number and names of columns in the table.
+
+[formal-item [title Table Head]]
+[verbatim [include "gen/TableRow.txt"]]
+
+[paragraph]
+Implementations are required to check that, if a head is defined, the
+number of cells in each table row is equal to the number of column names
+defined in the head.
+
+[formal-item [title Table Check]]
+[verbatim [include "gen/TableCheck.txt"]]
+
+[paragraph]
+Tables may not be nested. That is, the inline content that may appear
+inside a table cell must not contain a table.
+
+[formal-item [title Table Cell Content]]
+[verbatim [include "gen/TableCellContent.txt"]]
+
+[subsection [title Include] [id model.inline.include]]
+
+[paragraph]
+The [term [type type] InlineInclude] type denotes a link to an external
+file. Values of type [term [type type] InlineInclude] do not actually appear
+in documents directly: They are replaced with the contents of the referenced
+file as if they had been inserted as a single quoted string.
+
+[formal-item [title Include]]
+[verbatim [include "gen/InlineInclude.txt"]]
+
+[subsection [title Complete Inline Model] [id model.inline.complete]]
+
+[formal-item [title Type Model]]
+[verbatim [include "InlineContent.hs"]]

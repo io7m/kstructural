@@ -1,0 +1,11 @@
+[part [title Tutorial] [id tutorial]]
+[section [title Overview]]
+[paragraph]
+The [term [type package] structural] language is intended to be syntactically
+lightweight language for writing technical documentation.
+
+[paragraph]
+The language is currently missing a tutorial, so instead, here is the source
+code for the documentation that you are currently reading.
+
+[import "listing.sd"]

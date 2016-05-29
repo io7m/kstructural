@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.io7m.kstructural</groupId>
+    <artifactId>io7m-kstructural</artifactId>
+    <version>0.1.0</version>
+  </parent>
+  <artifactId>io7m-kstructural-cmdline</artifactId>
+
+  <packaging>jar</packaging>
+  <name>io7m-kstructural-cmdline</name>
+  <description>Kotlin implementation of the structural document language (Command line tool)</description>
+  <url>http://io7m.github.io/kstructural/</url>
+
+  <scm>
+    <url>${project.parent.scm.url}</url>
+    <connection>${project.parent.scm.connection}</connection>
+    <developerConnection>${project.parent.scm.developerConnection}</developerConnection>
+  </scm>
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>io7m-kstructural-frontend</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.beust</groupId>
+      <artifactId>jcommander</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.valid4j</groupId>
+      <artifactId>valid4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.java.quickcheck</groupId>
+      <artifactId>quickcheck</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Check style -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+        </configuration>
+      </plugin>
+
+      <!-- Produce command-line onejar -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <minimizeJar>true</minimizeJar>
+              <shadedClassifierName>main</shadedClassifierName>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <manifestEntries>
+                    <Main-Class>com.io7m.kstructural.cmdline.KSCLMain</Main-Class>
+                  </manifestEntries>
+                </transformer>
+              </transformers>
+              <filters>
+                <filter>
+                  <artifact>org.valid4j:valid4j</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
+                <filter>
+                  <artifact>xerces:xercesImpl</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
+                <filter>
+                  <artifact>com.thaiopensource:jing</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

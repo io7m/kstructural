@@ -1,0 +1,3 @@
+data InlineListUnordered = InlineListUnordered {
+  listUnorderedItems :: [ListItem]
+} deriving Eq

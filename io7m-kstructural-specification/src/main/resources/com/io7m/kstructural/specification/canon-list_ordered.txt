@@ -1,0 +1,11 @@
+canon_list_item_name =
+  (#exact-symbol "item")
+
+canon_list_item =
+  (#variadic [canon_list_item_name] canon_inline)
+
+canon_list_ordered_name =
+  (#exact-symbol "list-ordered")
+
+canon_list_ordered =
+  (#variadic [canon_list_ordered_name] canon_list_item)

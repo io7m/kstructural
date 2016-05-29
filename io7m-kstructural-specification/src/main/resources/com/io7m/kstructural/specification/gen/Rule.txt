@@ -1,0 +1,11 @@
+data Rule
+  = MAnySymbol
+  | MAnyQuoted
+  | MAnyList
+  | MExactSymbol String
+  | MExactQuoted String
+  | MExactList [Rule]
+  | MChoice [Rule]
+  | MListVariadic [Rule] Rule
+  deriving Eq
+

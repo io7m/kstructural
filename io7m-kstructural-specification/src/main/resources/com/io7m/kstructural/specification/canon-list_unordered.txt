@@ -1,0 +1,5 @@
+canon_list_unordered_name =
+  (#exact-symbol "list-unordered")
+
+canon_list_unordered =
+  (#variadic [canon_list_unordered_name] canon_list_item)

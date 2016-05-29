@@ -1,0 +1,9 @@
+[subsection [title An example subsection]]
+[paragraph]
+This is some content for the first paragraph.
+[paragraph]
+This is some [term [type emphasis] content] for the second paragraph.
+
+[subsection [title Another example subsection]]
+[paragraph]
+This is some content for the first paragraph of the next section.

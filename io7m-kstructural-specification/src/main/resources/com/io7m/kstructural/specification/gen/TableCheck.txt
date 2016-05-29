@@ -1,0 +1,9 @@
+tableCheck :: InlineTable -> Bool
+tableCheck table =
+  case (tableHead table) of
+    Nothing -> True
+    Just th ->
+      let rows     = tableBodyRows $ tableBody table
+          expected = length $ tableHeadNames th
+      in all (\row -> length (tableRowCells row) == expected) rows
+

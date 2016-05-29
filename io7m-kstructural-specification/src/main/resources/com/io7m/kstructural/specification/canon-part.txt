@@ -1,0 +1,11 @@
+canon_part_name =
+  (#exact-symbol "part")
+
+canon_part =
+  (#choice [
+    (#variadic [canon_part_name canon_title] canon_section)
+    (#variadic [canon_part_name canon_title canon_id] canon_section)
+    (#variadic [canon_part_name canon_title canon_id canon_type] canon_section)
+    (#variadic [canon_part_name canon_title canon_type canon_id] canon_section)
+    (#variadic [canon_part_name canon_title canon_type] canon_section)
+  ])

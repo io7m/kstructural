@@ -1,0 +1,11 @@
+canon_type =
+  (#exact-list [#exact-symbol "type"] #any-symbol)
+
+canon_term_name =
+  (#exact-symbol "term")
+
+canon_term =
+  (#choice [
+    (#variadic [canon_term_name] canon_text_or_include)
+    (#variadic [canon_term_name canon_type] canon_text_or_include)
+  ])
