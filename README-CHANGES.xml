@@ -3,12 +3,12 @@
   <c:project>io7m-kstructural</c:project>
 
   <c:release c:ticket-system="com.github.io7m.kstructural">
-    <c:date>2016-04-27</c:date>
+    <c:date>2016-05-29</c:date>
     <c:version>0.1.0</c:version>
     <c:item>
-      <c:date>2016-04-27</c:date>
+      <c:date>2016-05-29</c:date>
       <c:type-code-new/>
-      <c:summary>Initial code.</c:summary>
+      <c:summary>Initial release.</c:summary>
     </c:item>
   </c:release>
 
