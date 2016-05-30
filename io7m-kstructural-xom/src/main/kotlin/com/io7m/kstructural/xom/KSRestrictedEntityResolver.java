@@ -7,6 +7,7 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -14,6 +15,7 @@ import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 
 /**
@@ -59,11 +61,21 @@ public final class KSRestrictedEntityResolver implements EntityResolver
         final FileSystem fs = this.base_directory.getFileSystem();
         final Path path = fs.getPath(content_uri.getPath()).toAbsolutePath();
         if (path.startsWith(this.base_directory)) {
-          final InputStream stream =
-            Files.newInputStream(path, LinkOption.NOFOLLOW_LINKS);
-          final InputSource source = new InputSource(stream);
-          source.setSystemId(system_id);
-          return source;
+          try {
+            final InputStream stream =
+              Files.newInputStream(path, LinkOption.NOFOLLOW_LINKS);
+            final InputSource source = new InputSource(stream);
+            source.setSystemId(system_id);
+            return source;
+          } catch (final FileNotFoundException | NoSuchFileException e) {
+            final StringBuilder sb = new StringBuilder(128);
+            sb.append("File not found.");
+            sb.append(System.lineSeparator());
+            sb.append("  File: ");
+            sb.append(path);
+            sb.append(System.lineSeparator());
+            throw new IOException(sb.toString(), e);
+          }
         }
       }
 
