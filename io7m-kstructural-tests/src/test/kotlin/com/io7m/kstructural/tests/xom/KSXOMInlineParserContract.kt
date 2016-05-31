@@ -115,6 +115,16 @@ abstract class KSXOMInlineParserContract {
   }
 
   @Test
+  fun testImageErrorSourceBug47() {
+    val n = parseXML("""<s:image xmlns:s="${NAMESPACE}" s:source="x x x">xyz</s:image>""")
+    val p = parser()
+    val c = defaultContext()
+    val r = p.parse(c, n)
+
+    r as KSFailure
+  }
+
+  @Test
   fun testImageSize() {
     val n = parseXML("""<s:image xmlns:s="${NAMESPACE}" s:width="640" s:height="480" s:target="http://example.com">xyz</s:image>""")
     val p = parser()

@@ -514,7 +514,20 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
   private fun parseTargetURI(
     element : Element) : KSResult<URI, KSParseError> {
-    val ta = element.getAttribute("target", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    val ta = element.getAttribute(
+      "target", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+
+    if (ta == null) {
+      val sb = StringBuilder()
+      sb.append("Missing target attribute.")
+      sb.append(System.lineSeparator())
+      sb.append("  Received: ")
+      sb.append(element)
+      sb.append(System.lineSeparator())
+      return KSResult.fail<URI, KSParseError>(
+        KSParseError(no_lex, sb.toString()))
+    }
+
     return try {
       succeed(URI(ta.value))
     } catch (x : URISyntaxException) {
