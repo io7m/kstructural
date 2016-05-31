@@ -180,7 +180,7 @@ abstract class KSXOMInlineParserContract {
 
   @Test
   fun testLinkInvalidID() {
-    val n = parseXML("""<s:link xmlns:s="${NAMESPACE}" s:target="-">xyz</s:link>""")
+    val n = parseXML("""<s:link xmlns:s="${NAMESPACE}" s:target="+">xyz</s:link>""")
     val p = parser()
     val c = defaultContext()
     val r = p.parse(c, n)

@@ -52,7 +52,7 @@ abstract class KSXOMBlockParserContract {
 
   @Test
   fun testParagraphInvalidID() {
-    val n = parseXML("""<s:paragraph xmlns:s="${NAMESPACE}" xml:id="-">x y z</s:paragraph>""")
+    val n = parseXML("""<s:paragraph xmlns:s="${NAMESPACE}" xml:id="+">x y z</s:paragraph>""")
     val p = parser()
     val c = defaultContext()
     val r = p.parse(c, n)
@@ -194,7 +194,7 @@ abstract class KSXOMBlockParserContract {
 
   @Test
   fun testFootnoteInvalidId() {
-    val n = parseXML("""<s:footnote xml:id="-" xmlns:s="${NAMESPACE}">x y z</s:footnote>""")
+    val n = parseXML("""<s:footnote xml:id="+" xmlns:s="${NAMESPACE}">x y z</s:footnote>""")
     val p = parser()
     val c = defaultContext()
     val r = p.parse(c, n)

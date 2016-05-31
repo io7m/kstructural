@@ -214,7 +214,7 @@ abstract class KSCanonInlineParserContract {
   }
 
   @Test fun testInlineLinkInternalErrorInvalidID() {
-    val pp = newParserForString("[link [target \"-\"] y]")
+    val pp = newParserForString("[link [target \"&\"] y]")
     val i = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s(), defaultFile())
 
     i as KSFailure
