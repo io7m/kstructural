@@ -307,7 +307,13 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
       KSResult.succeed<KSID<KSParse>, KSParseError>(
         KSID.create(no_lex, text, KSParse(context)))
     } else {
-      KSResult.fail(KSParseError(no_lex, "Not a valid identifier"))
+      val sb = StringBuilder()
+      sb.append("Invalid identifier.")
+      sb.append(System.lineSeparator())
+      sb.append("  Received: ")
+      sb.append(text)
+      sb.append(System.lineSeparator())
+      KSResult.fail(KSParseError(no_lex, sb.toString()))
     }
   }
 
@@ -557,7 +563,13 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
         KSResult.succeed(Optional.of(
           KSType.create(no_lex, ta.value, KSParse(context))))
       } else {
-        KSResult.fail(KSParseError(no_lex, "Not a valid identifier"))
+        val sb = StringBuilder()
+        sb.append("Invalid type name.")
+        sb.append(System.lineSeparator())
+        sb.append("  Received: ")
+        sb.append(ta.value)
+        sb.append(System.lineSeparator())
+        KSResult.fail(KSParseError(no_lex, sb.toString()))
       }
     } else {
       KSResult.succeed(Optional.empty())

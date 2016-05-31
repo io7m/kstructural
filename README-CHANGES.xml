@@ -11,6 +11,11 @@
       <c:ticket>47</c:ticket>
       <c:summary>Corrected an XML schema/code mismatch. Images have s:target attributes, not s:source.</c:summary>
     </c:item>
+    <c:item>
+      <c:date>2016-05-31</c:date>
+      <c:type-code-fix/>
+      <c:summary>Improved XML parser error messages.</c:summary>
+    </c:item>
   </c:release>
 
   <c:release c:ticket-system="com.github.io7m.kstructural">
