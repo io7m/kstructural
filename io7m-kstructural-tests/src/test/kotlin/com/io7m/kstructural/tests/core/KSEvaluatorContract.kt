@@ -1282,4 +1282,17 @@ abstract class KSEvaluatorContract {
     r as KSSuccess<KSBlockDocumentWithSections<KSEvaluation>, *>
     Assert.assertEquals(1, r.result.data.context.imports.size)
   }
+
+  @Test fun testFormalItemContentFootnoteRefBug44() {
+    val ee = newEvaluatorForString("""
+[document (title dt)
+  (section [title s]
+    [formal-item (title q)
+      (footnote-ref nonexistent)])]
+""")
+
+    val i = ee.s(defaultFile())
+    val r = ee.e.evaluate(i, defaultFile())
+    r as KSFailure
+  }
 }
