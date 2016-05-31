@@ -33,6 +33,12 @@
       <c:ticket>44</c:ticket>
       <c:summary>Stop crashing on nonexistent footnotes.</c:summary>
     </c:item>
+    <c:item>
+      <c:date>2016-05-31</c:date>
+      <c:type-code-fix/>
+      <c:ticket>43</c:ticket>
+      <c:summary>Improve imperative parser error messages.</c:summary>
+    </c:item>
   </c:release>
 
   <c:release c:ticket-system="com.github.io7m.kstructural">
