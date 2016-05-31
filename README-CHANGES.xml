@@ -16,6 +16,17 @@
       <c:type-code-fix/>
       <c:summary>Improved XML parser error messages.</c:summary>
     </c:item>
+    <c:item>
+      <c:date>2016-05-31</c:date>
+      <c:type-code-new/>
+      <c:summary>Allow '-' in identifiers for compatibility with old documents.</c:summary>
+    </c:item>
+    <c:item>
+      <c:date>2016-05-31</c:date>
+      <c:type-code-fix/>
+      <c:ticket>48</c:ticket>
+      <c:summary>Correct XML list parsing.</c:summary>
+    </c:item>
   </c:release>
 
   <c:release c:ticket-system="com.github.io7m.kstructural">

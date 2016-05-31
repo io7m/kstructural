@@ -241,7 +241,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
     val kp = KSParse(context)
     val act_content = KSResult.listMap(
-      { e -> parseListItem(context, e) }, listOfChildren(element))
+      { e -> parseListItem(context, e) }, listOfChildElements(element))
 
     return act_content.flatMap { content ->
       succeed(KSInlineListOrdered(no_lex, false, kp, content))
@@ -256,7 +256,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
     val kp = KSParse(context)
     val act_content = KSResult.listMap(
-      { e -> parseListItem(context, e) }, listOfChildren(element))
+      { e -> parseListItem(context, e) }, listOfChildElements(element))
 
     return act_content.flatMap { content ->
       succeed(KSInlineListUnordered(no_lex, false, kp, content))
@@ -265,7 +265,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
   private fun parseListItem(
     context : KSParseContextType,
-    e : Node)
+    e : Element)
     : KSResult<KSListItem<KSParse>, KSParseError> {
 
     val fail = {
@@ -281,18 +281,14 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
         KSParseError(no_lex, sb.toString()))
     }
 
-    return if (e is Element) {
-      if (e.localName == "item") {
-        val kp = KSParse(context)
-        val act_content = KSResult.listMap(
-          { e -> parse(context, e) },
-          KSXOMTokenizer.tokenizeNodes(listOfChildren(e)))
+    return if (e.localName == "item") {
+      val kp = KSParse(context)
+      val act_content = KSResult.listMap(
+        { e -> parse(context, e) },
+        KSXOMTokenizer.tokenizeNodes(listOfChildren(e)))
 
-        return act_content.flatMap { content ->
-          succeed(KSListItem(no_lex, false, kp, content))
-        }
-      } else {
-        fail.invoke()
+      return act_content.flatMap { content ->
+        succeed(KSListItem(no_lex, false, kp, content))
       }
     } else {
       fail.invoke()
