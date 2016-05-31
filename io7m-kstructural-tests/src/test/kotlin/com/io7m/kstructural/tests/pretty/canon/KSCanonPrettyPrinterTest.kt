@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory
 import java.io.StringWriter
 import java.nio.file.FileSystem
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.util.Optional
 import java.util.function.Function
 

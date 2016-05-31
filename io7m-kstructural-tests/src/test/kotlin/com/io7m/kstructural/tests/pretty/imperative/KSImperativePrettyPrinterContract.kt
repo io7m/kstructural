@@ -16,6 +16,7 @@
 
 package com.io7m.kstructural.tests.pretty.imperative
 
+import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.evaluator.KSEvaluation
 import org.apache.commons.io.IOUtils
@@ -480,5 +481,120 @@ p
 [term "\"t\""]
 """.trim(),
       imports = false)
+  }
+
+  @Test fun testEscape0_Bug51() {
+
+    val text_start = """
+[document [title "(x"]]
+"""
+    val path = defaultFile()
+    Files.newOutputStream(path).use { os ->
+      IOUtils.write(text_start, os, StandardCharsets.UTF_8)
+    }
+
+    val d : KSBlockDocument.KSBlockDocumentWithSections<KSEvaluation> =
+      parse(path) as KSBlockDocument.KSBlockDocumentWithSections<KSEvaluation>
+
+    val title = d.title.map { t ->
+      KSElement.KSInline.KSInlineText(t.position, t.square, t.data, false, t.text)
+    }
+
+    val dx = KSBlockDocument.KSBlockDocumentWithSections(
+      d.position, d.square, d.data, d.id, d.type, title, d.content)
+
+    val s = serialize(dx, false)
+    Files.newOutputStream(path).use { os ->
+      IOUtils.write(s, os, StandardCharsets.UTF_8)
+    }
+
+    parse(defaultFile())
+  }
+
+  @Test fun testEscape1_Bug51() {
+
+    val text_start = """
+[document [title "[x"]]
+"""
+
+    val path = defaultFile()
+    Files.newOutputStream(path).use { os ->
+      IOUtils.write(text_start, os, StandardCharsets.UTF_8)
+    }
+
+    val d : KSBlockDocument.KSBlockDocumentWithSections<KSEvaluation> =
+      parse(path) as KSBlockDocument.KSBlockDocumentWithSections<KSEvaluation>
+
+    val title = d.title.map { t ->
+      KSElement.KSInline.KSInlineText(t.position, t.square, t.data, false, t.text)
+    }
+
+    val dx = KSBlockDocument.KSBlockDocumentWithSections(
+      d.position, d.square, d.data, d.id, d.type, title, d.content)
+
+    val s = serialize(dx, false)
+    Files.newOutputStream(path).use { os ->
+      IOUtils.write(s, os, StandardCharsets.UTF_8)
+    }
+
+    parse(defaultFile())
+  }
+
+  @Test fun testEscape2_Bug51() {
+
+    val text_start = """
+[document [title "x)"]]
+"""
+
+    val path = defaultFile()
+    Files.newOutputStream(path).use { os ->
+      IOUtils.write(text_start, os, StandardCharsets.UTF_8)
+    }
+
+    val d : KSBlockDocument.KSBlockDocumentWithSections<KSEvaluation> =
+      parse(path) as KSBlockDocument.KSBlockDocumentWithSections<KSEvaluation>
+
+    val title = d.title.map { t ->
+      KSElement.KSInline.KSInlineText(t.position, t.square, t.data, false, t.text)
+    }
+
+    val dx = KSBlockDocument.KSBlockDocumentWithSections(
+      d.position, d.square, d.data, d.id, d.type, title, d.content)
+
+    val s = serialize(dx, false)
+    Files.newOutputStream(path).use { os ->
+      IOUtils.write(s, os, StandardCharsets.UTF_8)
+    }
+
+    parse(defaultFile())
+  }
+
+  @Test fun testEscape3_Bug51() {
+
+    val text_start = """
+[document [title "x]"]]
+"""
+
+    val path = defaultFile()
+    Files.newOutputStream(path).use { os ->
+      IOUtils.write(text_start, os, StandardCharsets.UTF_8)
+    }
+
+    val d : KSBlockDocument.KSBlockDocumentWithSections<KSEvaluation> =
+      parse(path) as KSBlockDocument.KSBlockDocumentWithSections<KSEvaluation>
+
+    val title = d.title.map { t ->
+      KSElement.KSInline.KSInlineText(t.position, t.square, t.data, false, t.text)
+    }
+
+    val dx = KSBlockDocument.KSBlockDocumentWithSections(
+      d.position, d.square, d.data, d.id, d.type, title, d.content)
+
+    val s = serialize(dx, false)
+    Files.newOutputStream(path).use { os ->
+      IOUtils.write(s, os, StandardCharsets.UTF_8)
+    }
+
+    parse(defaultFile())
   }
 }
