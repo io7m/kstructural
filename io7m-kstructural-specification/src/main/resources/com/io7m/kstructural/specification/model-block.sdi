@@ -16,7 +16,8 @@ intra-document links to content.
 
 [paragraph]
 Identifiers are restricted to combinations of letters, numbers,
-[term [type constant] "U+005F \"_\""],  and
+[term [type constant] "U+005F \"_\""],
+[term [type constant] "U+002D \"-\""], and
 [term [type constant] "U+002E \".\""].
 
 [formal-item [title Identifier Syntax]]

@@ -1142,7 +1142,7 @@ abstract class KSCanonBlockParserContract {
   }
 
   @Test fun testIDInvalid() {
-    val pp = newParserForString("[paragraph [id -] Hello.]")
+    val pp = newParserForString("[paragraph [id &] Hello.]")
     val e = pp.p.parse(KSParseContext.empty(rootDirectory()), pp.s.invoke(), defaultFile())
 
     e as KSFailure

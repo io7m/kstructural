@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.io7m.kstructural</groupId>
   <artifactId>io7m-kstructural</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
 
   <packaging>pom</packaging>
   <name>io7m-kstructural</name>
@@ -116,17 +116,17 @@
       <dependency>
         <groupId>com.io7m.jsx</groupId>
         <artifactId>io7m-jsx-core</artifactId>
-        <version>0.5.0</version>
+        <version>0.5.1</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jsx</groupId>
         <artifactId>io7m-jsx-parser</artifactId>
-        <version>0.5.0</version>
+        <version>0.5.1</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jsx</groupId>
         <artifactId>io7m-jsx-prettyprint</artifactId>
-        <version>0.5.0</version>
+        <version>0.5.1</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jlexing</groupId>

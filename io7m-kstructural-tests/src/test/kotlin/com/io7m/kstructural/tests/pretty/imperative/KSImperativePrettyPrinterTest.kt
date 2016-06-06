@@ -32,7 +32,6 @@ import com.io7m.kstructural.core.evaluator.KSEvaluator
 import com.io7m.kstructural.frontend.KSParsers
 import com.io7m.kstructural.pretty.imperative.KSImperativePrettyPrinter
 import com.io7m.kstructural.tests.KSTestFilesystems
-import com.io7m.kstructural.tests.pretty.imperative.KSImperativePrettyPrinterContract
 import org.slf4j.LoggerFactory
 import java.io.StringWriter
 import java.nio.file.FileSystem

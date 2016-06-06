@@ -569,42 +569,58 @@ object KSEvaluator : KSEvaluatorType {
         val target = p.first
 
         LOG.trace("check footnote ref: {}", target)
-        val r = this.blocks_by_id.get(target.value)!!
-        when (r) {
-          is KSBlockFootnote -> {
-            KSResult.succeed<Unit, KSEvaluationError>(Unit)
+        if (!this.blocks_by_id.containsKey(target.value)) {
+          LOG.debug("nonexistent footnote {}", target.value)
+          val sb = StringBuilder()
+          sb.append("Reference to nonexistent footnote.")
+          sb.append(System.lineSeparator())
+          sb.append("  Current: ")
+          sb.append(target.value)
+          target.position.ifPresent { pos ->
+            sb.append(" at ")
+            sb.append(pos)
           }
-          is KSBlockDocument,
-          is KSBlockSection,
-          is KSBlockSubsection,
-          is KSBlockParagraph,
-          is KSBlockImport,
-          is KSBlockFormalItem,
-          is KSBlockPart     -> {
-            val sb = StringBuilder()
-            sb.append("Footnote reference to non-footnote.")
-            sb.append(System.lineSeparator())
-            sb.append("  Reference: ")
-            sb.append(target)
-            sb.append(System.lineSeparator())
-            sb.append("  Target:    ")
-            sb.append(when (r) {
-              is KSBlockDocument   -> "document"
-              is KSBlockSection    -> "section"
-              is KSBlockSubsection -> "subsection"
-              is KSBlockParagraph  -> "paragraph"
-              is KSBlockFormalItem -> "formal-item"
-              is KSBlockFootnote   -> throw UnreachableCodeException()
-              is KSBlockPart       -> "part"
-              is KSBlockImport     -> "import"
-            })
-            target.position.ifPresent { pos ->
-              sb.append(" at ")
-              sb.append(pos)
+          sb.append(System.lineSeparator())
+          KSResult.fail<Unit, KSEvaluationError>(
+            KSEvaluationError(target.position, sb.toString()))
+        } else {
+          val r = this.blocks_by_id.get(target.value)!!
+          when (r) {
+            is KSBlockFootnote -> {
+              KSResult.succeed<Unit, KSEvaluationError>(Unit)
             }
-            sb.append(System.lineSeparator())
-            KSResult.fail<Unit, KSEvaluationError>(
-              KSEvaluationError(target.position, sb.toString()))
+            is KSBlockDocument,
+            is KSBlockSection,
+            is KSBlockSubsection,
+            is KSBlockParagraph,
+            is KSBlockImport,
+            is KSBlockFormalItem,
+            is KSBlockPart     -> {
+              val sb = StringBuilder()
+              sb.append("Footnote reference to non-footnote.")
+              sb.append(System.lineSeparator())
+              sb.append("  Reference: ")
+              sb.append(target)
+              sb.append(System.lineSeparator())
+              sb.append("  Target:    ")
+              sb.append(when (r) {
+                is KSBlockDocument   -> "document"
+                is KSBlockSection    -> "section"
+                is KSBlockSubsection -> "subsection"
+                is KSBlockParagraph  -> "paragraph"
+                is KSBlockFormalItem -> "formal-item"
+                is KSBlockFootnote   -> throw UnreachableCodeException()
+                is KSBlockPart       -> "part"
+                is KSBlockImport     -> "import"
+              })
+              target.position.ifPresent { pos ->
+                sb.append(" at ")
+                sb.append(pos)
+              }
+              sb.append(System.lineSeparator())
+              KSResult.fail<Unit, KSEvaluationError>(
+                KSEvaluationError(target.position, sb.toString()))
+            }
           }
         }
       }, refs)

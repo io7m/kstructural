@@ -507,7 +507,7 @@ abstract class KSImperativeParserContract {
   }
 
   @Test fun testInvalidIDError() {
-    val pp = newParserForString("[paragraph [id -]]")
+    val pp = newParserForString("[paragraph [id &]]")
     val e = pp.p.parse(defaultContext(), pp.s.invoke(), defaultFile())
 
     e as KSFailure

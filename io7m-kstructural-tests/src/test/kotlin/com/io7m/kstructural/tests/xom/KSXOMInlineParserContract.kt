@@ -115,6 +115,16 @@ abstract class KSXOMInlineParserContract {
   }
 
   @Test
+  fun testImageErrorSourceBug47() {
+    val n = parseXML("""<s:image xmlns:s="${NAMESPACE}" s:source="x x x">xyz</s:image>""")
+    val p = parser()
+    val c = defaultContext()
+    val r = p.parse(c, n)
+
+    r as KSFailure
+  }
+
+  @Test
   fun testImageSize() {
     val n = parseXML("""<s:image xmlns:s="${NAMESPACE}" s:width="640" s:height="480" s:target="http://example.com">xyz</s:image>""")
     val p = parser()
@@ -170,7 +180,7 @@ abstract class KSXOMInlineParserContract {
 
   @Test
   fun testLinkInvalidID() {
-    val n = parseXML("""<s:link xmlns:s="${NAMESPACE}" s:target="-">xyz</s:link>""")
+    val n = parseXML("""<s:link xmlns:s="${NAMESPACE}" s:target="+">xyz</s:link>""")
     val p = parser()
     val c = defaultContext()
     val r = p.parse(c, n)
@@ -250,8 +260,24 @@ abstract class KSXOMInlineParserContract {
   }
 
   @Test
+  fun testListOrderedSpacedBug48() {
+    val n = parseXML(
+"""<s:list-ordered xmlns:s="${NAMESPACE}">
+  <s:item>x</s:item>
+  <s:item>y</s:item>
+</s:list-ordered>""")
+    val p = parser()
+    val c = defaultContext()
+    val r = p.parse(c, n)
+
+    r as KSSuccess<KSInlineListOrdered<KSParse>, KSParseError>
+    val i = r.result
+    Assert.assertEquals(2, i.content.size)
+  }
+
+  @Test
   fun testListOrderedError() {
-    val n = parseXML("""<s:list-ordered xmlns:s="${NAMESPACE}">x</s:list-ordered>""")
+    val n = parseXML("""<s:list-ordered xmlns:s="${NAMESPACE}"><x/></s:list-ordered>""")
     val p = parser()
     val c = defaultContext()
     val r = p.parse(c, n)
@@ -272,8 +298,24 @@ abstract class KSXOMInlineParserContract {
   }
 
   @Test
+  fun testListUnorderedSpacedBug48() {
+    val n = parseXML(
+"""<s:list-unordered xmlns:s="${NAMESPACE}">
+  <s:item>x</s:item>
+  <s:item>y</s:item>
+</s:list-unordered>""")
+    val p = parser()
+    val c = defaultContext()
+    val r = p.parse(c, n)
+
+    r as KSSuccess<KSInlineListUnordered<KSParse>, KSParseError>
+    val i = r.result
+    Assert.assertEquals(2, i.content.size)
+  }
+
+  @Test
   fun testListUnorderedError() {
-    val n = parseXML("""<s:list-unordered xmlns:s="${NAMESPACE}">x</s:list-unordered>""")
+    val n = parseXML("""<s:list-unordered xmlns:s="${NAMESPACE}"><x/></s:list-unordered>""")
     val p = parser()
     val c = defaultContext()
     val r = p.parse(c, n)

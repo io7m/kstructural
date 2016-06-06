@@ -49,6 +49,8 @@ import java.util.Optional
 class KSXOMBlockParser private constructor(
   private val inlines : KSXOMInlineParserType) : KSXOMBlockParserType {
 
+  private val SQUARE = true
+
   override fun parse(
     context : KSParseContextType,
     element : Element) : KSResult<KSBlock<KSParse>, KSParseError> {
@@ -156,18 +158,18 @@ class KSXOMBlockParser private constructor(
               KSResult.listMap({ s -> toPart(s) }, content).flatMap {
                 parts ->
                 succeed(KSBlockDocument.KSBlockDocumentWithParts(
-                  no_lex, false, kp, id, type, title, parts))
+                  no_lex, SQUARE, kp, id, type, title, parts))
               }
             } else {
               KSResult.listMap({ s -> toSection(s) }, content).flatMap {
                 sections ->
                 succeed(KSBlockDocumentWithSections(
-                  no_lex, false, kp, id, type, title, sections))
+                  no_lex, SQUARE, kp, id, type, title, sections))
               }
             }
           } else {
             succeed(KSBlockDocumentWithParts(
-              no_lex, false, kp, id, type, title, listOf()))
+              no_lex, SQUARE, kp, id, type, title, listOf()))
           }
         }
       }
@@ -216,7 +218,7 @@ class KSXOMBlockParser private constructor(
       act_content.flatMap { content ->
         act_type.flatMap { type ->
           KSResult.listMap({ s -> toSubsectionContent(s) }, content).flatMap { content ->
-            succeed(KSBlockSubsection(no_lex, false, kp, type, id, title, content))
+            succeed(KSBlockSubsection(no_lex, SQUARE, kp, type, id, title, content))
           }
         }
       }
@@ -245,18 +247,18 @@ class KSXOMBlockParser private constructor(
               KSResult.listMap({ s -> checkSubsection(s) }, content).flatMap {
                 subsections ->
                 succeed(KSBlockSection.KSBlockSectionWithSubsections(
-                  no_lex, false, kp, type, id, title, subsections))
+                  no_lex, SQUARE, kp, type, id, title, subsections))
               }
             } else {
               KSResult.listMap({ s -> toSubsectionContent(s) }, content).flatMap {
                 content ->
                 succeed(KSBlockSection.KSBlockSectionWithContent(
-                  no_lex, false, kp, type, id, title, content))
+                  no_lex, SQUARE, kp, type, id, title, content))
               }
             }
           } else {
             succeed(KSBlockSection.KSBlockSectionWithSubsections(
-              no_lex, false, kp, type, id, title, listOf()))
+              no_lex, SQUARE, kp, type, id, title, listOf()))
           }
         }
       }
@@ -267,7 +269,7 @@ class KSXOMBlockParser private constructor(
     context : KSParseContextType,
     element : Element) : List<KSInlineText<KSParse>> {
     val tt = element.getAttribute("title", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
-    return listOf(KSInlineText(no_lex, false, KSParse(context), false, tt.value))
+    return listOf(KSInlineText(no_lex, SQUARE, KSParse(context), false, tt.value))
   }
 
   private fun toSubsectionContent(
@@ -335,7 +337,7 @@ class KSXOMBlockParser private constructor(
     return act_id.flatMap { id ->
       act_content.flatMap { content ->
         act_type.flatMap { type ->
-          succeed(KSBlockParagraph(no_lex, false, kp, type, id, content))
+          succeed(KSBlockParagraph(no_lex, SQUARE, kp, type, id, content))
         }
       }
     }
@@ -356,7 +358,7 @@ class KSXOMBlockParser private constructor(
     return act_id.flatMap { id ->
       act_content.flatMap { content ->
         act_type.flatMap { type ->
-          succeed(KSBlockFootnote(no_lex, false, kp, id, type, content))
+          succeed(KSBlockFootnote(no_lex, SQUARE, kp, id, type, content))
         }
       }
     }
@@ -378,7 +380,7 @@ class KSXOMBlockParser private constructor(
     return act_id.flatMap { id ->
       act_content.flatMap { content ->
         act_type.flatMap { type ->
-          succeed(KSBlockFormalItem(no_lex, false, kp, type, id, title, content))
+          succeed(KSBlockFormalItem(no_lex, SQUARE, kp, type, id, title, content))
         }
       }
     }
@@ -401,7 +403,7 @@ class KSXOMBlockParser private constructor(
     return act_id.flatMap { id ->
       act_content.flatMap { content ->
         act_type.flatMap { type ->
-          succeed(KSBlockPart(no_lex, false, kp, type, id, title, content))
+          succeed(KSBlockPart(no_lex, SQUARE, kp, type, id, title, content))
         }
       }
     }

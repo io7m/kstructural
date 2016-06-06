@@ -30,11 +30,11 @@ public final class KSSExprEscape
    * A translator to escape quotes in strings.
    */
 
-  public static final CharSequenceTranslator SEXPR_ESCAPE;
+  public static final CharSequenceTranslator SEXPR_STRING_ESCAPE;
 
   static {
-    SEXPR_ESCAPE = new LookupTranslator(
-      new String[][] {
+    SEXPR_STRING_ESCAPE = new LookupTranslator(
+      new String[][]{
         {"\"", "\\\""},
         {"\\", "\\\\"},
       });
@@ -43,5 +43,41 @@ public final class KSSExprEscape
   private KSSExprEscape()
   {
     throw new UnreachableCodeException();
+  }
+
+  /**
+   * @param text The text
+   *
+   * @return {@code true} iff {@code text} contains any characters that would
+   * require escaping when rendered as s-expressions
+   */
+
+  public static boolean requiresQuoting(final String text)
+  {
+    int index = 0;
+    final int length = text.length();
+    while (true) {
+      if (index < length) {
+        final int cp = text.codePointAt(index);
+        if (cp == '(') {
+          return true;
+        }
+        if (cp == ')') {
+          return true;
+        }
+        if (cp == '[') {
+          return true;
+        }
+        if (cp == ']') {
+          return true;
+        }
+        if (cp == '"') {
+          return true;
+        }
+        index += Character.charCount(cp);
+      } else {
+        return false;
+      }
+    }
   }
 }

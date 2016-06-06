@@ -136,10 +136,15 @@ class KSCanonPrettyPrinter<T> private constructor(
 
   private fun prettyEscapedText(e : KSInlineText<T>) : Unit {
     if (e.quote) {
-      val et = KSSExprEscape.SEXPR_ESCAPE.translate(e.text)
+      val et = KSSExprEscape.SEXPR_STRING_ESCAPE.translate(e.text)
       layout.print(String.format("\"%s\"", et))
     } else {
-      layout.print(e.text)
+      if (KSSExprEscape.requiresQuoting(e.text)) {
+        val et = KSSExprEscape.SEXPR_STRING_ESCAPE.translate(e.text)
+        layout.print(String.format("\"%s\"", et))
+      } else {
+        layout.print(e.text)
+      }
     }
   }
 

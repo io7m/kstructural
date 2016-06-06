@@ -35,25 +35,45 @@ sealed class KSImperative(
 : KSLexicalType {
 
   sealed class KSImperativeCommand(
+    private val name : String,
     position : Optional<LexicalPositionType<Path>>,
     val square : Boolean,
     override val type : Optional<KSType<KSParse>>,
     override val id : Optional<KSID<KSParse>>)
   : KSImperative(position), KSTypeableType<KSParse>, KSIDableType<KSParse> {
 
+    override fun toString() : String {
+      val sb = StringBuilder()
+      sb.append(if (square) "[" else "(")
+      sb.append(name)
+      sb.append(" ")
+      id.ifPresent { id ->
+        sb.append("[id ")
+        sb.append(id.value)
+        sb.append("]")
+      }
+      type.ifPresent { type ->
+        sb.append("[type ")
+        sb.append(type.value)
+        sb.append("]")
+      }
+      sb.append(if (square) "]" else ")")
+      return sb.toString()
+    }
+
     class KSImperativeParagraph(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       type : Optional<KSType<KSParse>>,
       id : Optional<KSID<KSParse>>)
-    : KSImperativeCommand(position, square, type, id)
+    : KSImperativeCommand("paragraph", position, square, type, id)
 
     class KSImperativeFootnote(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       type : Optional<KSType<KSParse>>,
       val id_real : KSID<KSParse>)
-    : KSImperativeCommand(position, square, type, Optional.of(id_real))
+    : KSImperativeCommand("footnote", position, square, type, Optional.of(id_real))
 
     class KSImperativeDocument(
       position : Optional<LexicalPositionType<Path>>,
@@ -61,7 +81,7 @@ sealed class KSImperative(
       type : Optional<KSType<KSParse>>,
       id : Optional<KSID<KSParse>>,
       val title : List<KSInlineText<KSParse>>)
-    : KSImperativeCommand(position, square, type, id)
+    : KSImperativeCommand("document", position, square, type, id)
 
     class KSImperativePart(
       position : Optional<LexicalPositionType<Path>>,
@@ -69,7 +89,7 @@ sealed class KSImperative(
       type : Optional<KSType<KSParse>>,
       id : Optional<KSID<KSParse>>,
       val title : List<KSInlineText<KSParse>>)
-    : KSImperativeCommand(position, square, type, id)
+    : KSImperativeCommand("part", position, square, type, id)
 
     class KSImperativeSection(
       position : Optional<LexicalPositionType<Path>>,
@@ -77,7 +97,7 @@ sealed class KSImperative(
       type : Optional<KSType<KSParse>>,
       id : Optional<KSID<KSParse>>,
       val title : List<KSInlineText<KSParse>>)
-    : KSImperativeCommand(position, square, type, id)
+    : KSImperativeCommand("section", position, square, type, id)
 
     class KSImperativeSubsection(
       position : Optional<LexicalPositionType<Path>>,
@@ -85,7 +105,7 @@ sealed class KSImperative(
       type : Optional<KSType<KSParse>>,
       id : Optional<KSID<KSParse>>,
       val title : List<KSInlineText<KSParse>>)
-    : KSImperativeCommand(position, square, type, id)
+    : KSImperativeCommand("subsection", position, square, type, id)
 
     class KSImperativeFormalItem(
       position : Optional<LexicalPositionType<Path>>,
@@ -93,22 +113,28 @@ sealed class KSImperative(
       type : Optional<KSType<KSParse>>,
       id : Optional<KSID<KSParse>>,
       val title : List<KSInlineText<KSParse>>)
-    : KSImperativeCommand(position, square, type, id)
+    : KSImperativeCommand("formal-item", position, square, type, id)
 
     class KSImperativeImport(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       val import : KSBlockImport<KSParse>,
       val content : KSBlock<KSParse>)
-    : KSImperativeCommand(position, square, Optional.empty(), Optional.empty())
+    : KSImperativeCommand(
+      "import", position, square, Optional.empty(), Optional.empty())
   }
 
   class KSImperativeEOF(
     position : Optional<LexicalPositionType<Path>>)
-  : KSImperative(position)
+  : KSImperative(position) {
+    override fun toString() : String =
+      "EOF"
+  }
 
   class KSImperativeInline(
     val value : KSElement.KSInline<KSParse>)
-  : KSImperative(value.position)
+  : KSImperative(value.position) {
+    override fun toString() : String = value.toString()
+  }
 
 }
