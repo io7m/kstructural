@@ -57,6 +57,8 @@ import java.util.Optional
 
 class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
+  private val SQUARE = true
+
   override fun parse(
     context : KSParseContextType,
     node : Node) : KSResult<KSInline<KSParse>, KSParseError> {
@@ -107,7 +109,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
     val ta = element.getAttribute("target", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
     return parseID(context, ta.value).flatMap { id ->
-      succeed(KSInlineFootnoteReference(no_lex, false, KSParse(context), id))
+      succeed(KSInlineFootnoteReference(no_lex, SQUARE, KSParse(context), id))
     }
   }
 
@@ -143,7 +145,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
     return act_head.flatMap { head ->
       act_body.flatMap { body ->
         act_type.flatMap { type ->
-          succeed(KSInlineTable(no_lex, false, kp, type, summary, head, body))
+          succeed(KSInlineTable(no_lex, SQUARE, kp, type, summary, head, body))
         }
       }
     }
@@ -160,7 +162,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
       no_lex,
       false,
       kp,
-      listOf(KSInlineText(no_lex, false, kp, false, tt.value)))
+      listOf(KSInlineText(no_lex, SQUARE, kp, false, tt.value)))
   }
 
   private fun parseElementTableBody(
@@ -173,7 +175,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
       { c -> parseTableRow(context, c) }, listOfChildElements(element))
 
     return act_rows.flatMap { rows ->
-      succeed(KSTableBody(no_lex, false, KSParse(context), rows))
+      succeed(KSTableBody(no_lex, SQUARE, KSParse(context), rows))
     }
   }
 
@@ -187,7 +189,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
       { c -> parseTableCell(context, c) }, listOfChildElements(element))
 
     return act_cells.flatMap { cells ->
-      succeed(KSTableBodyRow(no_lex, false, KSParse(context), cells))
+      succeed(KSTableBodyRow(no_lex, SQUARE, KSParse(context), cells))
     }
   }
 
@@ -202,7 +204,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
       KSXOMTokenizer.tokenizeNodes(listOfChildren(element)))
 
     return act_content.flatMap { content ->
-      succeed(KSTableBodyCell(no_lex, false, KSParse(context), content))
+      succeed(KSTableBodyCell(no_lex, SQUARE, KSParse(context), content))
     }
   }
 
@@ -216,7 +218,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
       { c -> parseTableColumnName(context, c) }, listOfChildElements(element))
 
     return act_names.flatMap { names ->
-      succeed(KSTableHead(no_lex, false, KSParse(context), names))
+      succeed(KSTableHead(no_lex, SQUARE, KSParse(context), names))
     }
   }
 
@@ -229,7 +231,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
     val act_content = KSResult.listMap(
       { e -> parseInlineText(context, e) }, listOfChildren(element))
     return act_content.flatMap { content ->
-      succeed(KSTableHeadColumnName(no_lex, false, KSParse(context), content))
+      succeed(KSTableHeadColumnName(no_lex, SQUARE, KSParse(context), content))
     }
   }
 
@@ -244,7 +246,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
       { e -> parseListItem(context, e) }, listOfChildElements(element))
 
     return act_content.flatMap { content ->
-      succeed(KSInlineListOrdered(no_lex, false, kp, content))
+      succeed(KSInlineListOrdered(no_lex, SQUARE, kp, content))
     }
   }
 
@@ -259,7 +261,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
       { e -> parseListItem(context, e) }, listOfChildElements(element))
 
     return act_content.flatMap { content ->
-      succeed(KSInlineListUnordered(no_lex, false, kp, content))
+      succeed(KSInlineListUnordered(no_lex, SQUARE, kp, content))
     }
   }
 
@@ -288,7 +290,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
         KSXOMTokenizer.tokenizeNodes(listOfChildren(e)))
 
       return act_content.flatMap { content ->
-        succeed(KSListItem(no_lex, false, kp, content))
+        succeed(KSListItem(no_lex, SQUARE, kp, content))
       }
     } else {
       fail.invoke()
@@ -381,7 +383,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
     return act_content.flatMap { content ->
       act_type.flatMap { type ->
-        succeed(KSInlineTerm(no_lex, false, KSParse(context), type, content))
+        succeed(KSInlineTerm(no_lex, SQUARE, KSParse(context), type, content))
       }
     }
   }
@@ -394,9 +396,9 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
     val act_type = parseType(context, element)
     val kp = KSParse(context)
-    val content = KSInlineText(no_lex, false, kp, true, element.value)
+    val content = KSInlineText(no_lex, SQUARE, kp, true, element.value)
     return act_type.flatMap { type ->
-      succeed(KSInlineVerbatim(no_lex, false, kp, type, content))
+      succeed(KSInlineVerbatim(no_lex, SQUARE, kp, type, content))
     }
   }
 
@@ -417,7 +419,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
         act_content.flatMap { content ->
           act_type.flatMap { type ->
             succeed(KSInlineImage(
-              no_lex, false, KSParse(context), type, target, size, content))
+              no_lex, SQUARE, KSParse(context), type, target, size, content))
           }
         }
       }
@@ -466,7 +468,7 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
     : KSResult<KSInlineText<KSParse>, KSParseError> {
     if (e is Text) {
       return succeed(
-        KSInlineText(no_lex, false, KSParse(context), false, e.value))
+        KSInlineText(no_lex, SQUARE, KSParse(context), false, e.value))
     }
 
     val sb = StringBuilder()
