@@ -76,22 +76,6 @@ public final class KSParsers implements KSParserDriverConstructorType
     return KSCanonParserDriver.newDriver(KSParsers.INSTANCE);
   }
 
-  private static KSResult<KSBlock<KSParse>, KSParseError> failOutsideBase(
-    final Path file,
-    final Path base)
-  {
-    final StringBuilder sb = new StringBuilder(128);
-    sb.append("Refusing to import file outside of the base directory.");
-    sb.append(System.lineSeparator());
-    sb.append("  Base: ");
-    sb.append(base);
-    sb.append(System.lineSeparator());
-    sb.append("  File: ");
-    sb.append(file);
-    sb.append(System.lineSeparator());
-    return KSResults.fail(new KSParseError(Optional.empty(), "Unexpected EOF"));
-  }
-
   /**
    * Create a new imperative format parser.
    *
