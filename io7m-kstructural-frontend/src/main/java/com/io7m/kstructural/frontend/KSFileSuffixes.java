@@ -43,7 +43,7 @@ final class KSFileSuffixes
 
     final FileSystem fs = file.getFileSystem();
     return parent.resolve(fs.getPath(
-      KSFileSuffixes.replaceSuffix(file.getFileName().toString(), sd)));
+      KSFileSuffixes.replaceSuffix(f_name.toString(), sd)));
   }
 
   static String replaceSuffix(
