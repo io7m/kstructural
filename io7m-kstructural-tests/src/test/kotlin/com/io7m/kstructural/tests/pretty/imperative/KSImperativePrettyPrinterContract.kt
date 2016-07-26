@@ -417,8 +417,9 @@ x y z
   [summary x y z]
   [body
   [row
+    [type a]
     [cell x]
-    [cell y]
+    [cell [type b] y]
     [cell z]]
   [row
     [cell x]
@@ -435,17 +436,20 @@ x y z
 [table
   [summary x y z]
   [head
+    [type a]
     [name t]
-    [name u]
+    [name [type d] u]
     [name v]]
   [body
   [row
+    [type b]
     [cell x]
     [cell y]
     [cell z]]
   [row
+    [type c]
     [cell x]
-    [cell y]
+    [cell [type e] y]
     [cell z]]]]
 """.trim(), imports = false)
   }

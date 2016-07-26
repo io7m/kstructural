@@ -355,14 +355,14 @@ abstract class KSXOMInlineParserContract {
   fun testTableHead() {
     val n = parseXML("""
 <s:table s:summary="A B C" xmlns:s="${NAMESPACE}">
-  <s:head>
-    <s:name>A</s:name>
+  <s:head s:type="a">
+    <s:name s:type="b">A</s:name>
     <s:name>B</s:name>
     <s:name>C</s:name>
   </s:head>
   <s:body>
-    <s:row>
-      <s:cell>x</s:cell>
+    <s:row s:type="c">
+      <s:cell s:type="d">x</s:cell>
       <s:cell>y</s:cell>
     </s:row>
     <s:row>
@@ -380,8 +380,12 @@ abstract class KSXOMInlineParserContract {
     Assert.assertEquals("A B C", i.summary.content[0].text)
     val ih = i.head.get()
     Assert.assertEquals(3, ih.column_names.size)
+    Assert.assertEquals("a", ih.type.get().value)
+    Assert.assertEquals("b", ih.column_names[0].type.get().value)
     Assert.assertEquals(2, i.body.rows.size)
     Assert.assertEquals(2, i.body.rows[0].cells.size)
+    Assert.assertEquals("c", i.body.rows[0].type.get().value)
+    Assert.assertEquals("d", i.body.rows[0].cells[0].type.get().value)
     Assert.assertEquals(2, i.body.rows[1].cells.size)
   }
 

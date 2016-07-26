@@ -30,10 +30,11 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 
 abstract class KSCanonPrettyPrinterContract {
 
-  private val LOG = LoggerFactory.getLogger(KSImperativePrettyPrinterContract::class.java)
+  private val LOG = LoggerFactory.getLogger(KSCanonPrettyPrinterContract::class.java)
 
   protected abstract fun newFilesystem() : FileSystem
 
@@ -60,7 +61,9 @@ abstract class KSCanonPrettyPrinterContract {
     imports : Boolean) : Unit {
 
     val path = defaultFile()
-    Files.newOutputStream(path).use { os ->
+    Files.newOutputStream(path,
+      StandardOpenOption.TRUNCATE_EXISTING,
+      StandardOpenOption.CREATE).use { os ->
       IOUtils.write(text_start, os, StandardCharsets.UTF_8)
     }
 
@@ -532,13 +535,15 @@ abstract class KSCanonPrettyPrinterContract {
       [table
         [summary x y z]
         [head
+          [type a]
           [name t]
-          [name u]
+          [name [type b] u]
           [name v]]
         [body
           [row
+            [type d]
             [cell x]
-            [cell y]
+            [cell [type c] y]
             [cell z]]
           [row
             [cell x]

@@ -187,9 +187,12 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
     val act_cells = KSResult.listMap(
       { c -> parseTableCell(context, c) }, listOfChildElements(element))
+    val act_type = parseType(context, element)
 
     return act_cells.flatMap { cells ->
-      succeed(KSTableBodyRow(no_lex, SQUARE, KSParse(context), cells))
+      act_type.flatMap { type ->
+        succeed(KSTableBodyRow(no_lex, SQUARE, KSParse(context), cells, type))
+      }
     }
   }
 
@@ -202,9 +205,12 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
     val act_content = KSResult.listMap(
       { c -> parse(context, c) },
       KSXOMTokenizer.tokenizeNodes(listOfChildren(element)))
+    val act_type = parseType(context, element)
 
     return act_content.flatMap { content ->
-      succeed(KSTableBodyCell(no_lex, SQUARE, KSParse(context), content))
+      act_type.flatMap { type ->
+        succeed(KSTableBodyCell(no_lex, SQUARE, KSParse(context), content, type))
+      }
     }
   }
 
@@ -216,9 +222,12 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
     val act_names = KSResult.listMap(
       { c -> parseTableColumnName(context, c) }, listOfChildElements(element))
+    val act_type = parseType(context, element)
 
     return act_names.flatMap { names ->
-      succeed(KSTableHead(no_lex, SQUARE, KSParse(context), names))
+      act_type.flatMap { type ->
+        succeed(KSTableHead(no_lex, SQUARE, KSParse(context), names, type))
+      }
     }
   }
 
@@ -230,8 +239,12 @@ class KSXOMInlineParser private constructor() : KSXOMInlineParserType {
 
     val act_content = KSResult.listMap(
       { e -> parseInlineText(context, e) }, listOfChildren(element))
+    val act_type = parseType(context, element)
+
     return act_content.flatMap { content ->
-      succeed(KSTableHeadColumnName(no_lex, SQUARE, KSParse(context), content))
+      act_type.flatMap { type ->
+        succeed(KSTableHeadColumnName(no_lex, SQUARE, KSParse(context), content, type))
+      }
     }
   }
 

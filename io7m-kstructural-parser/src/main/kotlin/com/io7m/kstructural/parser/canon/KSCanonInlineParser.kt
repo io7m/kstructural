@@ -176,6 +176,8 @@ class KSCanonInlineParser private constructor(
       KSExpressionMatch.exactSymbol("head")
     val head =
       KSExpressionMatch.prefixOfList(listOf(head_name))
+    val head_type =
+      KSExpressionMatch.prefixOfList(listOf(head_name, type))
 
     val body_name =
       KSExpressionMatch.exactSymbol("body")
@@ -186,16 +188,22 @@ class KSCanonInlineParser private constructor(
       KSExpressionMatch.exactSymbol("name")
     val name =
       KSExpressionMatch.prefixOfList(listOf(name_name))
+    val name_type =
+      KSExpressionMatch.prefixOfList(listOf(name_name, type))
 
     val row_name =
       KSExpressionMatch.exactSymbol("row")
     val row =
       KSExpressionMatch.prefixOfList(listOf(row_name))
+    val row_type =
+      KSExpressionMatch.prefixOfList(listOf(row_name, type))
 
     val cell_name =
       KSExpressionMatch.exactSymbol("cell")
     val cell =
       KSExpressionMatch.prefixOfList(listOf(cell_name))
+    val cell_type =
+      KSExpressionMatch.prefixOfList(listOf(cell_name, type))
 
     val table_name =
       KSExpressionMatch.exactSymbol("table")
@@ -1057,7 +1065,23 @@ class KSCanonInlineParser private constructor(
     c : Context)
     : KSResult<KSTableBodyRow<KSParse>, KSParseError> {
     when {
-      KSExpressionMatch.matches(e, CommandMatchers.row) -> {
+      KSExpressionMatch.matches(e, CommandMatchers.row_type) -> {
+        e as KSExpressionList
+        Assertive.require(e.elements.size >= 2)
+        val contents = e.elements.subList(2, e.elements.size)
+        val act_type =
+          parseAttributeType(e.elements[1] as KSExpressionList, c)
+        val act_content =
+          KSResult.listMap({ ce -> parseTableBodyCell(ce, c) }, contents)
+        return act_type.flatMap { t ->
+          act_content.flatMap { cs ->
+            KSResult.succeed<KSTableBodyRow<KSParse>, KSParseError>(
+              KSTableBodyRow(e.position, e.square, KSParse(c.context), cs, Optional.of(t)))
+          }
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.row)      -> {
         e as KSExpressionList
         Assertive.require(e.elements.size >= 1)
         val contents = e.elements.subList(1, e.elements.size)
@@ -1065,7 +1089,7 @@ class KSCanonInlineParser private constructor(
           KSResult.listMap({ ce -> parseTableBodyCell(ce, c) }, contents)
         return act_content.flatMap { cs ->
           KSResult.succeed<KSTableBodyRow<KSParse>, KSParseError>(
-            KSTableBodyRow(e.position, e.square, KSParse(c.context), cs))
+            KSTableBodyRow(e.position, e.square, KSParse(c.context), cs, Optional.empty()))
         }
       }
     }
@@ -1078,7 +1102,23 @@ class KSCanonInlineParser private constructor(
     c : Context)
     : KSResult<KSTableBodyCell<KSParse>, KSParseError> {
     when {
-      KSExpressionMatch.matches(e, CommandMatchers.cell) -> {
+      KSExpressionMatch.matches(e, CommandMatchers.cell_type) -> {
+        e as KSExpressionList
+        Assertive.require(e.elements.size >= 2)
+        val contents = e.elements.subList(2, e.elements.size)
+        val act_type =
+          parseAttributeType(e.elements[1] as KSExpressionList, c)
+        val act_content =
+          KSResult.listMap({ ce -> parseInlineAny(ce, c) }, contents)
+        return act_type.flatMap { t ->
+          act_content.flatMap { cs ->
+            KSResult.succeed<KSTableBodyCell<KSParse>, KSParseError>(
+              KSTableBodyCell(e.position, e.square, KSParse(c.context), cs, Optional.of(t)))
+          }
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.cell)      -> {
         e as KSExpressionList
         Assertive.require(e.elements.size >= 1)
         val contents = e.elements.subList(1, e.elements.size)
@@ -1086,7 +1126,7 @@ class KSCanonInlineParser private constructor(
           KSResult.listMap({ ce -> parseInlineAny(ce, c) }, contents)
         return act_content.flatMap { cs ->
           KSResult.succeed<KSTableBodyCell<KSParse>, KSParseError>(
-            KSTableBodyCell(e.position, e.square, KSParse(c.context), cs))
+            KSTableBodyCell(e.position, e.square, KSParse(c.context), cs, Optional.empty()))
         }
       }
     }
@@ -1099,14 +1139,30 @@ class KSCanonInlineParser private constructor(
     c : Context)
     : KSResult<KSTableHead<KSParse>, KSParseError> {
     when {
-      KSExpressionMatch.matches(e, CommandMatchers.head) -> {
+      KSExpressionMatch.matches(e, CommandMatchers.head_type) -> {
+        Assertive.require(e.elements.size >= 2)
+        val contents = e.elements.subList(2, e.elements.size)
+        val act_type =
+          parseAttributeType(e.elements[1] as KSExpressionList, c)
+        val act_content =
+          KSResult.listMap({ ce -> parseTableColumnName(ce, c) }, contents)
+
+        return act_type.flatMap { t ->
+          act_content.flatMap { cs ->
+            KSResult.succeed<KSTableHead<KSParse>, KSParseError>(
+              KSTableHead(e.position, e.square, KSParse(c.context), cs, Optional.of(t)))
+          }
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.head)      -> {
         Assertive.require(e.elements.size >= 1)
         val contents = e.elements.subList(1, e.elements.size)
         val act_content =
           KSResult.listMap({ ce -> parseTableColumnName(ce, c) }, contents)
         return act_content.flatMap { cs ->
           KSResult.succeed<KSTableHead<KSParse>, KSParseError>(
-            KSTableHead(e.position, e.square, KSParse(c.context), cs))
+            KSTableHead(e.position, e.square, KSParse(c.context), cs, Optional.empty()))
         }
       }
     }
@@ -1119,7 +1175,24 @@ class KSCanonInlineParser private constructor(
     c : Context)
     : KSResult<KSTableHeadColumnName<KSParse>, KSParseError> {
     when {
-      KSExpressionMatch.matches(e, CommandMatchers.name) -> {
+      KSExpressionMatch.matches(e, CommandMatchers.name_type) -> {
+        e as KSExpressionList
+        Assertive.require(e.elements.size >= 2)
+        val contents = e.elements.subList(2, e.elements.size)
+        val act_type =
+          parseAttributeType(e.elements[1] as KSExpressionList, c)
+        val act_content =
+          KSResult.listMap({ ce -> parseInlineTextOrInclude(ce, c) }, contents)
+
+        return act_type.flatMap { t ->
+          act_content.flatMap { cs ->
+            KSResult.succeed<KSTableHeadColumnName<KSParse>, KSParseError>(
+              KSTableHeadColumnName(e.position, e.square, KSParse(c.context), cs, Optional.of(t)))
+          }
+        }
+      }
+
+      KSExpressionMatch.matches(e, CommandMatchers.name)      -> {
         e as KSExpressionList
         Assertive.require(e.elements.size >= 1)
         val contents = e.elements.subList(1, e.elements.size)
@@ -1127,7 +1200,7 @@ class KSCanonInlineParser private constructor(
           KSResult.listMap({ ce -> parseInlineTextOrInclude(ce, c) }, contents)
         return act_content.flatMap { cs ->
           KSResult.succeed<KSTableHeadColumnName<KSParse>, KSParseError>(
-            KSTableHeadColumnName(e.position, e.square, KSParse(c.context), cs))
+            KSTableHeadColumnName(e.position, e.square, KSParse(c.context), cs, Optional.empty()))
         }
       }
     }
