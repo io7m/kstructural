@@ -23,6 +23,7 @@
     <module>io7m-kstructural-latex</module>
     <module>io7m-kstructural-maven-plugin</module>
     <module>io7m-kstructural-parser</module>
+    <module>io7m-kstructural-plain</module>
     <module>io7m-kstructural-pretty</module>
     <module>io7m-kstructural-schema</module>
     <module>io7m-kstructural-specification</module>
@@ -134,14 +135,20 @@
         <version>0.1.1</version>
       </dependency>
       <dependency>
-        <groupId>org.valid4j</groupId>
-        <artifactId>valid4j</artifactId>
-        <version>0.5.0</version>
-      </dependency>
-      <dependency>
         <groupId>com.io7m.jpplib</groupId>
         <artifactId>io7m-jpplib-core</artifactId>
         <version>0.7.1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jpita</groupId>
+        <artifactId>io7m-jpita-core</artifactId>
+        <version>0.2.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.valid4j</groupId>
+        <artifactId>valid4j</artifactId>
+        <version>0.5.0</version>
       </dependency>
       <dependency>
         <groupId>org.jgrapht</groupId>
