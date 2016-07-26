@@ -16,14 +16,9 @@
 
 package com.io7m.kstructural.frontend;
 
-import com.io7m.kstructural.core.KSElement.KSBlock;
-import com.io7m.kstructural.core.KSParse;
 import com.io7m.kstructural.core.KSParseContextType;
-import com.io7m.kstructural.core.KSParseError;
 import com.io7m.kstructural.core.KSParserDriverConstructorType;
 import com.io7m.kstructural.core.KSParserDriverType;
-import com.io7m.kstructural.core.KSResult;
-import com.io7m.kstructural.core.KSResults;
 import com.io7m.kstructural.parser.canon.KSCanonParserDriver;
 import com.io7m.kstructural.parser.imperative.KSImperativeParserDriver;
 import com.io7m.kstructural.xom.KSXOMXMLParserDriver;
@@ -33,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.util.Optional;
 
 /**
  * The default set of provided parsers.
