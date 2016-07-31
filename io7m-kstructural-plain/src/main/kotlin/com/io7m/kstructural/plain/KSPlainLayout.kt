@@ -125,6 +125,7 @@ object KSPlainLayout : KSPlainLayoutType {
       val sw = StringWriter()
       KSInlineRenderer.dividerLight(sw, title_line.length)
       lines.add(sw.toString())
+      lines.add("")
 
       inlines(body_node, Optional.of(lines), contents)
     }
