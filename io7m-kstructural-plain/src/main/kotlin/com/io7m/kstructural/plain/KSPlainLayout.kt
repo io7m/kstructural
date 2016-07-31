@@ -108,7 +108,7 @@ object KSPlainLayout : KSPlainLayoutType {
      */
 
     run {
-      val title = StringBuilder(80)
+      val title = StringBuilder(page_width)
       title.append(formal.data.number.get())
       title.append(" ")
       formal.title.forEach { text ->
@@ -316,7 +316,7 @@ object KSPlainLayout : KSPlainLayoutType {
         KSPlainLayoutBox(mutableBoxFrom(ibox), KSPlainBorder.None, lines)))
     }
 
-    val word_buffer = StringBuilder(80)
+    val word_buffer = StringBuilder(container_node.value().box.width())
 
     fun wordFinish() {
       if (word_buffer.length > 0) {
