@@ -3,6 +3,16 @@
   <c:project>io7m-kstructural</c:project>
 
   <c:release c:ticket-system="com.github.io7m.kstructural">
+    <c:date>2016-05-29</c:date>
+    <c:version>0.1.0</c:version>
+    <c:item>
+      <c:date>2016-05-29</c:date>
+      <c:type-code-new/>
+      <c:summary>Initial release.</c:summary>
+    </c:item>
+  </c:release>
+
+  <c:release c:ticket-system="com.github.io7m.kstructural">
     <c:date>2016-06-06</c:date>
     <c:version>0.2.0</c:version>
     <c:item>
@@ -48,12 +58,19 @@
   </c:release>
 
   <c:release c:ticket-system="com.github.io7m.kstructural">
-    <c:date>2016-05-29</c:date>
-    <c:version>0.1.0</c:version>
+    <c:date>2016-07-31</c:date>
+    <c:version>0.3.0</c:version>
     <c:item>
-      <c:date>2016-05-29</c:date>
+      <c:date>2016-07-26</c:date>
       <c:type-code-new/>
-      <c:summary>Initial release.</c:summary>
+      <c:ticket>30</c:ticket>
+      <c:summary>Allow types on table heads, table rows, table column names.</c:summary>
+    </c:item>
+    <c:item>
+      <c:date>2016-07-31</c:date>
+      <c:type-code-new/>
+      <c:ticket>14</c:ticket>
+      <c:summary>Add plain text rendering backend.</c:summary>
     </c:item>
   </c:release>
 
