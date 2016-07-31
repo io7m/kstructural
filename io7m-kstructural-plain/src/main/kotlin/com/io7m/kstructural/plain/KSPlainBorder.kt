@@ -16,9 +16,14 @@
 
 package com.io7m.kstructural.plain
 
-class KSPlainSettings(
-  val render_toc_document : Boolean = true,
-  val render_toc_parts : Boolean = true,
-  val page_width : Int = 80) {
+sealed class KSPlainBorder(
+  val size : Int) {
 
+  object None : KSPlainBorder(0) {
+
+  }
+
+  object Light : KSPlainBorder(1) {
+
+  }
 }

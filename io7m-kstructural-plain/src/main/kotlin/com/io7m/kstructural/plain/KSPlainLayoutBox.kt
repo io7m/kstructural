@@ -16,9 +16,9 @@
 
 package com.io7m.kstructural.plain
 
-class KSPlainSettings(
-  val render_toc_document : Boolean = true,
-  val render_toc_parts : Boolean = true,
-  val page_width : Int = 80) {
+import com.io7m.jboxes.core.BoxMutable
 
-}
+class KSPlainLayoutBox(
+  val box : BoxMutable<Any>,
+  val border : KSPlainBorder,
+  val lines : MutableList<String>)

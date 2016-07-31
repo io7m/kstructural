@@ -16,9 +16,27 @@
 
 package com.io7m.kstructural.plain
 
-class KSPlainSettings(
-  val render_toc_document : Boolean = true,
-  val render_toc_parts : Boolean = true,
-  val page_width : Int = 80) {
+import com.io7m.jorchard.core.JOTreeNodeType
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockParagraph
+import com.io7m.kstructural.core.evaluator.KSEvaluation
+
+interface KSPlainLayoutType {
+
+  fun layoutParagraph(
+    page_width : Int,
+    paragraph : KSBlockParagraph<KSEvaluation>)
+    : JOTreeNodeType<KSPlainLayoutBox>
+
+  fun layoutFormal(
+    page_width : Int,
+    paragraph : KSBlockFormalItem<KSEvaluation>)
+    : JOTreeNodeType<KSPlainLayoutBox>
+
+  fun layoutFootnote(
+    page_width : Int,
+    footnote : KSBlockFootnote<KSEvaluation>)
+    : JOTreeNodeType<KSPlainLayoutBox>
 
 }

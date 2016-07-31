@@ -34,6 +34,18 @@
       <groupId>com.io7m.jpita</groupId>
       <artifactId>io7m-jpita-core</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.io7m.jboxes</groupId>
+      <artifactId>io7m-jboxes-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.jorchard</groupId>
+      <artifactId>io7m-jorchard-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.jptbox</groupId>
+      <artifactId>io7m-jptbox-core</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>

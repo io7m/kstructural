@@ -16,8 +16,7 @@
 
 package com.io7m.kstructural.plain
 
-import com.io7m.jpita.core.JPAlignerBasic
-import com.io7m.jpita.core.JPAlignerType
+import com.io7m.jptbox.core.JPTextImages
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
@@ -29,8 +28,6 @@ import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSection.KSBlockSection
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockSubsection
 import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSID
-import com.io7m.kstructural.core.KSLink
-import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSSubsectionContent
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFootnote
 import com.io7m.kstructural.core.KSSubsectionContent.KSSubsectionFormalItem
@@ -39,8 +36,11 @@ import com.io7m.kstructural.core.evaluator.KSEvaluation
 import com.io7m.kstructural.core.evaluator.KSNumber
 import java.io.Writer
 import java.util.Optional
+import java.util.regex.Pattern
 
 object KSPlainWriter : KSPlainWriterType {
+
+  private val TRAILING_WHITESPACE = Pattern.compile("\\s+$")
 
   override fun write(
     settings : KSPlainSettings,
@@ -49,14 +49,14 @@ object KSPlainWriter : KSPlainWriterType {
 
     output.write(text(document.title))
     output.write("\n")
-    dividerHeavy(output, 72)
+    dividerHeavy(output, settings.page_width - 1)
     output.write("\n")
     output.write("\n")
 
     when (document) {
       is KSBlockDocumentWithParts                    -> {
         if (settings.render_toc_document) {
-          tocDocument(output, document)
+          tocDocument(settings, output, document)
         }
         document.content.forEach { part ->
           writePart(settings, output, part)
@@ -71,54 +71,34 @@ object KSPlainWriter : KSPlainWriterType {
 
     output.write("\n")
     output.write("Footnotes\n")
-    dividerHeavy(output, 72)
+    dividerHeavy(output, settings.page_width - 1)
     output.write("\n")
     output.write("\n")
 
     document.data.context.footnotesAll.forEach { entry ->
-      val id = entry.key
-      val fn = entry.value
-
-      val jb = JPAlignerBasic.create(72 - 8)
-      inlineContent(fn.content, jb)
-
-      val lines = jb.finish()
-      for (i in 0 .. lines.size - 1) {
-        if (i == 0) {
-          val ns = fn.data.index.toString()
-          val fs = "[" + ns + "]"
-          output.write(fs)
-          output.write(" ".repeat(8 - fs.length))
-        } else {
-          output.write("        ")
-        }
-        output.write(lines[i])
-        output.write("\n")
-      }
+      val layout = KSPlainLayout.layoutFootnote(
+        settings.page_width, entry.value)
+      val image = KSPlainRasterizer.rasterize(layout)
+      output.write(JPTextImages.show(image))
       output.write("\n")
     }
-
-    output.flush()
   }
 
   private fun tocDocument(
+    settings : KSPlainSettings,
     output : Writer,
     document : KSBlockDocumentWithParts<KSEvaluation>) {
-
-    val title_buffer = StringBuilder()
-    val id_buffer = StringBuilder()
 
     output.write("  ")
     output.write("Contents\n")
     output.write("  ")
-    dividerLight(output, 70)
+    dividerLight(output, settings.page_width - 3)
     output.write("\n")
 
     document.content.forEach { part ->
       writeTOCItem(
+        settings,
         output,
-        title_buffer,
-        id_buffer,
         2,
         part.id,
         part.data.number,
@@ -126,9 +106,8 @@ object KSPlainWriter : KSPlainWriterType {
 
       part.content.forEach { section ->
         writeTOCItem(
+          settings,
           output,
-          title_buffer,
-          id_buffer,
           4,
           section.id,
           section.data.number,
@@ -141,38 +120,48 @@ object KSPlainWriter : KSPlainWriterType {
   }
 
   private fun writeTOCItem(
+    settings : KSPlainSettings,
     output : Writer,
-    title_buffer : StringBuilder,
-    id_buffer : StringBuilder,
     indent : Int,
     id : Optional<KSID<KSEvaluation>>,
     number : Optional<KSNumber>,
     title : List<KSInline.KSInlineText<KSEvaluation>>) {
 
+    val title_buffer = StringBuilder(40)
     title_buffer.setLength(0)
     title_buffer.append(" ".repeat(indent))
     title_buffer.append(number.get().toString())
     title_buffer.append(" ")
     title_buffer.append(text(title))
 
+    val id_buffer = StringBuilder(40)
     id_buffer.setLength(0)
     id.ifPresent { id -> id_buffer.append(id.value) }
 
-    output.write(title_buffer.toString())
+    val line_buffer = StringBuilder(settings.page_width)
+    line_buffer.append(title_buffer.toString())
+
     val title_len = title_buffer.length + 1
     val id_len = id_buffer.length + 1
     val max_len = title_len + id_len
-    if (max_len < 72) {
-      output.write(" ")
-      for (i in 0 .. (72 - max_len) - 1) {
-        output.write(".")
+    if (max_len < settings.page_width) {
+      line_buffer.append(" ")
+
+      for (i in 0 .. (settings.page_width - max_len) - 2) {
+        line_buffer.append(".")
       }
       if (!id.isPresent) {
-        output.write(".")
+        line_buffer.append(".")
       }
     }
-    output.write(" ")
-    output.write(id_buffer.toString())
+
+    line_buffer.append(" ")
+    line_buffer.append(id_buffer.toString())
+
+    val line = line_buffer.toString()
+    val line_trimmed = TRAILING_WHITESPACE.matcher(line).replaceAll("")
+
+    output.write(line_trimmed)
     output.write("\n")
   }
 
@@ -191,27 +180,28 @@ object KSPlainWriter : KSPlainWriterType {
     when (section) {
       is KSBlockSectionWithSubsections -> {
         section.content.forEach { subsection ->
-          writeSubsection(output, subsection)
+          writeSubsection(settings, output, subsection)
         }
       }
       is KSBlockSectionWithContent     -> {
         section.content.forEach { content ->
-          writeSubsectionContent(output, content)
+          writeSubsectionContent(settings, output, content)
         }
       }
     }
   }
 
   private fun writeSubsectionContent(
+    settings : KSPlainSettings,
     output : Writer,
     content : KSSubsectionContent<KSEvaluation>) {
 
     return when (content) {
       is KSSubsectionParagraph  -> {
-        writeParagraph(output, content.paragraph)
+        writeParagraph(settings, output, content.paragraph)
       }
       is KSSubsectionFormalItem -> {
-        writeFormalItem(output, content.formal)
+        writeFormalItem(settings, output, content.formal)
       }
       is KSSubsectionFootnote   -> {
 
@@ -220,35 +210,13 @@ object KSPlainWriter : KSPlainWriterType {
   }
 
   private fun writeFormalItem(
+    settings : KSPlainSettings,
     output : Writer,
     formal : KSBlockFormalItem<KSEvaluation>) {
 
-    output.write("    ")
-    dividerLight(output, 68)
-    output.write("\n")
-    output.write("    ")
-    output.write(formal.data.number.get().toString())
-    output.write(" ")
-    output.write(text(formal.title))
-    outID(formal.id, output)
-    output.write("\n")
-    output.write("    ")
-    dividerLight(output, 68)
-    output.write("\n")
-
-    val jb = JPAlignerBasic.create(68)
-    inlineContent(formal.content, jb)
-
-    val lines = jb.finish()
-    lines.forEach { line ->
-      output.write(line)
-      output.write("\n")
-    }
-
-    output.write("\n")
-    output.write("    ")
-    dividerLight(output, 68)
-    output.write("\n")
+    val layout = KSPlainLayout.layoutFormal(settings.page_width, formal)
+    val image = KSPlainRasterizer.rasterize(layout)
+    output.write(JPTextImages.show(image))
     output.write("\n")
   }
 
@@ -265,32 +233,13 @@ object KSPlainWriter : KSPlainWriterType {
   }
 
   private fun writeParagraph(
+    settings : KSPlainSettings,
     output : Writer,
     paragraph : KSBlockParagraph<KSEvaluation>) {
 
-    val jb = JPAlignerBasic.create(68)
-    inlineContent(paragraph.content, jb)
-
-    val lines = jb.finish()
-    for (i in 0 .. lines.size - 1) {
-      if (i == 0) {
-        val ns = paragraph.data.number.get().least.toString()
-        if (ns.length >= 4) {
-          output.write(ns.substring(0, 3))
-          output.write("…")
-        } else {
-          output.write(ns)
-          output.write(" ".repeat(4 - ns.length))
-        }
-
-      } else {
-        output.write("    ")
-      }
-
-      output.write(lines[i])
-      output.write("\n")
-    }
-
+    val layout = KSPlainLayout.layoutParagraph(settings.page_width, paragraph)
+    val image = KSPlainRasterizer.rasterize(layout)
+    output.write(JPTextImages.show(image))
     output.write("\n")
   }
 
@@ -309,128 +258,8 @@ object KSPlainWriter : KSPlainWriterType {
     return true
   }
 
-  private fun inlineContent(
-    content : List<KSInline<KSEvaluation>>,
-    output : JPAlignerType) : Unit {
-
-    val word_buffer = StringBuilder()
-    inlineContentBuffered(content, output, word_buffer)
-    if (!word_buffer.isEmpty()) {
-      output.addWord(word_buffer.toString())
-    }
-  }
-
-  private fun inlineContentBuffered(
-    content : List<KSInline<KSEvaluation>>,
-    output : JPAlignerType,
-    buffer : StringBuilder) {
-
-    fun finishWord()
-    {
-      if (buffer.length > 0) {
-        output.addWord(buffer.toString())
-        buffer.setLength(0)
-      }
-    }
-
-    val max = content.size - 1
-    for (i in 0 .. max) {
-      val e_prev = if (i > 0) content[i - 1] else null
-      val e_curr = content[i]
-
-      if (e_prev != null) {
-        if (spaceRequired(e_prev, e_curr)) {
-          finishWord()
-        }
-      }
-
-      when (e_curr) {
-        is KSInline.KSInlineListOrdered       -> {
-          buffer.append("[list-ordered: Not yet supported]")
-        }
-
-        is KSInline.KSInlineListUnordered     -> {
-          buffer.append("[list-unordered: Not yet supported]")
-        }
-
-        is KSInline.KSInlineImage             -> {
-          finishWord()
-
-          buffer.append("[image: ")
-          buffer.append(e_curr.target)
-          buffer.append("]")
-          finishWord()
-
-          buffer.append("(")
-          buffer.append(text(e_curr.content))
-          buffer.append(")")
-          finishWord()
-        }
-
-        is KSInline.KSInlineTable             -> {
-          buffer.append("[table: Not yet supported]")
-        }
-
-        is KSInline.KSInlineFootnoteReference -> {
-          finishWord()
-
-          buffer.append("[")
-          buffer.append(e_curr.data.index)
-          buffer.append("]")
-        }
-
-        is KSInline.KSInlineTerm              -> {
-          inlineContentBuffered(e_curr.content, output, buffer)
-        }
-
-        is KSInline.KSInlineVerbatim          -> {
-          finishWord()
-          buffer.append(e_curr.text.text.trim())
-        }
-
-        is KSInline.KSInlineText              -> {
-          buffer.append(e_curr.text)
-        }
-
-        is KSInline.KSInlineLink              -> {
-          when (e_curr.actual) {
-            is KSLink.KSLinkInternal -> {
-              val ee = e_curr.actual as KSLink.KSLinkInternal
-              inlineContentBuffered(ee.content.map { c ->
-                when (c) {
-                  is KSLinkContent.KSLinkText  -> c.actual
-                  is KSLinkContent.KSLinkImage -> c.actual
-                }
-              }, output, buffer)
-
-              finishWord()
-
-              buffer.append("[ref: ")
-              buffer.append(ee.target.value)
-              buffer.append("]")
-            }
-            is KSLink.KSLinkExternal -> {
-              val ee = e_curr.actual as KSLink.KSLinkExternal
-              inlineContentBuffered(ee.content.map { c ->
-                when (c) {
-                  is KSLinkContent.KSLinkText  -> c.actual
-                  is KSLinkContent.KSLinkImage -> c.actual
-                }
-              }, output, buffer)
-
-              finishWord()
-
-              buffer.append("[url: ")
-              buffer.append(ee.target)
-              buffer.append("]")
-            }
-          }
-        }
-      }
-    }
-  }
-
   private fun writeSubsection(
+    settings : KSPlainSettings,
     output : Writer,
     subsection : KSBlockSubsection<KSEvaluation>) {
 
@@ -442,7 +271,7 @@ object KSPlainWriter : KSPlainWriterType {
     output.write("\n")
 
     subsection.content.forEach { content ->
-      writeSubsectionContent(output, content)
+      writeSubsectionContent(settings, output, content)
     }
   }
 
@@ -456,33 +285,32 @@ object KSPlainWriter : KSPlainWriterType {
     output.write(text(part.title))
     outID(part.id, output)
     output.write("\n")
-    dividerHeavy(output, 72)
+    dividerHeavy(output, settings.page_width - 1)
     output.write("\n")
     output.write("\n")
 
     if (settings.render_toc_parts) {
-      tocPart(output, part)
+      tocPart(settings, output, part)
     }
 
     part.content.forEach { section -> writeSection(settings, output, section) }
   }
 
-  private fun tocPart(output : Writer, part : KSBlockPart<KSEvaluation>) {
-
-    val title_buffer = StringBuilder()
-    val id_buffer = StringBuilder()
+  private fun tocPart(
+    settings : KSPlainSettings,
+    output : Writer,
+    part : KSBlockPart<KSEvaluation>) {
 
     output.write("  ")
     output.write("Contents\n")
     output.write("  ")
-    dividerLight(output, 70)
+    dividerLight(output, settings.page_width - 3)
     output.write("\n")
 
     part.content.forEach { section ->
       writeTOCItem(
+        settings,
         output,
-        title_buffer,
-        id_buffer,
         2,
         section.id,
         section.data.number,
@@ -492,9 +320,8 @@ object KSPlainWriter : KSPlainWriterType {
         is KSBlockSectionWithSubsections -> {
           section.content.forEach { subsection ->
             writeTOCItem(
+              settings,
               output,
-              title_buffer,
-              id_buffer,
               4,
               subsection.id,
               subsection.data.number,
