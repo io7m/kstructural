@@ -392,6 +392,10 @@ object KSPlainLayout : KSPlainLayoutType {
     val head_height : Int,
     val row_heights : List<Int>)
 
+  /**
+   * Attempt to calculate the table dimensions.
+   */
+
   private fun tableColumnDimensions(
     container_node : JOTreeNodeReadableType<KSPlainLayoutBox>,
     table : KSInlineTable<KSEvaluation>) : TableDimensions {
@@ -409,10 +413,17 @@ object KSPlainLayout : KSPlainLayoutType {
       row_heights.add(row_index, 1)
     }
 
+    /**
+     * For each column, lay out the content in the head (if present), and
+     * then lay out the content in that column of each row. From this, the
+     * width required for each column can be determined. Some extra padding
+     * is added for aesthetic reasons.
+     */
+
     for (column_index in 0 .. column_count - 1) {
       column_widths.add(column_index, column_width_average)
 
-      table.head.map { head ->
+      table.head.ifPresent { head ->
         if (column_index < head.column_names.size) {
           val name = head.column_names[column_index]
           val name_node = tableColumnName(container_node, name)
