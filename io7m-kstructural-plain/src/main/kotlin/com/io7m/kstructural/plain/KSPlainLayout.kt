@@ -24,10 +24,10 @@ import com.io7m.jorchard.core.JOTreeNode
 import com.io7m.jorchard.core.JOTreeNodeReadableType
 import com.io7m.jorchard.core.JOTreeNodeType
 import com.io7m.jpita.core.JPAlignerBasic
-import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFootnote
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockParagraph
+import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineImage
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineInclude
@@ -266,10 +266,25 @@ object KSPlainLayout : KSPlainLayoutType {
     return layout
   }
 
+  private fun <T> spaceRequired(
+    e_prev : KSInline<T>,
+    e_curr : KSInline<T>) : Boolean {
+
+    if (e_prev is KSInlineText && e_curr is KSInlineText) {
+      return true
+    }
+
+    if (!(e_prev is KSInlineText) && e_curr is KSInlineText) {
+      return e_curr.text.length > 1
+    }
+
+    return true
+  }
+
   private fun inlines(
     container_node : JOTreeNodeType<KSPlainLayoutBox>,
     prefix_body : Optional<List<String>>,
-    contents : List<KSElement.KSInline<KSEvaluation>>) : Unit {
+    contents : List<KSInline<KSEvaluation>>) : Unit {
 
     /**
      * Construct boxes for sets of inline elements. A box is completed
@@ -300,53 +315,73 @@ object KSPlainLayout : KSPlainLayoutType {
         KSPlainLayoutBox(mutableBoxFrom(ibox), KSPlainBorder.None, lines)))
     }
 
-    contents.forEach { content ->
-      when (content) {
+    val word_buffer = StringBuilder(80)
+
+    fun wordFinish() {
+      if (word_buffer.length > 0) {
+        aligned.addWord(word_buffer.toString())
+        word_buffer.setLength(0)
+      }
+    }
+
+    fun wordsBufferAdd(words : List<String>) {
+      words.forEachIndexed { index, word ->
+        if (index == words.lastIndex) {
+          word_buffer.append(word)
+        } else {
+          aligned.addWord(word)
+        }
+      }
+    }
+
+    for (i in 0 .. contents.size - 1) {
+      val e_previous = if (i > 0) contents[i - 1] else null
+      val e_current = contents[i]
+
+      if (e_previous != null) {
+        if (spaceRequired(e_previous, e_current)) {
+          wordFinish()
+        }
+      }
+
+      when (e_current) {
         is KSInlineLink              ->
-          KSInlineRenderer.link(content).forEach { word ->
-            aligned.addWord(word)
-          }
+          wordsBufferAdd(KSInlineRenderer.link(e_current))
 
         is KSInlineText              ->
-          KSInlineRenderer.text(content).forEach { word ->
-            aligned.addWord(word)
-          }
+          wordsBufferAdd(KSInlineRenderer.text(e_current))
 
         is KSInlineTerm              ->
-          content.content.forEach { text ->
-            KSInlineRenderer.text(text).forEach { word ->
-              aligned.addWord(word)
-            }
-          }
+          wordsBufferAdd(KSInlineRenderer.term(e_current))
 
         is KSInlineFootnoteReference ->
-          KSInlineRenderer.footnoteReference(content).forEach { word ->
-            aligned.addWord(word)
-          }
+          wordsBufferAdd(listOf(KSInlineRenderer.footnoteReference(e_current)))
 
         is KSInlineImage             ->
-          KSInlineRenderer.image(content).forEach { word ->
-            aligned.addWord(word)
-          }
+          wordsBufferAdd(KSInlineRenderer.image(e_current))
 
         is KSInlineVerbatim          -> {
+          wordFinish()
           finishLines()
-          subnodes.add(verbatim(content))
+          subnodes.add(verbatim(e_current))
         }
 
         is KSInlineListOrdered       -> {
+          wordFinish()
           finishLines()
-          subnodes.add(listOrdered(container_node, content))
+          subnodes.add(listOrdered(container_node, e_current))
         }
 
         is KSInlineListUnordered     -> {
+          wordFinish()
           finishLines()
-          subnodes.add(listUnordered(container_node, content))
+          subnodes.add(listUnordered(container_node, e_current))
         }
 
         is KSInlineTable             -> {
+          wordFinish()
           finishLines()
-          subnodes.add(table(container_node, content))
+          subnodes.add(table(container_node, e_current))
         }
 
         is KSInlineInclude           -> {
@@ -355,6 +390,7 @@ object KSPlainLayout : KSPlainLayoutType {
       }
     }
 
+    wordFinish()
     finishLines()
 
     /**

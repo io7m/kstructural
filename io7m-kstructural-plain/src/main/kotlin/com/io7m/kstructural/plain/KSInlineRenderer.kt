@@ -16,6 +16,7 @@
 
 package com.io7m.kstructural.plain
 
+import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineFootnoteReference
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineImage
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineLink
@@ -110,7 +111,11 @@ object KSInlineRenderer {
   }
 
   fun footnoteReference(
-    content : KSInlineFootnoteReference<KSEvaluation>) : List<String> {
-    return listOf("[" + content.data.index + "]")
+    content : KSInlineFootnoteReference<KSEvaluation>) : String {
+    return "[" + content.data.index + "]"
   }
+
+  fun term(e_current : KSElement.KSInline.KSInlineTerm<KSEvaluation>) : List<String> =
+    e_current.content.map { text -> text.text }
+
 }
