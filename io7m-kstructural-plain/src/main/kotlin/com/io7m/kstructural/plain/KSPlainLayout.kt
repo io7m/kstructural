@@ -38,12 +38,15 @@ import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTable
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineTerm
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineText
 import com.io7m.kstructural.core.KSElement.KSInline.KSInlineVerbatim
+import com.io7m.kstructural.core.KSElement.KSInline.KSListItem
 import com.io7m.kstructural.core.KSElement.KSInline.KSTableHeadColumnName
 import com.io7m.kstructural.core.evaluator.KSEvaluation
 import org.slf4j.LoggerFactory
 import org.valid4j.Assertive
+import java.io.StringWriter
 import java.lang.Math.addExact
 import java.lang.Math.max
+import java.util.Optional
 
 object KSPlainLayout : KSPlainLayoutType {
 
@@ -76,9 +79,9 @@ object KSPlainLayout : KSPlainLayoutType {
 
   override fun layoutFormal(
     page_width : Int,
-    paragraph : KSBlockFormalItem<KSEvaluation>) : JOTreeNodeType<KSPlainLayoutBox> {
+    formal : KSBlockFormalItem<KSEvaluation>) : JOTreeNodeType<KSPlainLayoutBox> {
 
-    val contents = paragraph.content
+    val contents = formal.content
 
     /**
      * Split the original layout into a fixed width margin and a body
@@ -104,7 +107,27 @@ object KSPlainLayout : KSPlainLayoutType {
      * Process the inline content.
      */
 
-    inlines(body_node, contents)
+    run {
+      val title = StringBuilder(80)
+      title.append(formal.data.number.get())
+      title.append(" ")
+      formal.title.forEach { text ->
+        KSInlineRenderer.text(text).forEach { word ->
+          title.append(word)
+          title.append(" ")
+        }
+      }
+
+      val lines = mutableListOf<String>()
+      val title_line = KSInlineRenderer.trimTrailing(title.toString())
+      lines.add(title_line)
+
+      val sw = StringWriter()
+      KSInlineRenderer.dividerLight(sw, title_line.length)
+      lines.add(sw.toString())
+
+      inlines(body_node, Optional.of(lines), contents)
+    }
 
     /**
      * Resize the height of the margin to match the body.
@@ -162,7 +185,7 @@ object KSPlainLayout : KSPlainLayoutType {
      * Process the inline content.
      */
 
-    inlines(body_node, contents)
+    inlines(body_node, Optional.empty(), contents)
 
     /**
      * Resize the height of the margin to match the body.
@@ -221,7 +244,7 @@ object KSPlainLayout : KSPlainLayoutType {
      * Process the inline content.
      */
 
-    inlines(body_node, contents)
+    inlines(body_node, Optional.empty(), contents)
 
     /**
      * Resize the height of the margin to match the body.
@@ -245,6 +268,7 @@ object KSPlainLayout : KSPlainLayoutType {
 
   private fun inlines(
     container_node : JOTreeNodeType<KSPlainLayoutBox>,
+    prefix_body : Optional<List<String>>,
     contents : List<KSElement.KSInline<KSEvaluation>>) : Unit {
 
     /**
@@ -256,6 +280,17 @@ object KSPlainLayout : KSPlainLayoutType {
 
     val subnodes = mutableListOf<JOTreeNodeType<KSPlainLayoutBox>>()
     val aligned = JPAlignerBasic.create(container_node.value().box.width())
+
+    /**
+     * Prefix the body with the given line, if any.
+     */
+
+    prefix_body.ifPresent { lines ->
+      val width = lines.fold(0, { width, line -> max(width, line.length) })
+      val ibox = Boxes.create<Any>(0, 0, width, lines.size)
+      subnodes.add(JOTreeNode.create(
+        KSPlainLayoutBox(mutableBoxFrom(ibox), KSPlainBorder.None, lines.toMutableList())))
+    }
 
     fun finishLines() {
       val lines = aligned.finish()
@@ -392,7 +427,7 @@ object KSPlainLayout : KSPlainLayoutType {
         if (column_index < row.cells.size) {
           val cell = row.cells[column_index]
           val cell_node = createNode(column_widths[column_index])
-          inlines(cell_node, cell.content)
+          inlines(cell_node, Optional.empty(), cell.content)
 
           val cell_box = cell_node.value().box
           val cell_height = cell_box.height()
@@ -477,7 +512,7 @@ object KSPlainLayout : KSPlainLayoutType {
         val content_node = createNode(width)
         val content_box = content_node.value().box
         content_box.from(Boxes.moveAbsolute(content_box, 2, 1))
-        inlines(content_node, cell.content)
+        inlines(content_node, Optional.empty(), cell.content)
 
         val cell_node = createNode(dimensions.column_widths[column_index], KSPlainBorder.Light)
         val cell_box = cell_node.value().box
@@ -538,7 +573,7 @@ object KSPlainLayout : KSPlainLayoutType {
 
   private fun list(
     container : JOTreeNodeReadableType<KSPlainLayoutBox>,
-    items : List<KSElement.KSInline.KSListItem<KSEvaluation>>,
+    items : List<KSListItem<KSEvaluation>>,
     number : Boolean) : JOTreeNodeType<KSPlainLayoutBox> {
 
     val container_box = container.value().box
@@ -549,7 +584,11 @@ object KSPlainLayout : KSPlainLayoutType {
      * column.
      */
 
-    val margin_width = 4
+    val margin_width = if (number) {
+      4
+    } else {
+      2
+    }
     val inner_box = inner_container.value().box
     val initial_split = Boxes.splitAlongVertical(inner_box, margin_width)
     val initial_margin = initial_split.left()
@@ -577,7 +616,7 @@ object KSPlainLayout : KSPlainLayoutType {
         bullet_node.value().lines.add("•")
       }
 
-      inlines(content_node, item.content)
+      inlines(content_node, Optional.empty(), item.content)
 
       val content_box = content_node.value().box
       content_box.from(Boxes.moveAbsolute(content_box, 0, current_y))
@@ -642,7 +681,7 @@ object KSPlainLayout : KSPlainLayoutType {
 
     val lines = content.text.text.lines().toMutableList()
     val width = lines.fold(0, { width, line -> max(width, line.length) })
-    val ibox = Boxes.create<Any>(0, 1, width, lines.size)
+    val ibox = Boxes.create<Any>(0, 0, width, lines.size)
     return JOTreeNode.create(
       KSPlainLayoutBox(mutableBoxFrom(ibox), KSPlainBorder.None, lines))
   }

@@ -36,11 +36,8 @@ import com.io7m.kstructural.core.evaluator.KSEvaluation
 import com.io7m.kstructural.core.evaluator.KSNumber
 import java.io.Writer
 import java.util.Optional
-import java.util.regex.Pattern
 
 object KSPlainWriter : KSPlainWriterType {
-
-  private val TRAILING_WHITESPACE = Pattern.compile("\\s+$")
 
   override fun write(
     settings : KSPlainSettings,
@@ -49,7 +46,7 @@ object KSPlainWriter : KSPlainWriterType {
 
     output.write(text(document.title))
     output.write("\n")
-    dividerHeavy(output, settings.page_width - 1)
+    KSInlineRenderer.dividerHeavy(output, settings.page_width - 1)
     output.write("\n")
     output.write("\n")
 
@@ -71,7 +68,7 @@ object KSPlainWriter : KSPlainWriterType {
 
     output.write("\n")
     output.write("Footnotes\n")
-    dividerHeavy(output, settings.page_width - 1)
+    KSInlineRenderer.dividerHeavy(output, settings.page_width - 1)
     output.write("\n")
     output.write("\n")
 
@@ -92,7 +89,7 @@ object KSPlainWriter : KSPlainWriterType {
     output.write("  ")
     output.write("Contents\n")
     output.write("  ")
-    dividerLight(output, settings.page_width - 3)
+    KSInlineRenderer.dividerLight(output, settings.page_width - 3)
     output.write("\n")
 
     document.content.forEach { part ->
@@ -158,10 +155,7 @@ object KSPlainWriter : KSPlainWriterType {
     line_buffer.append(" ")
     line_buffer.append(id_buffer.toString())
 
-    val line = line_buffer.toString()
-    val line_trimmed = TRAILING_WHITESPACE.matcher(line).replaceAll("")
-
-    output.write(line_trimmed)
+    output.write(KSInlineRenderer.trimTrailing(line_buffer.toString()))
     output.write("\n")
   }
 
@@ -220,18 +214,6 @@ object KSPlainWriter : KSPlainWriterType {
     output.write("\n")
   }
 
-  private fun dividerLight(output : Writer, length : Int) {
-    divider('─', output, length)
-  }
-
-  private fun dividerHeavy(output : Writer, length : Int) {
-    divider('━', output, length)
-  }
-
-  private fun divider(c : Char, output : Writer, length : Int) {
-    for (i in 0 .. length - 1) output.write("" + c)
-  }
-
   private fun writeParagraph(
     settings : KSPlainSettings,
     output : Writer,
@@ -285,7 +267,7 @@ object KSPlainWriter : KSPlainWriterType {
     output.write(text(part.title))
     outID(part.id, output)
     output.write("\n")
-    dividerHeavy(output, settings.page_width - 1)
+    KSInlineRenderer.dividerHeavy(output, settings.page_width - 1)
     output.write("\n")
     output.write("\n")
 
@@ -304,7 +286,7 @@ object KSPlainWriter : KSPlainWriterType {
     output.write("  ")
     output.write("Contents\n")
     output.write("  ")
-    dividerLight(output, settings.page_width - 3)
+    KSInlineRenderer.dividerLight(output, settings.page_width - 3)
     output.write("\n")
 
     part.content.forEach { section ->

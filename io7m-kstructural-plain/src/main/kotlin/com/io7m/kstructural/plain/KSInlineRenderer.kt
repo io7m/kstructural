@@ -26,8 +26,27 @@ import com.io7m.kstructural.core.KSLinkContent
 import com.io7m.kstructural.core.KSLinkContent.KSLinkImage
 import com.io7m.kstructural.core.KSLinkContent.KSLinkText
 import com.io7m.kstructural.core.evaluator.KSEvaluation
+import java.io.Writer
+import java.util.regex.Pattern
 
 object KSInlineRenderer {
+
+  private val TRAILING_WHITESPACE = Pattern.compile("\\s+$")
+
+  fun dividerLight(output : Writer, width : Int) {
+    divider('─', output, width)
+  }
+
+  fun dividerHeavy(output : Writer, width : Int) {
+    divider('━', output, width)
+  }
+
+  fun divider(c : Char, output : Writer, width : Int) {
+    for (i in 0 .. width - 1) output.write("" + c)
+  }
+
+  fun trimTrailing(text : String) : String =
+    TRAILING_WHITESPACE.matcher(text).replaceAll("")
 
   fun text(text : KSInlineText<KSEvaluation>) : List<String> =
     text.text.split("\\s+")
@@ -94,5 +113,4 @@ object KSInlineRenderer {
     content : KSInlineFootnoteReference<KSEvaluation>) : List<String> {
     return listOf("[" + content.data.index + "]")
   }
-
 }

@@ -31,7 +31,7 @@ interface KSPlainLayoutType {
 
   fun layoutFormal(
     page_width : Int,
-    paragraph : KSBlockFormalItem<KSEvaluation>)
+    formal : KSBlockFormalItem<KSEvaluation>)
     : JOTreeNodeType<KSPlainLayoutBox>
 
   fun layoutFootnote(
