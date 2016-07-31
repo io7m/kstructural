@@ -27,8 +27,8 @@ The command exits with code [term [type constant] 0] if no errors occurred,
 and a positive exit code otherwise.
 
 [formal-item [title Checking Example]]
-[verbatim "
-$ java -jar kstructural.jar check -file valid.sd
+[verbatim
+"$ java -jar kstructural.jar check -file valid.sd
 $ echo $?
 0
 
@@ -108,8 +108,8 @@ The command exits with code [term [type constant] 0] if no errors occurred,
 and a positive exit code otherwise.
 
 [formal-item [title XHTML Compilation Example]]
-[verbatim "
-$ java -jar kstructural.jar compile-xhtml -file valid.sd -output-dir /tmp
+[verbatim
+"$ java -jar kstructural.jar compile-xhtml -file valid.sd -output-dir /tmp
 $ echo $?
 0
 
@@ -136,8 +136,8 @@ The command exits with code [term [type constant] 0] if no errors occurred,
 and a positive exit code otherwise.
 
 [formal-item [title Conversion Example]]
-[verbatim "
-$ cat valid.sd
+[verbatim
+"$ cat valid.sd
 [document
   [title A document]
   [section

@@ -37,7 +37,11 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Deque;
 
-final class KSParseAndEvaluate
+/**
+ * Convenient functions to parse and evaluate documents.
+ */
+
+public final class KSParseAndEvaluate
 {
   private static final Logger LOG;
 
@@ -50,7 +54,19 @@ final class KSParseAndEvaluate
     throw new UnreachableCodeException();
   }
 
-  static KSBlockDocument<KSEvaluation> parseAndEvaluate(
+  /**
+   * Parse and evaluate the given file.
+   *
+   * @param base The base directory
+   * @param file The file
+   *
+   * @return An evaluated document
+   *
+   * @throws IOException On I/O errors
+   * @throws KSOpFailed  On other errors
+   */
+
+  public static KSBlockDocument<KSEvaluation> parseAndEvaluate(
     final Path base,
     final Path file)
     throws IOException, KSOpFailed

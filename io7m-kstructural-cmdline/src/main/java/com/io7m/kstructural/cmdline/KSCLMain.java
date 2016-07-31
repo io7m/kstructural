@@ -27,12 +27,14 @@ import com.io7m.kstructural.frontend.KSBrandAppender;
 import com.io7m.kstructural.frontend.KSInputFormat;
 import com.io7m.kstructural.frontend.KSOpCheck;
 import com.io7m.kstructural.frontend.KSOpCompileLaTeX;
+import com.io7m.kstructural.frontend.KSOpCompilePlain;
 import com.io7m.kstructural.frontend.KSOpCompileXHTML;
 import com.io7m.kstructural.frontend.KSOpConvert;
 import com.io7m.kstructural.frontend.KSOpType;
 import com.io7m.kstructural.latex.KSLaTeXEmphasis;
 import com.io7m.kstructural.latex.KSLaTeXSettings;
 import com.io7m.kstructural.latex.KSLaTeXTypeMap;
+import com.io7m.kstructural.plain.KSPlainSettings;
 import com.io7m.kstructural.xom.KSXOMSettings;
 import org.slf4j.LoggerFactory;
 
@@ -76,12 +78,14 @@ public final class KSCLMain implements Runnable
     final CommandCheck check = new CommandCheck();
     final CommandCompileXHTML comp_xhtml = new CommandCompileXHTML();
     final CommandCompileLaTeX comp_latex = new CommandCompileLaTeX();
+    final CommandCompilePlain comp_plain = new CommandCompilePlain();
     final CommandConvert convert = new CommandConvert();
 
     this.commands = new HashMap<>(8);
     this.commands.put("check", check);
     this.commands.put("compile-xhtml", comp_xhtml);
     this.commands.put("compile-latex", comp_latex);
+    this.commands.put("compile-plain", comp_plain);
     this.commands.put("convert", convert);
 
     this.commander = new JCommander(r);
@@ -89,6 +93,7 @@ public final class KSCLMain implements Runnable
     this.commander.addCommand("check", check);
     this.commander.addCommand("compile-xhtml", comp_xhtml);
     this.commander.addCommand("compile-latex", comp_latex);
+    this.commander.addCommand("compile-plain", comp_plain);
     this.commander.addCommand("convert", convert);
   }
 
@@ -358,6 +363,44 @@ public final class KSCLMain implements Runnable
       final KSLaTeXSettings settings = new KSLaTeXSettings(types);
       final KSOpType op =
         KSOpCompileLaTeX.create(input_path, output_path, settings);
+      return op.call();
+    }
+  }
+
+  @Parameters(
+    commandDescription = "Compile documents to plain text")
+  private final class CommandCompilePlain extends CommandRoot
+  {
+    @Parameter(
+      names = "-file",
+      description = "Input file",
+      required = true)
+    private String file;
+
+    @Parameter(
+      names = "-output-dir",
+      description = "The directory in which output files will be written",
+      required = true)
+    private String output;
+
+    CommandCompilePlain()
+    {
+
+    }
+
+    @Override
+    public Unit call()
+      throws Exception
+    {
+      super.call();
+
+      final FileSystem fs = FileSystems.getDefault();
+      final Path input_path = fs.getPath(this.file);
+      final Path output_path = fs.getPath(this.output);
+
+      final KSPlainSettings settings = new KSPlainSettings();
+      final KSOpType op = KSOpCompilePlain.create(
+        input_path, output_path, settings);
       return op.call();
     }
   }
