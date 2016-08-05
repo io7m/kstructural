@@ -18,10 +18,10 @@ package com.io7m.kstructural.tests.xom
 
 import com.io7m.jeucreader.UnicodeCharacterReader
 import com.io7m.jfunctional.PartialProcedureType
+import com.io7m.jsx.api.lexer.JSXLexerConfiguration
+import com.io7m.jsx.api.parser.JSXParserConfiguration
 import com.io7m.jsx.lexer.JSXLexer
-import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
-import com.io7m.jsx.parser.JSXParserConfiguration
 import com.io7m.kstructural.core.KSElement.KSBlock
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContext
@@ -66,7 +66,7 @@ object KSXOMXHTMLMultiWriterDemo {
     val path = Paths.get(args[0])
     val outdir = Paths.get(args[1])
 
-    val lcb = JSXLexerConfiguration.newBuilder()
+    val lcb = JSXLexerConfiguration.builder()
     lcb.setFile(Optional.of(path))
     lcb.setNewlinesInQuotedStrings(true)
     lcb.setSquareBrackets(true)
@@ -75,8 +75,8 @@ object KSXOMXHTMLMultiWriterDemo {
     val reader = UnicodeCharacterReader.newReader(getReader(args))
     val lex = JSXLexer.newLexer(lc, reader)
 
-    val pcb = JSXParserConfiguration.newBuilder()
-    pcb.preserveLexicalInformation(true)
+    val pcb = JSXParserConfiguration.builder()
+    pcb.setPreserveLexical(true)
     val pc = pcb.build()
     val p = JSXParser.newParser(pc, lex)
 

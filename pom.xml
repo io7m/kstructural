@@ -117,17 +117,22 @@
       <dependency>
         <groupId>com.io7m.jsx</groupId>
         <artifactId>io7m-jsx-core</artifactId>
-        <version>0.5.1</version>
+        <version>0.6.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jsx</groupId>
+        <artifactId>io7m-jsx-parser-api</artifactId>
+        <version>0.6.0</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jsx</groupId>
         <artifactId>io7m-jsx-parser</artifactId>
-        <version>0.5.1</version>
+        <version>0.6.0</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jsx</groupId>
         <artifactId>io7m-jsx-prettyprint</artifactId>
-        <version>0.5.1</version>
+        <version>0.6.0</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jlexing</groupId>
@@ -137,7 +142,7 @@
       <dependency>
         <groupId>com.io7m.jpplib</groupId>
         <artifactId>io7m-jpplib-core</artifactId>
-        <version>0.7.1</version>
+        <version>0.7.2</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jpita</groupId>
