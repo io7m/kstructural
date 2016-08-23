@@ -117,6 +117,13 @@ public final class KSCompileXHTMLMojo extends AbstractMojo
   @Parameter(name = "cssCreateDefault", required = false)
   private boolean cssCreateDefault = true;
 
+  /**
+   * Parameter to allow skipping of the generation.
+   */
+
+  @Parameter(name = "skip", property = "kstructural.skip", required = false)
+  private boolean skip = false;
+
   public KSCompileXHTMLMojo()
   {
 
@@ -127,6 +134,10 @@ public final class KSCompileXHTMLMojo extends AbstractMojo
     throws MojoExecutionException, MojoFailureException
   {
     try {
+      if (this.skip) {
+        return;
+      }
+
       if (this.documentFile == null) {
         throw new IllegalArgumentException("input document not specified");
       }

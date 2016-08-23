@@ -24,6 +24,7 @@ import org.junit.rules.ExpectedException;
 
 import java.io.File;
 
+import static io.takari.maven.testing.TestResources.assertFilesNotPresent;
 import static io.takari.maven.testing.TestResources.assertFilesPresent;
 import static org.hamcrest.core.Is.isA;
 

@@ -62,6 +62,13 @@ public final class KSCompileLaTeXMojo extends AbstractMojo
   @Parameter(name = "typeMap", required = false)
   private String typeMap;
 
+  /**
+   * Parameter to allow skipping of the generation.
+   */
+
+  @Parameter(name = "skip", property = "kstructural.skip", required = false)
+  private boolean skip = false;
+
   public KSCompileLaTeXMojo()
   {
 
@@ -72,6 +79,10 @@ public final class KSCompileLaTeXMojo extends AbstractMojo
     throws MojoExecutionException, MojoFailureException
   {
     try {
+      if (this.skip) {
+        return;
+      }
+
       if (this.documentFile == null) {
         throw new IllegalArgumentException("input document not specified");
       }

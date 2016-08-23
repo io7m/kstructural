@@ -49,6 +49,13 @@ public final class KSCompilePlainMojo extends AbstractMojo
   @Parameter(name = "outputDirectory", required = true)
   private String outputDirectory;
 
+  /**
+   * Parameter to allow skipping of the generation.
+   */
+
+  @Parameter(name = "skip", property = "kstructural.skip", required = false)
+  private boolean skip = false;
+
   public KSCompilePlainMojo()
   {
 
@@ -59,6 +66,10 @@ public final class KSCompilePlainMojo extends AbstractMojo
     throws MojoExecutionException, MojoFailureException
   {
     try {
+      if (this.skip) {
+        return;
+      }
+
       if (this.documentFile == null) {
         throw new IllegalArgumentException("input document not specified");
       }
