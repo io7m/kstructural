@@ -1,7 +1,7 @@
 <plugin>
   <groupId>com.io7m.kstructural</groupId>
   <artifactId>io7m-kstructural-maven-plugin</artifactId>
-  <version>0.1.0</version>
+  <version>0.3.0</version>
   <executions>
     <execution>
       <id>exec-multi</id>

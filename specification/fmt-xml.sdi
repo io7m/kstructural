@@ -12,4 +12,4 @@ use [link-ext [target "https://www.w3.org/TR/xinclude/"] XInclude].
 [section [title RELAX-NG Schema] [id fmt_xml.schema]]
 
 [formal-item [title Schema]]
-[verbatim [include "schema.rng"]]
+[verbatim [include "com/io7m/kstructural/schema/schema.rng"]]

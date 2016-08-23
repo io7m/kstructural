@@ -1,26 +1,25 @@
-    convert      Convert documents between input formats
-      Usage: convert [options]
-        Options:
-        * -file
-             Input file
-          -format
-             The format that will be used for exported documents
-             Default: canonical
-             Possible Values: [canonical, imperative, xml]
-          -indent
-             The number of spaces that will be used to indent documents
-             Default: 2
-          -no-imports
-             Export as one large document that does not contain any imports
-             Default: false
-        * -output-dir
-             The directory in which output files will be written
-          -verbose
-             Set the minimum logging verbosity level
-             Default: info
-             Possible Values: [trace, debug, info, warn, error]
-          -width
-             The maximum width in characters that will be used when formatting
-             documents
-             Default: 80
-
+convert      Convert documents between input formats
+  Usage: convert [options]
+    Options:
+    * -file
+         Input file
+      -format
+         The format that will be used for exported documents
+         Default: canonical
+         Possible Values: [canonical, imperative, xml]
+      -indent
+         The number of spaces that will be used to indent documents
+         Default: 2
+      -no-imports
+         Export as one large document that does not contain any imports
+         Default: false
+    * -output-dir
+         The directory in which output files will be written
+      -verbose
+         Set the minimum logging verbosity level
+         Default: info
+         Possible Values: [trace, debug, info, warn, error]
+      -width
+         The maximum width in characters that will be used when formatting
+         documents
+         Default: 80

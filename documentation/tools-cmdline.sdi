@@ -7,12 +7,12 @@ The [term [type command] kstructural] command processes
 
 [paragraph]
 The command line tool is distributed as part of the executable
-[term [type file] "io7m-kstructural-cmdline-0.1.0-main.jar"]
+[term [type file] "io7m-kstructural-cmdline-0.3.0-main.jar"]
 file "(referred" to as [term [type command] "kstructural.jar"] in usage examples,
 for "brevity):"
 
 [paragraph]
-[verbatim [type terminal] "$ java -jar io7m-kstructural-cmdline-0.1.0-main.jar"]
+[verbatim [type terminal] "$ java -jar io7m-kstructural-cmdline-0.3.0-main.jar"]
 
 [subsection [title check] [id tools.cmdline.check]]
 [paragraph]
@@ -27,8 +27,8 @@ The command exits with code [term [type constant] 0] if no errors occurred,
 and a positive exit code otherwise.
 
 [formal-item [title Checking Example]]
-[verbatim "
-$ java -jar kstructural.jar check -file valid.sd
+[verbatim
+"$ java -jar kstructural.jar check -file valid.sd
 $ echo $?
 0
 
@@ -108,8 +108,8 @@ The command exits with code [term [type constant] 0] if no errors occurred,
 and a positive exit code otherwise.
 
 [formal-item [title XHTML Compilation Example]]
-[verbatim "
-$ java -jar kstructural.jar compile-xhtml -file valid.sd -output-dir /tmp
+[verbatim
+"$ java -jar kstructural.jar compile-xhtml -file valid.sd -output-dir /tmp
 $ echo $?
 0
 
@@ -121,6 +121,86 @@ $ file /tmp/index-m.xhtml
 /tmp/index-m.xhtml: XML 1.0 document, ASCII text, with very long lines, with CRLF line terminators
 $ file /tmp/index.xhtml
 /tmp/index.xhtml: XML 1.0 document, ASCII text, with very long lines, with CRLF line terminators"]
+
+[subsection [title compile-latex] [id tools.cmdline.compile_latex]]
+[paragraph]
+The [term [type command] compile-latex] subcommand parses and validates the
+given document, and then generates LaTeX based on the content.
+
+[formal-item [title LaTeX Compilation Subcommand]]
+[verbatim [include "gen/cmdline-usage-compile-latex.txt"]]
+
+[paragraph [id tools.cmdline.compile_latex.file]]
+The [term [type command] -file] option specifies the input file.
+
+[paragraph [id tools.cmdline.compile_latex.output_dir]]
+The [term [type command] -output-dir] option specifies the output directory.
+
+[paragraph [id tools.cmdline.compile_latex.type-map]]
+The [term [type command] -type-map] option specifies a file that contains
+a set of mappings from terms to emphasis types. This is used to mark specific
+terms as being displayed in a monospaced font, in bold, or in italic. The
+file contains one line per term and has the following grammar:
+
+[formal-item [title LaTeX Type Map Grammar]]
+[verbatim [include "type-map.ebnf"]]
+
+[paragraph]
+For example, the following type map makes all text tagged with
+[term [type term] function] monospaced, all text tagged with
+[term [type term] package] bold, and all text tagged with
+[term [type term] term] italic:
+
+[formal-item [title LaTeX Type Map Example]]
+[verbatim [include "type-map-example.txt"]]
+
+[paragraph [id tools.cmdline.compile_latex.verbose]]
+The [term [type command] -verbose] option specifies the level of logging
+desired.
+
+[paragraph]
+The command exits with code [term [type constant] 0] if no errors occurred,
+and a positive exit code otherwise.
+
+[formal-item [title LaTeX Compilation Example]]
+[verbatim
+"$ java -jar kstructural.jar compile-latex -file valid.sd -output-dir /tmp
+$ echo $?
+0
+
+$ file /tmp/main.tex
+/tmp/main.tex: ASCII text, with very long lines"]
+
+[subsection [title compile-plain] [id tools.cmdline.compile_plain]]
+[paragraph]
+The [term [type command] compile-plain] subcommand parses and validates the
+given document, and then generates plain text based on the content.
+
+[formal-item [title Plain Compilation Subcommand]]
+[verbatim [include "gen/cmdline-usage-compile-plain.txt"]]
+
+[paragraph [id tools.cmdline.compile_plain.file]]
+The [term [type command] -file] option specifies the input file.
+
+[paragraph [id tools.cmdline.compile_plain.output_dir]]
+The [term [type command] -output-dir] option specifies the output directory.
+
+[paragraph [id tools.cmdline.compile_plain.verbose]]
+The [term [type command] -verbose] option specifies the level of logging
+desired.
+
+[paragraph]
+The command exits with code [term [type constant] 0] if no errors occurred,
+and a positive exit code otherwise.
+
+[formal-item [title Plain Compilation Example]]
+[verbatim
+"$ java -jar kstructural.jar compile-plain -file valid.sd -output-dir /tmp
+$ echo $?
+0
+
+$ file /tmp/main.txt
+/tmp/main.tex: UTF-8 Unicode text"]
 
 [subsection [title convert] [id tools.cmdline.convert]]
 [paragraph]
@@ -136,8 +216,8 @@ The command exits with code [term [type constant] 0] if no errors occurred,
 and a positive exit code otherwise.
 
 [formal-item [title Conversion Example]]
-[verbatim "
-$ cat valid.sd
+[verbatim
+"$ cat valid.sd
 [document
   [title A document]
   [section

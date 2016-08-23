@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head><title>io7m-kstructural 0.1.0 Documentation: 3.1. Command Line Usage</title><meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8"/><link rel="stylesheet" type="text/css" href="kstructural-layout.css"/><link rel="stylesheet" type="text/css" href="kstructural-colour.css"/><link rel="stylesheet" type="text/css" href="documentation.css"/></head><body><div class="st300_body"><div class="st300_navbar st300_navbar_top"><table class="st300_navbar_table" summary="st300_Navigation bar"><tr><td class="st300_navbar_prev_title_cell">3. Tools</td><td class="st300_navbar_up_title_cell">3. Tools</td><td class="st300_navbar_next_title_cell">3.2. Maven Plugin Usage</td></tr><tr><td class="st300_navbar_prev_file_cell"><a rel="previous" href="p3.xhtml#st300_p3" title="Go to previous page">Previous</a></td><td class="st300_navbar_up_file_cell"><a rel="up" href="p3.xhtml#st300_p3" title="Go to parent page">Up</a></td><td class="st300_navbar_next_file_cell"><a rel="next" href="p3s2.xhtml#st300_p3s2" title="Go to next page">Next</a></td></tr></table><hr class="st300_hr"/></div><div class="st300_section_container"><a id="tools.cmdline"/><div class="st300_section_title_number"><a id="st300_p3s1" href="#st300_p3s1" title="Section 3.1: Command Line Usage">3.1</a></div><div class="st300_section_title">Command Line Usage</div><ul class="st300_contents st300_section_contents_outer st300_section_contents"><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s1.xhtml#st300_p3s1ss1" title="Link to subsection 3.1.1: Synopsis">3.1.1. Synopsis</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s1.xhtml#st300_p3s1ss2" title="Link to subsection 3.1.2: check">3.1.2. check</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s1.xhtml#st300_p3s1ss3" title="Link to subsection 3.1.3: compile-xhtml">3.1.3. compile-xhtml</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s1.xhtml#st300_p3s1ss4" title="Link to subsection 3.1.4: convert">3.1.4. convert</a></li></ul><div class="st300_subsection_container"><div class="st300_subsection_title_number"><a id="st300_p3s1ss1" href="#st300_p3s1ss1" title="Subsection 3.1.1: Synopsis">3.1.1</a></div><div class="st300_subsection_title">Synopsis</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss1c1" href="#st300_p3s1ss1c1" title="Paragraph 3.1.1.1">1</a></div><div class="st300_paragraph">The <span class="st300_term command">kstructural</span> command processes <span class="st300_term package">structural</span> documents. <pre class="st300_verbatim terminal">Usage: kstructural [options] [command] [command options]</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss1c2" href="#st300_p3s1ss1c2" title="Paragraph 3.1.1.2">2</a></div><div class="st300_paragraph">The command line tool is distributed as part of the executable <span class="st300_term file">io7m-kstructural-cmdline-0.1.0-main.jar</span> file (referred to as <span class="st300_term command">kstructural.jar</span> in usage examples, for brevity):</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss1c3" href="#st300_p3s1ss1c3" title="Paragraph 3.1.1.3">3</a></div><div class="st300_paragraph"><pre class="st300_verbatim terminal">$ java -jar io7m-kstructural-cmdline-0.1.0-main.jar</pre></div></div></div><div class="st300_subsection_container"><a id="tools.cmdline.check"/><div class="st300_subsection_title_number"><a id="st300_p3s1ss2" href="#st300_p3s1ss2" title="Subsection 3.1.2: check">3.1.2</a></div><div class="st300_subsection_title">check</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss2c1" href="#st300_p3s1ss2c1" title="Paragraph 3.1.2.1">1</a></div><div class="st300_paragraph">The <span class="st300_term command">check</span> subcommand parses and validates the given document.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss2c2" href="#st300_p3s1ss2c2" title="Formal item 3.1.2.2: Check Subcommand">3.1.2.2 Check Subcommand</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">    check      Check document syntax and structure
-      Usage: check [options]
-        Options:
-        * -file
-             Input file
-          -verbose
-             Set the minimum logging verbosity level
-             Default: info
-             Possible Values: [trace, debug, info, warn, error]
-
-</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss2c3" href="#st300_p3s1ss2c3" title="Paragraph 3.1.2.3">3</a></div><div class="st300_paragraph">The command exits with code <span class="st300_term constant">0</span> if no errors occurred, and a positive exit code otherwise.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss2c4" href="#st300_p3s1ss2c4" title="Formal item 3.1.2.4: Checking Example">3.1.2.4 Checking Example</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">
-$ java -jar kstructural.jar check -file valid.sd
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>io7m-kstructural 0.3.0 Documentation: 3.1. Command Line Usage</title><meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8"/><link rel="stylesheet" type="text/css" href="kstructural-layout.css"/><link rel="stylesheet" type="text/css" href="kstructural-colour.css"/><link rel="stylesheet" type="text/css" href="documentation.css"/></head><body><div class="st300_body"><div class="st300_navbar st300_navbar_top"><table class="st300_navbar_table" summary="st300_Navigation bar"><tr><td class="st300_navbar_prev_title_cell">3. Tools</td><td class="st300_navbar_up_title_cell">3. Tools</td><td class="st300_navbar_next_title_cell">3.2. Maven Plugin Usage</td></tr><tr><td class="st300_navbar_prev_file_cell"><a rel="previous" href="p3.xhtml#st300_p3" title="Go to previous page">Previous</a></td><td class="st300_navbar_up_file_cell"><a rel="up" href="p3.xhtml#st300_p3" title="Go to parent page">Up</a></td><td class="st300_navbar_next_file_cell"><a rel="next" href="p3s2.xhtml#st300_p3s2" title="Go to next page">Next</a></td></tr></table><hr class="st300_hr"/></div><div class="st300_section_container"><a id="tools.cmdline"/><div class="st300_section_title_number"><a id="st300_p3s1" href="#st300_p3s1" title="Section 3.1: Command Line Usage">3.1</a></div><div class="st300_section_title">Command Line Usage</div><ul class="st300_contents st300_section_contents_outer st300_section_contents"><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s1.xhtml#st300_p3s1ss1" title="Link to subsection 3.1.1: Synopsis">3.1.1. Synopsis</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s1.xhtml#st300_p3s1ss2" title="Link to subsection 3.1.2: check">3.1.2. check</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s1.xhtml#st300_p3s1ss3" title="Link to subsection 3.1.3: compile-xhtml">3.1.3. compile-xhtml</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s1.xhtml#st300_p3s1ss4" title="Link to subsection 3.1.4: compile-latex">3.1.4. compile-latex</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s1.xhtml#st300_p3s1ss5" title="Link to subsection 3.1.5: compile-plain">3.1.5. compile-plain</a></li><li class="st300_contents_item st300_contents_item1 st300_contents_item_subsection"><a href="p3s1.xhtml#st300_p3s1ss6" title="Link to subsection 3.1.6: convert">3.1.6. convert</a></li></ul><div class="st300_subsection_container"><div class="st300_subsection_title_number"><a id="st300_p3s1ss1" href="#st300_p3s1ss1" title="Subsection 3.1.1: Synopsis">3.1.1</a></div><div class="st300_subsection_title">Synopsis</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss1c1" href="#st300_p3s1ss1c1" title="Paragraph 3.1.1.1">1</a></div><div class="st300_paragraph">The <span class="st300_term command">kstructural</span> command processes <span class="st300_term package">structural</span> documents. <pre class="st300_verbatim terminal">Usage: kstructural [options] [command] [command options]</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss1c2" href="#st300_p3s1ss1c2" title="Paragraph 3.1.1.2">2</a></div><div class="st300_paragraph">The command line tool is distributed as part of the executable <span class="st300_term file">io7m-kstructural-cmdline-0.3.0-main.jar</span> file (referred to as <span class="st300_term command">kstructural.jar</span> in usage examples, for brevity):</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss1c3" href="#st300_p3s1ss1c3" title="Paragraph 3.1.1.3">3</a></div><div class="st300_paragraph"><pre class="st300_verbatim terminal">$ java -jar io7m-kstructural-cmdline-0.3.0-main.jar</pre></div></div></div><div class="st300_subsection_container"><a id="tools.cmdline.check"/><div class="st300_subsection_title_number"><a id="st300_p3s1ss2" href="#st300_p3s1ss2" title="Subsection 3.1.2: check">3.1.2</a></div><div class="st300_subsection_title">check</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss2c1" href="#st300_p3s1ss2c1" title="Paragraph 3.1.2.1">1</a></div><div class="st300_paragraph">The <span class="st300_term command">check</span> subcommand parses and validates the given document.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss2c2" href="#st300_p3s1ss2c2" title="Formal item 3.1.2.2: Check Subcommand">3.1.2.2 Check Subcommand</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">check      Check document syntax and structure
+  Usage: check [options]
+    Options:
+      * -file
+          Input file
+        -verbose
+          Set the minimum logging verbosity level
+          Default: info
+          Possible Values: [trace, debug, info, warn, error]
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss2c3" href="#st300_p3s1ss2c3" title="Paragraph 3.1.2.3">3</a></div><div class="st300_paragraph">The command exits with code <span class="st300_term constant">0</span> if no errors occurred, and a positive exit code otherwise.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss2c4" href="#st300_p3s1ss2c4" title="Formal item 3.1.2.4: Checking Example">3.1.2.4 Checking Example</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">$ java -jar kstructural.jar check -file valid.sd
 $ echo $?
 0
 
@@ -20,49 +18,47 @@ ERROR com.io7m.kstructural.frontend.KSOpCheck: invalid.sd: 1:14: Expected an inl
   Expected: [symbol:{image | include | link-ext | link | term | verbatim | footnote-ref | table | list-ordered | list-unordered} ... ]
   Received: [invalid]
 $ echo $?
-1</pre></div></div></div><div class="st300_subsection_container"><a id="tools.cmdline.compile_xhtml"/><div class="st300_subsection_title_number"><a id="st300_p3s1ss3" href="#st300_p3s1ss3" title="Subsection 3.1.3: compile-xhtml">3.1.3</a></div><div class="st300_subsection_title">compile-xhtml</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss3c1" href="#st300_p3s1ss3c1" title="Paragraph 3.1.3.1">1</a></div><div class="st300_paragraph">The <span class="st300_term command">compile-xhtml</span> subcommand parses and validates the given document, and then generates XHTML pages based on the content.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss3c2" href="#st300_p3s1ss3c2" title="Formal item 3.1.3.2: XHTML Compilation Subcommand">3.1.3.2 XHTML Compilation Subcommand</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">    compile-xhtml      Compile documents to XHTML
-      Usage: compile-xhtml [options]
-        Options:
-          -brand-bottom
-             Append the contents of the given XML file to each XHTML page's body
-             element
-          -brand-top
-             Prepend the contents of the given XML file to each XHTML page's
-             body element
-          -css-create-default
-             Create the default CSS files in the output directory
-             Default: true
-          -css-extra-styles
-             A comma-separated list of extra CSS styles (as URIs) that will be
-             used for each page
-             Default: []
-          -css-include-default
-             Include links to the default CSS files
-             Default: true
-        * -file
-             Input file
-        * -output-dir
-             The directory in which output files will be written
-          -pagination
-             The type of XHTML pagination that will be used
-             Default: multi
-             Possible Values: [single, multi]
-          -render-toc-document
-             Render a table of contents at the document level
-             Default: true
-          -render-toc-part
-             Render a table of contents at the part level
-             Default: true
-          -render-toc-section
-             Render a table of contents at the section level
-             Default: true
-          -verbose
-             Set the minimum logging verbosity level
-             Default: info
-             Possible Values: [trace, debug, info, warn, error]
-
-</pre></div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.brand_bottom"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c3" href="#st300_p3s1ss3c3" title="Paragraph 3.1.3.3">3</a></div><div class="st300_paragraph">The <span class="st300_term command">-brand-bottom</span> option specifies an XML file that will be appended to the body of each generated XHTML page. This effectively allows for custom footers on generated pages. Note that the XML file is parsed and the element is appended to the AST of each generated page. This guarantees that the output is well formed (although not necessarily valid) XHTML.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.brand_top"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c4" href="#st300_p3s1ss3c4" title="Paragraph 3.1.3.4">4</a></div><div class="st300_paragraph">The <span class="st300_term command">-brand-top</span> option specifies an XML file that will be prepended to the body of each generated XHTML page. This effectively allows for custom headers on generated pages. Note that the XML file is parsed and the element is prepended to the AST of each generated page. This guarantees that the output is well formed (although not necessarily valid) XHTML.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.css_create_default"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c5" href="#st300_p3s1ss3c5" title="Paragraph 3.1.3.5">5</a></div><div class="st300_paragraph">The <span class="st300_term command">-css-create-default</span> option specifies that the default CSS files used by the <span class="st300_term command">kstructural</span> should be written to the output directory. This option can be set to <span class="st300_term constant">false</span> if entirely custom CSS is to be used.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.file"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c6" href="#st300_p3s1ss3c6" title="Paragraph 3.1.3.6">6</a></div><div class="st300_paragraph">The <span class="st300_term command">-file</span> option specifies the input file.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.css_include_default"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c7" href="#st300_p3s1ss3c7" title="Paragraph 3.1.3.7">7</a></div><div class="st300_paragraph">The <span class="st300_term command">-css-include-default</span> option specifies that links to the default CSS files used by the <span class="st300_term command">kstructural</span> should be generated in each XHTML page. This option can be set to <span class="st300_term constant">false</span> if entirely custom CSS is to be used.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.output_dir"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c8" href="#st300_p3s1ss3c8" title="Paragraph 3.1.3.8">8</a></div><div class="st300_paragraph">The <span class="st300_term command">-output-dir</span> option specifies the output directory.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.pagination"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c9" href="#st300_p3s1ss3c9" title="Paragraph 3.1.3.9">9</a></div><div class="st300_paragraph">The <span class="st300_term command">-pagination</span> option specifies how the generated XHTML should be paginated. A value of <span class="st300_term constant">single</span> indicates that the output should be one large XHTML page. A value of <span class="st300_term constant">multi</span> indicates that a new page should be created for each <span class="st300_term type">document</span>, <span class="st300_term type">part</span>, and <span class="st300_term type">section</span>.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.render_toc_document"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c10" href="#st300_p3s1ss3c10" title="Paragraph 3.1.3.10">10</a></div><div class="st300_paragraph">The <span class="st300_term command">-render-toc-document</span> option specifies whether or not a table of contents should be generated for the main document.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.render_toc_section"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c11" href="#st300_p3s1ss3c11" title="Paragraph 3.1.3.11">11</a></div><div class="st300_paragraph">The <span class="st300_term command">-render-toc-section</span> option specifies whether or not a table of contents should be generated at the start of each section.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.render_toc_part"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c12" href="#st300_p3s1ss3c12" title="Paragraph 3.1.3.12">12</a></div><div class="st300_paragraph">The <span class="st300_term command">-render-toc-part</span> option specifies whether or not a table of contents should be generated at the start of each part.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.verbose"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c13" href="#st300_p3s1ss3c13" title="Paragraph 3.1.3.13">13</a></div><div class="st300_paragraph">The <span class="st300_term command">-verbose</span> option specifies the level of logging desired.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss3c14" href="#st300_p3s1ss3c14" title="Paragraph 3.1.3.14">14</a></div><div class="st300_paragraph">The command exits with code <span class="st300_term constant">0</span> if no errors occurred, and a positive exit code otherwise.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss3c15" href="#st300_p3s1ss3c15" title="Formal item 3.1.3.15: XHTML Compilation Example">3.1.3.15 XHTML Compilation Example</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">
-$ java -jar kstructural.jar compile-xhtml -file valid.sd -output-dir /tmp
+1</pre></div></div></div><div class="st300_subsection_container"><a id="tools.cmdline.compile_xhtml"/><div class="st300_subsection_title_number"><a id="st300_p3s1ss3" href="#st300_p3s1ss3" title="Subsection 3.1.3: compile-xhtml">3.1.3</a></div><div class="st300_subsection_title">compile-xhtml</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss3c1" href="#st300_p3s1ss3c1" title="Paragraph 3.1.3.1">1</a></div><div class="st300_paragraph">The <span class="st300_term command">compile-xhtml</span> subcommand parses and validates the given document, and then generates XHTML pages based on the content.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss3c2" href="#st300_p3s1ss3c2" title="Formal item 3.1.3.2: XHTML Compilation Subcommand">3.1.3.2 XHTML Compilation Subcommand</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">compile-xhtml      Compile documents to XHTML
+  Usage: compile-xhtml [options]
+    Options:
+      -brand-bottom
+         Append the contents of the given XML file to each XHTML page's body
+         element
+      -brand-top
+         Prepend the contents of the given XML file to each XHTML page's
+         body element
+      -css-create-default
+         Create the default CSS files in the output directory
+         Default: true
+      -css-extra-styles
+         A comma-separated list of extra CSS styles (as URIs) that will be
+         used for each page
+         Default: []
+      -css-include-default
+         Include links to the default CSS files
+         Default: true
+    * -file
+         Input file
+    * -output-dir
+         The directory in which output files will be written
+      -pagination
+         The type of XHTML pagination that will be used
+         Default: multi
+         Possible Values: [single, multi]
+      -render-toc-document
+         Render a table of contents at the document level
+         Default: true
+      -render-toc-part
+         Render a table of contents at the part level
+         Default: true
+      -render-toc-section
+         Render a table of contents at the section level
+         Default: true
+      -verbose
+         Set the minimum logging verbosity level
+         Default: info
+         Possible Values: [trace, debug, info, warn, error]
+</pre></div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.brand_bottom"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c3" href="#st300_p3s1ss3c3" title="Paragraph 3.1.3.3">3</a></div><div class="st300_paragraph">The <span class="st300_term command">-brand-bottom</span> option specifies an XML file that will be appended to the body of each generated XHTML page. This effectively allows for custom footers on generated pages. Note that the XML file is parsed and the element is appended to the AST of each generated page. This guarantees that the output is well formed (although not necessarily valid) XHTML.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.brand_top"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c4" href="#st300_p3s1ss3c4" title="Paragraph 3.1.3.4">4</a></div><div class="st300_paragraph">The <span class="st300_term command">-brand-top</span> option specifies an XML file that will be prepended to the body of each generated XHTML page. This effectively allows for custom headers on generated pages. Note that the XML file is parsed and the element is prepended to the AST of each generated page. This guarantees that the output is well formed (although not necessarily valid) XHTML.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.css_create_default"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c5" href="#st300_p3s1ss3c5" title="Paragraph 3.1.3.5">5</a></div><div class="st300_paragraph">The <span class="st300_term command">-css-create-default</span> option specifies that the default CSS files used by the <span class="st300_term command">kstructural</span> should be written to the output directory. This option can be set to <span class="st300_term constant">false</span> if entirely custom CSS is to be used.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.file"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c6" href="#st300_p3s1ss3c6" title="Paragraph 3.1.3.6">6</a></div><div class="st300_paragraph">The <span class="st300_term command">-file</span> option specifies the input file.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.css_include_default"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c7" href="#st300_p3s1ss3c7" title="Paragraph 3.1.3.7">7</a></div><div class="st300_paragraph">The <span class="st300_term command">-css-include-default</span> option specifies that links to the default CSS files used by the <span class="st300_term command">kstructural</span> should be generated in each XHTML page. This option can be set to <span class="st300_term constant">false</span> if entirely custom CSS is to be used.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.output_dir"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c8" href="#st300_p3s1ss3c8" title="Paragraph 3.1.3.8">8</a></div><div class="st300_paragraph">The <span class="st300_term command">-output-dir</span> option specifies the output directory.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.pagination"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c9" href="#st300_p3s1ss3c9" title="Paragraph 3.1.3.9">9</a></div><div class="st300_paragraph">The <span class="st300_term command">-pagination</span> option specifies how the generated XHTML should be paginated. A value of <span class="st300_term constant">single</span> indicates that the output should be one large XHTML page. A value of <span class="st300_term constant">multi</span> indicates that a new page should be created for each <span class="st300_term type">document</span>, <span class="st300_term type">part</span>, and <span class="st300_term type">section</span>.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.render_toc_document"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c10" href="#st300_p3s1ss3c10" title="Paragraph 3.1.3.10">10</a></div><div class="st300_paragraph">The <span class="st300_term command">-render-toc-document</span> option specifies whether or not a table of contents should be generated for the main document.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.render_toc_section"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c11" href="#st300_p3s1ss3c11" title="Paragraph 3.1.3.11">11</a></div><div class="st300_paragraph">The <span class="st300_term command">-render-toc-section</span> option specifies whether or not a table of contents should be generated at the start of each section.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.render_toc_part"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c12" href="#st300_p3s1ss3c12" title="Paragraph 3.1.3.12">12</a></div><div class="st300_paragraph">The <span class="st300_term command">-render-toc-part</span> option specifies whether or not a table of contents should be generated at the start of each part.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_xhtml.verbose"/><div class="st300_paragraph_number"><a id="st300_p3s1ss3c13" href="#st300_p3s1ss3c13" title="Paragraph 3.1.3.13">13</a></div><div class="st300_paragraph">The <span class="st300_term command">-verbose</span> option specifies the level of logging desired.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss3c14" href="#st300_p3s1ss3c14" title="Paragraph 3.1.3.14">14</a></div><div class="st300_paragraph">The command exits with code <span class="st300_term constant">0</span> if no errors occurred, and a positive exit code otherwise.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss3c15" href="#st300_p3s1ss3c15" title="Formal item 3.1.3.15: XHTML Compilation Example">3.1.3.15 XHTML Compilation Example</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">$ java -jar kstructural.jar compile-xhtml -file valid.sd -output-dir /tmp
 $ echo $?
 0
 
@@ -73,34 +69,79 @@ $ echo $?
 $ file /tmp/index-m.xhtml
 /tmp/index-m.xhtml: XML 1.0 document, ASCII text, with very long lines, with CRLF line terminators
 $ file /tmp/index.xhtml
-/tmp/index.xhtml: XML 1.0 document, ASCII text, with very long lines, with CRLF line terminators</pre></div></div></div><div class="st300_subsection_container"><a id="tools.cmdline.convert"/><div class="st300_subsection_title_number"><a id="st300_p3s1ss4" href="#st300_p3s1ss4" title="Subsection 3.1.4: convert">3.1.4</a></div><div class="st300_subsection_title">convert</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss4c1" href="#st300_p3s1ss4c1" title="Paragraph 3.1.4.1">1</a></div><div class="st300_paragraph">The <span class="st300_term command">convert</span> subcommand parses and validates the given document, and then converts it to one of the supported <span class="st300_term package">structural</span> formats.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss4c2" href="#st300_p3s1ss4c2" title="Formal item 3.1.4.2: Convert Subcommand">3.1.4.2 Convert Subcommand</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">    convert      Convert documents between input formats
-      Usage: convert [options]
-        Options:
-        * -file
-             Input file
-          -format
-             The format that will be used for exported documents
-             Default: canonical
-             Possible Values: [canonical, imperative, xml]
-          -indent
-             The number of spaces that will be used to indent documents
-             Default: 2
-          -no-imports
-             Export as one large document that does not contain any imports
-             Default: false
-        * -output-dir
-             The directory in which output files will be written
-          -verbose
-             Set the minimum logging verbosity level
-             Default: info
-             Possible Values: [trace, debug, info, warn, error]
-          -width
-             The maximum width in characters that will be used when formatting
-             documents
-             Default: 80
+/tmp/index.xhtml: XML 1.0 document, ASCII text, with very long lines, with CRLF line terminators</pre></div></div></div><div class="st300_subsection_container"><a id="tools.cmdline.compile_latex"/><div class="st300_subsection_title_number"><a id="st300_p3s1ss4" href="#st300_p3s1ss4" title="Subsection 3.1.4: compile-latex">3.1.4</a></div><div class="st300_subsection_title">compile-latex</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss4c1" href="#st300_p3s1ss4c1" title="Paragraph 3.1.4.1">1</a></div><div class="st300_paragraph">The <span class="st300_term command">compile-latex</span> subcommand parses and validates the given document, and then generates LaTeX based on the content.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss4c2" href="#st300_p3s1ss4c2" title="Formal item 3.1.4.2: LaTeX Compilation Subcommand">3.1.4.2 LaTeX Compilation Subcommand</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">compile-latex      Compile documents to LaTeX
+  Usage: compile-latex [options]
+    Options:
+    * -file
+         Input file
+    * -output-dir
+         The directory in which output files will be written
+      -type-map
+         A file containing type name to LaTeX emphasis mappings
+      -verbose
+         Set the minimum logging verbosity level
+         Default: info
+         Possible Values: [trace, debug, info, warn, error]
+</pre></div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_latex.file"/><div class="st300_paragraph_number"><a id="st300_p3s1ss4c3" href="#st300_p3s1ss4c3" title="Paragraph 3.1.4.3">3</a></div><div class="st300_paragraph">The <span class="st300_term command">-file</span> option specifies the input file.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_latex.output_dir"/><div class="st300_paragraph_number"><a id="st300_p3s1ss4c4" href="#st300_p3s1ss4c4" title="Paragraph 3.1.4.4">4</a></div><div class="st300_paragraph">The <span class="st300_term command">-output-dir</span> option specifies the output directory.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_latex.type-map"/><div class="st300_paragraph_number"><a id="st300_p3s1ss4c5" href="#st300_p3s1ss4c5" title="Paragraph 3.1.4.5">5</a></div><div class="st300_paragraph">The <span class="st300_term command">-type-map</span> option specifies a file that contains a set of mappings from terms to emphasis types. This is used to mark specific terms as being displayed in a monospaced font, in bold, or in italic. The file contains one line per term and has the following grammar:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss4c6" href="#st300_p3s1ss4c6" title="Formal item 3.1.4.6: LaTeX Type Map Grammar">3.1.4.6 LaTeX Type Map Grammar</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">mapping =
+  term_name , ':' , style ;
 
-</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss4c3" href="#st300_p3s1ss4c3" title="Paragraph 3.1.4.3">3</a></div><div class="st300_paragraph">The command exits with code <span class="st300_term constant">0</span> if no errors occurred, and a positive exit code otherwise.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss4c4" href="#st300_p3s1ss4c4" title="Formal item 3.1.4.4: Conversion Example">3.1.4.4 Conversion Example</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">
-$ cat valid.sd
+term_character =
+  p{isLetter} | p{isNumber}_ ;
+
+term_name =
+  term_character , { term_character } ;
+
+style =
+  "bold" | "mono" | "italic" ;
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss4c7" href="#st300_p3s1ss4c7" title="Paragraph 3.1.4.7">7</a></div><div class="st300_paragraph">For example, the following type map makes all text tagged with <span class="st300_term term">function</span> monospaced, all text tagged with <span class="st300_term term">package</span> bold, and all text tagged with <span class="st300_term term">term</span> italic:</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss4c8" href="#st300_p3s1ss4c8" title="Formal item 3.1.4.8: LaTeX Type Map Example">3.1.4.8 LaTeX Type Map Example</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">package  : bold
+function : mono
+term     : italic</pre></div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_latex.verbose"/><div class="st300_paragraph_number"><a id="st300_p3s1ss4c9" href="#st300_p3s1ss4c9" title="Paragraph 3.1.4.9">9</a></div><div class="st300_paragraph">The <span class="st300_term command">-verbose</span> option specifies the level of logging desired.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss4c10" href="#st300_p3s1ss4c10" title="Paragraph 3.1.4.10">10</a></div><div class="st300_paragraph">The command exits with code <span class="st300_term constant">0</span> if no errors occurred, and a positive exit code otherwise.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss4c11" href="#st300_p3s1ss4c11" title="Formal item 3.1.4.11: LaTeX Compilation Example">3.1.4.11 LaTeX Compilation Example</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">$ java -jar kstructural.jar compile-latex -file valid.sd -output-dir /tmp
+$ echo $?
+0
+
+$ file /tmp/main.tex
+/tmp/main.tex: ASCII text, with very long lines</pre></div></div></div><div class="st300_subsection_container"><a id="tools.cmdline.compile_plain"/><div class="st300_subsection_title_number"><a id="st300_p3s1ss5" href="#st300_p3s1ss5" title="Subsection 3.1.5: compile-plain">3.1.5</a></div><div class="st300_subsection_title">compile-plain</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss5c1" href="#st300_p3s1ss5c1" title="Paragraph 3.1.5.1">1</a></div><div class="st300_paragraph">The <span class="st300_term command">compile-plain</span> subcommand parses and validates the given document, and then generates plain text based on the content.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss5c2" href="#st300_p3s1ss5c2" title="Formal item 3.1.5.2: Plain Compilation Subcommand">3.1.5.2 Plain Compilation Subcommand</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">compile-plain      Compile documents to plain text
+  Usage: compile-plain [options]
+    Options:
+    * -file
+         Input file
+    * -output-dir
+         The directory in which output files will be written
+      -verbose
+         Set the minimum logging verbosity level
+         Default: info
+         Possible Values: [trace, debug, info, warn, error]
+</pre></div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_plain.file"/><div class="st300_paragraph_number"><a id="st300_p3s1ss5c3" href="#st300_p3s1ss5c3" title="Paragraph 3.1.5.3">3</a></div><div class="st300_paragraph">The <span class="st300_term command">-file</span> option specifies the input file.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_plain.output_dir"/><div class="st300_paragraph_number"><a id="st300_p3s1ss5c4" href="#st300_p3s1ss5c4" title="Paragraph 3.1.5.4">4</a></div><div class="st300_paragraph">The <span class="st300_term command">-output-dir</span> option specifies the output directory.</div></div><div class="st300_paragraph_container"><a id="tools.cmdline.compile_plain.verbose"/><div class="st300_paragraph_number"><a id="st300_p3s1ss5c5" href="#st300_p3s1ss5c5" title="Paragraph 3.1.5.5">5</a></div><div class="st300_paragraph">The <span class="st300_term command">-verbose</span> option specifies the level of logging desired.</div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss5c6" href="#st300_p3s1ss5c6" title="Paragraph 3.1.5.6">6</a></div><div class="st300_paragraph">The command exits with code <span class="st300_term constant">0</span> if no errors occurred, and a positive exit code otherwise.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss5c7" href="#st300_p3s1ss5c7" title="Formal item 3.1.5.7: Plain Compilation Example">3.1.5.7 Plain Compilation Example</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">$ java -jar kstructural.jar compile-plain -file valid.sd -output-dir /tmp
+$ echo $?
+0
+
+$ file /tmp/main.txt
+/tmp/main.tex: UTF-8 Unicode text</pre></div></div></div><div class="st300_subsection_container"><a id="tools.cmdline.convert"/><div class="st300_subsection_title_number"><a id="st300_p3s1ss6" href="#st300_p3s1ss6" title="Subsection 3.1.6: convert">3.1.6</a></div><div class="st300_subsection_title">convert</div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss6c1" href="#st300_p3s1ss6c1" title="Paragraph 3.1.6.1">1</a></div><div class="st300_paragraph">The <span class="st300_term command">convert</span> subcommand parses and validates the given document, and then converts it to one of the supported <span class="st300_term package">structural</span> formats.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss6c2" href="#st300_p3s1ss6c2" title="Formal item 3.1.6.2: Convert Subcommand">3.1.6.2 Convert Subcommand</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">convert      Convert documents between input formats
+  Usage: convert [options]
+    Options:
+    * -file
+         Input file
+      -format
+         The format that will be used for exported documents
+         Default: canonical
+         Possible Values: [canonical, imperative, xml]
+      -indent
+         The number of spaces that will be used to indent documents
+         Default: 2
+      -no-imports
+         Export as one large document that does not contain any imports
+         Default: false
+    * -output-dir
+         The directory in which output files will be written
+      -verbose
+         Set the minimum logging verbosity level
+         Default: info
+         Possible Values: [trace, debug, info, warn, error]
+      -width
+         The maximum width in characters that will be used when formatting
+         documents
+         Default: 80
+</pre></div></div><div class="st300_paragraph_container"><div class="st300_paragraph_number"><a id="st300_p3s1ss6c3" href="#st300_p3s1ss6c3" title="Paragraph 3.1.6.3">3</a></div><div class="st300_paragraph">The command exits with code <span class="st300_term constant">0</span> if no errors occurred, and a positive exit code otherwise.</div></div><div class="st300_formal_item"><div class="st300_formal_item_title"><a id="st300_p3s1ss6c4" href="#st300_p3s1ss6c4" title="Formal item 3.1.6.4: Conversion Example">3.1.6.4 Conversion Example</a></div><div class="st300_formal_item_content"><pre class="st300_verbatim">$ cat valid.sd
 [document
   [title A document]
   [section

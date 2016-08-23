@@ -1,1 +1,13 @@
+com.io7m.kstructural.cmdline
+com.io7m.kstructural.core
+com.io7m.kstructural.core.evaluator
 com.io7m.kstructural.documentation
+com.io7m.kstructural.frontend
+com.io7m.kstructural.latex
+com.io7m.kstructural.parser
+com.io7m.kstructural.parser.canon
+com.io7m.kstructural.parser.imperative
+com.io7m.kstructural.plain
+com.io7m.kstructural.pretty
+com.io7m.kstructural.schema
+com.io7m.kstructural.xom

@@ -1,10 +1,9 @@
-    check      Check document syntax and structure
-      Usage: check [options]
-        Options:
-        * -file
-             Input file
-          -verbose
-             Set the minimum logging verbosity level
-             Default: info
-             Possible Values: [trace, debug, info, warn, error]
-
+check      Check document syntax and structure
+  Usage: check [options]
+    Options:
+      * -file
+          Input file
+        -verbose
+          Set the minimum logging verbosity level
+          Default: info
+          Possible Values: [trace, debug, info, warn, error]
