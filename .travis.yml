@@ -1,3 +1,6 @@
+env:
+  _JAVA_OPTIONS="-Xms1G -Xmx4G"
+
 language: java
 
 jdk:
