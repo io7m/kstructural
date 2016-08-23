@@ -10,3 +10,9 @@ addons:
   apt:
     packages:
       - oracle-java8-installer
+
+install:
+
+script:
+  - mvn clean package
+
