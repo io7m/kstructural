@@ -1,0 +1,2231 @@
+Structural 3.0.0 Language Specification
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Contents
+  ─────────────────────────────────────────────────────────────────────────────
+  1 Notational Conventions ........................................ conventions
+    1.1 Unicode ........................................... conventions.unicode
+    1.2 EBNF ................................................. conventions.ebnf
+    1.3 Haskell ........................................... conventions.haskell
+    1.4 S-Expressions ...................................... conventions.sexprs
+    1.5 S-Expression Metasyntax ................................ fmt_canon.meta
+  2 Model ............................................................... model
+    2.1 Overview ............................................... model.overview
+    2.2 Inline Content ........................................... model.inline
+    2.3 Block Content ............................................. model.block
+  3 Canonical Format ................................................ fmt_canon
+    3.1 Overview ........................................... fmt_canon.overview
+    3.2 Inline Elements ..................................... fmt_canon.inlines
+    3.3 Block Elements ....................................... fmt_canon.blocks
+  4 Imperative Format ................................................. fmt_imp
+    4.1 Overview ............................................. fmt_imp.overview
+    4.2 Block Commands ......................................... fmt_imp.blocks
+  5 XML Format ........................................................ fmt_xml
+    5.1 Overview ............................................. fmt_xml.overview
+    5.2 RELAX-NG Schema ........................................ fmt_xml.schema
+
+
+1 Notational Conventions [id: conventions]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Contents
+  ─────────────────────────────────────────────────────────────────────────────
+  1.1 Unicode ............................................. conventions.unicode
+  1.2 EBNF ................................................... conventions.ebnf
+  1.3 Haskell ............................................. conventions.haskell
+  1.4 S-Expressions ........................................ conventions.sexprs
+  1.5 S-Expression Metasyntax .................................. fmt_canon.meta
+    1.5.1 Overview ............................................................
+    1.5.2 Rules ...............................................................
+    1.5.3 Examples ............................................................
+
+
+1.1 Unicode [id: conventions.unicode]
+
+1     The specification makes reference to the Unicode character set which, at
+      the time of writing, is at version 8.0.0. The specification often
+      references specific Unicode characters, and does so using the standard
+      notation U+NNNN, where N represents a hexadecimal digit. For example,
+      U+03BB corresponds to the lowercase lambda symbol λ.
+
+1.2 EBNF [id: conventions.ebnf]
+
+1     The specification gives grammar definitions in ISO/IEC 14977:1996
+      Extended Backus-Naur form.
+
+1.3 Haskell [id: conventions.haskell]
+
+1     Rather than rely on untyped and ambiguous mathematical notation, this
+      documentation expresses all mathematics and type definitions in strict
+      Haskell 2010 [url: http://www.haskell.org/onlinereport/haskell2010/] with
+      no extensions. All Haskell sources are included along with the
+      documentation and can therefore be executed from the command line GHCi
+      [url: http://www.haskell.org/haskellwiki/GHC/GHCi] tool in order to
+      interactively check results and experiment with functions.
+
+2     When used within prose, functions are referred to using fully qualified
+      notation, such as (Vector3f.cross n t). This is the application of the
+      cross function defined in the Vector3f module, to the arguments n and t.
+
+1.4 S-Expressions [id: conventions.sexprs]
+
+1     An s-expression is defined by the following grammar:
+
+      1.4.2 S-Expression Grammar
+      ──────────────────────────
+
+      expression =
+          symbol
+        | quoted_string
+        | "[" , { expression } , "]"
+        | "(" , { expression } , ")" ;
+
+3     The sequences U+000D U+000A and U+000A are recognized as line terminators
+      for the purposes of tracking line and column numbers for diagnostic
+      messages. Bare U+000D characters are not permitted to appear outside of
+      quoted strings.
+
+4     The terminals of the grammar are given as:
+
+      1.4.5 S-Expression Grammar
+      ──────────────────────────
+
+      symbol_character =
+        ? not (")" | "(" | "[" | "]" | U+0022 | WHITESPACE) ? ;
+
+      symbol =
+        symbol_character , { symbol_character } ;
+
+      quoted_character =
+        ? not U+0022 ? ;
+
+      quoted_string =
+        U+0022 , (quoted_character | escape) , { (quoted_character | escape) } , U+0022 ;
+
+      escape =
+          escape_carriage
+        | escape_newline
+        | escape_tab
+        | escape_quote
+        | escape_unicode4
+        | escape_unicode8 ;
+
+      escape_carriage =
+        "\r" ;
+
+      escape_newline =
+        "\n" ;
+
+      escape_quote =
+        "\" , U+0022 ;
+
+      escape_tab =
+        "\t" ;
+
+      escape_unicode4 =
+        "\u" ,
+        hex_digit , hex_digit , hex_digit , hex_digit ;
+
+      escape_unicode8 =
+        "\u" ,
+        hex_digit , hex_digit , hex_digit , hex_digit ,
+        hex_digit , hex_digit , hex_digit , hex_digit ;
+
+      hex_digit =
+        "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "0" |
+        "a" | "A" | "b" | "B" | "c" | "C" | "d" | "D" | "e" | "E" | "f" | "F" ;
+
+
+6     Due to limitations in the EBNF [url:
+      https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_Form] format,
+      the definitions for symbol_character and quoted_character cannot be
+      expressed directly. Informally, the symbol_character rule should be
+      understood to specify any Unicode character that is not whitespace, is
+      not U+0028 (, is not U+0029 ), and is not U+0022 ".
+
+1.5 S-Expression Metasyntax [id: fmt_canon.meta]
+
+1.5.1 Overview
+
+1     Because no formal standard exists to describe the actual structure of
+      parsed s-expressions, a small language is introduced here to describe the
+      forms used to describe the document elements specified later on in this
+      publication. The syntax of the syntax rules are themselves given as
+      s-expressions, and to avoid an infinite regression problem akin to trying
+      to specify EBNF using EBNF itself, the language here is described
+      informally with an executable Haskell specification [SEMatcher.hs] [url:
+      SEMatcher.hs] to make the semantics clear where English cannot.
+
+1.5.2 Rules
+
+1     A rule may take one of the following forms:
+
+      1.5.2.2 Rules
+      ─────────────
+
+      data Rule
+        = MAnySymbol
+        | MAnyQuoted
+        | MAnyList
+        | MExactSymbol String
+        | MExactQuoted String
+        | MExactList [Rule]
+        | MChoice [Rule]
+        | MListVariadic [Rule] Rule
+        deriving Eq
+
+
+
+3     The s-expression syntax of each rule may be inferred from the given Show
+      instance:
+
+      1.5.2.4 Rule Syntax
+      ───────────────────
+
+      instance Show Rule where
+        show (MExactSymbol s)    = "(#exact-symbol " ++ s ++ ")"
+        show (MExactQuoted s)    = "(#exact-quoted " ++ s ++ ")"
+        show (MExactList s)      = "(#exact-list [" ++ (concatMap show s) ++ "])"
+        show  MAnySymbol         = "#any-symbol"
+        show  MAnyQuoted         = "#any-quoted"
+        show  MAnyList           = "#any-list"
+        show (MChoice s)         = "(#choice [" ++ (concatMap show s) ++ "])"
+        show (MListVariadic s m) = "(#variadic [" ++ (concatMap show s) ++ "]" ++ (show m) ++ ")"
+
+
+
+5     A rule is r said to match an expression e if, given the matches function
+      defined below, matches e r == True.
+
+      1.5.2.6 Informal Description Of Rules
+      ─────────────────────────────────────
+
+      • The #any-symbol rule matches an expression e iff e is a symbol.
+      • The #any-quoted rule matches an expression e iff e is a quoted string.
+      • The #any-list rule matches an expression e iff e is a list.
+      • The (#exact-symbol s) rule matches an expression e iff e is a symbol
+        with the value s.
+      • The (#exact-quoted s) rule matches an expression e iff e is a quoted
+        string with the value s.
+      • The (#exact-list (m₀ m₁ ... mₙ)) rule matches an expression e iff e is
+        a list, the length of e is n + 1, and
+        ∀k. 0 <= k <= n → e[k] matches mₖ.
+      • The (#choice (m₀ ... mₙ)) rule matches an expression e iff exactly one
+        rule in the given list (m₀ ... mₙ) matches e. Accordingly, the rule
+        (#choice ()) never matches anything.
+      • The (#variadic (m₀ m₁ ... mₙ) r) rule matches an expression e iff e is
+        a list, the length of e is >= n + 1, ∀k. 0 <= k <= n → e[k] matches mₖ,
+        and the remaining elements in e match r. Accordingly, the rule
+        (#variadic () r) will check that every element of a given list matches
+        r, and will always match for a given empty list.
+
+
+7     Matching an arbitrary s-expression against a rule is a simple matter of
+      checking to see if the structure of the given expression matches the
+      structure allowed by the rule against which it is being matched. A
+      complete definition of a matching function that encodes the above rules
+      is as follows:
+
+      1.5.2.8 Match Function
+      ──────────────────────
+
+      matches :: SE.Expr -> Rule -> Bool
+      matches (SE.ESymbol e) (MExactSymbol s)    = e == s
+      matches (SE.ESymbol _) (MExactQuoted _)    = False
+      matches (SE.ESymbol _) (MExactList _)      = False
+      matches (SE.ESymbol _) MAnySymbol          = True
+      matches (SE.ESymbol _) MAnyQuoted          = False
+      matches (SE.ESymbol _) MAnyList            = False
+      matches (SE.ESymbol _) (MListVariadic _ _) = False
+      matches (SE.EQuoted _) MAnySymbol          = False
+      matches (SE.EQuoted _) MAnyQuoted          = True
+      matches (SE.EQuoted _) MAnyList            = False
+      matches (SE.EQuoted e) (MExactQuoted s)    = e == s
+      matches (SE.EQuoted _) (MExactSymbol _)    = False
+      matches (SE.EQuoted _) (MExactList _)      = False
+      matches (SE.EQuoted _) (MListVariadic _ _) = False
+      matches (SE.EList _)   (MExactSymbol _) = False
+      matches (SE.EList _)   (MExactQuoted _) = False
+      matches (SE.EList _)   MAnySymbol       = False
+      matches (SE.EList _)   MAnyQuoted       = False
+      matches (SE.EList _)   MAnyList         = True
+      matches (SE.EList s) (MExactList m) =
+        (length s) == (length m) && all (\(xe,xm) -> matches xe xm) (zip s m)
+      matches (SE.EList s) (MListVariadic m0 mr) =
+        if (length s >= length m0)
+        then
+          let
+            prefix_zip = take (length m0) (zip s m0)
+            prefix_ok  = all (\(xe,xm) -> matches xe xm) prefix_zip
+            suffix     = drop (length m0) s
+            suffix_zip = zip suffix (replicate (length suffix) mr)
+            suffix_ok  = all (\(xe,xm) -> matches xe xm) suffix_zip
+          in
+            prefix_ok && suffix_ok
+        else
+          False
+      matches e (MChoice m0)= 1 == length (filter (matches e) m0)
+
+
+1.5.3 Examples
+
+1     This section is informative. These results can be reproduced by
+      evaluating the given terms in the SEMatcher module using Haskell's
+      interactive command prompt.
+
+2     The expression x is matched by the rule #any-symbol, but "x" is not:
+
+      1.5.3.3 Example 0
+      ─────────────────
+
+      > matches (SE.ESymbol "x") MAnySymbol
+      True
+      > matches (SE.EQuoted "x") MAnySymbol
+      False
+
+
+4     The expression (x y z) is matched by the rule
+      (#exact-list (#exact-symbol "x") (#exact-symbol "y") (#exact-symbol "z")),
+      but (x y y) and (x y) are not:
+
+      1.5.3.5 Example 1
+      ─────────────────
+
+      > matches (SE.EList [SE.ESymbol "x", SE.ESymbol "y", SE.ESymbol "z"]) (MExactList [MExactSymbol "x", MExactSymbol "y", MExactSymbol "z"])
+      True
+      > matches (SE.EList [SE.ESymbol "x", SE.ESymbol "y", SE.ESymbol "y"]) (MExactList [MExactSymbol "x", MExactSymbol "y", MExactSymbol "z"])
+      False
+      > matches (SE.EList [SE.ESymbol "x", SE.ESymbol "y"]) (MExactList [MExactSymbol "x", MExactSymbol "y", MExactSymbol "z"])
+      False
+
+2 Model [id: model]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Contents
+  ─────────────────────────────────────────────────────────────────────────────
+  2.1 Overview ................................................. model.overview
+  2.2 Inline Content ............................................. model.inline
+    2.2.1 Overview ...................................... model.inline.overview
+    2.2.2 Types ............................................ model.inline.types
+    2.2.3 Text .............................................. model.inline.text
+    2.2.4 Term .............................................. model.inline.term
+    2.2.5 Image ............................................ model.inline.image
+    2.2.6 Verbatim ...................................... model.inline.verbatim
+    2.2.7 Link .............................................. model.inline.link
+    2.2.8 Link External ............................ model.inline.link_external
+    2.2.9 Footnote Reference ........................ model.inline.footnote_ref
+    2.2.10 Ordered List ............................. model.inline.list_ordered
+    2.2.11 Unordered List ......................... model.inline.list_unordered
+    2.2.12 Table ........................................... model.inline.table
+    2.2.13 Include ....................................... model.inline.include
+    2.2.14 Complete Inline Model ........................ model.inline.complete
+  2.3 Block Content ............................................... model.block
+    2.3.1 Overview ....................................... model.block.overview
+    2.3.2 ID ................................................... model.block.id
+    2.3.3 Paragraph ..................................... model.block.paragraph
+    2.3.4 Formal Item ................................. model.block.formal_item
+    2.3.5 Footnote ....................................... model.block.footnote
+    2.3.6 Subsection ................................... model.block.subsection
+    2.3.7 Section ......................................... model.block.section
+    2.3.8 Part ............................................... model.block.part
+    2.3.9 Document ....................................... model.block.document
+    2.3.10 Import .......................................... model.block.import
+
+
+2.1 Overview [id: model.overview]
+
+1     The definition of the structural language is given as an algebraic data
+      type. Later parts of the specification define the concrete syntax that
+      maps text to terms of the described types.
+
+2     A structural document consists of nested block [ref: model.block] terms
+      that, at the lowest level, contain inline [ref: model.inline] terms.
+
+2.2 Inline Content [id: model.inline]
+
+2.2.1 Overview [id: model.inline.overview]
+
+1     An inline value is the smallest unit of content that can appear in a
+      structural document. The type of inline content is given by the following
+      definition:
+
+      2.2.1.2 Inline Content
+      ──────────────────────
+
+      data InlineContent
+        = ICText          InlineText
+        | ICTerm          InlineTerm
+        | ICImage         InlineImage
+        | ICVerbatim      InlineVerbatim
+        | ICLink          InlineLinkInternal
+        | ICLinkExternal  InlineLinkExternal
+        | ICListOrdered   InlineListOrdered
+        | ICListUnordered InlineListUnordered
+        | ICFootnoteRef   InlineFootnoteRef
+        | ICTable         InlineTable
+        | ICInclude       InlineInclude
+        deriving Eq
+
+
+2.2.2 Types [id: model.inline.types]
+
+1     Most elements defined here may have an associated type parameter that can
+      be used to distinguish the element from other elements of the same type
+      during document processing. As an example, the author of a document may
+      tag all mentions of a software package with a type parameter value of
+      package so that the mentions can be highlighted when the document is
+      exported to one of the supported export formats. The values have no
+      intrinsic meaning; their meaning is decided by the author of any given
+      document.
+
+2     Type identifiers are restricted to combinations of letters, numbers, and
+      U+005F "_".
+
+      2.2.2.3 Type Identifier Syntax
+      ──────────────────────────────
+
+      type_character =
+        ? p{IsLetter} | p{isNumber} | U+005F ? ;
+
+      type =
+        type_character , { type_character } ;
+
+
+2.2.3 Text [id: model.inline.text]
+
+1     The simplest type of inline content that appears in structural documents
+      is the InlineText type. Terms of type InlineText are simply strings.
+
+      2.2.3.2 Text
+      ────────────
+
+      data InlineText =
+        InlineText String
+        deriving Eq
+
+
+
+2.2.4 Term [id: model.inline.term]
+
+1     The InlineTerm type denotes a significant element of a section of text.
+      It is usually used to highlight or mark individual words.
+
+      2.2.4.2 Term
+      ────────────
+
+      data InlineTerm = InlineTerm {
+        termType    :: Maybe String,
+        termContent :: [InlineText]
+      } deriving Eq
+
+
+3     As shown by the type definition, values of type InlineTerm may have an
+      associated optional type [ref: model.inline.types] parameter value.
+
+2.2.5 Image [id: model.inline.image]
+
+1     The InlineImage type denotes a reference to an image. The location of the
+      image is given by the target parameter. The width and height of the image
+      can be specified by the optional size parameter. The associated list of
+      inline text [ref: model.inline.text] elements are used as fallback text
+      in the case that the image becomes unavailable.
+
+      2.2.5.2 Text
+      ────────────
+
+      data InlineImage = InlineImage {
+        imageType    :: Maybe String,
+        imageTarget  :: URI.T,
+        imageSize    :: Maybe Size,
+        imageContent :: [InlineText]
+      } deriving Eq
+
+
+3     As shown by the type definition, values of type InlineImage may have an
+      associated optional type [ref: model.inline.types] parameter value.
+
+2.2.6 Verbatim [id: model.inline.verbatim]
+
+1     The InlineVerbatim type denotes a section of text in which whitespace
+      should be preserved exactly as it was written.
+
+      2.2.6.2 Verbatim
+      ────────────────
+
+      data InlineVerbatim = InlineVerbatim {
+        verbatimType    :: Maybe String,
+        verbatimContent :: InlineText
+      } deriving Eq
+
+
+3     As shown by the type definition, values of type InlineVerbatim may have
+      an associated optional type [ref: model.inline.types] parameter value.
+
+2.2.7 Link [id: model.inline.link]
+
+1     The InlineLinkInternal type denotes a link to an element within the
+      current document. The value of the given target parameter must be equal
+      to the value of the id parameter on an existing block [ref: model.block]
+      value.
+
+      2.2.7.2 Link
+      ────────────
+
+      data InlineLinkInternal = InlineLinkInternal {
+        linkInternalTarget  :: ID.T,
+        linkInternalContent :: [LinkContent]
+      } deriving Eq
+
+
+3     Only a restricted subset of the available inline content types are
+      allowed to appear as descendants of links. The subset is described by the
+      LinkContent type:
+
+      2.2.7.4 Link Content
+      ────────────────────
+
+      data LinkContent
+        = LCText  InlineText
+        | LCImage InlineImage
+        deriving Eq
+
+
+
+2.2.8 Link External [id: model.inline.link_external]
+
+1     The InlineLinkExternal type denotes a link to an external resource.
+
+      2.2.8.2 Link External
+      ─────────────────────
+
+      data InlineLinkExternal = InlineLinkExternal {
+        linkExternalTarget  :: URI.T,
+        linkExternalContent :: [LinkContent]
+      } deriving Eq
+
+
+2.2.9 Footnote Reference [id: model.inline.footnote_ref]
+
+1     The InlineFootnoteRef type denotes a link to a footnote [ref:
+      model.block.footnote] within the current document.
+
+2     The value of the given target parameter must be equal to the value of the
+      id parameter on an existing footnote [ref: model.block.footnote] value.
+
+      2.2.9.3 Footnote Reference
+      ──────────────────────────
+
+      data InlineFootnoteRef = InlineFootnoteRef {
+        footnoteTarget :: ID.T
+      } deriving Eq
+
+
+
+2.2.10 Ordered List [id: model.inline.list_ordered]
+
+1     The InlineListOrdered type denotes a list of elements that should be
+      understood to be ordered. The individual elements of the list are denoted
+      by values of the ListItem type.
+
+      2.2.10.2 Ordered List
+      ─────────────────────
+
+      data ListItem = ListItem {
+        listItemContent :: [InlineContent]
+      } deriving Eq
+
+
+      2.2.10.3 Ordered List
+      ─────────────────────
+
+      data InlineListOrdered = InlineListOrdered {
+        listOrderedItems :: [ListItem]
+      } deriving Eq
+
+
+2.2.11 Unordered List [id: model.inline.list_unordered]
+
+1     The InlineListUnordered type denotes a list of elements that should be
+      understood to be in no specific order.
+
+      2.2.11.2 Unordered List
+      ───────────────────────
+
+      data InlineListUnordered = InlineListUnordered {
+        listUnorderedItems :: [ListItem]
+      } deriving Eq
+
+
+2.2.12 Table [id: model.inline.table]
+
+1     The InlineTable type is a relatively complex type that describes a table
+      consisting of rows, with each row consisting of a number of cells.
+
+      2.2.12.2 Table Cell
+      ───────────────────
+
+      data TableCell = TableCell {
+        tableCellContent :: [TableCellContent]
+      } deriving Eq
+
+
+      2.2.12.3 Table Row
+      ──────────────────
+
+      data TableRow = TableRow {
+        tableRowCells :: [TableCell]
+      } deriving Eq
+
+
+      2.2.12.4 Table
+      ──────────────
+
+      data InlineTable = InlineTable {
+        tableType    :: Maybe String,
+        tableSummary :: [InlineText],
+        tableHead    :: Maybe TableHead,
+        tableBody    :: TableBody
+      } deriving Eq
+
+
+
+5     A table may have an optional head that describes the number and names of
+      columns in the table.
+
+      2.2.12.6 Table Head
+      ───────────────────
+
+      data TableRow = TableRow {
+        tableRowCells :: [TableCell]
+      } deriving Eq
+
+
+7     Implementations are required to check that, if a head is defined, the
+      number of cells in each table row is equal to the number of column names
+      defined in the head.
+
+      2.2.12.8 Table Check
+      ────────────────────
+
+      tableCheck :: InlineTable -> Bool
+      tableCheck table =
+        case (tableHead table) of
+          Nothing -> True
+          Just th ->
+            let rows     = tableBodyRows $ tableBody table
+                expected = length $ tableHeadNames th
+            in all (\row -> length (tableRowCells row) == expected) rows
+
+
+
+9     Tables may not be nested. That is, the inline content that may appear
+      inside a table cell must not contain a table.
+
+      2.2.12.10 Table Cell Content
+      ────────────────────────────
+
+      data TableCellContent
+        = TCText          InlineText
+        | TCTerm          InlineTerm
+        | TCImage         InlineImage
+        | TCVerbatim      InlineVerbatim
+        | TCLink          InlineLinkInternal
+        | TCLinkExternal  InlineLinkExternal
+        | TCListOrdered   InlineListOrdered
+        | TCListUnordered InlineListUnordered
+        | TCFootnoteRef   InlineFootnoteRef
+        | TCInclude       InlineInclude
+        deriving Eq
+
+
+
+2.2.13 Include [id: model.inline.include]
+
+1     The InlineInclude type denotes a link to an external file. Values of type
+      InlineInclude do not actually appear in documents directly: They are
+      replaced with the contents of the referenced file as if they had been
+      inserted as a single quoted string.
+
+      2.2.13.2 Include
+      ────────────────
+
+      data InlineInclude = InlineInclude {
+        includeFile :: String
+      } deriving Eq
+
+
+2.2.14 Complete Inline Model [id: model.inline.complete]
+
+      2.2.14.1 Type Model
+      ───────────────────
+
+      module InlineContent where
+
+      import qualified URI
+      import qualified ID
+
+      data InlineText =
+        InlineText String
+        deriving Eq
+
+      data InlineTerm = InlineTerm {
+        termType    :: Maybe String,
+        termContent :: [InlineText]
+      } deriving Eq
+
+      data Size = Size {
+        sizeWidth  :: Integer,
+        sizeHeight :: Integer
+      } deriving Eq
+
+      data InlineImage = InlineImage {
+        imageType    :: Maybe String,
+        imageTarget  :: URI.T,
+        imageSize    :: Maybe Size,
+        imageContent :: [InlineText]
+      } deriving Eq
+
+      data InlineVerbatim = InlineVerbatim {
+        verbatimType    :: Maybe String,
+        verbatimContent :: InlineText
+      } deriving Eq
+
+      data LinkContent
+        = LCText  InlineText
+        | LCImage InlineImage
+        deriving Eq
+
+      data InlineLinkInternal = InlineLinkInternal {
+        linkInternalTarget  :: ID.T,
+        linkInternalContent :: [LinkContent]
+      } deriving Eq
+
+      data InlineLinkExternal = InlineLinkExternal {
+        linkExternalTarget  :: URI.T,
+        linkExternalContent :: [LinkContent]
+      } deriving Eq
+
+      data ListItem = ListItem {
+        listItemContent :: [InlineContent]
+      } deriving Eq
+
+      data InlineListOrdered = InlineListOrdered {
+        listOrderedItems :: [ListItem]
+      } deriving Eq
+
+      data InlineListUnordered = InlineListUnordered {
+        listUnorderedItems :: [ListItem]
+      } deriving Eq
+
+      data InlineFootnoteRef = InlineFootnoteRef {
+        footnoteTarget :: ID.T
+      } deriving Eq
+
+      type TableColumnName = [InlineText]
+
+      data TableHead = TableHead {
+        tableHeadNames :: [TableColumnName]
+      } deriving Eq
+
+      data TableCell = TableCell {
+        tableCellContent :: [TableCellContent]
+      } deriving Eq
+
+      data TableCellContent
+        = TCText          InlineText
+        | TCTerm          InlineTerm
+        | TCImage         InlineImage
+        | TCVerbatim      InlineVerbatim
+        | TCLink          InlineLinkInternal
+        | TCLinkExternal  InlineLinkExternal
+        | TCListOrdered   InlineListOrdered
+        | TCListUnordered InlineListUnordered
+        | TCFootnoteRef   InlineFootnoteRef
+        | TCInclude       InlineInclude
+        deriving Eq
+
+      data TableRow = TableRow {
+        tableRowCells :: [TableCell]
+      } deriving Eq
+
+      data TableBody = TableBody {
+        tableBodyRows :: [TableRow]
+      } deriving Eq
+
+      data InlineTable = InlineTable {
+        tableType    :: Maybe String,
+        tableSummary :: [InlineText],
+        tableHead    :: Maybe TableHead,
+        tableBody    :: TableBody
+      } deriving Eq
+
+      tableCheck :: InlineTable -> Bool
+      tableCheck table =
+        case (tableHead table) of
+          Nothing -> True
+          Just th ->
+            let rows     = tableBodyRows $ tableBody table
+                expected = length $ tableHeadNames th
+            in all (\row -> length (tableRowCells row) == expected) rows
+
+      data InlineInclude = InlineInclude {
+        includeFile :: String
+      } deriving Eq
+
+      data InlineContent
+        = ICText          InlineText
+        | ICTerm          InlineTerm
+        | ICImage         InlineImage
+        | ICVerbatim      InlineVerbatim
+        | ICLink          InlineLinkInternal
+        | ICLinkExternal  InlineLinkExternal
+        | ICListOrdered   InlineListOrdered
+        | ICListUnordered InlineListUnordered
+        | ICFootnoteRef   InlineFootnoteRef
+        | ICTable         InlineTable
+        | ICInclude       InlineInclude
+        deriving Eq
+
+
+2.3 Block Content [id: model.block]
+
+2.3.1 Overview [id: model.block.overview]
+
+1     A block value denotes a significant section of content within a document.
+
+2.3.2 ID [id: model.block.id]
+
+1     All block values have an optional id parameter that, if present, must be
+      unique within a document. The value of this parameter may be used by link
+      [ref: model.inline.link] elements to create intra-document links to
+      content.
+
+2     Identifiers are restricted to combinations of letters, numbers,
+      U+005F "_", U+002D "-", and U+002E ".".
+
+      2.3.2.3 Identifier Syntax
+      ─────────────────────────
+
+      id_character =
+        ? p{IsLetter} | p{isNumber} | U+005F | U+002D | U+002E ? ;
+
+      id =
+        id_character , { id_character } ;
+
+
+4     An id value k is said to exist if there is exactly one element in the
+      document d such that (hasID k d == Just k):
+
+      2.3.2.5 Identifier Existence
+      ────────────────────────────
+
+      module IDExistence where
+
+      import qualified ID
+      import qualified BlockContent as BC
+      import qualified Control.Monad as CM
+
+      class HasID a where
+        hasID :: ID.T -> a -> Maybe ID.T
+
+      maybeEq :: Eq a => a -> Maybe a -> Maybe a
+      maybeEq x Nothing  = Nothing
+      maybeEq x (Just y) = if x == y then Just y else Nothing
+
+      instance HasID BC.BlockParagraph where
+        hasID k b = maybeEq k (BC.para_id b)
+
+      instance HasID BC.BlockFormalItem where
+        hasID k b = maybeEq k (BC.formal_id b)
+
+      instance HasID BC.BlockFootnote where
+        hasID k b = maybeEq k (Just $ BC.footnote_id b)
+
+      instance HasID BC.SubsectionContent where
+        hasID k (BC.SCParagraph b)  = hasID k b
+        hasID k (BC.SCFormalItem b) = hasID k b
+        hasID k (BC.SCFootnote b)   = hasID k b
+
+      instance HasID BC.BlockSubsection where
+        hasID k b =
+          case maybeEq k (BC.subsection_id b) of
+            Just x  -> Just k
+            Nothing -> CM.foldM hasID k (BC.subsection_content b)
+
+      instance HasID BC.BlockSection where
+        hasID k b =
+          case maybeEq k (BC.section_id b) of
+            Just x  -> Just k
+            Nothing ->
+              case BC.section_content b of
+                Left ss  -> CM.foldM hasID k ss
+                Right sc -> CM.foldM hasID k sc
+
+      instance HasID BC.BlockPart where
+        hasID k b =
+          case maybeEq k (BC.part_id b) of
+            Just x  -> Just k
+            Nothing -> CM.foldM hasID k (BC.part_content b)
+
+      instance HasID BC.BlockDocument where
+        hasID k b =
+          case maybeEq k (BC.document_id b) of
+            Just x  -> Just k
+            Nothing ->
+              case BC.document_content b of
+                Left p  -> CM.foldM hasID k p
+                Right s -> CM.foldM hasID k s
+
+
+6     Implementations are required to check that all id values are unique
+      within a document, and that all id values referenced by links within a
+      document exist.
+
+2.3.3 Paragraph [id: model.block.paragraph]
+
+1     A paragraph is one of the lowest level block values in terms of
+      structural significance. It is simply a container for inline [ref:
+      model.inline] content.
+
+      2.3.3.2 Paragraph
+      ─────────────────
+
+      data BlockParagraph = BlockParagraph {
+        para_type    :: Maybe String,
+        para_id      :: Maybe ID.T,
+        para_content :: [I.InlineContent]
+      }
+
+
+2.3.4 Formal Item [id: model.block.formal_item]
+
+1     A formal-item is similar to a paragraph [ref: model.block.paragraph]
+      except that it has an explicit title.
+
+      2.3.4.2 Formal Item
+      ───────────────────
+
+      data BlockFormalItem = BlockFormalItem {
+        formal_type    :: Maybe String,
+        formal_id      :: Maybe ID.T,
+        formal_title   :: [I.InlineText],
+        formal_content :: [I.InlineContent]
+      }
+
+
+2.3.5 Footnote [id: model.block.footnote]
+
+1     A footnote is similar to a paragraph [ref: model.block.paragraph] except
+      that it denotes content that should appear as supplemental information at
+      the bottom of a page when the document is processed for presentation.
+
+2     A footnote must have an id value specified, and may be referenced by any
+      number of footnote-ref [ref: model.inline.footnote_ref] values.
+
+      2.3.5.3 Footnote
+      ────────────────
+
+      data BlockFootnote = BlockFootnote {
+        footnote_type    :: Maybe String,
+        footnote_id      :: ID.T,
+        footnote_content :: [I.InlineContent]
+      }
+
+
+2.3.6 Subsection [id: model.block.subsection]
+
+1     A subsection is a container for subsection content. A subsection is
+      required to have a title.
+
+      2.3.6.2 Subsection Content
+      ──────────────────────────
+
+      data SubsectionContent
+        = SCParagraph  BlockParagraph
+        | SCFormalItem BlockFormalItem
+        | SCFootnote   BlockFootnote
+
+
+
+      2.3.6.3 Subsection
+      ──────────────────
+
+      data BlockSubsection = BlockSubsection {
+        subsection_type    :: Maybe String,
+        subsection_id      :: Maybe ID.T,
+        subsection_title   :: [I.InlineText],
+        subsection_content :: [SubsectionContent]
+      }
+
+
+2.3.7 Section [id: model.block.section]
+
+1     A section is a container for either subsection content [ref:
+      model.block.subsection.content], or subsections [ref:
+      model.block.subsection], but not both at the same time. A section is
+      required to have a title.
+
+      2.3.7.2 Section
+      ───────────────
+
+      data BlockSection = BlockSection {
+        section_type    :: Maybe String,
+        section_id      :: Maybe ID.T,
+        section_title   :: [I.InlineText],
+        section_content :: Either [BlockSubsection] [SubsectionContent]
+      }
+
+
+2.3.8 Part [id: model.block.part]
+
+1     A part is a container for sections [ref: model.block.section]. A part is
+      required to have a title.
+
+      2.3.8.2 Part
+      ────────────
+
+      data BlockPart = BlockPart {
+        part_type    :: Maybe String,
+        part_id      :: Maybe ID.T,
+        part_title   :: [I.InlineText],
+        part_content :: [BlockSection]
+      }
+
+
+2.3.9 Document [id: model.block.document]
+
+1     A document is the top-level container of other content. It may contain a
+      list of parts [ref: model.block.part], or a list of sections [ref:
+      model.block.section], but not both. A document is required to have a
+      title.
+
+      2.3.9.2 Document
+      ────────────────
+
+      data BlockDocument = BlockDocument {
+        document_type    :: Maybe String,
+        document_id      :: Maybe ID.T,
+        document_title   :: [I.InlineText],
+        document_content :: Either [BlockPart] [BlockSection]
+      }
+
+
+2.3.10 Import [id: model.block.import]
+
+1     An import is somewhat analogous to the inline include [ref:
+      model.inline.include] type, except that the referenced file is actually
+      parsed as a structural block value and inserted into the current document
+      at the location of the import value.
+
+      2.3.10.2 Import
+      ───────────────
+
+      data BlockImport = BlockImport {
+        importFile :: String
+      }
+
+
+3 Canonical Format [id: fmt_canon]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Contents
+  ─────────────────────────────────────────────────────────────────────────────
+  3.1 Overview ............................................. fmt_canon.overview
+  3.2 Inline Elements ....................................... fmt_canon.inlines
+    3.2.1 Overview ................................. fmt_canon.inlines.overview
+    3.2.2 Text ......................................... fmt_canon.inlines.text
+    3.2.3 Term ......................................... fmt_canon.inlines.term
+    3.2.4 Image ....................................... fmt_canon.inlines.image
+    3.2.5 Verbatim ................................. fmt_canon.inlines.verbatim
+    3.2.6 Link ......................................... fmt_canon.inlines.link
+    3.2.7 Link External ....................... fmt_canon.inlines.link_external
+    3.2.8 Footnote Reference ................... fmt_canon.inlines.footnote_ref
+    3.2.9 Ordered List ......................... fmt_canon.inlines.list_ordered
+    3.2.10 Unordered List .................... fmt_canon.inlines.list_unordered
+    3.2.11 Table ...................................... fmt_canon.inlines.table
+    3.2.12 Include .................................. fmt_canon.inlines.include
+  3.3 Block Elements ......................................... fmt_canon.blocks
+    3.3.1 Paragraph ................................ fmt_canon.blocks.paragraph
+    3.3.2 Formal Item ............................ fmt_canon.blocks.formal_item
+    3.3.3 Footnote .................................. fmt_canon.blocks.footnote
+    3.3.4 Subsection .............................. fmt_canon.blocks.subsection
+    3.3.5 Section .................................... fmt_canon.blocks.section
+    3.3.6 Part .......................................... fmt_canon.blocks.part
+    3.3.7 Document .................................. fmt_canon.blocks.document
+    3.3.8 Import ...................................... fmt_canon.blocks.import
+
+
+3.1 Overview [id: fmt_canon.overview]
+
+1     The structural language defines a number of different concrete syntaxes
+      used to produce values of the types defined by the model [ref: model].
+      The primary canonical syntax is based on s-expressions [ref:
+      conventions.sexprs].
+
+3.2 Inline Elements [id: fmt_canon.inlines]
+
+3.2.1 Overview [id: fmt_canon.inlines.overview]
+
+      3.2.1.1 Main Syntax
+      ───────────────────
+
+      canon_inline =
+        (#choice [
+          canon_footnote_ref
+          canon_image
+          canon_include
+          canon_link
+          canon_link_external
+          canon_list_ordered
+          canon_list_unordered
+          canon_term
+          canon_text
+          canon_verbatim
+        ])
+
+
+3.2.2 Text [id: fmt_canon.inlines.text]
+
+1     The concrete syntax specified here maps text to values of the InlineText
+      [ref: model.inline.text] type. Most contexts in documents that accept
+      text can also accept include [ref: fmt_canon.inlines.include] values, so
+      an additional rule is given here that allows choosing between values of
+      the two types.
+
+      3.2.2.2 Text Syntax
+      ───────────────────
+
+      canon_text =
+        (#choice [#any-symbol #any-quoted])
+
+      canon_text_or_include =
+        (#choice [canon_text canon_include])
+
+3.2.3 Term [id: fmt_canon.inlines.term]
+
+1     The concrete syntax specified here maps text to values of the InlineTerm
+      [ref: model.inline.term] type.
+
+      3.2.3.2 Term Syntax
+      ───────────────────
+
+      canon_type =
+        (#exact-list [#exact-symbol "type"] #any-symbol)
+
+      canon_term_name =
+        (#exact-symbol "term")
+
+      canon_term =
+        (#choice [
+          (#variadic [canon_term_name] canon_text_or_include)
+          (#variadic [canon_term_name canon_type] canon_text_or_include)
+        ])
+
+
+3.2.4 Image [id: fmt_canon.inlines.image]
+
+1     The concrete syntax specified here maps text to values of the InlineImage
+      [ref: model.inline.image] type.
+
+      3.2.4.2 Image Syntax
+      ────────────────────
+
+      canon_target =
+        (#exact-list [#exact-symbol "target"] canon_text)
+
+      canon_size =
+        (#exact-list [#exact-symbol "size"] #any-symbol #any-symbol)
+
+      canon_image_name =
+        (#exact-symbol "image")
+
+      canon_image =
+        (#choice [
+          (#variadic [canon_image_name canon_target] canon_text_or_include)
+          (#variadic [canon_image_name canon_target canon_type] canon_text_or_include)
+          (#variadic [canon_image_name canon_target canon_size] canon_text_or_include)
+          (#variadic [canon_image_name canon_target canon_size canon_type] canon_text_or_include)
+        ])
+
+
+3.2.5 Verbatim [id: fmt_canon.inlines.verbatim]
+
+1     The concrete syntax specified here maps text to values of the
+      InlineVerbatim [ref: model.inline.verbatim] type.
+
+      3.2.5.2 Verbatim Syntax
+      ───────────────────────
+
+      canon_verbatim_name =
+        (#exact-symbol "verbatim")
+
+      canon_verbatim =
+        (#choice [
+          (#exact-list [canon_verbatim_name canon_text_or_include])
+          (#exact-list [canon_verbatim_name canon_type canon_text_or_include])
+        ])
+
+
+3.2.6 Link [id: fmt_canon.inlines.link]
+
+1     The concrete syntax specified here maps text to values of the
+      InlineLinkInternal [ref: model.inline.link] type.
+
+      3.2.6.2 Link Syntax
+      ───────────────────
+
+      canon_link_name =
+        (#exact-symbol "link")
+
+      canon_link =
+        (#variadic [canon_link_name canon_target] canon_text_or_include)
+
+
+3.2.7 Link External [id: fmt_canon.inlines.link_external]
+
+1     The concrete syntax specified here maps text to values of the
+      InlineLinkExternal [ref: model.inline.link_external] type.
+
+      3.2.7.2 Link External Syntax
+      ────────────────────────────
+
+      canon_link_external_name =
+        (#exact-symbol "link-ext")
+
+      canon_link_external =
+        (#variadic [canon_link_external_name canon_target] canon_text_or_include)
+
+
+3.2.8 Footnote Reference [id: fmt_canon.inlines.footnote_ref]
+
+1     The concrete syntax specified here maps text to values of the
+      InlineFootnoteRef [ref: model.inline.footnote_ref] type.
+
+      3.2.8.2 Footnote Reference Syntax
+      ─────────────────────────────────
+
+      canon_footnote_ref_name =
+        (#exact-symbol "footnote-ref")
+
+      canon_footnote_ref =
+        (#exact-list canon_footnote_ref_name canon_text)
+
+
+3.2.9 Ordered List [id: fmt_canon.inlines.list_ordered]
+
+1     The concrete syntax specified here maps text to values of the
+      InlineListOrdered [ref: model.inline.list_ordered] type.
+
+      3.2.9.2 Ordered List Syntax
+      ───────────────────────────
+
+      canon_list_item_name =
+        (#exact-symbol "item")
+
+      canon_list_item =
+        (#variadic [canon_list_item_name] canon_inline)
+
+      canon_list_ordered_name =
+        (#exact-symbol "list-ordered")
+
+      canon_list_ordered =
+        (#variadic [canon_list_ordered_name] canon_list_item)
+
+
+3.2.10 Unordered List [id: fmt_canon.inlines.list_unordered]
+
+1     The concrete syntax specified here maps text to values of the
+      InlineListUnordered [ref: model.inline.list_unordered] type.
+
+      3.2.10.2 Unordered List Syntax
+      ──────────────────────────────
+
+      canon_list_unordered_name =
+        (#exact-symbol "list-unordered")
+
+      canon_list_unordered =
+        (#variadic [canon_list_unordered_name] canon_list_item)
+
+
+3.2.11 Table [id: fmt_canon.inlines.table]
+
+1     The concrete syntax specified here maps text to values of the InlineTable
+      [ref: model.inline.table] type.
+
+      3.2.11.2 Table Syntax
+      ─────────────────────
+
+      canon_table_name =
+        (#exact-symbol "table")
+
+      canon_table_summary_name =
+        (#exact-symbol "summary")
+
+      canon_table_summary =
+        (#variadic [canon_table_summary_name] canon_text_or_include)
+
+      canon_table_body_cell_name =
+        (#exact-symbol "cell")
+
+      canon_table_body_cell =
+        (#variadic [canon_table_body_cell_name] canon_inline)
+
+      canon_table_body_row_name =
+        (#exact-symbol "row")
+
+      canon_table_body_row =
+        (#variadic [canon_table_body_row_name] canon_table_body_cell)
+
+      canon_table_body_name =
+        (#exact-symbol "body")
+
+      canon_table_body =
+        (#variadic [canon_table_body_name] canon_table_body_row)
+
+      canon_table_body_head_cell_name =
+        (#exact-symbol "name")
+
+      canon_table_body_head_cell =
+        (#variadic [canon_table_body_head_cell_name] canon_text)
+
+      canon_table_head_name =
+        (#exact-symbol "head")
+
+      canon_table_head =
+        (#variadic [canon_table_head_name] canon_table_head_cell)
+
+      canon_table =
+        (#choice [
+          (#exact-list [canon_table_name canon_table_summary cannon_table_body])
+          (#exact-list [canon_table_name canon_table_summary canon_type cannon_table_body])
+          (#exact-list [canon_table_name canon_table_summary cannon_table_head cannon_table_body])
+          (#exact-list [canon_table_name canon_table_summary canon_type cannon_table_head cannon_table_body])
+        ])
+
+
+3.2.12 Include [id: fmt_canon.inlines.include]
+
+1     The concrete syntax specified here maps text to values of the
+      InlineInclude [ref: model.inline.include] type.
+
+      3.2.12.2 Include Syntax
+      ───────────────────────
+
+      canon_include_name =
+        (#exact-symbol "include")
+
+      canon_include =
+        (#exact-list [canon_include_name #any-quoted])
+
+
+3.3 Block Elements [id: fmt_canon.blocks]
+
+3.3.1 Paragraph [id: fmt_canon.blocks.paragraph]
+
+1     The concrete syntax specified here maps text to values of the
+      BlockParagraph [ref: model.block.paragraph] type.
+
+      3.3.1.2 Paragraph Syntax
+      ────────────────────────
+
+      canon_id_name =
+        (#exact-symbol "id")
+
+      canon_id =
+        (#exact-list [canon_id_name canon_text])
+
+      canon_paragraph_name =
+        (#exact-symbol "paragraph")
+
+      canon_paragraph =
+        (#choice [
+          (#variadic [canon_paragraph_name] canon_inline)
+          (#variadic [canon_paragraph_name canon_id] canon_inline)
+          (#variadic [canon_paragraph_name canon_id canon_type] canon_inline)
+          (#variadic [canon_paragraph_name canon_type canon_id] canon_inline)
+          (#variadic [canon_paragraph_name canon_type] canon_inline)
+        ])
+
+
+3.3.2 Formal Item [id: fmt_canon.blocks.formal_item]
+
+1     The concrete syntax specified here maps text to values of the
+      BlockFormalItem [ref: model.block.formal_item] type.
+
+      3.3.2.2 Formal Item Syntax
+      ──────────────────────────
+
+      canon_title_name =
+        (#exact-symbol "title")
+
+      canon_title =
+        (#variadic [canon_title_name] canon_text)
+
+      canon_formal_item_name =
+        (#exact-symbol "formal-item")
+
+      canon_formal_item =
+        (#choice [
+          (#variadic [canon_formal_item_name canon_title] canon_inline)
+          (#variadic [canon_formal_item_name canon_title canon_id] canon_inline)
+          (#variadic [canon_formal_item_name canon_title canon_id canon_type] canon_inline)
+          (#variadic [canon_formal_item_name canon_title canon_type canon_id] canon_inline)
+          (#variadic [canon_formal_item_name canon_title canon_type] canon_inline)
+        ])
+
+
+3.3.3 Footnote [id: fmt_canon.blocks.footnote]
+
+1     The concrete syntax specified here maps text to values of the
+      BlockFootnote [ref: model.block.footnote] type.
+
+      3.3.3.2 Footnote Syntax
+      ───────────────────────
+
+      canon_footnote_name =
+        (#exact-symbol "footnote")
+
+      canon_footnote =
+        (#choice [
+          (#variadic [canon_footnote_name canon_id] canon_inline)
+          (#variadic [canon_footnote_name canon_id canon_type] canon_inline)
+        ])
+
+
+3.3.4 Subsection [id: fmt_canon.blocks.subsection]
+
+1     The concrete syntax specified here maps text to values of the
+      BlockSubsection [ref: model.block.subsection] type.
+
+      3.3.4.2 Subsection Syntax
+      ─────────────────────────
+
+      canon_subsection_name =
+        (#exact-symbol "subsection")
+
+      canon_subsection_content =
+        (#choice [canon_paragraph canon_footnote canon_formal_item])
+
+      canon_subsection =
+        (#choice [
+          (#variadic [canon_subsection_name canon_title] canon_subsection_content)
+          (#variadic [canon_subsection_name canon_title canon_id] canon_subsection_content)
+          (#variadic [canon_subsection_name canon_title canon_id canon_type] canon_subsection_content)
+          (#variadic [canon_subsection_name canon_title canon_type canon_id] canon_subsection_content)
+          (#variadic [canon_subsection_name canon_title canon_type] canon_subsection_content)
+        ])
+
+
+3.3.5 Section [id: fmt_canon.blocks.section]
+
+1     The concrete syntax specified here maps text to values of the
+      BlockSection [ref: model.block.section] type.
+
+      3.3.5.2 Section Syntax
+      ──────────────────────
+
+      canon_section_name =
+        (#exact-symbol "section")
+
+      canon_section_content =
+        (#choice [canon_subsection canon_subsection_content])
+
+      canon_section =
+        (#choice [
+          (#variadic [canon_section_name canon_title] canon_section_content)
+          (#variadic [canon_section_name canon_title canon_id] canon_section_content)
+          (#variadic [canon_section_name canon_title canon_id canon_type] canon_section_content)
+          (#variadic [canon_section_name canon_title canon_type canon_id] canon_section_content)
+          (#variadic [canon_section_name canon_title canon_type] canon_section_content)
+        ])
+
+
+3.3.6 Part [id: fmt_canon.blocks.part]
+
+1     The concrete syntax specified here maps text to values of the BlockPart
+      [ref: model.block.part] type.
+
+      3.3.6.2 Part Syntax
+      ───────────────────
+
+      canon_part_name =
+        (#exact-symbol "part")
+
+      canon_part =
+        (#choice [
+          (#variadic [canon_part_name canon_title] canon_section)
+          (#variadic [canon_part_name canon_title canon_id] canon_section)
+          (#variadic [canon_part_name canon_title canon_id canon_type] canon_section)
+          (#variadic [canon_part_name canon_title canon_type canon_id] canon_section)
+          (#variadic [canon_part_name canon_title canon_type] canon_section)
+        ])
+
+
+3.3.7 Document [id: fmt_canon.blocks.document]
+
+1     The concrete syntax specified here maps text to values of the
+      BlockDocument [ref: model.block.document] type.
+
+      3.3.7.2 Document Syntax
+      ───────────────────────
+
+      canon_document_name =
+        (#exact-symbol "document")
+
+      canon_document_content =
+        (#choice [canon_section canon_part])
+
+      canon_document =
+        (#choice [
+          (#variadic [canon_document_name canon_title] canon_document_content)
+          (#variadic [canon_document_name canon_title canon_id] canon_document_content)
+          (#variadic [canon_document_name canon_title canon_id canon_type] canon_document_content)
+          (#variadic [canon_document_name canon_title canon_type canon_id] canon_document_content)
+          (#variadic [canon_document_name canon_title canon_type] canon_document_content)
+        ])
+
+
+3.3.8 Import [id: fmt_canon.blocks.import]
+
+1     The concrete syntax specified here maps text to values of the BlockImport
+      [ref: model.block.import] type.
+
+      3.3.8.2 Import Syntax
+      ─────────────────────
+
+      canon_import_name =
+        (#exact-symbol "import")
+
+      canon_import =
+        (#exact-list [canon_import_name canon_text])
+
+
+4 Imperative Format [id: fmt_imp]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Contents
+  ─────────────────────────────────────────────────────────────────────────────
+  4.1 Overview ............................................... fmt_imp.overview
+  4.2 Block Commands ........................................... fmt_imp.blocks
+    4.2.1 Overview .................................... fmt_imp.blocks.overview
+    4.2.2 Structural Significance .................... fmt_imp.blocks.structsig
+    4.2.3 Paragraph .................................. fmt_imp.blocks.paragraph
+    4.2.4 Formal Item .............................. fmt_imp.blocks.formal_item
+    4.2.5 Footnote .................................... fmt_imp.blocks.footnote
+    4.2.6 Subsection ................................ fmt_imp.blocks.subsection
+    4.2.7 Section ...................................... fmt_imp.blocks.section
+    4.2.8 Part ............................................ fmt_imp.blocks.part
+    4.2.9 Document .................................... fmt_imp.blocks.document
+
+
+4.1 Overview [id: fmt_imp.overview]
+
+1     One observation of all document languages that present a tree-like
+      structure and syntax is that the writer spends a certain amount of time
+      managing the tree structure itself. Although s-expressions [ref:
+      conventions.sexprs] represent about the most lightweight syntax possible
+      for representing trees directly, it's possible to reduce the syntactic
+      overhead even further by allowing the author to progressively define
+      trees using a series of imperative commands.
+
+2     The so-called imperative syntax combines the inline [ref:
+      fmt_canon.inlines] elements from the canonical syntax with a set of
+      imperative block commands.
+
+4.2 Block Commands [id: fmt_imp.blocks]
+
+4.2.1 Overview [id: fmt_imp.blocks.overview]
+
+1     An imperative command begins the construction of a new block [ref:
+      model.block]. Any block currently under construction that is of lesser
+      than or equal to structural significance [ref: fmt_imp.blocks.structsig]
+      is completed on receipt of the command (or on end-of-file), prior to
+      beginning the construction of a new block. Inline [ref: model.inline]
+      content is supplied to blocks that accept it by simply including the
+      content between commands:
+
+      4.2.1.2 Imperative Example
+      ──────────────────────────
+
+      [subsection [title An example subsection]]
+      [paragraph]
+      This is some content for the first paragraph.
+      [paragraph]
+      This is some [term [type emphasis] content] for the second paragraph.
+
+      [subsection [title Another example subsection]]
+      [paragraph]
+      This is some content for the first paragraph of the next section.
+
+
+3     An imperative command may take one of the following forms:
+
+      4.2.1.4 Imperative Commands
+      ───────────────────────────
+
+      data ImperativeContent
+        = ICParagraph  ImperativeParagraph
+        | ICFormalItem ImperativeFormalItem
+        | ICFootnote   ImperativeFootnote
+        | ICSubsection ImperativeSubsection
+        | ICSection    ImperativeSection
+        | ICPart       ImperativePart
+        | ICDocument   ImperativeDocument
+        | ICImport     ImperativeImport
+        deriving Eq
+
+
+
+5     Imperative commands create values of the types specified in the model
+      [ref: model.block], and therefore the same rules apply with regards to
+      where blocks can be created. For example, it is an error (by the
+      definition of the section [ref: model.block.section] type) to first
+      create a subsection [ref: model.block.subsection] inside a section and
+      then attempt to follow it with the definition of a paragraph [ref:
+      model.block.paragraph].
+
+4.2.2 Structural Significance [id: fmt_imp.blocks.structsig]
+
+1     In order for the receipt of a command to complete the construction of a
+      block that is already under construction, it is necessary to define an
+      ordering on the structural significance of each of the block types.
+
+      4.2.2.2 Significance Ordering
+      ─────────────────────────────
+
+      instance Ord ImperativeContent where
+        compare (ICParagraph _) (ICParagraph _)   = EQ
+        compare (ICParagraph _) (ICFormalItem _)  = EQ
+        compare (ICParagraph _) (ICFootnote _)    = EQ
+        compare (ICParagraph _) (ICSubsection _)  = LT
+        compare (ICParagraph _) (ICSection _)     = LT
+        compare (ICParagraph _) (ICPart _)        = LT
+        compare (ICParagraph _) (ICDocument _)    = LT
+        compare (ICFormalItem _) (ICParagraph _)  = EQ
+        compare (ICFormalItem _) (ICFormalItem _) = EQ
+        compare (ICFormalItem _) (ICFootnote _)   = EQ
+        compare (ICFormalItem _) (ICSubsection _) = LT
+        compare (ICFormalItem _) (ICSection _)    = LT
+        compare (ICFormalItem _) (ICPart _)       = LT
+        compare (ICFormalItem _) (ICDocument _)   = LT
+        compare (ICFootnote _) (ICParagraph _)  = EQ
+        compare (ICFootnote _) (ICFormalItem _) = EQ
+        compare (ICFootnote _) (ICFootnote _)   = EQ
+        compare (ICFootnote _) (ICSubsection _) = LT
+        compare (ICFootnote _) (ICSection _)    = LT
+        compare (ICFootnote _) (ICPart _)       = LT
+        compare (ICFootnote _) (ICDocument _)   = LT
+        compare (ICSubsection _) (ICParagraph _)  = GT
+        compare (ICSubsection _) (ICFormalItem _) = GT
+        compare (ICSubsection _) (ICFootnote _)   = GT
+        compare (ICSubsection _) (ICSubsection _) = EQ
+        compare (ICSubsection _) (ICSection _)    = LT
+        compare (ICSubsection _) (ICPart _)       = LT
+        compare (ICSubsection _) (ICDocument _)   = LT
+        compare (ICSection _) (ICParagraph _)  = GT
+        compare (ICSection _) (ICFormalItem _) = GT
+        compare (ICSection _) (ICFootnote _)   = GT
+        compare (ICSection _) (ICSubsection _) = GT
+        compare (ICSection _) (ICSection _)    = EQ
+        compare (ICSection _) (ICPart _)       = LT
+        compare (ICSection _) (ICDocument _)   = LT
+        compare (ICPart _) (ICParagraph _)  = GT
+        compare (ICPart _) (ICFormalItem _) = GT
+        compare (ICPart _) (ICFootnote _)   = GT
+        compare (ICPart _) (ICSubsection _) = GT
+        compare (ICPart _) (ICSection _)    = GT
+        compare (ICPart _) (ICPart _)       = EQ
+        compare (ICPart _) (ICDocument _)   = LT
+        compare (ICDocument _) (ICParagraph _)  = GT
+        compare (ICDocument _) (ICFormalItem _) = GT
+        compare (ICDocument _) (ICFootnote _)   = GT
+        compare (ICDocument _) (ICSubsection _) = GT
+        compare (ICDocument _) (ICSection _)    = GT
+        compare (ICDocument _) (ICPart _)       = GT
+        compare (ICDocument _) (ICDocument _)   = EQ
+        compare (ICImport i) e = compare (importContent i) e
+        compare e (ICImport i) = compare e (importContent i)
+
+3     The importContent function is a function that maps import blocks to their
+      imported content. This is a function of the actual language
+      implementation and so is left undefined in this specification.
+
+      4.2.2.4 Import Content
+      ──────────────────────
+
+      importContent :: ImperativeImport -> ImperativeContent
+      importContent _ = undefined
+
+
+
+4.2.3 Paragraph [id: fmt_imp.blocks.paragraph]
+
+1     A paragraph command begins a new paragraph [ref: model.block.paragraph]
+      in the current context.
+
+      4.2.3.2 Paragraph
+      ─────────────────
+
+      data ImperativeParagraph = ImperativeParagraph {
+        para_type    :: Maybe String,
+        para_id      :: Maybe ID.T
+      } deriving Eq
+
+
+3     The concrete syntax for the command is as follows:
+
+      4.2.3.4 Syntax
+      ──────────────
+
+      imperative_paragraph =
+        (#choice [
+          (#exact-list [canon_paragraph_name])
+          (#exact-list [canon_paragraph_name canon_id])
+          (#exact-list [canon_paragraph_name canon_id canon_type])
+          (#exact-list [canon_paragraph_name canon_type canon_id])
+          (#exact-list [canon_paragraph_name canon_type])
+        ])
+
+
+4.2.4 Formal Item [id: fmt_imp.blocks.formal_item]
+
+1     A formal-item command begins a new formal item [ref:
+      model.block.formal_item] in the current context.
+
+      4.2.4.2 Formal Item
+      ───────────────────
+
+      data ImperativeFormalItem = ImperativeFormalItem {
+        formal_type  :: Maybe String,
+        formal_id    :: Maybe ID.T,
+        formal_title :: [I.InlineText]
+      } deriving Eq
+
+
+3     The concrete syntax for the command is as follows:
+
+      4.2.4.4 Syntax
+      ──────────────
+
+      imperative_formal_item =
+        (#choice [
+          (#exact-list [canon_formal_item_name canon_title])
+          (#exact-list [canon_formal_item_name canon_title canon_id])
+          (#exact-list [canon_formal_item_name canon_title canon_id canon_type])
+          (#exact-list [canon_formal_item_name canon_title canon_type canon_id])
+          (#exact-list [canon_formal_item_name canon_title canon_type])
+        ])
+
+
+4.2.5 Footnote [id: fmt_imp.blocks.footnote]
+
+1     A footnote command begins a new footnote [ref: model.block.footnote] in
+      the current context.
+
+      4.2.5.2 Footnote
+      ────────────────
+
+      data ImperativeFootnote = ImperativeFootnote {
+        footnote_type :: Maybe String,
+        footnote_id   :: ID.T
+      } deriving Eq
+
+
+3     The concrete syntax for the command is as follows:
+
+      4.2.5.4 Syntax
+      ──────────────
+
+      imperative_footnote =
+        (#choice [
+          (#exact-list [canon_footnote_name canon_id])
+          (#exact-list [canon_footnote_name canon_id canon_type])
+        ])
+
+
+4.2.6 Subsection [id: fmt_imp.blocks.subsection]
+
+1     A subsection command begins a new subsection [ref:
+      model.block.subsection] in the current context.
+
+      4.2.6.2 Subsection
+      ──────────────────
+
+      data ImperativeSubsection = ImperativeSubsection {
+        subsection_type  :: Maybe String,
+        subsection_id    :: Maybe ID.T,
+        subsection_title :: [I.InlineText]
+      } deriving Eq
+
+
+3     The concrete syntax for the command is as follows:
+
+      4.2.6.4 Syntax
+      ──────────────
+
+      imperative_subsection =
+        (#choice [
+          (#exact-list [canon_subsection_name canon_title])
+          (#exact-list [canon_subsection_name canon_title canon_id])
+          (#exact-list [canon_subsection_name canon_title canon_id canon_type])
+          (#exact-list [canon_subsection_name canon_title canon_type canon_id])
+          (#exact-list [canon_subsection_name canon_title canon_type])
+        ])
+
+
+4.2.7 Section [id: fmt_imp.blocks.section]
+
+1     A section command begins a new section [ref: model.block.section] in the
+      current context.
+
+      4.2.7.2 Section
+      ───────────────
+
+      data ImperativeSection = ImperativeSection {
+        section_type  :: Maybe String,
+        section_id    :: Maybe ID.T,
+        section_title :: [I.InlineText]
+      } deriving Eq
+
+
+3     The concrete syntax for the command is as follows:
+
+      4.2.7.4 Syntax
+      ──────────────
+
+      imperative_section =
+        (#choice [
+          (#exact-list [canon_section_name canon_title])
+          (#exact-list [canon_section_name canon_title canon_id])
+          (#exact-list [canon_section_name canon_title canon_id canon_type])
+          (#exact-list [canon_section_name canon_title canon_type canon_id])
+          (#exact-list [canon_section_name canon_title canon_type])
+        ])
+
+
+4.2.8 Part [id: fmt_imp.blocks.part]
+
+1     A part command begins a new part [ref: model.block.part] in the current
+      context.
+
+      4.2.8.2 Part
+      ────────────
+
+      data ImperativePart = ImperativePart {
+        part_type  :: Maybe String,
+        part_id    :: Maybe ID.T,
+        part_title :: [I.InlineText]
+      } deriving Eq
+
+
+3     The concrete syntax for the command is as follows:
+
+      4.2.8.4 Syntax
+      ──────────────
+
+      imperative_part =
+        (#choice [
+          (#exact-list [canon_part_name canon_title])
+          (#exact-list [canon_part_name canon_title canon_id])
+          (#exact-list [canon_part_name canon_title canon_id canon_type])
+          (#exact-list [canon_part_name canon_title canon_type canon_id])
+          (#exact-list [canon_part_name canon_title canon_type])
+        ])
+
+
+4.2.9 Document [id: fmt_imp.blocks.document]
+
+1     A document command begins a new document [ref: model.block.document] in
+      the current context.
+
+      4.2.9.2 Document
+      ────────────────
+
+      data ImperativeDocument = ImperativeDocument {
+        document_type  :: Maybe String,
+        document_id    :: Maybe ID.T,
+        document_title :: [I.InlineText]
+      } deriving Eq
+
+
+3     The concrete syntax for the command is as follows:
+
+      4.2.9.4 Syntax
+      ──────────────
+
+      imperative_document =
+        (#choice [
+          (#exact-list [canon_document_name canon_title])
+          (#exact-list [canon_document_name canon_title canon_id])
+          (#exact-list [canon_document_name canon_title canon_id canon_type])
+          (#exact-list [canon_document_name canon_title canon_type canon_id])
+          (#exact-list [canon_document_name canon_title canon_type])
+        ])
+
+
+5 XML Format [id: fmt_xml]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Contents
+  ─────────────────────────────────────────────────────────────────────────────
+  5.1 Overview ............................................... fmt_xml.overview
+  5.2 RELAX-NG Schema .......................................... fmt_xml.schema
+
+
+5.1 Overview [id: fmt_xml.overview]
+
+1     The XML format is defined as a simple encoding of the canonical [ref:
+      fmt_canon] format as XML. Instead of include [ref: model.inline.include]
+      and import [ref: model.block.import] elements, the user is expected to
+      use XInclude [url: https://www.w3.org/TR/xinclude/].
+
+5.2 RELAX-NG Schema [id: fmt_xml.schema]
+
+      5.2.1 Schema
+      ────────────
+
+      <?xml version="1.0" encoding="UTF-8"?>
+      <r:grammar
+        xmlns:s="http://schemas.io7m.com/structural/3.0.0"
+        xmlns:r="http://relaxng.org/ns/structure/1.0"
+        datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+        <r:start combine="choice">
+          <r:ref name="io7m.structural-3_0_0.block_content"/>
+        </r:start>
+
+        <r:define name="io7m.structural-3_0_0.xml-id">
+          <r:attribute name="xml:id">
+            <r:data type="ID"/>
+          </r:attribute>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.standard-attributes">
+          <r:optional>
+            <r:attribute name="xml:base">
+              <r:text/>
+            </r:attribute>
+          </r:optional>
+          <r:optional>
+            <r:attribute name="xml:lang">
+              <r:text/>
+            </r:attribute>
+          </r:optional>
+          <r:optional>
+            <r:attribute name="s:type">
+              <r:data type="token"/>
+            </r:attribute>
+          </r:optional>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.inline_text">
+          <r:text/>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.inline_footnote_ref">
+          <r:element name="s:footnote-ref">
+            <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+            <r:attribute name="s:target">
+              <r:data type="IDREF"/>
+            </r:attribute>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.inline_term">
+          <r:element name="s:term">
+            <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+            <r:zeroOrMore>
+              <r:ref name="io7m.structural-3_0_0.inline_text"/>
+            </r:zeroOrMore>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.inline_verbatim">
+          <r:element name="s:verbatim">
+            <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+            <r:zeroOrMore>
+              <r:ref name="io7m.structural-3_0_0.inline_text"/>
+            </r:zeroOrMore>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.inline_image">
+          <r:element name="s:image">
+            <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+            <r:attribute name="s:target">
+              <r:data type="anyURI"/>
+            </r:attribute>
+            <r:optional>
+              <r:attribute name="s:width">
+                <r:data type="positiveInteger"/>
+              </r:attribute>
+              <r:attribute name="s:height">
+                <r:data type="positiveInteger"/>
+              </r:attribute>
+            </r:optional>
+            <r:text/>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.list_item">
+          <r:element name="s:item">
+            <r:zeroOrMore>
+              <r:ref name="io7m.structural-3_0_0.inline_content"/>
+            </r:zeroOrMore>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.inline_list_ordered">
+          <r:element name="s:list-ordered">
+            <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+            <r:zeroOrMore>
+              <r:ref name="io7m.structural-3_0_0.list_item"/>
+            </r:zeroOrMore>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.inline_list_unordered">
+          <r:element name="s:list-unordered">
+            <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+            <r:zeroOrMore>
+              <r:ref name="io7m.structural-3_0_0.list_item"/>
+            </r:zeroOrMore>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.table_head_column_name">
+          <r:element name="s:name">
+            <r:zeroOrMore>
+              <r:ref name="io7m.structural-3_0_0.inline_text"/>
+            </r:zeroOrMore>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.table_head">
+          <r:element name="s:head">
+            <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+            <r:zeroOrMore>
+              <r:ref name="io7m.structural-3_0_0.table_head_column_name"/>
+            </r:zeroOrMore>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.table_body_cell">
+          <r:element name="s:cell">
+            <r:zeroOrMore>
+              <r:ref name="io7m.structural-3_0_0.inline_content"/>
+            </r:zeroOrMore>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.table_body_row">
+          <r:element name="s:row">
+            <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+            <r:zeroOrMore>
+              <r:ref name="io7m.structural-3_0_0.table_body_cell"/>
+            </r:zeroOrMore>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.table_body">
+          <r:element name="s:body">
+            <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+            <r:zeroOrMore>
+              <r:ref name="io7m.structural-3_0_0.table_body_row"/>
+            </r:zeroOrMore>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.inline_table">
+          <r:element name="s:table">
+            <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+            <r:attribute name="s:summary">
+              <r:text/>
+            </r:attribute>
+            <r:optional>
+              <r:ref name="io7m.structural-3_0_0.table_head"/>
+            </r:optional>
+            <r:ref name="io7m.structural-3_0_0.table_body"/>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.link_content">
+          <r:choice>
+            <r:ref name="io7m.structural-3_0_0.inline_text"/>
+            <r:ref name="io7m.structural-3_0_0.inline_image"/>
+          </r:choice>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.inline_link">
+          <r:element name="s:link">
+            <r:attribute name="s:target">
+              <r:data type="IDREF"/>
+            </r:attribute>
+            <r:zeroOrMore>
+              <r:ref name="io7m.structural-3_0_0.link_content"/>
+            </r:zeroOrMore>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.inline_link_external">
+          <r:element name="s:link-external">
+            <r:attribute name="s:target">
+              <r:data type="anyURI"/>
+            </r:attribute>
+            <r:zeroOrMore>
+              <r:ref name="io7m.structural-3_0_0.link_content"/>
+            </r:zeroOrMore>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.inline_content">
+          <r:choice>
+            <r:ref name="io7m.structural-3_0_0.inline_footnote_ref"/>
+            <r:ref name="io7m.structural-3_0_0.inline_image"/>
+            <r:ref name="io7m.structural-3_0_0.inline_link"/>
+            <r:ref name="io7m.structural-3_0_0.inline_link_external"/>
+            <r:ref name="io7m.structural-3_0_0.inline_list_ordered"/>
+            <r:ref name="io7m.structural-3_0_0.inline_list_unordered"/>
+            <r:ref name="io7m.structural-3_0_0.inline_table"/>
+            <r:ref name="io7m.structural-3_0_0.inline_term"/>
+            <r:ref name="io7m.structural-3_0_0.inline_text"/>
+            <r:ref name="io7m.structural-3_0_0.inline_verbatim"/>
+          </r:choice>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.subsection_content">
+          <r:choice>
+            <r:ref name="io7m.structural-3_0_0.footnote"/>
+            <r:ref name="io7m.structural-3_0_0.formal_item"/>
+            <r:ref name="io7m.structural-3_0_0.paragraph"/>
+          </r:choice>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.paragraph">
+          <r:element name="s:paragraph">
+            <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+            <r:optional>
+              <r:ref name="io7m.structural-3_0_0.xml-id"/>
+            </r:optional>
+            <r:zeroOrMore>
+              <r:ref name="io7m.structural-3_0_0.inline_content"/>
+            </r:zeroOrMore>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.formal_item">
+          <r:element name="s:formal-item">
+            <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+            <r:optional>
+              <r:ref name="io7m.structural-3_0_0.xml-id"/>
+            </r:optional>
+            <r:attribute name="s:title">
+              <r:text/>
+            </r:attribute>
+            <r:zeroOrMore>
+              <r:ref name="io7m.structural-3_0_0.inline_content"/>
+            </r:zeroOrMore>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.footnote">
+          <r:element name="s:footnote">
+            <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+            <r:ref name="io7m.structural-3_0_0.xml-id"/>
+            <r:zeroOrMore>
+              <r:ref name="io7m.structural-3_0_0.inline_content"/>
+            </r:zeroOrMore>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.document">
+          <r:element name="s:document">
+            <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+            <r:optional>
+              <r:ref name="io7m.structural-3_0_0.xml-id"/>
+            </r:optional>
+            <r:attribute name="s:title">
+              <r:text/>
+            </r:attribute>
+            <r:choice>
+              <r:zeroOrMore>
+                <r:ref name="io7m.structural-3_0_0.part"/>
+              </r:zeroOrMore>
+              <r:zeroOrMore>
+                <r:ref name="io7m.structural-3_0_0.section"/>
+              </r:zeroOrMore>
+            </r:choice>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.part">
+          <r:element name="s:part">
+            <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+            <r:optional>
+              <r:ref name="io7m.structural-3_0_0.xml-id"/>
+            </r:optional>
+            <r:attribute name="s:title">
+              <r:text/>
+            </r:attribute>
+            <r:choice>
+              <r:zeroOrMore>
+                <r:ref name="io7m.structural-3_0_0.section"/>
+              </r:zeroOrMore>
+            </r:choice>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.section">
+          <r:element name="s:section">
+            <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+            <r:optional>
+              <r:ref name="io7m.structural-3_0_0.xml-id"/>
+            </r:optional>
+            <r:attribute name="s:title">
+              <r:text/>
+            </r:attribute>
+            <r:choice>
+              <r:zeroOrMore>
+                <r:ref name="io7m.structural-3_0_0.subsection"/>
+              </r:zeroOrMore>
+              <r:zeroOrMore>
+                <r:ref name="io7m.structural-3_0_0.subsection_content"/>
+              </r:zeroOrMore>
+            </r:choice>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.subsection">
+          <r:element name="s:subsection">
+            <r:ref name="io7m.structural-3_0_0.standard-attributes"/>
+            <r:optional>
+              <r:ref name="io7m.structural-3_0_0.xml-id"/>
+            </r:optional>
+            <r:attribute name="s:title">
+              <r:text/>
+            </r:attribute>
+            <r:zeroOrMore>
+              <r:ref name="io7m.structural-3_0_0.subsection_content"/>
+            </r:zeroOrMore>
+          </r:element>
+        </r:define>
+
+        <r:define name="io7m.structural-3_0_0.block_content">
+          <r:choice>
+            <r:ref name="io7m.structural-3_0_0.document"/>
+            <r:ref name="io7m.structural-3_0_0.paragraph"/>
+            <r:ref name="io7m.structural-3_0_0.part"/>
+            <r:ref name="io7m.structural-3_0_0.subsection"/>
+            <r:ref name="io7m.structural-3_0_0.section"/>
+            <r:ref name="io7m.structural-3_0_0.footnote"/>
+            <r:ref name="io7m.structural-3_0_0.formal_item"/>
+          </r:choice>
+        </r:define>
+
+      </r:grammar>
+
+
+
+Footnotes
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
