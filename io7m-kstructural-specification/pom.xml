@@ -128,6 +128,17 @@
               </cssExtraStyles>
             </configuration>
           </execution>
+          <execution>
+            <id>exec-plain</id>
+            <goals>
+              <goal>compilePlain</goal>
+            </goals>
+            <phase>process-resources</phase>
+            <configuration>
+              <documentFile>${project.build.directory}/specification/specification.sd</documentFile>
+              <outputDirectory>${project.build.directory}/specification/</outputDirectory>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
 
