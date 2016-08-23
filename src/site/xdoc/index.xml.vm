@@ -25,6 +25,7 @@
         <li>XHTML Strict 1.0 output, in single or multi-page forms.</li>
         <li>Produces valid and strongly accessible XHTML, with captions and metadata for screen readers.</li>
         <li>XeLaTeX output for producing PDF and Postscript files.</li>
+        <li>Plain text output for producing attractively typeset plain text files.</li>
         <li>Tables and lists without disastrously ambiguous whitespace-sensitive syntax.</li>
         <li>Write modular documents using the well-behaved and secure-by-default <tt>import</tt> system.</li>
         <li>Full specification of syntax and semantics to ensure that your documents can be validated and can still be opened decades into the future.</li>

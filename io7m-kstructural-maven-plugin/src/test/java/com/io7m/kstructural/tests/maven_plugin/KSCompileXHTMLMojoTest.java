@@ -24,6 +24,7 @@ import org.junit.rules.ExpectedException;
 
 import java.io.File;
 
+import static io.takari.maven.testing.TestResources.assertFilesNotPresent;
 import static io.takari.maven.testing.TestResources.assertFilesPresent;
 import static org.hamcrest.core.Is.isA;
 
@@ -42,7 +43,7 @@ public final class KSCompileXHTMLMojoTest
   public void testNoFile()
     throws Exception
   {
-    final File basedir = this.resources.getBasedir("no-file");
+    final File basedir = this.resources.getBasedir("xhtml-no-file");
     this.expected.expectCause(isA(IllegalArgumentException.class));
     this.maven.executeMojo(basedir, "compileXHTML");
   }
@@ -51,7 +52,7 @@ public final class KSCompileXHTMLMojoTest
   public void testNoOutput()
     throws Exception
   {
-    final File basedir = this.resources.getBasedir("no-output");
+    final File basedir = this.resources.getBasedir("xhtml-no-output");
     this.expected.expectCause(isA(IllegalArgumentException.class));
     this.maven.executeMojo(basedir, "compileXHTML");
   }
@@ -60,7 +61,7 @@ public final class KSCompileXHTMLMojoTest
   public void testNoPagination()
     throws Exception
   {
-    final File basedir = this.resources.getBasedir("no-pagination");
+    final File basedir = this.resources.getBasedir("xhtml-no-pagination");
     this.expected.expectCause(isA(IllegalArgumentException.class));
     this.maven.executeMojo(basedir, "compileXHTML");
   }
@@ -69,7 +70,7 @@ public final class KSCompileXHTMLMojoTest
   public void testTrivial()
     throws Exception
   {
-    final File basedir = this.resources.getBasedir("trivial");
+    final File basedir = this.resources.getBasedir("xhtml-trivial");
     this.maven.executeMojo(basedir, "compileXHTML");
     assertFilesPresent(basedir, "target/out/index-m.xhtml");
     assertFilesPresent(basedir, "target/out/s1.xhtml");
@@ -81,7 +82,7 @@ public final class KSCompileXHTMLMojoTest
   public void testStyles()
     throws Exception
   {
-    final File basedir = this.resources.getBasedir("styles");
+    final File basedir = this.resources.getBasedir("xhtml-styles");
     this.maven.executeMojo(basedir, "compileXHTML");
     assertFilesPresent(basedir, "target/out/index-m.xhtml");
     assertFilesPresent(basedir, "target/out/s1.xhtml");

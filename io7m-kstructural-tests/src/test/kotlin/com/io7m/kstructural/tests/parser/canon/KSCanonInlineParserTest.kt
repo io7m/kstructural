@@ -16,11 +16,6 @@
 
 package com.io7m.kstructural.tests.parser.canon
 
-import com.io7m.jeucreader.UnicodeCharacterReader
-import com.io7m.jsx.lexer.JSXLexer
-import com.io7m.jsx.lexer.JSXLexerConfiguration
-import com.io7m.jsx.parser.JSXParser
-import com.io7m.jsx.parser.JSXParserConfiguration
 import com.io7m.kstructural.core.KSElement.KSInline
 import com.io7m.kstructural.core.KSParse
 import com.io7m.kstructural.core.KSParseContextType
@@ -36,7 +31,6 @@ import org.slf4j.LoggerFactory
 import java.io.StringReader
 import java.nio.file.FileSystem
 import java.nio.file.Path
-import java.nio.file.Paths
 
 class KSCanonInlineParserTest : KSCanonInlineParserContract() {
 

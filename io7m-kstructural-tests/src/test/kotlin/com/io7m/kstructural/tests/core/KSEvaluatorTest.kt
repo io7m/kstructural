@@ -18,10 +18,10 @@ package com.io7m.kstructural.tests.core
 
 import com.io7m.jeucreader.UnicodeCharacterReader
 import com.io7m.jeucreader.UnicodeCharacterReaderPushBackType
+import com.io7m.jsx.api.lexer.JSXLexerConfiguration
+import com.io7m.jsx.api.parser.JSXParserConfiguration
 import com.io7m.jsx.lexer.JSXLexer
-import com.io7m.jsx.lexer.JSXLexerConfiguration
 import com.io7m.jsx.parser.JSXParser
-import com.io7m.jsx.parser.JSXParserConfiguration
 import com.io7m.junreachable.UnreachableCodeException
 import com.io7m.kstructural.core.KSElement
 import com.io7m.kstructural.core.KSElement.KSBlock
@@ -74,14 +74,14 @@ class KSEvaluatorTest : KSEvaluatorContract() {
   }
 
   private fun evaluatorForReader(r : UnicodeCharacterReaderPushBackType) : Evaluator {
-    val lcb = JSXLexerConfiguration.newBuilder()
+    val lcb = JSXLexerConfiguration.builder()
     lcb.setNewlinesInQuotedStrings(true)
     lcb.setSquareBrackets(true)
     val lc = lcb.build()
 
     val lex = JSXLexer.newLexer(lc, r)
-    val pcb = JSXParserConfiguration.newBuilder()
-    pcb.preserveLexicalInformation(true)
+    val pcb = JSXParserConfiguration.builder()
+    pcb.setPreserveLexical(true)
     val pc = pcb.build()
     val p = JSXParser.newParser(pc, lex)
     val ip = KSCanonInlineParser.create(KSIncluder.create(Paths.get("")))

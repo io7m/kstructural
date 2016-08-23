@@ -615,13 +615,22 @@ sealed class KSElement<T>(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       data : T,
-      val content : List<KSInlineText<T>>)
-    : KSElement<T>(position, square, data) {
+      val content : List<KSInlineText<T>>,
+      override val type : Optional<KSType<T>>)
+    : KSElement<T>(position, square, data), KSTypeableType<T> {
 
       override fun toString() : String {
         val sb = StringBuilder()
         sb.append(bracketOpen(square))
         sb.append("name ")
+        if (type.isPresent) {
+          sb.append(" ")
+          sb.append(bracketOpen(square))
+          sb.append("type ")
+          sb.append(type.get())
+          sb.append(bracketClose(square))
+          sb.append(" ")
+        }
         KSTextUtilities.concatenateInto(sb, this.content)
         sb.append(bracketClose(square))
         return sb.toString()
@@ -632,13 +641,22 @@ sealed class KSElement<T>(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       data : T,
-      val column_names : List<KSTableHeadColumnName<T>>)
-    : KSElement<T>(position, square, data) {
+      val column_names : List<KSTableHeadColumnName<T>>,
+      override val type : Optional<KSType<T>>)
+    : KSElement<T>(position, square, data), KSTypeableType<T> {
 
       override fun toString() : String {
         val sb = StringBuilder()
         sb.append(bracketOpen(square))
         sb.append("head ")
+        if (type.isPresent) {
+          sb.append(" ")
+          sb.append(bracketOpen(square))
+          sb.append("type ")
+          sb.append(type.get())
+          sb.append(bracketClose(square))
+          sb.append(" ")
+        }
         KSTextUtilities.concatenateInto(sb, this.column_names)
         sb.append(bracketClose(square))
         return sb.toString()
@@ -649,13 +667,22 @@ sealed class KSElement<T>(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       data : T,
-      val content : List<KSInline<T>>)
-    : KSElement<T>(position, square, data) {
+      val content : List<KSInline<T>>,
+      override val type : Optional<KSType<T>>)
+    : KSElement<T>(position, square, data), KSTypeableType<T> {
 
       override fun toString() : String {
         val sb = StringBuilder()
         sb.append(bracketOpen(square))
         sb.append("cell ")
+        if (type.isPresent) {
+          sb.append(" ")
+          sb.append(bracketOpen(square))
+          sb.append("type ")
+          sb.append(type.get())
+          sb.append(bracketClose(square))
+          sb.append(" ")
+        }
         KSTextUtilities.concatenateInto(sb, this.content)
         sb.append(bracketClose(square))
         return sb.toString()
@@ -666,13 +693,22 @@ sealed class KSElement<T>(
       position : Optional<LexicalPositionType<Path>>,
       square : Boolean,
       data : T,
-      val cells : List<KSTableBodyCell<T>>)
-    : KSElement<T>(position, square, data) {
+      val cells : List<KSTableBodyCell<T>>,
+      override val type : Optional<KSType<T>>)
+    : KSElement<T>(position, square, data), KSTypeableType<T> {
 
       override fun toString() : String {
         val sb = StringBuilder()
         sb.append(bracketOpen(square))
         sb.append("row ")
+        if (type.isPresent) {
+          sb.append(" ")
+          sb.append(bracketOpen(square))
+          sb.append("type ")
+          sb.append(type.get())
+          sb.append(bracketClose(square))
+          sb.append(" ")
+        }
         KSTextUtilities.concatenateInto(sb, this.cells)
         sb.append(bracketClose(square))
         return sb.toString()

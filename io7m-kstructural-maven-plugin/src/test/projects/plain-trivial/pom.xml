@@ -15,10 +15,12 @@
       <plugin>
         <groupId>com.io7m.kstructural</groupId>
         <artifactId>io7m-kstructural-maven-plugin</artifactId>
-        <version>0.1.0</version>
+        <goals>
+          <goal>compilePlain</goal>
+        </goals>
         <configuration>
-          <documentFile>document.sd</documentFile>
-          <outputDirectory>target/out</outputDirectory>
+          <documentFile>${project.basedir}/document.sd</documentFile>
+          <outputDirectory>${project.build.directory}/out</outputDirectory>
         </configuration>
       </plugin>
     </plugins>

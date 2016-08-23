@@ -227,6 +227,7 @@ class KSCanonPrettyPrinter<T> private constructor(
 
   private fun prettyInlineTableBodyRow(e : KSTableBodyRow<T>) : Unit {
     outStartMajor("row", e.square)
+    outType(e.type)
     e.cells.forEachIndexed { cell_index, cell ->
       prettyInlineTableBodyCell(cell)
       if (cell_index + 1 < e.cells.size) {
@@ -238,6 +239,7 @@ class KSCanonPrettyPrinter<T> private constructor(
 
   private fun prettyInlineTableBodyCell(e : KSTableBodyCell<T>) : Unit {
     outStartMinor("cell", e.square)
+    outType(e.type)
     prettyContentMapMinor(e.content, { c -> prettyInline(c) })
     outEnd(e.square)
   }
@@ -256,6 +258,7 @@ class KSCanonPrettyPrinter<T> private constructor(
 
   private fun prettyInlineTableHead(e : KSTableHead<T>) : Unit {
     outStartMajor("head", e.square)
+    outType(e.type)
     e.column_names.forEachIndexed { i, name ->
       prettyInlineTableHeadColumnName(name)
       if (i + 1 < e.column_names.size) {
@@ -268,6 +271,7 @@ class KSCanonPrettyPrinter<T> private constructor(
   private fun prettyInlineTableHeadColumnName(
     e : KSTableHeadColumnName<T>) : Unit {
     outStartMinor("name", e.square)
+    outType(e.type)
     prettyContentMapMinor(e.content, { c -> prettyInline(c) })
     outEnd(e.square)
   }

@@ -1,0 +1,3 @@
+package  : bold
+function : mono
+term     : italic

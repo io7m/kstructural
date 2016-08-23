@@ -75,7 +75,7 @@ abstract class KSXOMSerializerContract {
   @Test fun testTableHead() {
     roundTripInline("""
 <?xml version="1.0" encoding="UTF-8"?>
-<s:table s:summary="A B C" xmlns:s="${NAMESPACE}"><s:head><s:name>A</s:name><s:name>B</s:name><s:name>C</s:name></s:head><s:body><s:row><s:cell>x</s:cell><s:cell>y</s:cell></s:row><s:row><s:cell>x</s:cell><s:cell>y</s:cell></s:row></s:body></s:table>""")
+<s:table s:summary="A B C" xmlns:s="${NAMESPACE}"><s:head s:type="a"><s:name s:type="b">A</s:name><s:name>B</s:name><s:name>C</s:name></s:head><s:body><s:row s:type="c"><s:cell s:type="d">x</s:cell><s:cell>y</s:cell></s:row><s:row><s:cell>x</s:cell><s:cell>y</s:cell></s:row></s:body></s:table>""")
   }
 
   @Test fun testVerbatim() {

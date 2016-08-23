@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.io7m.kstructural</groupId>
   <artifactId>io7m-kstructural</artifactId>
-  <version>0.2.0</version>
+  <version>0.3.0</version>
 
   <packaging>pom</packaging>
   <name>io7m-kstructural</name>
@@ -23,6 +23,7 @@
     <module>io7m-kstructural-latex</module>
     <module>io7m-kstructural-maven-plugin</module>
     <module>io7m-kstructural-parser</module>
+    <module>io7m-kstructural-plain</module>
     <module>io7m-kstructural-pretty</module>
     <module>io7m-kstructural-schema</module>
     <module>io7m-kstructural-specification</module>
@@ -35,7 +36,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <siteReposDirectory>/com/io7m/kstructural</siteReposDirectory>
     <siteDocumentationDirectory>/com/io7m/kstructural/io7m-kstructural-documentation</siteDocumentationDirectory>
-    <kotlin.version>1.0.1-2</kotlin.version>
+    <kotlin.version>1.0.3</kotlin.version>
   </properties>
 
   <licenses>
@@ -116,17 +117,22 @@
       <dependency>
         <groupId>com.io7m.jsx</groupId>
         <artifactId>io7m-jsx-core</artifactId>
-        <version>0.5.1</version>
+        <version>0.6.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jsx</groupId>
+        <artifactId>io7m-jsx-parser-api</artifactId>
+        <version>0.6.0</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jsx</groupId>
         <artifactId>io7m-jsx-parser</artifactId>
-        <version>0.5.1</version>
+        <version>0.6.0</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jsx</groupId>
         <artifactId>io7m-jsx-prettyprint</artifactId>
-        <version>0.5.1</version>
+        <version>0.6.0</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jlexing</groupId>
@@ -134,14 +140,35 @@
         <version>0.1.1</version>
       </dependency>
       <dependency>
-        <groupId>org.valid4j</groupId>
-        <artifactId>valid4j</artifactId>
-        <version>0.4.0</version>
-      </dependency>
-      <dependency>
         <groupId>com.io7m.jpplib</groupId>
         <artifactId>io7m-jpplib-core</artifactId>
-        <version>0.7.1</version>
+        <version>0.7.2</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jpita</groupId>
+        <artifactId>io7m-jpita-core</artifactId>
+        <version>0.2.1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jboxes</groupId>
+        <artifactId>io7m-jboxes-core</artifactId>
+        <version>0.2.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jorchard</groupId>
+        <artifactId>io7m-jorchard-core</artifactId>
+        <version>0.2.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jptbox</groupId>
+        <artifactId>io7m-jptbox-core</artifactId>
+        <version>0.1.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.valid4j</groupId>
+        <artifactId>valid4j</artifactId>
+        <version>0.5.0</version>
       </dependency>
       <dependency>
         <groupId>org.jgrapht</groupId>
@@ -172,17 +199,17 @@
       <dependency>
         <groupId>commons-cli</groupId>
         <artifactId>commons-cli</artifactId>
-        <version>1.2</version>
+        <version>1.3.1</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>1.7.12</version>
+        <version>1.7.21</version>
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.1.3</version>
+        <version>1.1.7</version>
       </dependency>
       <dependency>
         <groupId>org.jetbrains.kotlin</groupId>
@@ -231,7 +258,7 @@
       <dependency>
         <groupId>io.takari.maven.plugins</groupId>
         <artifactId>takari-plugin-testing</artifactId>
-        <version>2.0.0</version>
+        <version>2.9.0</version>
       </dependency>
       <dependency>
         <groupId>junit</groupId>
@@ -251,7 +278,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>2.8</version>
+        <version>2.9</version>
         <configuration>
           <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
         </configuration>
@@ -259,7 +286,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <version>3.4</version>
+        <version>3.5.1</version>
         <configuration>
           <validate>true</validate>
         </configuration>
@@ -290,7 +317,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-clean-plugin</artifactId>
-          <version>2.6.1</version>
+          <version>3.0.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -305,12 +332,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>2.7</version>
+          <version>3.0.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
-          <version>2.4</version>
+          <version>3.0.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -320,7 +347,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.18.1</version>
+          <version>2.19.1</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
           </configuration>
@@ -330,7 +357,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>2.15</version>
+          <version>2.17</version>
           <dependencies>
             <dependency>
               <groupId>${project.groupId}</groupId>
@@ -363,7 +390,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>2.5.5</version>
+          <version>2.6</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -403,7 +430,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.3</version>
+          <version>3.5.1</version>
           <configuration>
             <source>1.8</source>
             <target>1.8</target>
@@ -414,7 +441,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>2.6</version>
+          <version>3.0.0</version>
           <executions>
             <!-- Produce jar file with custom manifest -->
             <execution>
@@ -472,7 +499,7 @@
         <plugin>
           <groupId>org.sonatype.plugins</groupId>
           <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>1.6.5</version>
+          <version>1.6.7</version>
           <extensions>true</extensions>
           <configuration>
             <serverId>sonatype-nexus-staging</serverId>

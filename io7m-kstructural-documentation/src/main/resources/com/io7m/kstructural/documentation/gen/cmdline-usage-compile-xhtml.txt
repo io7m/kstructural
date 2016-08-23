@@ -1,41 +1,40 @@
-    compile-xhtml      Compile documents to XHTML
-      Usage: compile-xhtml [options]
-        Options:
-          -brand-bottom
-             Append the contents of the given XML file to each XHTML page's body
-             element
-          -brand-top
-             Prepend the contents of the given XML file to each XHTML page's
-             body element
-          -css-create-default
-             Create the default CSS files in the output directory
-             Default: true
-          -css-extra-styles
-             A comma-separated list of extra CSS styles (as URIs) that will be
-             used for each page
-             Default: []
-          -css-include-default
-             Include links to the default CSS files
-             Default: true
-        * -file
-             Input file
-        * -output-dir
-             The directory in which output files will be written
-          -pagination
-             The type of XHTML pagination that will be used
-             Default: multi
-             Possible Values: [single, multi]
-          -render-toc-document
-             Render a table of contents at the document level
-             Default: true
-          -render-toc-part
-             Render a table of contents at the part level
-             Default: true
-          -render-toc-section
-             Render a table of contents at the section level
-             Default: true
-          -verbose
-             Set the minimum logging verbosity level
-             Default: info
-             Possible Values: [trace, debug, info, warn, error]
-
+compile-xhtml      Compile documents to XHTML
+  Usage: compile-xhtml [options]
+    Options:
+      -brand-bottom
+         Append the contents of the given XML file to each XHTML page's body
+         element
+      -brand-top
+         Prepend the contents of the given XML file to each XHTML page's
+         body element
+      -css-create-default
+         Create the default CSS files in the output directory
+         Default: true
+      -css-extra-styles
+         A comma-separated list of extra CSS styles (as URIs) that will be
+         used for each page
+         Default: []
+      -css-include-default
+         Include links to the default CSS files
+         Default: true
+    * -file
+         Input file
+    * -output-dir
+         The directory in which output files will be written
+      -pagination
+         The type of XHTML pagination that will be used
+         Default: multi
+         Possible Values: [single, multi]
+      -render-toc-document
+         Render a table of contents at the document level
+         Default: true
+      -render-toc-part
+         Render a table of contents at the part level
+         Default: true
+      -render-toc-section
+         Render a table of contents at the section level
+         Default: true
+      -verbose
+         Set the minimum logging verbosity level
+         Default: info
+         Possible Values: [trace, debug, info, warn, error]

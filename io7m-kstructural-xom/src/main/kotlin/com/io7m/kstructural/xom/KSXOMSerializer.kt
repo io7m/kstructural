@@ -122,18 +122,21 @@ class KSXOMSerializer<T> private constructor(
 
   private fun serializeTableBodyRow(e : KSTableBodyRow<T>) : Node {
     val xe = Element("s:row", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    addType(e.type, xe)
     e.cells.map { c -> xe.appendChild(serializeTableBodyCell(c)) }
     return xe
   }
 
   private fun serializeTableBodyCell(e : KSTableBodyCell<T>) : Node {
     val xe = Element("s:cell", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    addType(e.type, xe)
     KSXOMSpacing.appendWithSpace(xe, e.content, { c -> serializeInline(c) })
     return xe
   }
 
   private fun serializeTableHead(e : KSTableHead<T>) : Node {
     val xe = Element("s:head", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    addType(e.type, xe)
     e.column_names.map { c -> xe.appendChild(serializeTableHeadColumnName(c)) }
     return xe
   }
@@ -154,6 +157,7 @@ class KSXOMSerializer<T> private constructor(
 
   private fun serializeTableHeadColumnName(e : KSTableHeadColumnName<T>) : Node {
     val xe = Element("s:name", KSSchemaNamespaces.NAMESPACE_URI_TEXT)
+    addType(e.type, xe)
     KSXOMSpacing.appendWithSpace(xe, e.content, { c -> serializeInline(c) })
     return xe
   }

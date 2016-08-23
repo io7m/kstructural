@@ -157,6 +157,9 @@ class KSImperativePrettyPrinter<T> private constructor(
 
   private fun prettyInlineTableBodyRow(e : KSTableBodyRow<T>) : Unit {
     outStartMajor("row", e.square)
+    outType(e.type)
+    e.type.ifPresent { layout.brk(1, 0) }
+
     e.cells.forEachIndexed { cell_index, cell ->
       prettyInlineTableBodyCell(cell)
       if (cell_index + 1 < e.cells.size) {
@@ -168,6 +171,9 @@ class KSImperativePrettyPrinter<T> private constructor(
 
   private fun prettyInlineTableBodyCell(e : KSTableBodyCell<T>) : Unit {
     outStart("cell", e.square, space = e.content.isNotEmpty())
+    outType(e.type)
+    e.type.ifPresent { layout.brk(1, 0) }
+
     prettyContentMapInline(e.content, { c -> prettyInline(c) })
     outEnd(e.square, newline = false)
   }
@@ -186,6 +192,9 @@ class KSImperativePrettyPrinter<T> private constructor(
 
   private fun prettyInlineTableHead(e : KSTableHead<T>) : Unit {
     outStartMajor("head", e.square)
+    outType(e.type)
+    e.type.ifPresent { layout.brk(1, 0) }
+
     e.column_names.forEachIndexed { i, name ->
       prettyInlineTableHeadColumnName(name)
       if (i + 1 < e.column_names.size) {
@@ -198,6 +207,8 @@ class KSImperativePrettyPrinter<T> private constructor(
   private fun prettyInlineTableHeadColumnName(
     e : KSTableHeadColumnName<T>) : Unit {
     outStart("name", e.square, space = e.content.isNotEmpty())
+    outType(e.type)
+    e.type.ifPresent { layout.brk(1, 0) }
     prettyContentMapInline(e.content, { c -> prettyInline(c) })
     outEnd(e.square, newline = false)
   }

@@ -16,14 +16,9 @@
 
 package com.io7m.kstructural.frontend;
 
-import com.io7m.kstructural.core.KSElement.KSBlock;
-import com.io7m.kstructural.core.KSParse;
 import com.io7m.kstructural.core.KSParseContextType;
-import com.io7m.kstructural.core.KSParseError;
 import com.io7m.kstructural.core.KSParserDriverConstructorType;
 import com.io7m.kstructural.core.KSParserDriverType;
-import com.io7m.kstructural.core.KSResult;
-import com.io7m.kstructural.core.KSResults;
 import com.io7m.kstructural.parser.canon.KSCanonParserDriver;
 import com.io7m.kstructural.parser.imperative.KSImperativeParserDriver;
 import com.io7m.kstructural.xom.KSXOMXMLParserDriver;
@@ -33,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.util.Optional;
 
 /**
  * The default set of provided parsers.
@@ -74,22 +68,6 @@ public final class KSParsers implements KSParserDriverConstructorType
     final KSParseContextType context)
   {
     return KSCanonParserDriver.newDriver(KSParsers.INSTANCE);
-  }
-
-  private static KSResult<KSBlock<KSParse>, KSParseError> failOutsideBase(
-    final Path file,
-    final Path base)
-  {
-    final StringBuilder sb = new StringBuilder(128);
-    sb.append("Refusing to import file outside of the base directory.");
-    sb.append(System.lineSeparator());
-    sb.append("  Base: ");
-    sb.append(base);
-    sb.append(System.lineSeparator());
-    sb.append("  File: ");
-    sb.append(file);
-    sb.append(System.lineSeparator());
-    return KSResults.fail(new KSParseError(Optional.empty(), "Unexpected EOF"));
   }
 
   /**

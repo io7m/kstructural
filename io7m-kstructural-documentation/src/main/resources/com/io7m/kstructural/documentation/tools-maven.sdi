@@ -1,4 +1,4 @@
-[section [title Maven Plugin Usage]]
+[section [title Maven Plugin Usage] [id tools.maven]]
 [subsection [title Synopsis]]
 [paragraph]
 The [term [type command] kstructural] Maven plugin processes documents during
@@ -6,11 +6,26 @@ a Maven build.
 
 [paragraph]
 The plugin currently exposes the command line's
-[link [target tools.cmdline.compile_xhtml] compile-xhtml]
-command via a [term [type command] compileXHTML] Maven goal to produce XHTML
-documentation during the build. The goal has the exact same behaviour as
-the command-line subcommand, so the command line documentation should be
+[link [target tools.cmdline.compile_xhtml] compile-xhtml],
+[link [target tools.cmdline.compile_latex] compile-latex],
+and [link [target tools.cmdline.compile_plain] compile-plain]
+commands via the
+[term [type command] compileXHTML],
+[term [type command] compileLaTeX], and
+[term [type command] compilePlain]
+Maven goals to produce XHTML, LaTeX, and plain text
+documentation during the build. The goals have the exact same behaviour as
+the command-line subcommands and the parameters have the same names modulo
+differences in casing, so the command line documentation should be
 consulted for information on the behaviour of the parameters.
 
 [formal-item [title Maven Plugin Example]]
 [verbatim [include "maven-example.xml"]]
+
+[subsection [title Skipping] [id tools.maven.skip]]
+[paragraph]
+Set the property [term [type command] kstructural.skip] to [term [type term] true]
+to skip execution of the plugin.
+
+[formal-item [title Skipping Execution]]
+[verbatim "$ mvn -Dkstructural.skip=true clean package"]

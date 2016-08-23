@@ -69,16 +69,23 @@ content.
 In the table below, [term [type term] Metadata] should be taken to mean that
 the language allows for expressing the semantic meaning of the contents of
 the documents, as opposed to just being a series of formatting commands.
+
+[paragraph]
 [term [type term] Semantic Simplicity] is a somewhat subjective "(but" somewhat
 "measurable)" judgement of how simple the conceptual model is of each language.
 An excellent way to measure this aspect of a language is to attempt to come
 up with a definition of an algebraic type that is able to represent a parsed
 and validated document in the given language
 [footnote-ref pkg.orientation.semantic_latex_note].
+
+[paragraph]
 [term [type term] Lightweight Syntax] is an indication of the ratio between
 markup and actual document content. For example, XML is notoriously verbose
 and the text of some documents can often consist more of XML elements than
-actual content. The term [term [type term] Specification] should be taken to
+actual content.
+
+[paragraph]
+The term [term [type term] Specification] should be taken to
 mean that both the language has a complete formal specification of the syntax
 and the underlying semantic model, and that documents can be machine-checked
 against this specification. The important point is: For a given document, can
@@ -90,11 +97,15 @@ machine-checkable specification, then users of that language are
 locked into that implementation of the language perpetually. Languages are
 assigned a value of [term [type term] Informal] if they have at least made an
 attempt at a complete specification even if the specification is ambiguous,
-unimplementable, and/or does not provide any means to check documents. The term
-[term [type term] Portability] should be taken to mean that the language either
-has a platform-independent implementation, or implementations exist for multiple
-platforms [footnote-ref pkg.orientation.portability_note]. The term
-[term [type term] Modular Documents] should be taken to mean that a language
+unimplementable, and/or does not provide any means to check documents.
+
+[paragraph]
+The term [term [type term] Portability] should be taken to mean that the
+language either has a platform-independent implementation, or implementations
+exist for multiple platforms [footnote-ref pkg.orientation.portability_note].
+
+[paragraph]
+The term [term [type term] Modular Documents] should be taken to mean that a language
 provides a way to break documents into multiple files. Languages are assigned
 a value of [term [type term] Import] if they have a language-supported
 system that actually parses external files and performs substitutions into
