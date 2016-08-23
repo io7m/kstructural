@@ -1,4 +1,4 @@
-io7m-kstructural
+kstructural
 ===
 
 [![Build Status](https://travis-ci.org/io7m/kstructural.svg?branch=master)](https://travis-ci.org/io7m/kstructural)
