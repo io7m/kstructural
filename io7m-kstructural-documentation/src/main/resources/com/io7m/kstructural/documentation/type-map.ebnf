@@ -1,0 +1,11 @@
+mapping =
+  term_name , ':' , style ;
+
+term_character =
+  p{isLetter} | p{isNumber}_ ;
+
+term_name =
+  term_character , { term_character } ;
+
+style =
+  "bold" | "mono" | "italic" ;

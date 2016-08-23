@@ -23,11 +23,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 
 import static io.takari.maven.testing.TestResources.assertFilesPresent;
 import static org.hamcrest.core.Is.isA;
 
-public final class KSCompileXHTMLMojoTest
+public final class KSCompileLaTeXMojoTest
 {
   @Rule
   public final TestResources resources = new TestResources();
@@ -42,50 +44,53 @@ public final class KSCompileXHTMLMojoTest
   public void testNoFile()
     throws Exception
   {
-    final File basedir = this.resources.getBasedir("xhtml-no-file");
+    final File basedir = this.resources.getBasedir("latex-no-file");
     this.expected.expectCause(isA(IllegalArgumentException.class));
-    this.maven.executeMojo(basedir, "compileXHTML");
+    this.maven.executeMojo(basedir, "compileLaTeX");
   }
 
   @Test
   public void testNoOutput()
     throws Exception
   {
-    final File basedir = this.resources.getBasedir("xhtml-no-output");
+    final File basedir = this.resources.getBasedir("latex-no-output");
     this.expected.expectCause(isA(IllegalArgumentException.class));
-    this.maven.executeMojo(basedir, "compileXHTML");
-  }
-
-  @Test
-  public void testNoPagination()
-    throws Exception
-  {
-    final File basedir = this.resources.getBasedir("xhtml-no-pagination");
-    this.expected.expectCause(isA(IllegalArgumentException.class));
-    this.maven.executeMojo(basedir, "compileXHTML");
+    this.maven.executeMojo(basedir, "compileLaTeX");
   }
 
   @Test
   public void testTrivial()
     throws Exception
   {
-    final File basedir = this.resources.getBasedir("xhtml-trivial");
-    this.maven.executeMojo(basedir, "compileXHTML");
-    assertFilesPresent(basedir, "target/out/index-m.xhtml");
-    assertFilesPresent(basedir, "target/out/s1.xhtml");
-    assertFilesPresent(basedir, "target/out/kstructural-layout.css");
-    assertFilesPresent(basedir, "target/out/kstructural-colour.css");
+    final File basedir = this.resources.getBasedir("latex-trivial");
+    this.maven.executeMojo(basedir, "compileLaTeX");
+    assertFilesPresent(basedir, "target/out/main.tex");
   }
 
   @Test
-  public void testStyles()
+  public void testTypeMap()
     throws Exception
   {
-    final File basedir = this.resources.getBasedir("xhtml-styles");
-    this.maven.executeMojo(basedir, "compileXHTML");
-    assertFilesPresent(basedir, "target/out/index-m.xhtml");
-    assertFilesPresent(basedir, "target/out/s1.xhtml");
-    assertFilesPresent(basedir, "target/out/kstructural-layout.css");
-    assertFilesPresent(basedir, "target/out/kstructural-colour.css");
+    final File basedir = this.resources.getBasedir("latex-typemap");
+    this.maven.executeMojo(basedir, "compileLaTeX");
+    assertFilesPresent(basedir, "target/out/main.tex");
+  }
+
+  @Test
+  public void testTypeMapMissing()
+    throws Exception
+  {
+    final File basedir = this.resources.getBasedir("latex-typemap-missing");
+    this.expected.expectCause(isA(NoSuchFileException.class));
+    this.maven.executeMojo(basedir, "compileLaTeX");
+  }
+
+  @Test
+  public void testTypeMapInvalid()
+    throws Exception
+  {
+    final File basedir = this.resources.getBasedir("latex-typemap-unparseable");
+    this.expected.expectCause(isA(IOException.class));
+    this.maven.executeMojo(basedir, "compileLaTeX");
   }
 }

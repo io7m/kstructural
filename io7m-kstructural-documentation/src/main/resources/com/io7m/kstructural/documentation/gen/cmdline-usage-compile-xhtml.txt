@@ -38,4 +38,3 @@ compile-xhtml      Compile documents to XHTML
          Set the minimum logging verbosity level
          Default: info
          Possible Values: [trace, debug, info, warn, error]
-

@@ -1,0 +1,11 @@
+compile-plain      Compile documents to plain text
+  Usage: compile-plain [options]
+    Options:
+    * -file
+         Input file
+    * -output-dir
+         The directory in which output files will be written
+      -verbose
+         Set the minimum logging verbosity level
+         Default: info
+         Possible Values: [trace, debug, info, warn, error]

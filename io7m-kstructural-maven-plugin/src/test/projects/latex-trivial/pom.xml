@@ -15,8 +15,12 @@
       <plugin>
         <groupId>com.io7m.kstructural</groupId>
         <artifactId>io7m-kstructural-maven-plugin</artifactId>
-        <version>0.1.0</version>
+        <goals>
+          <goal>compileLaTeX</goal>
+        </goals>
         <configuration>
+          <documentFile>${project.basedir}/document.sd</documentFile>
+          <outputDirectory>${project.build.directory}/out</outputDirectory>
         </configuration>
       </plugin>
     </plugins>

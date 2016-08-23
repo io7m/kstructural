@@ -27,7 +27,7 @@ import java.io.File;
 import static io.takari.maven.testing.TestResources.assertFilesPresent;
 import static org.hamcrest.core.Is.isA;
 
-public final class KSCompileXHTMLMojoTest
+public final class KSCompilePlainMojoTest
 {
   @Rule
   public final TestResources resources = new TestResources();
@@ -42,50 +42,26 @@ public final class KSCompileXHTMLMojoTest
   public void testNoFile()
     throws Exception
   {
-    final File basedir = this.resources.getBasedir("xhtml-no-file");
+    final File basedir = this.resources.getBasedir("plain-no-file");
     this.expected.expectCause(isA(IllegalArgumentException.class));
-    this.maven.executeMojo(basedir, "compileXHTML");
+    this.maven.executeMojo(basedir, "compilePlain");
   }
 
   @Test
   public void testNoOutput()
     throws Exception
   {
-    final File basedir = this.resources.getBasedir("xhtml-no-output");
+    final File basedir = this.resources.getBasedir("plain-no-output");
     this.expected.expectCause(isA(IllegalArgumentException.class));
-    this.maven.executeMojo(basedir, "compileXHTML");
-  }
-
-  @Test
-  public void testNoPagination()
-    throws Exception
-  {
-    final File basedir = this.resources.getBasedir("xhtml-no-pagination");
-    this.expected.expectCause(isA(IllegalArgumentException.class));
-    this.maven.executeMojo(basedir, "compileXHTML");
+    this.maven.executeMojo(basedir, "compilePlain");
   }
 
   @Test
   public void testTrivial()
     throws Exception
   {
-    final File basedir = this.resources.getBasedir("xhtml-trivial");
-    this.maven.executeMojo(basedir, "compileXHTML");
-    assertFilesPresent(basedir, "target/out/index-m.xhtml");
-    assertFilesPresent(basedir, "target/out/s1.xhtml");
-    assertFilesPresent(basedir, "target/out/kstructural-layout.css");
-    assertFilesPresent(basedir, "target/out/kstructural-colour.css");
-  }
-
-  @Test
-  public void testStyles()
-    throws Exception
-  {
-    final File basedir = this.resources.getBasedir("xhtml-styles");
-    this.maven.executeMojo(basedir, "compileXHTML");
-    assertFilesPresent(basedir, "target/out/index-m.xhtml");
-    assertFilesPresent(basedir, "target/out/s1.xhtml");
-    assertFilesPresent(basedir, "target/out/kstructural-layout.css");
-    assertFilesPresent(basedir, "target/out/kstructural-colour.css");
+    final File basedir = this.resources.getBasedir("plain-trivial");
+    this.maven.executeMojo(basedir, "compilePlain");
+    assertFilesPresent(basedir, "target/out/main.txt");
   }
 }

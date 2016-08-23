@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.io7m.kstructural.tests</groupId>
+  <artifactId>nofile</artifactId>
+  <version>0.1.0</version>
+  <packaging>jar</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.io7m.kstructural</groupId>
+        <artifactId>io7m-kstructural-maven-plugin</artifactId>
+        <goals>
+          <goal>compileLaTeX</goal>
+        </goals>
+        <configuration>
+          <documentFile>${project.basedir}/document.sd</documentFile>
+          <outputDirectory>${project.build.directory}/out</outputDirectory>
+          <typeMap>${project.basedir}/types.map</typeMap>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

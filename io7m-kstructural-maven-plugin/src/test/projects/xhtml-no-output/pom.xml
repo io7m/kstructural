@@ -15,7 +15,6 @@
       <plugin>
         <groupId>com.io7m.kstructural</groupId>
         <artifactId>io7m-kstructural-maven-plugin</artifactId>
-        <version>0.1.0</version>
         <configuration>
           <documentFile>document.sd</documentFile>
         </configuration>

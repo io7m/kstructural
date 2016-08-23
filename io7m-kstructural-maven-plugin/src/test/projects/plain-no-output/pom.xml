@@ -15,11 +15,11 @@
       <plugin>
         <groupId>com.io7m.kstructural</groupId>
         <artifactId>io7m-kstructural-maven-plugin</artifactId>
-        <version>0.1.0</version>
+        <goals>
+          <goal>compilePlain</goal>
+        </goals>
         <configuration>
-          <documentFile>${project.basedir}/document.sd</documentFile>
-          <outputDirectory>${project.build.directory}/out</outputDirectory>
-          <pagination>XHTML_MULTI_PAGE</pagination>
+          <documentFile>document.sd</documentFile>
         </configuration>
       </plugin>
     </plugins>
