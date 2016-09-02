@@ -87,7 +87,7 @@
   </c:release>
 
   <c:ticket-system xml:id="com.github.io7m.kstructural">
-    <c:ticket-url>https://github.com/io7m/kstructural/issues</c:ticket-url>
+    <c:ticket-url>https://github.com/io7m/kstructural/issues/</c:ticket-url>
   </c:ticket-system>
 
 </c:changelog>
