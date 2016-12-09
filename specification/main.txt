@@ -80,6 +80,7 @@ Structural 3.0.0 Language Specification
         | "[" , { expression } , "]"
         | "(" , { expression } , ")" ;
 
+
 3     The sequences U+000D U+000A and U+000A are recognized as line terminators
       for the purposes of tracking line and column numbers for diagnostic
       messages. Bare U+000D characters are not permitted to appear outside of
@@ -136,6 +137,7 @@ Structural 3.0.0 Language Specification
         "a" | "A" | "b" | "B" | "c" | "C" | "d" | "D" | "e" | "E" | "f" | "F" ;
 
 
+
 6     Due to limitations in the EBNF [url:
       https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_Form] format,
       the definitions for symbol_character and quoted_character cannot be
@@ -176,6 +178,7 @@ Structural 3.0.0 Language Specification
 
 
 
+
 3     The s-expression syntax of each rule may be inferred from the given Show
       instance:
 
@@ -191,6 +194,7 @@ Structural 3.0.0 Language Specification
         show  MAnyList           = "#any-list"
         show (MChoice s)         = "(#choice [" ++ (concatMap show s) ++ "])"
         show (MListVariadic s m) = "(#variadic [" ++ (concatMap show s) ++ "]" ++ (show m) ++ ")"
+
 
 
 
@@ -218,6 +222,7 @@ Structural 3.0.0 Language Specification
         and the remaining elements in e match r. Accordingly, the rule
         (#variadic () r) will check that every element of a given list matches
         r, and will always match for a given empty list.
+
 
 
 7     Matching an arbitrary s-expression against a rule is a simple matter of
@@ -267,6 +272,7 @@ Structural 3.0.0 Language Specification
       matches e (MChoice m0)= 1 == length (filter (matches e) m0)
 
 
+
 1.5.3 Examples
 
 1     This section is informative. These results can be reproduced by
@@ -284,6 +290,7 @@ Structural 3.0.0 Language Specification
       False
 
 
+
 4     The expression (x y z) is matched by the rule
       (#exact-list (#exact-symbol "x") (#exact-symbol "y") (#exact-symbol "z")),
       but (x y y) and (x y) are not:
@@ -297,6 +304,7 @@ Structural 3.0.0 Language Specification
       False
       > matches (SE.EList [SE.ESymbol "x", SE.ESymbol "y"]) (MExactList [MExactSymbol "x", MExactSymbol "y", MExactSymbol "z"])
       False
+
 
 2 Model [id: model]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -367,6 +375,7 @@ Structural 3.0.0 Language Specification
         deriving Eq
 
 
+
 2.2.2 Types [id: model.inline.types]
 
 1     Most elements defined here may have an associated type parameter that can
@@ -391,6 +400,7 @@ Structural 3.0.0 Language Specification
         type_character , { type_character } ;
 
 
+
 2.2.3 Text [id: model.inline.text]
 
 1     The simplest type of inline content that appears in structural documents
@@ -402,6 +412,7 @@ Structural 3.0.0 Language Specification
       data InlineText =
         InlineText String
         deriving Eq
+
 
 
 
@@ -417,6 +428,7 @@ Structural 3.0.0 Language Specification
         termType    :: Maybe String,
         termContent :: [InlineText]
       } deriving Eq
+
 
 
 3     As shown by the type definition, values of type InlineTerm may have an
@@ -441,6 +453,7 @@ Structural 3.0.0 Language Specification
       } deriving Eq
 
 
+
 3     As shown by the type definition, values of type InlineImage may have an
       associated optional type [ref: model.inline.types] parameter value.
 
@@ -456,6 +469,7 @@ Structural 3.0.0 Language Specification
         verbatimType    :: Maybe String,
         verbatimContent :: InlineText
       } deriving Eq
+
 
 
 3     As shown by the type definition, values of type InlineVerbatim may have
@@ -477,6 +491,7 @@ Structural 3.0.0 Language Specification
       } deriving Eq
 
 
+
 3     Only a restricted subset of the available inline content types are
       allowed to appear as descendants of links. The subset is described by the
       LinkContent type:
@@ -491,6 +506,7 @@ Structural 3.0.0 Language Specification
 
 
 
+
 2.2.8 Link External [id: model.inline.link_external]
 
 1     The InlineLinkExternal type denotes a link to an external resource.
@@ -502,6 +518,7 @@ Structural 3.0.0 Language Specification
         linkExternalTarget  :: URI.T,
         linkExternalContent :: [LinkContent]
       } deriving Eq
+
 
 
 2.2.9 Footnote Reference [id: model.inline.footnote_ref]
@@ -521,6 +538,7 @@ Structural 3.0.0 Language Specification
 
 
 
+
 2.2.10 Ordered List [id: model.inline.list_ordered]
 
 1     The InlineListOrdered type denotes a list of elements that should be
@@ -535,12 +553,14 @@ Structural 3.0.0 Language Specification
       } deriving Eq
 
 
+
       2.2.10.3 Ordered List
       ─────────────────────
 
       data InlineListOrdered = InlineListOrdered {
         listOrderedItems :: [ListItem]
       } deriving Eq
+
 
 
 2.2.11 Unordered List [id: model.inline.list_unordered]
@@ -556,6 +576,7 @@ Structural 3.0.0 Language Specification
       } deriving Eq
 
 
+
 2.2.12 Table [id: model.inline.table]
 
 1     The InlineTable type is a relatively complex type that describes a table
@@ -569,12 +590,14 @@ Structural 3.0.0 Language Specification
       } deriving Eq
 
 
+
       2.2.12.3 Table Row
       ──────────────────
 
       data TableRow = TableRow {
         tableRowCells :: [TableCell]
       } deriving Eq
+
 
 
       2.2.12.4 Table
@@ -589,6 +612,7 @@ Structural 3.0.0 Language Specification
 
 
 
+
 5     A table may have an optional head that describes the number and names of
       columns in the table.
 
@@ -598,6 +622,7 @@ Structural 3.0.0 Language Specification
       data TableRow = TableRow {
         tableRowCells :: [TableCell]
       } deriving Eq
+
 
 
 7     Implementations are required to check that, if a head is defined, the
@@ -615,6 +640,7 @@ Structural 3.0.0 Language Specification
             let rows     = tableBodyRows $ tableBody table
                 expected = length $ tableHeadNames th
             in all (\row -> length (tableRowCells row) == expected) rows
+
 
 
 
@@ -639,6 +665,7 @@ Structural 3.0.0 Language Specification
 
 
 
+
 2.2.13 Include [id: model.inline.include]
 
 1     The InlineInclude type denotes a link to an external file. Values of type
@@ -652,6 +679,7 @@ Structural 3.0.0 Language Specification
       data InlineInclude = InlineInclude {
         includeFile :: String
       } deriving Eq
+
 
 
 2.2.14 Complete Inline Model [id: model.inline.complete]
@@ -787,6 +815,7 @@ Structural 3.0.0 Language Specification
         deriving Eq
 
 
+
 2.3 Block Content [id: model.block]
 
 2.3.1 Overview [id: model.block.overview]
@@ -811,6 +840,7 @@ Structural 3.0.0 Language Specification
 
       id =
         id_character , { id_character } ;
+
 
 
 4     An id value k is said to exist if there is exactly one element in the
@@ -877,6 +907,7 @@ Structural 3.0.0 Language Specification
                 Right s -> CM.foldM hasID k s
 
 
+
 6     Implementations are required to check that all id values are unique
       within a document, and that all id values referenced by links within a
       document exist.
@@ -897,6 +928,7 @@ Structural 3.0.0 Language Specification
       }
 
 
+
 2.3.4 Formal Item [id: model.block.formal_item]
 
 1     A formal-item is similar to a paragraph [ref: model.block.paragraph]
@@ -911,6 +943,7 @@ Structural 3.0.0 Language Specification
         formal_title   :: [I.InlineText],
         formal_content :: [I.InlineContent]
       }
+
 
 
 2.3.5 Footnote [id: model.block.footnote]
@@ -932,6 +965,7 @@ Structural 3.0.0 Language Specification
       }
 
 
+
 2.3.6 Subsection [id: model.block.subsection]
 
 1     A subsection is a container for subsection content. A subsection is
@@ -947,6 +981,7 @@ Structural 3.0.0 Language Specification
 
 
 
+
       2.3.6.3 Subsection
       ──────────────────
 
@@ -956,6 +991,7 @@ Structural 3.0.0 Language Specification
         subsection_title   :: [I.InlineText],
         subsection_content :: [SubsectionContent]
       }
+
 
 
 2.3.7 Section [id: model.block.section]
@@ -976,6 +1012,7 @@ Structural 3.0.0 Language Specification
       }
 
 
+
 2.3.8 Part [id: model.block.part]
 
 1     A part is a container for sections [ref: model.block.section]. A part is
@@ -990,6 +1027,7 @@ Structural 3.0.0 Language Specification
         part_title   :: [I.InlineText],
         part_content :: [BlockSection]
       }
+
 
 
 2.3.9 Document [id: model.block.document]
@@ -1010,6 +1048,7 @@ Structural 3.0.0 Language Specification
       }
 
 
+
 2.3.10 Import [id: model.block.import]
 
 1     An import is somewhat analogous to the inline include [ref:
@@ -1023,6 +1062,7 @@ Structural 3.0.0 Language Specification
       data BlockImport = BlockImport {
         importFile :: String
       }
+
 
 
 3 Canonical Format [id: fmt_canon]
@@ -1084,6 +1124,7 @@ Structural 3.0.0 Language Specification
         ])
 
 
+
 3.2.2 Text [id: fmt_canon.inlines.text]
 
 1     The concrete syntax specified here maps text to values of the InlineText
@@ -1100,6 +1141,7 @@ Structural 3.0.0 Language Specification
 
       canon_text_or_include =
         (#choice [canon_text canon_include])
+
 
 3.2.3 Term [id: fmt_canon.inlines.term]
 
@@ -1120,6 +1162,7 @@ Structural 3.0.0 Language Specification
           (#variadic [canon_term_name] canon_text_or_include)
           (#variadic [canon_term_name canon_type] canon_text_or_include)
         ])
+
 
 
 3.2.4 Image [id: fmt_canon.inlines.image]
@@ -1148,6 +1191,7 @@ Structural 3.0.0 Language Specification
         ])
 
 
+
 3.2.5 Verbatim [id: fmt_canon.inlines.verbatim]
 
 1     The concrete syntax specified here maps text to values of the
@@ -1166,6 +1210,7 @@ Structural 3.0.0 Language Specification
         ])
 
 
+
 3.2.6 Link [id: fmt_canon.inlines.link]
 
 1     The concrete syntax specified here maps text to values of the
@@ -1179,6 +1224,7 @@ Structural 3.0.0 Language Specification
 
       canon_link =
         (#variadic [canon_link_name canon_target] canon_text_or_include)
+
 
 
 3.2.7 Link External [id: fmt_canon.inlines.link_external]
@@ -1196,6 +1242,7 @@ Structural 3.0.0 Language Specification
         (#variadic [canon_link_external_name canon_target] canon_text_or_include)
 
 
+
 3.2.8 Footnote Reference [id: fmt_canon.inlines.footnote_ref]
 
 1     The concrete syntax specified here maps text to values of the
@@ -1209,6 +1256,7 @@ Structural 3.0.0 Language Specification
 
       canon_footnote_ref =
         (#exact-list canon_footnote_ref_name canon_text)
+
 
 
 3.2.9 Ordered List [id: fmt_canon.inlines.list_ordered]
@@ -1232,6 +1280,7 @@ Structural 3.0.0 Language Specification
         (#variadic [canon_list_ordered_name] canon_list_item)
 
 
+
 3.2.10 Unordered List [id: fmt_canon.inlines.list_unordered]
 
 1     The concrete syntax specified here maps text to values of the
@@ -1245,6 +1294,7 @@ Structural 3.0.0 Language Specification
 
       canon_list_unordered =
         (#variadic [canon_list_unordered_name] canon_list_item)
+
 
 
 3.2.11 Table [id: fmt_canon.inlines.table]
@@ -1303,6 +1353,7 @@ Structural 3.0.0 Language Specification
         ])
 
 
+
 3.2.12 Include [id: fmt_canon.inlines.include]
 
 1     The concrete syntax specified here maps text to values of the
@@ -1316,6 +1367,7 @@ Structural 3.0.0 Language Specification
 
       canon_include =
         (#exact-list [canon_include_name #any-quoted])
+
 
 
 3.3 Block Elements [id: fmt_canon.blocks]
@@ -1347,6 +1399,7 @@ Structural 3.0.0 Language Specification
         ])
 
 
+
 3.3.2 Formal Item [id: fmt_canon.blocks.formal_item]
 
 1     The concrete syntax specified here maps text to values of the
@@ -1374,6 +1427,7 @@ Structural 3.0.0 Language Specification
         ])
 
 
+
 3.3.3 Footnote [id: fmt_canon.blocks.footnote]
 
 1     The concrete syntax specified here maps text to values of the
@@ -1390,6 +1444,7 @@ Structural 3.0.0 Language Specification
           (#variadic [canon_footnote_name canon_id] canon_inline)
           (#variadic [canon_footnote_name canon_id canon_type] canon_inline)
         ])
+
 
 
 3.3.4 Subsection [id: fmt_canon.blocks.subsection]
@@ -1416,6 +1471,7 @@ Structural 3.0.0 Language Specification
         ])
 
 
+
 3.3.5 Section [id: fmt_canon.blocks.section]
 
 1     The concrete syntax specified here maps text to values of the
@@ -1440,6 +1496,7 @@ Structural 3.0.0 Language Specification
         ])
 
 
+
 3.3.6 Part [id: fmt_canon.blocks.part]
 
 1     The concrete syntax specified here maps text to values of the BlockPart
@@ -1459,6 +1516,7 @@ Structural 3.0.0 Language Specification
           (#variadic [canon_part_name canon_title canon_type canon_id] canon_section)
           (#variadic [canon_part_name canon_title canon_type] canon_section)
         ])
+
 
 
 3.3.7 Document [id: fmt_canon.blocks.document]
@@ -1485,6 +1543,7 @@ Structural 3.0.0 Language Specification
         ])
 
 
+
 3.3.8 Import [id: fmt_canon.blocks.import]
 
 1     The concrete syntax specified here maps text to values of the BlockImport
@@ -1498,6 +1557,7 @@ Structural 3.0.0 Language Specification
 
       canon_import =
         (#exact-list [canon_import_name canon_text])
+
 
 
 4 Imperative Format [id: fmt_imp]
@@ -1558,6 +1618,7 @@ Structural 3.0.0 Language Specification
       This is some content for the first paragraph of the next section.
 
 
+
 3     An imperative command may take one of the following forms:
 
       4.2.1.4 Imperative Commands
@@ -1573,6 +1634,7 @@ Structural 3.0.0 Language Specification
         | ICDocument   ImperativeDocument
         | ICImport     ImperativeImport
         deriving Eq
+
 
 
 
@@ -1646,6 +1708,7 @@ Structural 3.0.0 Language Specification
         compare (ICImport i) e = compare (importContent i) e
         compare e (ICImport i) = compare e (importContent i)
 
+
 3     The importContent function is a function that maps import blocks to their
       imported content. This is a function of the actual language
       implementation and so is left undefined in this specification.
@@ -1655,6 +1718,7 @@ Structural 3.0.0 Language Specification
 
       importContent :: ImperativeImport -> ImperativeContent
       importContent _ = undefined
+
 
 
 
@@ -1672,6 +1736,7 @@ Structural 3.0.0 Language Specification
       } deriving Eq
 
 
+
 3     The concrete syntax for the command is as follows:
 
       4.2.3.4 Syntax
@@ -1685,6 +1750,7 @@ Structural 3.0.0 Language Specification
           (#exact-list [canon_paragraph_name canon_type canon_id])
           (#exact-list [canon_paragraph_name canon_type])
         ])
+
 
 
 4.2.4 Formal Item [id: fmt_imp.blocks.formal_item]
@@ -1702,6 +1768,7 @@ Structural 3.0.0 Language Specification
       } deriving Eq
 
 
+
 3     The concrete syntax for the command is as follows:
 
       4.2.4.4 Syntax
@@ -1715,6 +1782,7 @@ Structural 3.0.0 Language Specification
           (#exact-list [canon_formal_item_name canon_title canon_type canon_id])
           (#exact-list [canon_formal_item_name canon_title canon_type])
         ])
+
 
 
 4.2.5 Footnote [id: fmt_imp.blocks.footnote]
@@ -1731,6 +1799,7 @@ Structural 3.0.0 Language Specification
       } deriving Eq
 
 
+
 3     The concrete syntax for the command is as follows:
 
       4.2.5.4 Syntax
@@ -1741,6 +1810,7 @@ Structural 3.0.0 Language Specification
           (#exact-list [canon_footnote_name canon_id])
           (#exact-list [canon_footnote_name canon_id canon_type])
         ])
+
 
 
 4.2.6 Subsection [id: fmt_imp.blocks.subsection]
@@ -1758,6 +1828,7 @@ Structural 3.0.0 Language Specification
       } deriving Eq
 
 
+
 3     The concrete syntax for the command is as follows:
 
       4.2.6.4 Syntax
@@ -1771,6 +1842,7 @@ Structural 3.0.0 Language Specification
           (#exact-list [canon_subsection_name canon_title canon_type canon_id])
           (#exact-list [canon_subsection_name canon_title canon_type])
         ])
+
 
 
 4.2.7 Section [id: fmt_imp.blocks.section]
@@ -1788,6 +1860,7 @@ Structural 3.0.0 Language Specification
       } deriving Eq
 
 
+
 3     The concrete syntax for the command is as follows:
 
       4.2.7.4 Syntax
@@ -1801,6 +1874,7 @@ Structural 3.0.0 Language Specification
           (#exact-list [canon_section_name canon_title canon_type canon_id])
           (#exact-list [canon_section_name canon_title canon_type])
         ])
+
 
 
 4.2.8 Part [id: fmt_imp.blocks.part]
@@ -1818,6 +1892,7 @@ Structural 3.0.0 Language Specification
       } deriving Eq
 
 
+
 3     The concrete syntax for the command is as follows:
 
       4.2.8.4 Syntax
@@ -1831,6 +1906,7 @@ Structural 3.0.0 Language Specification
           (#exact-list [canon_part_name canon_title canon_type canon_id])
           (#exact-list [canon_part_name canon_title canon_type])
         ])
+
 
 
 4.2.9 Document [id: fmt_imp.blocks.document]
@@ -1848,6 +1924,7 @@ Structural 3.0.0 Language Specification
       } deriving Eq
 
 
+
 3     The concrete syntax for the command is as follows:
 
       4.2.9.4 Syntax
@@ -1861,6 +1938,7 @@ Structural 3.0.0 Language Specification
           (#exact-list [canon_document_name canon_title canon_type canon_id])
           (#exact-list [canon_document_name canon_title canon_type])
         ])
+
 
 
 5 XML Format [id: fmt_xml]
@@ -2223,6 +2301,7 @@ Structural 3.0.0 Language Specification
         </r:define>
 
       </r:grammar>
+
 
 
 

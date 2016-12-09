@@ -1,4 +1,4 @@
-[document [title io7m-kstructural 0.3.0 Documentation]
+[document [title io7m-kstructural 0.3.1 Documentation]
   [import "pkg.sdi"]
   [import "tutorial.sdi"]
   [import "tools.sdi"]

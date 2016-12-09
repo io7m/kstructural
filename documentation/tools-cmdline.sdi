@@ -7,12 +7,12 @@ The [term [type command] kstructural] command processes
 
 [paragraph]
 The command line tool is distributed as part of the executable
-[term [type file] "io7m-kstructural-cmdline-0.3.0-main.jar"]
+[term [type file] "io7m-kstructural-cmdline-0.3.1-main.jar"]
 file "(referred" to as [term [type command] "kstructural.jar"] in usage examples,
 for "brevity):"
 
 [paragraph]
-[verbatim [type terminal] "$ java -jar io7m-kstructural-cmdline-0.3.0-main.jar"]
+[verbatim [type terminal] "$ java -jar io7m-kstructural-cmdline-0.3.1-main.jar"]
 
 [subsection [title check] [id tools.cmdline.check]]
 [paragraph]
