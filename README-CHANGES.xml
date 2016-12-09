@@ -11,6 +11,12 @@
       <c:ticket>59</c:ticket>
       <c:summary>Correct off-by-one error in plain text output.</c:summary>
     </c:item>
+    <c:item>
+      <c:date>2016-12-09</c:date>
+      <c:type-code-fix/>
+      <c:ticket>57</c:ticket>
+      <c:summary>Tables of content were not generated for sections-only documents with the plain text output.</c:summary>
+    </c:item>
   </c:release>
 
   <c:release c:ticket-system="com.github.io7m.kstructural">
