@@ -406,7 +406,7 @@ internal object KSXOM {
     classes.add(prefixedName("list_ordered"))
     val classes_text = KSTextUtilities.concatenate(classes)
 
-    val sc = Element("ul", XHTML_URI_TEXT)
+    val sc = Element("ol", XHTML_URI_TEXT)
     sc.addAttribute(attr("class", classes_text))
     c.content.forEach { i ->
       val ie = Element("li", XHTML_URI_TEXT)
