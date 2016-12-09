@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.io7m.kstructural</groupId>
     <artifactId>io7m-kstructural</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
   </parent>
   <artifactId>io7m-kstructural-specification</artifactId>
 
@@ -126,6 +126,17 @@
               <cssExtraStyles>
                 <param>specification.css</param>
               </cssExtraStyles>
+            </configuration>
+          </execution>
+          <execution>
+            <id>exec-plain</id>
+            <goals>
+              <goal>compilePlain</goal>
+            </goals>
+            <phase>process-resources</phase>
+            <configuration>
+              <documentFile>${project.build.directory}/specification/specification.sd</documentFile>
+              <outputDirectory>${project.build.directory}/specification/</outputDirectory>
             </configuration>
           </execution>
         </executions>

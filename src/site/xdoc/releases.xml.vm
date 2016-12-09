@@ -35,6 +35,7 @@
       <ul>
         <li><a href="specification/index-m.xhtml">XHTML - one page per section</a></li>
         <li><a href="specification/index.xhtml">XHTML - single page</a></li>
+        <li><a href="specification/main.txt">UTF-8 plain text - single page</a></li>
       </ul>
     </section>
   </body>
