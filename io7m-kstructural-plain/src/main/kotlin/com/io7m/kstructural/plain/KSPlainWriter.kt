@@ -19,6 +19,7 @@ package com.io7m.kstructural.plain
 import com.io7m.jptbox.core.JPTextImages
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithParts
+import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockDocument.KSBlockDocumentWithSections
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockFormalItem
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockParagraph
 import com.io7m.kstructural.core.KSElement.KSBlock.KSBlockPart
@@ -53,13 +54,16 @@ object KSPlainWriter : KSPlainWriterType {
     when (document) {
       is KSBlockDocumentWithParts                    -> {
         if (settings.render_toc_document) {
-          tocDocument(settings, output, document)
+          tocDocumentParts(settings, output, document)
         }
         document.content.forEach { part ->
           writePart(settings, output, part)
         }
       }
-      is KSBlockDocument.KSBlockDocumentWithSections -> {
+      is KSBlockDocumentWithSections -> {
+        if (settings.render_toc_document) {
+          tocDocumentSections(settings, output, document)
+        }
         document.content.forEach { section ->
           writeSection(settings, output, section)
         }
@@ -81,7 +85,7 @@ object KSPlainWriter : KSPlainWriterType {
     }
   }
 
-  private fun tocDocument(
+  private fun tocDocumentParts(
     settings : KSPlainSettings,
     output : Writer,
     document : KSBlockDocumentWithParts<KSEvaluation>) {
@@ -110,6 +114,31 @@ object KSPlainWriter : KSPlainWriterType {
           section.data.number,
           section.title)
       }
+    }
+
+    output.write("\n")
+    output.write("\n")
+  }
+
+  private fun tocDocumentSections(
+    settings : KSPlainSettings,
+    output : Writer,
+    document : KSBlockDocumentWithSections<KSEvaluation>) {
+
+    output.write("  ")
+    output.write("Contents\n")
+    output.write("  ")
+    KSInlineRenderer.dividerLight(output, settings.page_width - 3)
+    output.write("\n")
+
+    document.content.forEach { section ->
+      writeTOCItem(
+        settings,
+        output,
+        2,
+        section.id,
+        section.data.number,
+        section.title)
     }
 
     output.write("\n")
