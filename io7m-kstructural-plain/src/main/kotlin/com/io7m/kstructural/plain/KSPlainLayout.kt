@@ -139,7 +139,7 @@ object KSPlainLayout : KSPlainLayoutType {
       margin_mbox.minimumX(),
       margin_mbox.minimumY(),
       margin_mbox.width(),
-      body_node.value().box.height()))
+      body_node.value().box.height() + 1))
 
     /**
      * Make the whole layout contain the margin and body.
